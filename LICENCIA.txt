@@ -1,0 +1,90 @@
+===============================================================================
+  NOVA AI · Asistente de vuelo por voz para Star Citizen
+  Versión oficial 1.0
+  Copyright (c) 2026 Aaron B. Roldan · Gametag de Star Citizen: 0zzyt0
+  Desarrollado con el motor de IA Claude Opus 5.5 (Anthropic)
+===============================================================================
+
+LICENCIA DE USO: LIBRE USO Y MODIFICACIÓN
+-----------------------------------------
+
+1. Libre uso.
+   Puedes usar NOVA AI de forma gratuita, en tantos equipos como quieras.
+
+2. Libre modificación y distribución.
+   Puedes estudiar el código, modificarlo, adaptarlo a tus necesidades y
+   compartir tus propias versiones.
+
+3. Reconocimiento (te lo pedimos por favor).
+   Si usas este proyecto o lo modificas, menciona de dónde has sacado las
+   ideas y cuál es tu base. Por ejemplo:
+
+       "Basado en NOVA AI, de Aaron B. Roldan (0zzyt0)."
+
+   Mantén también este archivo junto a tu versión, para que quien la reciba
+   sepa de dónde viene y qué derechos de terceros debe respetar.
+
+4. Sin garantía.
+   NOVA AI se ofrece gratis y "tal cual", sin garantías de ningún tipo. Su
+   autor no se hace responsable de pérdidas o daños derivados de su uso,
+   incluidas las sanciones que pudieran producirse dentro del juego. Úsalo con
+   sentido común y respetando las condiciones de uso de Star Citizen.
+
+Esta licencia cubre únicamente el código y los recursos propios de NOVA AI. NO
+cubre el contenido de terceros descrito a continuación, que conserva sus
+propios derechos.
+
+
+DERECHOS DE TERCEROS
+--------------------
+
+Star Citizen®, Squadron 42®, Roberts Space Industries® y Cloud Imperium® son
+marcas registradas de Cloud Imperium Rights LLC. Todas las referencias a Star
+Citizen que aparecen en NOVA AI (logotipos, nombres de naves, personajes,
+objetos, lugares y demás contenidos del juego) pertenecen a sus legítimos
+titulares y están sujetas a sus propios derechos de uso.
+
+NOVA AI es un proyecto de fans, independiente y sin ánimo de lucro. No está
+afiliado, patrocinado ni respaldado por Cloud Imperium Games.
+
+
+FUENTES DE DATOS
+----------------
+
+Las páginas de consulta scmdb.net (https://scmdb.net) y UEX Corp
+(https://uexcorp.space) son propiedad de sus respectivos autores, tienen sus
+propias condiciones de uso y sus contenidos están protegidos.
+
+NOVA AI se limita a consultarlas en línea y a leer la información que
+publican, igual que lo haría cualquier persona desde su navegador:
+
+  - NO modifica, altera ni manipula sus datos.
+  - NO los redistribuye ni los publica en ningún otro lugar: lo que se
+    descarga se guarda solo en el equipo del usuario, para su uso personal.
+    Los datos de scmdb.net (licencia CC BY-NC-ND 4.0) no se incluyen en el
+    programa: se descargan en cada equipo.
+  - NO se atribuye su autoría: todo el mérito de esa información es de
+    quienes la crean y la mantienen.
+
+Lo mismo se aplica a Star Citizen Wiki (https://starcitizen.tools) y a la
+traducción al español de la comunidad, que NOVA AI solo descarga cuando el
+usuario lo acepta.
+
+
+OTROS COMPONENTES
+-----------------
+
+NOVA AI utiliza bibliotecas y servicios de terceros que mantienen sus propias
+licencias y condiciones: Python y sus bibliotecas, Whisper, Piper, las voces de
+Microsoft Edge y los servicios de IA (Google Gemini, Groq, OpenRouter,
+DeepSeek). Los formatos de lectura del Game.log se basan en los proyectos de la
+comunidad all-slain y sc-assistant (licencia MIT).
+
+
+AGRADECIMIENTOS
+---------------
+
+A la Org. Defcorp.
+Gracias a: Faibo, Galleg0, Sr.Scott, AlpacaInTrouble, Lother... y muchos más.
+
+o7

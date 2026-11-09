@@ -1,0 +1,11 @@
+# Nova - lo imprescindible (Python 3.11, 3.12 o 3.13 de 64 bits; NO 3.14 o posterior)
+# Los modulos opcionales (Whisper local, busqueda web, joystick, voces de respaldo, CUDA)
+# los instala INSTALAR.bat por separado: si alguno falla, Nova funciona igual.
+openai>=1.40
+edge-tts>=7.0
+miniaudio>=1.59
+sounddevice>=0.4.6
+numpy>=1.26
+pillow>=10.0
+requests>=2.31
+rapidfuzz>=3.0

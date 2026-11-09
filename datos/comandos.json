@@ -1,0 +1,895 @@
+{
+ "_info": "Comandos de Nova. 'frases' se ejecutan al instante; si no, la IA elige el comando por su nombre y descripción. Teclas = controles por defecto de Star Citizen 4.x. {t} = tratamiento (señor).",
+ "comandos": [
+  {
+   "id": "preparar_vuelo",
+   "nombre": "Preparar nave para el vuelo (Flight Ready)",
+   "categoria": "Despegue y aterrizaje",
+   "descripcion": "Arranca la nave en frío y la deja lista para volar. No despega.",
+   "frases": [
+    "preparar nave",
+    "prepara la nave",
+    "listo para volar",
+    "arranca la nave",
+    "arrancar nave",
+    "enciende la nave",
+    "encender nave",
+    "flight ready"
+   ],
+   "respuestas": [
+    "Sistemas en línea. Lista para volar, {t}.",
+    "Motores calientes y café frío. Lista cuando usted diga, {t}."
+   ],
+   "acciones": [
+    {
+     "tecla": "r",
+     "juego": "v_flightready"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "tren_bajar",
+   "nombre": "Bajar tren de aterrizaje",
+   "categoria": "Despegue y aterrizaje",
+   "descripcion": "Despliega el tren de aterrizaje. Solo el tren: no aterriza ni activa el piloto automático. (La tecla alterna: si ya estaba bajado, lo sube.)",
+   "frases": [
+    "preparar tren de aterrizaje",
+    "prepara el tren de aterrizaje",
+    "bajar tren de aterrizaje",
+    "baja el tren de aterrizaje",
+    "baja el tren",
+    "bajar tren",
+    "despliega el tren",
+    "desplegar tren de aterrizaje",
+    "tren abajo",
+    "saca las patas"
+   ],
+   "respuestas": [
+    "Tren de aterrizaje desplegado, {t}.",
+    "Tren abajo. Patitas fuera."
+   ],
+   "acciones": [
+    {
+     "tecla": "n",
+     "juego": "v_toggle_landing_system"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "tren_subir",
+   "nombre": "Subir tren de aterrizaje",
+   "categoria": "Despegue y aterrizaje",
+   "descripcion": "Recoge el tren de aterrizaje tras despegar. (La tecla alterna.)",
+   "frases": [
+    "subir tren de aterrizaje",
+    "sube el tren de aterrizaje",
+    "sube el tren",
+    "subir tren",
+    "recoge el tren",
+    "recoger tren de aterrizaje",
+    "tren arriba",
+    "mete las patas"
+   ],
+   "respuestas": [
+    "Tren recogido, {t}.",
+    "Tren arriba. Ahora sí parecemos una nave seria."
+   ],
+   "acciones": [
+    {
+     "tecla": "n",
+     "juego": "v_toggle_landing_system"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "aterrizaje_auto",
+   "nombre": "Aterrizaje automático",
+   "categoria": "Despegue y aterrizaje",
+   "descripcion": "Cede el aterrizaje al piloto automático, que posa la nave en la plataforma. Para aterrizar, no solo mover el tren.",
+   "frases": [
+    "aterrizaje automático",
+    "aterriza la nave",
+    "aterriza tú",
+    "autoaterrizaje",
+    "posa la nave"
+   ],
+   "respuestas": [
+    "Aterrizaje automático activado. Tomo los mandos, {t}.",
+    "Aterrizando. Prometo no rayar la pintura."
+   ],
+   "acciones": [
+    {
+     "tecla": "n",
+     "mantener": 2.0,
+     "juego": "v_autoland"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "pedir_permiso",
+   "nombre": "Pedir permiso de aterrizaje/despegue a la torre",
+   "categoria": "Despegue y aterrizaje",
+   "descripcion": "Contacta con el control de tráfico (ATC) para pedir permiso de aterrizaje, despegue o abrir el hangar.",
+   "frases": [
+    "solicitar aterrizaje",
+    "solicita aterrizaje",
+    "pide permiso para aterrizar",
+    "solicitar despegue",
+    "solicita despegue",
+    "pide permiso para despegar",
+    "llama a la torre",
+    "contacta con la torre",
+    "abre el hangar"
+   ],
+   "respuestas": [
+    "Solicitud enviada a la torre, {t}.",
+    "Llamando a control. Espero que esta vez no nos pongan en cola."
+   ],
+   "acciones": [
+    {
+     "tecla": "lalt+n",
+     "juego": "v_atc_request"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "vtol",
+   "nombre": "Alternar modo VTOL",
+   "categoria": "Despegue y aterrizaje",
+   "descripcion": "Gira los propulsores para despegue y aterrizaje vertical (solo naves con VTOL).",
+   "frases": [
+    "modo vtol",
+    "activa vtol",
+    "desactiva vtol",
+    "alternar vtol"
+   ],
+   "respuestas": [
+    "Modo VTOL alternado."
+   ],
+   "acciones": [
+    {
+     "tecla": "k",
+     "juego": "v_vtol_toggle"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "salir_asiento",
+   "nombre": "Levantarse del asiento",
+   "categoria": "Despegue y aterrizaje",
+   "descripcion": "Se levanta del asiento del piloto.",
+   "frases": [
+    "salir del asiento",
+    "levántate",
+    "levantarse"
+   ],
+   "respuestas": [
+    "Saliendo del asiento. Estírese un poco, {t}."
+   ],
+   "acciones": [
+    {
+     "tecla": "y",
+     "mantener": 1.2,
+     "juego": "pl_exit"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "escudos_on",
+   "nombre": "Activar escudos",
+   "categoria": "Energía y sistemas",
+   "descripcion": "Enciende la energía de los escudos. (La tecla alterna: si ya estaban activos, los apaga.)",
+   "frases": [
+    "activar escudos",
+    "activa escudos",
+    "activa los escudos",
+    "escudos arriba",
+    "levanta escudos",
+    "levantar escudos",
+    "sube escudos"
+   ],
+   "respuestas": [
+    "Escudos activados, {t}.",
+    "Escudos arriba. Que piquen ahora."
+   ],
+   "acciones": [
+    {
+     "tecla": "o",
+     "juego": "v_power_toggle_shields"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "escudos_off",
+   "nombre": "Desactivar escudos",
+   "categoria": "Energía y sistemas",
+   "descripcion": "Apaga la energía de los escudos. (La tecla alterna.)",
+   "frases": [
+    "desactivar escudos",
+    "desactiva escudos",
+    "desactiva los escudos",
+    "escudos abajo",
+    "baja escudos",
+    "bajar escudos",
+    "apaga escudos"
+   ],
+   "respuestas": [
+    "Escudos desactivados.",
+    "Escudos abajo. Ahora vamos a pecho descubierto, {t}."
+   ],
+   "acciones": [
+    {
+     "tecla": "o",
+     "juego": "v_power_toggle_shields"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "energia_on",
+   "nombre": "Activar energía principal",
+   "categoria": "Energía y sistemas",
+   "descripcion": "Enciende la energía principal: todos los sistemas a la vez.",
+   "frases": [
+    "activar energía",
+    "activa la energía",
+    "encender energía",
+    "enciende la energía",
+    "dar energía",
+    "energía principal"
+   ],
+   "respuestas": [
+    "Energía principal en línea.",
+    "Luz, fuerza y algo de fe. Energía restablecida, {t}."
+   ],
+   "acciones": [
+    {
+     "tecla": "u",
+     "juego": "v_power_toggle"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "energia_off",
+   "nombre": "Desactivar energía principal",
+   "categoria": "Energía y sistemas",
+   "descripcion": "Corta la energía principal de la nave (todos los sistemas). Útil para ir en silencio o al aparcar.",
+   "frases": [
+    "desactivar energía",
+    "desactiva la energía",
+    "apagar energía",
+    "apaga la energía",
+    "cortar energía",
+    "corta la energía",
+    "modo apagado"
+   ],
+   "respuestas": [
+    "Energía principal cortada.",
+    "Apagando todo. Si oye ruidos raros, no he sido yo."
+   ],
+   "acciones": [
+    {
+     "tecla": "u",
+     "juego": "v_power_toggle"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "armas_on",
+   "nombre": "Activar armas",
+   "categoria": "Energía y sistemas",
+   "descripcion": "Da energía a las armas (las arma). No dispara.",
+   "frases": [
+    "activar armas",
+    "activa armas",
+    "activa las armas",
+    "armas listas",
+    "armas en línea",
+    "prepara las armas"
+   ],
+   "respuestas": [
+    "Armas en línea, {t}.",
+    "Armas listas. Elija a quién no le va a caer bien hoy."
+   ],
+   "acciones": [
+    {
+     "tecla": "p",
+     "juego": "v_power_toggle_weapons"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "armas_off",
+   "nombre": "Desactivar armas",
+   "categoria": "Energía y sistemas",
+   "descripcion": "Quita la energía a las armas.",
+   "frases": [
+    "desactivar armas",
+    "desactiva armas",
+    "desactiva las armas",
+    "armas fuera",
+    "guarda las armas"
+   ],
+   "respuestas": [
+    "Armas desactivadas.",
+    "Armas fuera de línea. Modo pacifista activado."
+   ],
+   "acciones": [
+    {
+     "tecla": "p",
+     "juego": "v_power_toggle_weapons"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "propulsores",
+   "nombre": "Alternar propulsores",
+   "categoria": "Energía y sistemas",
+   "descripcion": "Enciende o apaga la energía de los propulsores (motores).",
+   "frases": [
+    "activar propulsores",
+    "desactivar propulsores",
+    "activa los motores",
+    "apaga los motores",
+    "enciende los motores",
+    "alternar propulsores"
+   ],
+   "respuestas": [
+    "Propulsores alternados."
+   ],
+   "acciones": [
+    {
+     "tecla": "i",
+     "juego": "v_power_toggle_thrusters"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "luces",
+   "nombre": "Alternar luces exteriores",
+   "categoria": "Energía y sistemas",
+   "descripcion": "Enciende o apaga los faros de la nave.",
+   "frases": [
+    "luces",
+    "enciende las luces",
+    "apaga las luces",
+    "encender luces",
+    "apagar luces",
+    "faros"
+   ],
+   "respuestas": [
+    "Luces alternadas.",
+    "Hágase la luz. O no, según estuvieran."
+   ],
+   "acciones": [
+    {
+     "tecla": "l",
+     "juego": "v_lights"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "modo_maestro",
+   "nombre": "Cambiar modo maestro (NAV / SCM)",
+   "categoria": "Navegación",
+   "descripcion": "Cambia entre modo navegación/cuántico (NAV) y combate (SCM). Para cambiar de modo en general.",
+   "frases": [
+    "modo cuántico",
+    "modo combate",
+    "modo de combate",
+    "modo navegación",
+    "cambia de modo",
+    "cambiar modo",
+    "modo scm",
+    "modo nav"
+   ],
+   "respuestas": [
+    "Cambiando modo maestro.",
+    "Modo cambiado, {t}."
+   ],
+   "acciones": [
+    {
+     "tecla": "b",
+     "juego": "v_master_mode_cycle"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "salto_cuantico",
+   "nombre": "Iniciar salto cuántico",
+   "categoria": "Navegación",
+   "descripcion": "Carga el motor cuántico (mantiene la tecla) y salta al destino ya marcado. Solo funciona en modo navegación con un destino fijado.",
+   "frases": [
+    "salto cuántico",
+    "iniciar salto",
+    "salta",
+    "engancha cuántico",
+    "activa el cuántico"
+   ],
+   "respuestas": [
+    "Motor cuántico cargando. Agárrese, {t}.",
+    "Saltando. Nos vemos al otro lado."
+   ],
+   "acciones": [
+    {
+     "tecla": "b",
+     "mantener": 2.0,
+     "juego": "v_toggle_qdrive_engagement"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "crucero",
+   "nombre": "Alternar control de crucero",
+   "categoria": "Navegación",
+   "descripcion": "Mantiene la velocidad actual sin tocar el acelerador.",
+   "frases": [
+    "control de crucero",
+    "modo crucero",
+    "crucero"
+   ],
+   "respuestas": [
+    "Control de crucero alternado."
+   ],
+   "acciones": [
+    {
+     "tecla": "lalt+c",
+     "juego": "v_ifcs_throttle_swap_mode"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "desacoplado",
+   "nombre": "Alternar modo desacoplado",
+   "categoria": "Navegación",
+   "descripcion": "Deja que la nave derive sin mantener el rumbo.",
+   "frases": [
+    "modo desacoplado",
+    "desacoplar",
+    "acoplar",
+    "modo acoplado"
+   ],
+   "respuestas": [
+    "Modo desacoplado alternado."
+   ],
+   "acciones": [
+    {
+     "tecla": "c",
+     "juego": "v_ifcs_vector_decoupling_toggle"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "freno",
+   "nombre": "Freno espacial",
+   "categoria": "Navegación",
+   "descripcion": "Frena la nave en seco con el freno espacial.",
+   "frases": [
+    "freno",
+    "frena",
+    "freno espacial",
+    "para la nave",
+    "alto"
+   ],
+   "respuestas": [
+    "Frenando.",
+    "Freno a fondo, {t}."
+   ],
+   "acciones": [
+    {
+     "tecla": "x",
+     "mantener": 2.0,
+     "juego": "v_space_brake"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "ping",
+   "nombre": "Ping de radar",
+   "categoria": "Navegación",
+   "descripcion": "Lanza un pulso de escáner para detectar naves, rocas, restos o firmas.",
+   "frases": [
+    "ping",
+    "ping de radar",
+    "escanea la zona",
+    "escanear zona",
+    "radar"
+   ],
+   "respuestas": [
+    "Pulso enviado.",
+    "Escaneando la zona, {t}."
+   ],
+   "acciones": [
+    {
+     "tecla": "tab",
+     "juego": "v_invoke_ping"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "modo_escaneo",
+   "nombre": "Modo escaneo",
+   "categoria": "Navegación",
+   "descripcion": "Activa o desactiva el modo escáner de la nave.",
+   "frases": [
+    "modo escaneo",
+    "modo escáner",
+    "activa el escáner"
+   ],
+   "respuestas": [
+    "Modo escaneo alternado."
+   ],
+   "acciones": [
+    {
+     "tecla": "v",
+     "juego": "v_toggle_scan_mode"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "objetivo_hostil",
+   "nombre": "Siguiente objetivo hostil",
+   "categoria": "Combate",
+   "descripcion": "Fija el siguiente objetivo hostil (solo enemigos).",
+   "frases": [
+    "siguiente hostil",
+    "objetivo hostil",
+    "fija hostil",
+    "siguiente enemigo",
+    "fija enemigo"
+   ],
+   "respuestas": [
+    "Hostil fijado.",
+    "Tengo uno feo en la mira, {t}."
+   ],
+   "acciones": [
+    {
+     "tecla": "5",
+     "juego": "v_target_cycle_hostile_fwd"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "objetivo_atacante",
+   "nombre": "Siguiente atacante",
+   "categoria": "Combate",
+   "descripcion": "Fija la siguiente nave que nos está disparando ahora mismo.",
+   "frases": [
+    "siguiente atacante",
+    "quién me dispara",
+    "fija atacante",
+    "quién nos dispara"
+   ],
+   "respuestas": [
+    "Atacante fijado, {t}."
+   ],
+   "acciones": [
+    {
+     "tecla": "4",
+     "juego": "v_target_cycle_attacker_fwd"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "objetivo_siguiente",
+   "nombre": "Siguiente objetivo",
+   "categoria": "Combate",
+   "descripcion": "Pasa al siguiente objetivo de cualquier tipo.",
+   "frases": [
+    "siguiente objetivo",
+    "cambia de objetivo",
+    "objetivo"
+   ],
+   "respuestas": [
+    "Objetivo cambiado."
+   ],
+   "acciones": [
+    {
+     "tecla": "t",
+     "juego": "v_target_cycle_all_fwd"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "objetivo_quitar",
+   "nombre": "Quitar objetivo",
+   "categoria": "Combate",
+   "descripcion": "Suelta el objetivo actual.",
+   "frases": [
+    "quitar objetivo",
+    "suelta el objetivo",
+    "soltar objetivo",
+    "limpia objetivo"
+   ],
+   "respuestas": [
+    "Objetivo liberado."
+   ],
+   "acciones": [
+    {
+     "tecla": "lalt+t",
+     "juego": "v_target_unlock"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "bengalas",
+   "nombre": "Lanzar bengalas",
+   "categoria": "Combate",
+   "descripcion": "Lanza señuelos térmicos contra misiles guiados por calor.",
+   "frases": [
+    "bengalas",
+    "lanza bengalas",
+    "lanzar bengalas",
+    "señuelos",
+    "contramedidas"
+   ],
+   "respuestas": [
+    "¡Bengalas fuera!",
+    "Señuelos lanzados. Fiesta de luces."
+   ],
+   "acciones": [
+    {
+     "tecla": "h",
+     "juego": "v_weapon_countermeasure_decoy_launch"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "chaff",
+   "nombre": "Lanzar interferencias (chaff)",
+   "categoria": "Combate",
+   "descripcion": "Lanza chaff/ruido contra misiles guiados por radar.",
+   "frases": [
+    "chaff",
+    "lanza chaff",
+    "interferencias",
+    "lanza interferencias",
+    "ruido"
+   ],
+   "respuestas": [
+    "¡Chaff fuera!"
+   ],
+   "acciones": [
+    {
+     "tecla": "j",
+     "juego": "v_weapon_countermeasure_noise_launch"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "gimbal",
+   "nombre": "Alternar gimbal de armas",
+   "categoria": "Combate",
+   "descripcion": "Cambia la puntería de las armas entre gimbal y fija.",
+   "frases": [
+    "gimbal",
+    "cambia el gimbal",
+    "modo gimbal",
+    "armas fijas"
+   ],
+   "respuestas": [
+    "Modo de gimbal cambiado."
+   ],
+   "acciones": [
+    {
+     "tecla": "g"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "modo_operador",
+   "nombre": "Siguiente modo de operador",
+   "categoria": "Combate",
+   "descripcion": "Cambia el modo del asiento: armas, misiles, escáner, minería...",
+   "frases": [
+    "modo operador",
+    "siguiente modo",
+    "cambia modo de operador"
+   ],
+   "respuestas": [
+    "Modo de operador cambiado."
+   ],
+   "acciones": [
+    {
+     "raton": "middle",
+     "juego": "v_operator_mode_cycle_forward"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "soltar_carga",
+   "nombre": "Expulsar carga",
+   "categoria": "Combate",
+   "descripcion": "Arroja la carga al espacio. Destructivo: solo con la frase exacta.",
+   "frases": [
+    "expulsar carga confirmado",
+    "suelta la carga confirmado"
+   ],
+   "respuestas": [
+    "Carga expulsada. Espero que no fuera nada caro, {t}."
+   ],
+   "acciones": [
+    {
+     "tecla": "lalt+j",
+     "juego": "v_jettison_volatile_cargo"
+    }
+   ],
+   "solo_frase_exacta": true
+  },
+  {
+   "id": "mobiglas",
+   "nombre": "Abrir mobiGlas",
+   "categoria": "Interfaz",
+   "descripcion": "Abre o cierra el mobiGlas.",
+   "frases": [
+    "mobiglas",
+    "abre el mobiglas",
+    "abrir mobiglas"
+   ],
+   "respuestas": [
+    "MobiGlas."
+   ],
+   "acciones": [
+    {
+     "tecla": "f1",
+     "juego": "mobiglas"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "mapa",
+   "nombre": "Abrir mapa estelar",
+   "categoria": "Interfaz",
+   "descripcion": "Abre o cierra el mapa estelar.",
+   "frases": [
+    "mapa",
+    "abre el mapa",
+    "mapa estelar"
+   ],
+   "respuestas": [
+    "Mapa estelar."
+   ],
+   "acciones": [
+    {
+     "tecla": "f2",
+     "juego": "v_starmap"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "camara",
+   "nombre": "Cambiar cámara",
+   "categoria": "Interfaz",
+   "descripcion": "Cambia la vista de cámara (primera/tercera persona).",
+   "frases": [
+    "cambia la cámara",
+    "cámara",
+    "vista exterior",
+    "tercera persona"
+   ],
+   "respuestas": [
+    "Cámara cambiada."
+   ],
+   "acciones": [
+    {
+     "tecla": "f4",
+     "juego": "v_view_cycle_fwd"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "secuencia_despegue",
+   "nombre": "Secuencia completa de despegue",
+   "categoria": "Secuencias",
+   "descripcion": "Salida automatizada: pedir permiso, arrancar, elevarse y recoger el tren. Solo si piden la secuencia completa; 'prepara la nave' es otro comando.",
+   "frases": [
+    "secuencia de despegue",
+    "iniciar despegue",
+    "despegamos",
+    "despega"
+   ],
+   "respuestas": [
+    "Iniciando secuencia de despegue. Abróchese, {t}.",
+    "Despegue en marcha. Si se me olvida algo, finja que fue a propósito."
+   ],
+   "acciones": [
+    {
+     "tecla": "lalt+n",
+     "juego": "v_atc_request"
+    },
+    {
+     "esperar": 1.0
+    },
+    {
+     "tecla": "r",
+     "juego": "v_flightready"
+    },
+    {
+     "esperar": 5.0
+    },
+    {
+     "tecla": "space",
+     "mantener": 1.0
+    },
+    {
+     "esperar": 1.5
+    },
+    {
+     "tecla": "n",
+     "juego": "v_toggle_landing_system"
+    }
+   ],
+   "solo_frase_exacta": false
+  },
+  {
+   "id": "secuencia_aterrizaje",
+   "nombre": "Secuencia completa de aterrizaje",
+   "categoria": "Secuencias",
+   "descripcion": "Llegada automatizada: pedir permiso, bajar tren y aterrizaje automático. Solo si piden la secuencia completa.",
+   "frases": [
+    "secuencia de aterrizaje",
+    "iniciar aterrizaje",
+    "llévanos abajo",
+    "aterrizamos"
+   ],
+   "respuestas": [
+    "Secuencia de aterrizaje iniciada, {t}.",
+    "Bajando. Mantenga las manos dentro de la cabina."
+   ],
+   "acciones": [
+    {
+     "tecla": "lalt+n",
+     "juego": "v_atc_request"
+    },
+    {
+     "esperar": 1.0
+    },
+    {
+     "tecla": "n",
+     "juego": "v_toggle_landing_system"
+    },
+    {
+     "esperar": 4.0
+    },
+    {
+     "tecla": "n",
+     "mantener": 2.5,
+     "juego": "v_autoland"
+    }
+   ],
+   "solo_frase_exacta": false
+  }
+ ]
+}
