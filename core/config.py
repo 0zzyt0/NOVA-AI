@@ -14,7 +14,7 @@ import os
 import threading
 from pathlib import Path
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 APP_NAME = "NOVA AI"
 APP_DIR = Path(__file__).resolve().parent.parent
 FACTORY_DIR = APP_DIR / "datos"  # archivos de fábrica que vienen con el programa (solo lectura)
@@ -165,6 +165,14 @@ DEFAULTS: dict = {
     "traduccion_recordar": False,  # «Recuérdamelo en la siguiente sesión»
     "traduccion_preguntar": True,  # False = en la configuración inicial dijiste que no la querías  # vacío = el del idioma de tu juego (LIVE\\data\\Localization\\…\\global.ini)
     "diario_activo": True,  # diario de sesión en datos\\diario
+    # --- v1.1 -------------------------------------------------------------
+    "discord_webhook": "",  # https://discord.com/api/webhooks/… (canal donde mandar las fichas)
+    "discord_enviar_jugadores": True,  # mandar a Discord las fichas de jugadores que busques
+    "estado_rsi_al_iniciar": True,  # mirar el estado de los servidores de RSI al arrancar
+    "objetivo_bitacora": True,  # anotar en la bitácora cuando fijas un objetivo por voz
+    "perfiles_nave": {},  # {"Cutlass Black": {"dinero": False, ...}} avisos distintos según la nave
+    "naves_conocidas": [],  # naves en las que te ha visto subir (para los perfiles)
+    "carga_scu": 0,  # SCU de bodega por defecto para las rutas (0 = el de tu nave actual)
     "actualizar_al_iniciar": True,  # comprobar scmdb.net / UEX / wiki al arrancar
     "datos_canal": "live",  # live o ptu (versión de datos de scmdb)
     "teclas_retardo_ms": 60,
@@ -243,7 +251,8 @@ class Settings:
 
     # Lo que NO es «tuyo» y se conserva al empezar de cero: dónde está el juego y la traducción.
     KEEP_ON_RESET = ("juego_carpeta", "gamelog_ruta", "actionmaps_ruta", "globalini_ruta", "traduccion_url",
-                     "traduccion_instalada", "traduccion_aviso", "dispositivo_entrada", "dispositivo_salida")
+                     "traduccion_instalada", "traduccion_aviso", "dispositivo_entrada", "dispositivo_salida",
+                     "discord_webhook")
 
     def reset(self, keep_keys: bool = True) -> None:
         """Vuelve a los ajustes de fábrica (y a la configuración inicial)."""

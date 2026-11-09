@@ -569,7 +569,8 @@
      "juego": "v_target_cycle_hostile_fwd"
     }
    ],
-   "solo_frase_exacta": false
+   "solo_frase_exacta": false,
+   "registrar": true
   },
   {
    "id": "objetivo_atacante",
@@ -591,17 +592,24 @@
      "juego": "v_target_cycle_attacker_fwd"
     }
    ],
-   "solo_frase_exacta": false
+   "solo_frase_exacta": false,
+   "registrar": true
   },
   {
    "id": "objetivo_siguiente",
    "nombre": "Siguiente objetivo",
    "categoria": "Combate",
-   "descripcion": "Pasa al siguiente objetivo de cualquier tipo.",
+   "descripcion": "Pasa al siguiente objetivo de cualquier tipo. Fija (bloquea) el objetivo que tienes delante; queda anotado en la bitácora.",
    "frases": [
     "siguiente objetivo",
     "cambia de objetivo",
-    "objetivo"
+    "objetivo",
+    "fija el objetivo",
+    "fija objetivo",
+    "fijar objetivo",
+    "marca el objetivo",
+    "selecciona objetivo",
+    "fija el blanco"
    ],
    "respuestas": [
     "Objetivo cambiado."
@@ -612,7 +620,8 @@
      "juego": "v_target_cycle_all_fwd"
     }
    ],
-   "solo_frase_exacta": false
+   "solo_frase_exacta": false,
+   "registrar": true
   },
   {
    "id": "objetivo_quitar",

@@ -47,6 +47,7 @@ function go(sec, remember = true, sub = "") {
   if (sec === "datos") { loadSources(); Trad.load(); }
   if (sec === "voz" || sec === "interfaz") loadDevices();
   if (sec === "ia") loadIA();
+  if (window.V11) V11.onSection(sec);
 }
 $$("#nav button").forEach((b) => b.addEventListener("click", () => go(b.dataset.sec)));
 // Subapartados (pestañas dentro de una sección)
@@ -148,6 +149,15 @@ function addMsg(ev) {
     el.className = "msg nova";
     el.innerHTML = `<div class="meta">${esc(String(ev.who || name).toUpperCase())} · ${esc(ev.ts || "")}</div><div class="body">${esc(text)}</div>` +
       (model ? `<div class="model">vía ${esc(model)}</div>` : "");
+  } else if (ev.who === "ficha") {
+    const [title, ...rows] = ev.text.split("\n");
+    el.className = "msg card";
+    el.innerHTML = `<div class="meta">${esc(title)} · ${esc(ev.ts || "")}</div><div class="body">${rows.map((r) => {
+      const m = r.match(/^(\s*)(?:• )?([^:]{2,40}):\s(.*)$/);
+      if (!m) return r.trim() ? `<div>${esc(r)}</div>` : `<div class="gap"></div>`;
+      const v = /^https?:\/\//.test(m[3]) ? `<a href="${esc(m[3])}" target="_blank" rel="noopener">${esc(m[3])}</a>` : esc(m[3]);
+      return `<div class="${m[1] ? "sub" : ""}"><span class="k">${esc(m[2])}</span><span class="v">${v}</span></div>`;
+    }).join("")}</div>`;
   } else if (ev.who === "tú") {
     el.className = "msg user";
     el.innerHTML = `<div class="meta">TÚ · ${esc(ev.ts || "")}</div><div class="body">${esc(ev.text)}</div>`;
@@ -206,6 +216,7 @@ function connect() {
     else if (ev.t === "trad") Trad.progress(ev);
     else if (ev.t === "trad_aviso") { STATE.traduccion_aviso = true; Trad.maybeAsk(); }
     else if (ev.t === "reset") afterReset();
+    else if (window.V11) V11.onEvent(ev);
   };
 }
 function goodbye(es) {
@@ -259,6 +270,7 @@ function showStatus(st) {
   $("#locText").textContent = g.location && g.location !== "desconocida" ? g.location : "—";
   $("#contractsText").textContent = (g.contracts || []).length ? g.contracts.join(" · ") : "ninguno";
   $("#gameStatus").textContent = g.status || "";
+  if (window.V11) V11.ship(g.ship || "");
   $("#sttShort").textContent = st.stt ? (st.stt.mode === "groq" ? "Groq (nube)" : "Whisper local") + (st.stt.status ? " · " + st.stt.status : "") : "—";
   $("#sttStatus").textContent = st.stt ? st.stt.status : "";
   const ov = st.overlay || {};
@@ -298,6 +310,7 @@ async function loadState() {
   })));
   showSetting("tts_voz_piper");
   paintNames();
+  if (window.V11) V11.afterState();
   if (STATE.session && STATE.session.seccion && STATE.session.seccion !== "cabina") go(STATE.session.seccion, false);
   paintSources(STATE.fuentes);
   if (STATE.arranque && STATE.arranque.comprobando) Boot.show(STATE.arranque.informe || {});
@@ -560,6 +573,7 @@ function openEditor(c) {
   $("#edName").value = ED.nombre; $("#edCat").value = ED.categoria || "";
   $("#edPhrases").value = (ED.frases || []).join("\n"); $("#edResp").value = (ED.respuestas || []).join("\n");
   $("#edDesc").value = ED.descripcion || ""; $("#edExact").checked = !!ED.solo_frase_exacta;
+  $("#edShips").value = (ED.naves || []).join(", "); $("#edLog").checked = !!ED.registrar;
   $("#edErr").textContent = "";
   renderSteps();
   $("#editor").hidden = false;
@@ -665,6 +679,7 @@ function editorData() {
     id: ED.id, nombre: $("#edName").value.trim(), categoria: $("#edCat").value.trim() || "Personales",
     frases: $("#edPhrases").value.split("\n"), respuestas: $("#edResp").value.split("\n"),
     descripcion: $("#edDesc").value.trim(), solo_frase_exacta: $("#edExact").checked,
+    naves: $("#edShips").value.split(",").map((x) => x.trim()).filter(Boolean), registrar: $("#edLog").checked,
     acciones: ED.acciones.filter((a) => "esperar" in a || a.tecla || a.raton),
   };
 }

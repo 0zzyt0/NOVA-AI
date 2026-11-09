@@ -78,6 +78,8 @@ class Command:
     respuestas: list[str] = field(default_factory=list)
     acciones: list[dict] = field(default_factory=list)
     solo_frase_exacta: bool = False
+    naves: list[str] = field(default_factory=list)  # vacío = en todas; si no, solo en esas naves
+    registrar: bool = False  # anotarlo en la bitácora (p. ej. fijar objetivo)
     origen: str = "base"  # base | modificado | personal | juego
 
     def to_dict(self) -> dict:
@@ -97,6 +99,39 @@ def _write_json(path, data) -> None:
     tmp = path.with_suffix(".tmp")
     tmp.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
     os.replace(tmp, path)
+
+
+def _ship_key(name: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", simplify(name or ""))
+
+
+def ship_ok(cmd: Command, ship: str) -> bool:
+    """¿Vale este comando en la nave actual? Sin lista de naves, o sin saber la nave, sí."""
+    if not cmd.naves or not ship:
+        return True
+    k = _ship_key(ship)
+    return any(_ship_key(x) and (_ship_key(x) in k or k in _ship_key(x)) for x in cmd.naves)
+
+
+def _ships_disjoint(a: Command, b: Command) -> bool:
+    if not a.naves or not b.naves:
+        return False
+    ka, kb = {_ship_key(x) for x in a.naves}, {_ship_key(x) for x in b.naves}
+    return not (ka & kb)
+
+
+def _pick_for_ship(cands: list[Command], ship: str) -> Command | None:
+    """Entre comandos con la misma frase: primero el de tu nave, luego el general."""
+    if not cands:
+        return None
+    if ship:
+        for c in cands:
+            if c.naves and ship_ok(c, ship):
+                return c
+    for c in cands:
+        if not c.naves:
+            return c
+    return cands[0] if not ship else None
 
 
 class CommandBook:
@@ -131,7 +166,7 @@ class CommandBook:
 
         self._apply_game_keys(merged, warnings)
 
-        phrases: dict[str, str] = {}
+        phrases: dict[str, list[str]] = {}
         for c in merged.values():
             for a in c.acciones:
                 combo = a.get("tecla")
@@ -141,9 +176,12 @@ class CommandBook:
                 n = normalize(p)
                 if not n:
                     continue
-                if n in phrases and phrases[n] != c.id:
-                    warnings.append(f"Frase repetida «{p}» en «{c.nombre}» y «{merged[phrases[n]].nombre}»")
-                phrases[n] = c.id
+                ids = phrases.setdefault(n, [])
+                for other in ids:
+                    if other != c.id and not _ships_disjoint(c, merged[other]):
+                        warnings.append(f"Frase repetida «{p}» en «{c.nombre}» y «{merged[other].nombre}»")
+                if c.id not in ids:
+                    ids.append(c.id)
         with self._lock:
             self.commands, self._phrases = merged, phrases
         self.warnings = warnings
@@ -265,14 +303,18 @@ class CommandBook:
             raise ValueError("El comando necesita al menos una tecla o clic.")
         frases = [f.strip() for f in data.get("frases") or [] if f.strip()]
         cid = data.get("id") or self._new_id(nombre)
-        for f in frases:  # que no pise frases de otros comandos
-            other = self._phrases.get(normalize(f))
-            if other and other != cid:
-                raise ValueError(f"La frase «{f}» ya la usa «{self.commands[other].nombre}».")
+        naves = [x.strip() for x in data.get("naves") or [] if str(x).strip()]
+        probe = Command(id=cid, nombre=nombre, naves=naves)
+        for f in frases:  # que no pise frases de otros comandos (salvo si son de naves distintas)
+            for other in self._phrases.get(normalize(f), []):
+                if other != cid and other in self.commands and not _ships_disjoint(probe, self.commands[other]):
+                    raise ValueError(f"La frase «{f}» ya la usa «{self.commands[other].nombre}». "
+                                     f"Si es para otra nave, indícalo en «Solo en estas naves».")
         cmd = Command(id=cid, nombre=nombre, descripcion=(data.get("descripcion") or "").strip(),
                       categoria=(data.get("categoria") or "Personales").strip(), frases=frases,
                       respuestas=[r.strip() for r in data.get("respuestas") or [] if r.strip()],
-                      acciones=acciones, solo_frase_exacta=bool(data.get("solo_frase_exacta")))
+                      acciones=acciones, solo_frase_exacta=bool(data.get("solo_frase_exacta")),
+                      naves=naves, registrar=bool(data.get("registrar")))
         items = [i for i in self._personal() if i.get("id") != cid]
         items.append(cmd.to_dict())
         self._save_personal(items)
@@ -303,27 +345,29 @@ class CommandBook:
         return cid
 
     # ---------------------------------------------------- reconocimiento rápido
-    def match(self, transcript: str, names: tuple[str, ...] = ()) -> Command | None:
-        """Frase reconocida al instante (sin IA). Tolera pequeños errores de dictado."""
+    def match(self, transcript: str, names: tuple[str, ...] = (), ship: str = "") -> Command | None:
+        """Frase reconocida al instante (sin IA). Tolera pequeños errores de dictado.
+        `ship`: nave en la que vas; los comandos con «naves» solo valen en esas."""
         n = normalize(transcript, names)
         if not n:
             return None
         with self._lock:
             phrases, commands = dict(self._phrases), dict(self.commands)
         if n in phrases:
-            return commands[phrases[n]]
+            return _pick_for_ship([commands[c] for c in phrases[n]], ship)
         best, score = None, 0.0
-        for phrase, cid in phrases.items():
-            if commands[cid].solo_frase_exacta:
+        for phrase, ids in phrases.items():
+            cand = _pick_for_ship([commands[c] for c in ids if not commands[c].solo_frase_exacta], ship)
+            if not cand:
                 continue
             # Nunca confundir "activa" con "desactiva" por parecido.
             if n.startswith("des") != phrase.startswith("des"):
                 continue
             s = _similarity(n, phrase)
             if s > score:
-                best, score = cid, s
+                best, score = cand, s
         if best and score >= 90 and len(n.split()) <= 6:
-            return commands[best]
+            return best
         return None
 
     # ---------------------------------------------------------------- ejecución
@@ -366,16 +410,17 @@ class CommandBook:
         return f"Ejecutado: {cmd.nombre}"
 
     # ------------------------------------------------------------ para la IA
-    def tool_catalog(self) -> str:
+    def tool_catalog(self, ship: str = "") -> str:
         lines = []
         for c in self.commands.values():
-            if c.solo_frase_exacta:
+            if c.solo_frase_exacta or not ship_ok(c, ship):
                 continue
-            lines.append(f"- {c.id}: {c.nombre}. {c.descripcion}")
+            only = f" (solo en: {', '.join(c.naves)})" if c.naves else ""
+            lines.append(f"- {c.id}: {c.nombre}{only}. {c.descripcion}")
         return "\n".join(lines)
 
-    def ai_ids(self) -> list[str]:
-        return [c.id for c in self.commands.values() if not c.solo_frase_exacta]
+    def ai_ids(self, ship: str = "") -> list[str]:
+        return [c.id for c in self.commands.values() if not c.solo_frase_exacta and ship_ok(c, ship)]
 
     # ------------------------------------------------------------ para la ventana
     def as_list(self) -> list[dict]:

@@ -44,6 +44,10 @@ class Tools:
         self._cache: dict[str, tuple[float, Any]] = {}
         self.on_command: Callable[[str], None] | None = None  # avisa a la ventana
         self.on_tool: Callable[[str, bool], None] = lambda name, running: None  # inicio/fin de cada herramienta
+        self.timers = None  # temporizadores (los pone el asistente)
+        self.stats = None  # estadísticas entre sesiones
+        self.status_check = None  # estado de los servidores de RSI
+        self.on_timer_added: Callable[[dict], None] = lambda t: None
 
     # ---------------------------------------------------------------- utilidades
     def _get(self, url: str, params: dict | None = None, ttl: int = 0, timeout: int = 12) -> Any:
@@ -59,13 +63,14 @@ class Tools:
 
     # ------------------------------------------------------------------ esquema
     def schemas(self) -> list[dict]:
-        ids = self.commands.ai_ids()
+        ship = self.gamelog.ship if self.gamelog else ""
+        ids = self.commands.ai_ids(ship)
         return [
             {"type": "function", "function": {
                 "name": "ejecutar_comando_nave",
                 "description": "Pulsa las teclas de Star Citizen para uno o varios comandos de la nave, en orden. "
                                "Úsalo SIEMPRE que el piloto pida actuar sobre la nave. Comandos disponibles:\n"
-                               + self.commands.tool_catalog(),
+                               + self.commands.tool_catalog(ship),
                 "parameters": {"type": "object", "properties": {
                     "comandos": {"type": "array", "items": {"type": "string", "enum": ids},
                                  "description": "IDs de los comandos a ejecutar, en orden"}},
@@ -135,11 +140,47 @@ class Tools:
                     "required": ["mercancia"]}}},
             {"type": "function", "function": {
                 "name": "uex_rutas_comercio",
-                "description": "Mejores rutas comerciales (dónde comprar y dónde vender) según UEX Corp. Indica mercancía o terminal de origen.",
+                "description": "Mejores rutas comerciales según UEX Corp, con el BENEFICIO REAL para la bodega de la nave "
+                               "(SCU) y el dinero que tenga el piloto: cuántas SCU comprar, coste, ganancia y distancia. "
+                               "Si no dice nave ni SCU se usa la nave en la que va. Indica mercancía, origen o ambas.",
                 "parameters": {"type": "object", "properties": {
                     "mercancia": {"type": "string", "description": "Nombre en inglés (opcional)"},
                     "origen": {"type": "string", "description": "Terminal/estación de origen (opcional), p. ej. 'Lorville', 'Area 18'"},
-                    "inversion": {"type": "integer", "description": "aUEC disponibles para invertir (opcional)"}}}}},
+                    "destino": {"type": "string", "description": "Terminal/estación de destino (opcional)"},
+                    "inversion": {"type": "integer", "description": "aUEC disponibles para invertir (opcional)"},
+                    "nave": {"type": "string", "description": "Nave con la que va a cargar (opcional), p. ej. 'Cutlass Black'"},
+                    "capacidad_scu": {"type": "integer", "description": "SCU de bodega, si el piloto lo dice (opcional)"}}}}},
+            {"type": "function", "function": {
+                "name": "crear_temporizador",
+                "description": "Pone un temporizador que avisa por voz al terminar y sigue aunque se cierre Nova: "
+                               "refinados (p. ej. 'el refinado de CRU-L1 tarda 3 h 20 min'), contratos con tiempo, "
+                               "o cualquier otra cosa ('avísame en 15 minutos').",
+                "parameters": {"type": "object", "properties": {
+                    "minutos": {"type": "number", "description": "Duración total en minutos (3 h 20 min = 200)"},
+                    "motivo": {"type": "string", "description": "Qué es, p. ej. 'Refinado de Quantainium'"},
+                    "lugar": {"type": "string", "description": "Dónde, p. ej. 'ARC-L1' (opcional)"},
+                    "tipo": {"type": "string", "enum": ["refinado", "contrato", "general"]}},
+                    "required": ["minutos", "motivo"]}}},
+            {"type": "function", "function": {
+                "name": "cancelar_temporizador",
+                "description": "Cancela temporizadores por su motivo o lugar ('todos' para todos).",
+                "parameters": {"type": "object", "properties": {"referencia": {"type": "string"}},
+                               "required": ["referencia"]}}},
+            {"type": "function", "function": {
+                "name": "listar_temporizadores",
+                "description": "Temporizadores en marcha y cuánto les queda.",
+                "parameters": {"type": "object", "properties": {}}}},
+            {"type": "function", "function": {
+                "name": "estado_servidores",
+                "description": "Estado de los servidores de Star Citizen (status.robertsspaceindustries.com): "
+                               "universo persistente, plataforma, mantenimientos e incidencias.",
+                "parameters": {"type": "object", "properties": {}}}},
+            {"type": "function", "function": {
+                "name": "estadisticas_piloto",
+                "description": "Estadísticas del piloto sumando TODAS sus sesiones (no solo la de hoy): horas jugadas, "
+                               "muertes, bajas, naves abatidas, contratos, aUEC recibidos y enviados, por semanas.",
+                "parameters": {"type": "object", "properties": {
+                    "periodo": {"type": "string", "enum": ["hoy", "semana", "mes", "todo"]}}}}},
             {"type": "function", "function": {
                 "name": "estado_del_juego",
                 "description": "Lo que dice el Game.log y el diario de la sesión: dónde está o dónde dejó el personaje, "
@@ -276,8 +317,65 @@ class Tools:
                 f"{r.get('terminal_name')} ({r.get('star_system_name') or ''}) {_fmt(r['price_sell'])}" for r in sell))
         return "\n".join(out) if len(out) > 1 else f"SIN DATOS de precios para {com['name']}."
 
+    def ship_scu(self, nave: str = "") -> tuple[str, int]:
+        """(nombre, SCU de bodega) de la nave indicada o de la actual. (nombre, 0) si no se sabe."""
+        name = (nave or (self.gamelog.ship if self.gamelog else "") or "").strip()
+        if not name:
+            return "", 0
+        q = _norm(name).replace(" ", "")
+        kn = self.knowledge
+        rows = list(kn.vehicles.values()) if kn is not None and getattr(kn, "vehicles", None) else []
+        if not rows:
+            try:
+                rows = self._uex("vehicles", ttl=86400)
+            except Exception:  # noqa: BLE001
+                rows = []
+        best, score = None, 0
+        for v in rows:
+            for k in ("name_full", "name"):
+                cand = _norm(str(v.get(k) or "")).replace(" ", "")
+                if not cand:
+                    continue
+                sc = 3 if cand == q else 2 if (cand in q or q in cand) else 0
+                if sc > score or (sc == score and best is not None and sc and len(cand) > len(_norm(str(best.get(k) or "")))):
+                    best, score = v, sc
+        if not best:
+            return name, 0
+        try:
+            return str(best.get("name_full") or best.get("name")), int(float(best.get("scu") or 0))
+        except (TypeError, ValueError):
+            return name, 0
+
+    @staticmethod
+    def plan_route(r: dict, scu: int, inversion: int | None) -> dict:
+        """Cuántas SCU comprar y cuánto se gana en esta ruta con tu bodega y tu dinero."""
+        def num(*keys):
+            for k in keys:
+                try:
+                    v = float(r.get(k) or 0)
+                except (TypeError, ValueError):
+                    v = 0
+                if v > 0:
+                    return v
+            return 0.0
+        buy, sell = num("price_origin"), num("price_destination")
+        stock = num("scu_origin", "scu_origin_available")
+        demand = num("scu_destination", "scu_destination_available")
+        units = float(scu) if scu else 0.0
+        limits = []
+        if units and stock and stock < units:
+            units, limits = stock, limits + ["stock en origen"]
+        if units and demand and demand < units:
+            units, limits = demand, limits + ["demanda en destino"]
+        if units and inversion and buy and inversion / buy < units:
+            units, limits = float(int(inversion // buy)), limits + ["dinero"]
+        units = int(units)
+        return {"scu": units, "coste": units * buy, "beneficio": units * (sell - buy), "margen": sell - buy,
+                "limitado": limits}
+
     def t_uex_rutas_comercio(self, mercancia: str | None = None, origen: str | None = None,
-                             inversion: int | None = None) -> str:
+                             inversion: int | None = None, destino: str | None = None, nave: str | None = None,
+                             capacidad_scu: int | None = None) -> str:
         params: dict = {}
         if mercancia:
             com = self._find(self._uex("commodities", ttl=86400), mercancia)
@@ -290,19 +388,49 @@ class Tools:
             if not term:
                 return f"SIN DATOS: no encuentro la terminal '{origen}'."
             params["id_terminal_origin"] = term["id"]
-        if not params:
+        dest = None
+        if destino:
+            dest = self._find(self._uex("terminals", ttl=86400), destino,
+                              keys=("name", "nickname", "space_station_name", "city_name", "outpost_name"))
+            if not dest:
+                return f"SIN DATOS: no encuentro la terminal de destino '{destino}'."
+            params["id_terminal_destination"] = dest["id"]
+        if not params or params.keys() == {"id_terminal_destination"}:
             return "Necesito una mercancía o un origen."
         if inversion:
             params["investment"] = int(inversion)
+        ship_name, scu = (nave or "", int(capacidad_scu)) if capacidad_scu else self.ship_scu(nave or "")
+        if not scu and self.settings.get("carga_scu"):
+            scu = int(self.settings.get("carga_scu") or 0)
         rows = self._uex("commodities_routes", params)
-        rows = sorted(rows, key=lambda r: -(r.get("profit") or 0))[:5]
+        if dest is not None:
+            rows = [r for r in rows if str(r.get("id_terminal_destination", dest["id"])) == str(dest["id"])]
         if not rows:
             return "SIN DATOS: no hay rutas con esos criterios."
-        return "Mejores rutas (UEX):\n" + "\n".join(
-            f"- {r.get('commodity_name')}: comprar en {r.get('origin_terminal_name')} a {_fmt(r.get('price_origin'))}, "
-            f"vender en {r.get('destination_terminal_name')} a {_fmt(r.get('price_destination'))}; "
-            f"beneficio {_fmt(r.get('profit'))} aUEC con inversión {_fmt(r.get('investment'))}"
-            for r in rows)
+        if scu:
+            for r in rows:
+                r["_plan"] = self.plan_route(r, scu, inversion)
+            rows = sorted(rows, key=lambda r: -r["_plan"]["beneficio"])[:5]
+            head = (f"Mejores rutas (UEX) para {scu} SCU" + (f" ({ship_name})" if ship_name else "")
+                    + (f" y {_fmt(inversion)} aUEC" if inversion else "") + ":")
+        else:
+            rows = sorted(rows, key=lambda r: -(r.get("profit") or 0))[:5]
+            head = ("Mejores rutas (UEX). No sé la bodega de la nave: pregunta al piloto su nave o sus SCU "
+                    "para calcular el beneficio real:")
+        out = [head]
+        for r in rows:
+            line = (f"- {r.get('commodity_name')}: comprar en {r.get('origin_terminal_name')} a {_fmt(r.get('price_origin'))}, "
+                    f"vender en {r.get('destination_terminal_name')} a {_fmt(r.get('price_destination'))} aUEC/SCU")
+            plan = r.get("_plan")
+            if plan:
+                line += (f"; cargar {plan['scu']} SCU, coste {_fmt(plan['coste'])}, beneficio {_fmt(plan['beneficio'])} aUEC"
+                         + (f" (limitado por {', '.join(plan['limitado'])})" if plan["limitado"] else ""))
+            else:
+                line += f"; beneficio {_fmt(r.get('profit'))} aUEC con inversión {_fmt(r.get('investment'))}"
+            if r.get("distance"):
+                line += f"; distancia {_fmt(r.get('distance'))} Gm"
+            out.append(line)
+        return "\n".join(out)
 
     # ------------------------------------------------- enciclopedia local
     def _kn(self):
@@ -408,6 +536,44 @@ class Tools:
         if self.diary is not None:
             parts.append("Diario de la sesión:\n" + self.diary.summary_text())
         return "\n\n".join(parts)
+
+    # ------------------------------------------------- temporizadores, servidores, estadísticas
+    def t_crear_temporizador(self, minutos: float, motivo: str, lugar: str = "", tipo: str = "general") -> str:
+        if self.timers is None:
+            return "Los temporizadores no están disponibles."
+        from .timers import human
+        try:
+            t = self.timers.add(minutos, motivo, lugar, tipo)
+        except (TypeError, ValueError) as e:
+            return f"No pude crearlo: {e}"
+        self.on_timer_added(t)
+        return (f"Temporizador creado: {t['motivo']}, {human(t['fin'] - t['inicio'])}, "
+                f"termina a las {time.strftime('%H:%M', time.localtime(t['fin']))}.")
+
+    def t_cancelar_temporizador(self, referencia: str) -> str:
+        if self.timers is None:
+            return "Los temporizadores no están disponibles."
+        gone = self.timers.cancel(referencia)
+        return ("Cancelado: " + ", ".join(t["motivo"] for t in gone)) if gone else "No hay ningún temporizador así."
+
+    def t_listar_temporizadores(self) -> str:
+        return self.timers.describe() if self.timers is not None else "No hay temporizadores."
+
+    def t_estado_servidores(self) -> str:
+        if self.status_check is None:
+            return "SIN DATOS"
+        self.status_check.run()
+        return self.status_check.text() + "\nFuente: status.robertsspaceindustries.com"
+
+    def t_estadisticas_piloto(self, periodo: str = "semana") -> str:
+        if self.stats is None:
+            return "SIN DATOS"
+        if self.diary is not None:
+            try:
+                self.diary.flush()
+            except Exception:  # noqa: BLE001
+                pass
+        return self.stats.describe(periodo)
 
     def t_recordar(self, dato: str) -> str:
         return self.memory.remember(dato)

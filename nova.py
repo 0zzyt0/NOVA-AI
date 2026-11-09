@@ -201,6 +201,10 @@ def main() -> None:
         from core.diary import last_location
 
         nova.greet(last_place=last_location() or session.get("ubicacion") or "")
+        try:
+            nova.start_extras()  # temporizadores y estado de los servidores
+        except Exception:
+            log.exception("Temporizadores / estado de RSI")
         log.info("Nova en marcha")
 
     threading.Thread(target=boot, daemon=True).start()

@@ -14,6 +14,7 @@ Nova es tu IA de a bordo (y puedes ponerle el nombre que quieras):
 - **Usa tus teclas:** lee tu configuración de controles de Star Citizen cada vez que arranca.
 - **Brilla en el juego:** su logo aparece en una esquina y parpadea mientras te habla (overlay).
 - **Pone Star Citizen en español:** instala y mantiene al día la traducción de 0zzyt0.
+- **Novedades 1.1:** busca jugadores en la web de RSI (y los manda a Discord), temporizadores de refinado y contratos, rutas con el beneficio real de tu bodega, perfiles por nave, estado de los servidores y estadísticas de todas tus sesiones.
 
 Todo lo que usa es **gratis**.
 
@@ -239,7 +240,7 @@ Los avisos se ponen en cola: no se pierden aunque Nova esté hablando. Si uno ll
 - **Las frases habladas de la torre:** sí aparece la **autorización** («AUTORIZACIÓN ATC: CONCEDIDO») y la cola, pero no lo que dice el controlador.
 - **Combate y salud:** muertes de jugadores y NPC (quién, con qué arma y de qué), naves y vehículos destruidos o inutilizados, incapacitaciones con su causa, punto de reaparición y curas en camilla médica. Desde la versión 4.0.2 el juego solo escribe los que te afectan a ti (los que causas o sufres).
 - **Carga:** conexión con el servidor, aparición del personaje, tiempo de carga del universo y las cargas que se atascan.
-- **Qué NO aparece:** fijar un objetivo (marcar o «tarjetear» a un enemigo) no se escribe en el Game.log, así que Nova no puede saberlo.
+- **Qué NO aparece:** fijar un objetivo (marcar o «tarjetear» a un enemigo) no se escribe en el Game.log. Desde la 1.1, si se lo pides por voz («Nova, fija el objetivo»), Nova pulsa la tecla y lo anota ella en la bitácora.
 - **Saldo, combustible y estado de los escudos.**
 
 ## 7 ter. Archivos de Bitácora
@@ -266,6 +267,17 @@ Y todo lo de combate, salud y carga que te afecta:
 - carga y red: tiempo de entrada al universo, cargas lentas y tirones de red.
 
 Sale del propio Game.log: si abres Nova con la partida empezada o después de jugar, rehace el diario completo de esa sesión. Al día siguiente te saluda con «La última vez nos quedamos en…». Puedes preguntarle «¿dónde dejé el personaje?», «¿cuál fue la última nave que piloté?» o «¿quién ha entrado en la nave?».
+
+## 7 octies. Novedades de la versión 1.1
+
+- **Buscar jugadores.** Di «Nova, localízame a un jugador» o «búscame a un jugador»: te pedirá que **escribas el apodo** en el cuadro de texto de la Cabina (por voz se entendería mal). Lee su ficha pública en `robertsspaceindustries.com/en/citizens/APODO` y te da: Apodo en juego, HandleName, UEE Citizen Record, Fecha de alta (Enlisted), Fluency (idioma) y Main Organization; después abre `robertsspaceindustries.com/en/orgs/ORG` (miembros, tipo, actividad). La ficha se guarda en la bitácora (etiqueta `JUGADOR`) y, si pegas un webhook en **Fuentes de datos › Discord**, se manda a ese canal. Si hay cualquier error o la ficha no trae esos datos: «Usuario no encontrado, ¿Está bien escrito el apodo?». También vale escribirlo de una vez: «búscame al jugador 0zzyt0».
+- **Temporizadores** para refinados, contratos o lo que quieras: «avísame en 3 horas y 20 minutos, el refinado de ARC-L1». Se ven en la Cabina, se crean también a mano y **siguen aunque cierres Nova** (si terminan con ella cerrada, te lo dice al volver). Quedan en la bitácora (`TEMPORIZADOR`).
+- **Rutas de comercio con beneficio real:** con los precios de UEX, Nova calcula cuántas SCU caben en la nave en la que vas (o la que le digas), el stock del origen, la demanda del destino y tu dinero, y ordena por lo que ganas de verdad. Si no sabe tu nave, usa la «Bodega por defecto» de Fuentes de datos.
+- **Perfiles de nave:** en **Juego › Perfiles de nave**, cada nave puede tener sus propios avisos en voz. En el editor de comandos, **Solo en estas naves** limita un comando a ciertas naves (y deja usar la misma frase con teclas distintas en cada una).
+- **Estado de los servidores:** al arrancar mira `status.robertsspaceindustries.com` y te avisa si hay caídas o mantenimiento (Cabina › Situación y Fuentes de datos). Pregúntale «¿cómo están los servidores?».
+- **Fijar el objetivo por voz:** «Nova, fija el objetivo» pulsa la tecla y lo anota en la bitácora (`OBJETIVO`) con la nave y el lugar, ya que el Game.log no lo escribe.
+- **Estadísticas de piloto:** horas, bajas, muertes, saltos y contratos de **todas** tus sesiones, semana a semana (Memoria › Archivos de bitácora). «Recalcular» lee los Game.log antiguos del juego (`logbackups`). Pregúntale «¿cuántas bajas llevo este mes?».
+- **🧹 Limpiar transmisiones:** botón en la Cabina que vacía el chat (la memoria y la bitácora no se tocan).
 
 ## 7 quater. Fuentes de datos y enciclopedia
 
@@ -364,7 +376,7 @@ Además, Nova tiene un control propio: si buscó en la wiki o en internet, no en
 
 Debajo de **Memoria**, en pequeño, está **ⓘ Acerca de**: una ventana al estilo de los keygens de los 90 y 2000, con su túnel de colores de 8 bits, una flecha volando dentro, el texto que se desplaza abajo y la música de NOVA AI en bucle. Ahí están los créditos, la licencia y los derechos de terceros. Se cierra con **Esc** o con el botón **Cerrar**; el botón **♪ Música** la silencia.
 
-**NOVA AI · Versión oficial 1.0**, de **Aaron B. Roldan** (gametag de Star Citizen: **0zzyt0**), desarrollada con el motor de IA Claude Opus 5.5 (Anthropic). Agradecimientos a la Org. Defcorp y a Faibo, Galleg0, Sr.Scott, AlpacaInTrouble, Lother y muchos más.
+**NOVA AI · Versión oficial 1.1**, de **Aaron B. Roldan** (gametag de Star Citizen: **0zzyt0**), desarrollada con el motor de IA Claude Opus 5.5 (Anthropic). Agradecimientos a la Org. Defcorp y a Faibo, Galleg0, Sr.Scott, AlpacaInTrouble, Lother y muchos más.
 
 **Licencia:** libre uso y modificación. Si usas este proyecto o lo modificas, por favor menciona de dónde has sacado las ideas y cuál es tu base. Texto completo, con los derechos de terceros, en `LICENCIA.txt`.
 

@@ -61,6 +61,8 @@ class UIServer:
         self.on_shutdown = lambda: None
         self.httpd: ThreadingHTTPServer | None = None
         nova.on_message = self._on_message
+        nova.on_ui = self._on_ui
+        self.stats_job: dict = {"activo": False}
         nova.on_status = lambda text: self.broadcast({"t": "status", "text": text})
 
     # ------------------------------------------------------------ eventos
@@ -82,6 +84,13 @@ class UIServer:
         self._history = (self._history + [ev])[-80:]
         if self.session:
             self.session.update(chat=self._history)
+        self.broadcast(ev)
+
+    def _on_ui(self, ev: dict) -> None:
+        if ev.get("t") == "timers":
+            ev = {"t": "timers", "lista": self.api_timers()}
+        elif ev.get("t") == "estado_rsi":
+            ev = {"t": "estado_rsi", **self.api_rsi_status()}
         self.broadcast(ev)
 
     def _ticker(self) -> None:
@@ -201,7 +210,7 @@ class UIServer:
             "piper_voices": list(PIPER_VOICES),
             "ptt_text": triggers.pretty(s.get("ptt_tecla")),
             "stt": {"mode": n.stt.mode(), "status": n.stt.status},
-            "game": {"status": n.gamelog.status, "location": n.gamelog.location,
+            "game": {"status": n.gamelog.status, "location": n.gamelog.location, "ship": n.gamelog.ship,
                      "contracts": list(n.gamelog.contracts)},
             "arranque": {"comprobando": n.updater.running.is_set() and not self.update_skip.is_set(),
                          "informe": n.updater.report},
@@ -219,6 +228,8 @@ class UIServer:
             "session": {"seccion": self.session.get("seccion") if self.session else None},
             "app": {"version": VERSION, "datos": str(DATA_DIR), "instalado": is_installed()},
             "name_warning": wake.name_warning(s.get("nombre_asistente")),
+            "timers": self.api_timers(),
+            "estado_rsi": self.api_rsi_status(),
         }
 
     # --- cabina
@@ -250,6 +261,16 @@ class UIServer:
         elif isinstance(default, float) and value is not None:
             value = float(value)
         s, n = self.nova.settings, self.nova
+        if key == "discord_webhook":
+            from core import discord
+            value = str(value or "").strip()
+            if value and not discord.valid(value):
+                raise ValueError("Ese enlace no es un webhook de Discord (https://discord.com/api/webhooks/…).")
+        elif key == "perfiles_nave":
+            if not isinstance(value, dict):
+                raise ValueError("Perfil de nave no válido")
+            value = {str(k)[:80]: {c: bool(v) for c, v in (p or {}).items() if c in CATEGORIES}
+                     for k, p in value.items() if isinstance(p, dict) and str(k).strip()}
         if key == "nombre_asistente":
             return wake.rename(s, str(value or ""))
         s.set(key, value)
@@ -314,7 +335,7 @@ class UIServer:
     def api_status(self) -> dict:
         n = self.nova
         return {"stt": {"mode": n.stt.mode(), "status": n.stt.status},
-                "game": {"status": n.gamelog.status, "location": n.gamelog.location,
+                "game": {"status": n.gamelog.status, "location": n.gamelog.location, "ship": n.gamelog.ship,
                          "contracts": list(n.gamelog.contracts)},
                 "overlay": self._overlay_info()}
 
@@ -375,6 +396,92 @@ class UIServer:
         self.nova.memory.facts = []
         self.nova.memory.save()
         return self.api_memory()
+
+    def api_clear_chat(self) -> bool:
+        """🧹 Limpiar transmisiones: vacía la cabina (la memoria de Nova y la bitácora no se tocan)."""
+        self._history = []
+        if self.session:
+            self.session.update(chat=[])
+            self.session.save()
+        self.broadcast({"t": "chat_limpio"})
+        return True
+
+    # --- v1.1: temporizadores, estado de RSI, estadísticas y Discord
+    def api_timers(self) -> list[dict]:
+        out = []
+        for t in self.nova.timers.active():
+            out.append({"id": t["id"], "motivo": t["motivo"], "lugar": t["lugar"], "tipo": t["tipo"],
+                        "inicio": t["inicio"], "fin": t["fin"], "queda": max(0, round(t["queda"])),
+                        "hora": time.strftime("%H:%M", time.localtime(t["fin"])),
+                        "dia": time.strftime("%d/%m", time.localtime(t["fin"]))})
+        return out
+
+    def api_timer_add(self, minutos: float, motivo: str, lugar: str = "", tipo: str = "general") -> list[dict]:
+        t = self.nova.timers.add(float(minutos), str(motivo or "")[:120], str(lugar or "")[:80], str(tipo or "general"))
+        self.nova._timer_added(t)
+        return self.api_timers()
+
+    def api_timer_cancel(self, id: str) -> list[dict]:  # noqa: A002
+        self.nova.timers.cancel(str(id))
+        return self.api_timers()
+
+    def api_rsi_status(self, refrescar: bool = False) -> dict:
+        sc = self.nova.status_check
+        if refrescar:
+            sc.run()
+        st = sc.last or {}
+        return {"comprobado": sc.when, "ok": st.get("ok"), "componentes": st.get("componentes") or {},
+                "avisos": st.get("avisos") or [], "error": st.get("error", ""), "texto": sc.text() if st else ""}
+
+    def api_stats(self) -> dict:
+        st = self.nova.stats
+        try:
+            self.nova.diary.flush()
+        except Exception:
+            log.exception("Diario")
+        return {"semanas": st.weeks(10), "total": st.totals(None), "mes": st.totals(30),
+                "recalculando": self.stats_job}
+
+    def _log_backups(self) -> list[Path]:
+        from core.gamelog import find_game_log
+        g = self.nova.gamelog.path or find_game_log()
+        if not g:
+            return []
+        folder = Path(g).parent / "logbackups"
+        files = sorted(folder.glob("*.log"), key=lambda p: p.stat().st_mtime) if folder.is_dir() else []
+        return files[-400:]
+
+    def api_stats_rebuild(self) -> dict:
+        if self.stats_job.get("activo"):
+            return self.stats_job
+        files = self._log_backups()
+        if not files:
+            raise ValueError("No encuentro la carpeta logbackups junto a tu Game.log.")
+        self.stats_job = {"activo": True, "hecho": 0, "total": len(files), "nuevas": 0}
+
+        def progress(i: int, n: int) -> None:
+            self.stats_job.update(hecho=i, total=n)
+            self.broadcast({"t": "stats_job", **self.stats_job})
+
+        def work() -> None:
+            try:
+                added = self.nova.stats.rebuild(files, self.nova.settings, progress)
+                self.stats_job.update(activo=False, nuevas=added)
+            except Exception as e:
+                log.exception("Recalcular estadísticas")
+                self.stats_job.update(activo=False, error=str(e))
+            self.broadcast({"t": "stats_job", **self.stats_job})
+        threading.Thread(target=work, daemon=True, name="estadisticas").start()
+        return self.stats_job
+
+    def api_discord_test(self) -> str:
+        from core import discord
+        url = self.nova.settings.get("discord_webhook")
+        if not url:
+            raise ValueError("Primero pega el webhook del canal.")
+        discord.send(url, "NOVA AI conectada", [("Prueba", "Este canal recibirá las fichas de jugadores que busques.")],
+                     footer=f"NOVA AI {VERSION}")
+        return "Mensaje de prueba enviado"
 
     def api_clear_history(self) -> bool:
         self.nova.memory.clear_history()

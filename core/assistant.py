@@ -10,6 +10,7 @@ from typing import Callable
 
 import numpy as np
 
+from . import extras
 from .commands import CommandBook, _partial, _similarity, normalize, simplify
 from .config import Settings
 from .gamelog import GameEvent, GameLog, comment_for, find_game_log
@@ -26,7 +27,7 @@ STOP_WORDS = {"silencio", "callate", "calla", "para", "basta", "stop", "cancela"
 PAUSE_WORDS = {"desactivate", "pausa", "modo pausa", "a dormir", "apagate", "descansa"}
 RESUME_WORDS = {"activate", "despierta", "vuelve", "reactivate", "enciendete", "en linea"}
 INFO_TOOLS = {"buscar_wiki_star_citizen", "buscar_en_internet", "leer_pagina_web",
-              "uex_precios_mercancia", "uex_rutas_comercio"}
+              "uex_precios_mercancia", "uex_rutas_comercio", "estado_servidores"}
 ECHO_TAIL = 0.8  # segundos tras hablar en los que el micrófono sigue sordo (eco de la sala)
 
 
@@ -47,6 +48,20 @@ class Nova:
         self.updater = Updater(settings, self.gamelog, self.knowledge)
         self.tools.knowledge = self.knowledge
         self.tools.diary = self.diary
+        # v1.1: temporizadores, estadísticas, estado de los servidores de RSI
+        from .config import DATA_DIR
+        from .stats import Stats
+        from .timers import Timers
+
+        self.timers = Timers(on_due=self._timer_due)
+        self.stats = Stats(DATA_DIR / "diario" / "estadisticas.json")
+        self.status_check = extras.StatusCheck()
+        self.tools.timers = self.timers
+        self.tools.stats = self.stats
+        self.tools.status_check = self.status_check
+        self.tools.on_timer_added = self._timer_added
+        self._await_handle_until = 0.0  # esperando que escribas el apodo de un jugador
+        self.on_ui: Callable[[dict], None] = lambda ev: None  # avisos para la ventana (foco, temporizadores…)
         self.brain = Brain(settings, self.tools, self.memory, self.gamelog)
         self.stt = SpeechToText(settings)
         self.tts = TextToSpeech(settings)
@@ -140,6 +155,103 @@ class Nova:
     def _on_ai_command(self, name: str) -> None:
         self.flash("green")
         self.on_message("sistema", f"⚙ {name}")
+        cmd = next((c for c in self.commands.commands.values() if c.nombre == name), None)
+        if cmd:
+            self.log_command(cmd)
+
+    # ------------------------------------------------------------ v1.1
+    def _diary_event(self, kind: str, detail: str, **data) -> None:
+        try:
+            self.diary.on_event(GameEvent(kind, detail, "", time.time(), {k: v for k, v in data.items() if v}))
+        except Exception:
+            log.exception("Bitácora")
+
+    def log_command(self, cmd) -> None:
+        """Comandos marcados con «registrar» (fijar objetivo…) quedan en la bitácora con nave y lugar."""
+        if getattr(cmd, "registrar", False) and self.settings.get("objetivo_bitacora", True):
+            where = self.gamelog.location if self.gamelog.location not in ("", "desconocida") else ""
+            self._diary_event("objetivo", cmd.nombre, x=f"Objetivo fijado ({cmd.nombre})", nave=self.gamelog.ship,
+                              lugar=where)
+
+    def _ask_for_handle(self) -> None:
+        t = self.settings.get("tratamiento")
+        self._await_handle_until = time.time() + extras.WAIT_HANDLE_S
+        self.flash("green")
+        self.on_ui({"t": "pedir_apodo"})
+        self._say(f"Entendido, {t}. Escríbame el apodo del jugador en el cuadro de texto de la cabina, "
+                  f"así evitamos errores de pronunciación.")
+
+    def _player_lookup(self, handle: str) -> None:
+        t = self.settings.get("tratamiento")
+        self.on_message("sistema", f"🔎 Buscando «{handle}» en robertsspaceindustries.com…")
+        self._searching += 1
+        try:
+            c = extras.lookup(handle)
+        except Exception:
+            self._searching = max(0, self._searching - 1)
+            self.flash("red")
+            self._say(extras.NOT_FOUND)
+            return
+        self._searching = max(0, self._searching - 1)
+        self.flash("green")
+        self.on_message("ficha", "FICHA DE JUGADOR\n" + c.text())
+        self._diary_event("jugador_buscado", extras.diary_detail(c), x=c.handle)
+        if c.org_lines():
+            self._diary_event("jugador_org", extras.org_detail(c), x=c.org.sid)
+        self._say(extras.spoken(c, t))
+        sent = extras.send_player_to_discord(self.settings, c)
+        if sent:
+            self.on_message("sistema", sent)
+
+    def _timer_added(self, t: dict) -> None:
+        hora = time.strftime("%H:%M", time.localtime(t["fin"]))
+        self._diary_event("temporizador_nuevo", t["motivo"], x=t["motivo"], hora=hora, lugar=t.get("lugar"))
+        self.on_ui({"t": "timers"})
+
+    def _timer_due(self, t: dict, late: bool) -> None:
+        tr = self.settings.get("tratamiento")
+        where = f" en {t['lugar']}" if t.get("lugar") else ""
+        icon = {"refinado": "⚗", "contrato": "📜"}.get(t.get("tipo"), "⏰")
+        self.on_message("sistema", f"{icon} Temporizador terminado: {t['motivo']}{where}"
+                        + (" (terminó mientras estaba cerrada)" if late else ""))
+        self._diary_event("temporizador_fin", t["motivo"], x=t["motivo"], lugar=t.get("lugar"))
+        self.on_ui({"t": "timers"})
+        if self.paused or self.training:
+            return
+        self.flash("green", 6)
+        if late:
+            self._say(f"{tr}, mientras estaba apagada terminó: {t['motivo']}{where}.")
+        elif t.get("tipo") == "refinado":
+            self._say(f"{tr}, el refinado ya está listo: {t['motivo']}{where}.")
+        else:
+            self._say(f"{tr}, aviso de temporizador: {t['motivo']}{where}.")
+
+    def start_extras(self) -> None:
+        """Al arrancar: temporizadores pendientes y estado de los servidores de RSI."""
+        self.timers.on_change = lambda: self.on_ui({"t": "timers"})
+        self.timers.start()
+        if self.settings.get("estado_rsi_al_iniciar", True):
+            threading.Thread(target=self._boot_status, daemon=True, name="estado-rsi").start()
+
+    def _boot_status(self) -> None:
+        st = self.status_check.run()
+        self.on_ui({"t": "estado_rsi"})
+        if st.get("error") or st.get("ok") is None:
+            self.on_message("sistema", "⚠ No pude consultar el estado de los servidores de RSI.")
+            return
+        if st.get("ok") and not st.get("avisos"):
+            self.on_message("sistema", "✓ Servidores de RSI: todo operativo.")
+            return
+        text = self.status_check.text()
+        self.on_message("sistema", "📡 " + text.replace("\n", " · "))
+        if not (self.paused or self.training):
+            caidos = [k for k, v in (st.get("componentes") or {}).items() if v != "Operational"]
+            tr = self.settings.get("tratamiento")
+            if caidos:
+                self._say(f"{tr}, la página de estado de RSI indica problemas en: {', '.join(caidos)}. "
+                          f"Tiene los detalles en la cabina.")
+            else:
+                self._say(f"{tr}, hay avisos en la página de estado de RSI. Se los dejo en la cabina.")
 
     @property
     def name(self) -> str:
@@ -178,9 +290,12 @@ class Nova:
     def _on_game_event(self, ev: GameEvent) -> None:
         label = ev.kind.replace("_", " ")
         self.on_message("juego", f"📡 {label}: {ev.detail}" if ev.detail else f"📡 {label}")
+        if ev.kind == "nave_subes" and not ev.replay:
+            extras.remember_ship(self.settings, (ev.data or {}).get("nave", ""))
         if self.paused or self.training or not ev.category or not self.settings.get("gamelog_comentarios"):
             return
-        if not (self.settings.get("gamelog_avisos") or {}).get(ev.category, True):
+        # Perfil de la nave en la que vas: cada nave puede tener sus propios avisos.
+        if not extras.ship_alerts(self.settings, self.gamelog.ship).get(ev.category, True):
             return
         self._jobs.put(("event", ev, "juego"))  # en cola: no se pierde aunque Nova esté ocupada
 
@@ -272,12 +387,27 @@ class Nova:
             self._say(f"Conversación olvidada. Empezamos de cero, {self.settings.get('tratamiento')}.")
             return
 
-        # 1) Frase de comando conocida: al instante, sin IA.
-        cmd = self.commands.match(text, tuple(self._wake_names()))
+        # 0) Buscar un jugador en la web de RSI: el apodo se escribe (por voz se entendería mal).
+        if source == "texto" and time.time() < self._await_handle_until:
+            self._await_handle_until = 0.0
+            if extras.looks_like_handle(text):
+                self._player_lookup(extras.clean_handle(text))
+                return
+        if extras.is_lookup(norm):
+            handle = extras.handle_in(text) if source == "texto" else ""
+            if handle:
+                self._player_lookup(handle)
+            else:
+                self._ask_for_handle()
+            return
+
+        # 1) Frase de comando conocida: al instante, sin IA (teniendo en cuenta la nave en la que vas).
+        cmd = self.commands.match(text, tuple(self._wake_names()), ship=self.gamelog.ship)
         if cmd:
             self.flash("green")
             self.on_message("sistema", f"⚙ {cmd.nombre}")
             self.commands.execute(cmd)
+            self.log_command(cmd)
             self._say(self.commands.response_for(cmd))
             return
 

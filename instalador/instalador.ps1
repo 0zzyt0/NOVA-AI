@@ -10,7 +10,7 @@
 param([string]$Destino = '', [string]$Origen = '')
 $ErrorActionPreference = 'Continue'
 $AppName = 'NOVA AI'
-$AppVersion = '1.0.0'
+$AppVersion = '1.1.0'
 # Origen: carpeta con el programa a instalar. «NOVA AI Setup.exe» la pasa (la descomprime en TEMP);
 # con INSTALAR.bat es la carpeta padre de este script.
 $Src = if ($Origen) { $Origen } elseif ($PSScriptRoot) { Split-Path -Parent $PSScriptRoot } else { (Get-Location).Path }
@@ -1413,7 +1413,7 @@ function Start-Nova {
 }
 
 # ===========================================================  NORMAS
-$TermsVersion = '1.0'
+$TermsVersion = '1.1'
 $script:termsAccepted = ''
 function Add-TermsLine([string]$text, [string]$kind) {
     $tb = New-Object Windows.Controls.TextBlock

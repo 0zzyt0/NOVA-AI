@@ -47,7 +47,7 @@
     <section id="sec-cabina" class="sec on">
       <div class="cabina">
         <div class="panel chat-panel">
-          <div class="panel-h"><span>TRANSMISIONES</span><span class="hint">Texto o voz · <span class="ai-name">Nova</span> responde en voz alta</span></div>
+          <div class="panel-h"><span>TRANSMISIONES</span><span class="hint">Texto o voz · <span class="ai-name">Nova</span> responde en voz alta</span><button class="btn sm ghost" id="btnClearChat" title="Borra de la pantalla todas las transmisiones (la memoria y la bitácora no se tocan)">🧹 LIMPIAR</button></div>
           <div class="chat" id="chat"></div>
           <div class="composer">
             <input id="msgIn" placeholder="Escribe a Nova… (o mantén tu tecla para hablar)" autocomplete="off">
@@ -75,6 +75,16 @@
               <button class="btn" id="btnPause" title="Pausar Nova (overlay en rojo)">⏸</button>
             </div>
           </div>
+          <div class="panel timers-panel">
+            <div class="panel-h"><span>TEMPORIZADORES</span><span class="hint">Persistentes</span></div>
+            <div id="timerList" class="timer-list"><div class="muted small">Sin temporizadores. Dile «avísame cuando termine el refinado, en 3 horas».</div></div>
+            <div class="timer-add">
+              <input id="tmMotivo" placeholder="Qué (p. ej. Refinado CRU-L1)" maxlength="120">
+              <input id="tmMin" placeholder="min" inputmode="decimal" title="Minutos (o 2h30)">
+              <select id="tmTipo"><option value="general">⏰</option><option value="refinado">⚗</option><option value="contrato">📜</option></select>
+              <button class="btn sm pri" id="btnTimerAdd">＋</button>
+            </div>
+          </div>
           <div class="panel">
             <div class="panel-h"><span>SITUACIÓN</span></div>
             <div class="kv"><span>Ubicación</span><b id="locText">—</b></div>
@@ -82,6 +92,7 @@
             <div class="kv"><span>Teclas del juego</span><b id="syncShort">—</b></div>
             <div class="kv"><span>Reconocimiento de voz</span><b id="sttShort">—</b></div>
             <div class="kv"><span>Overlay</span><b id="ovShort">—</b></div>
+            <div class="kv"><span>Servidores RSI</span><b id="rsiShort" title="status.robertsspaceindustries.com">—</b></div>
           </div>
           <div class="panel quick">
             <div class="panel-h"><span>ACCESOS RÁPIDOS</span></div>
@@ -124,6 +135,17 @@
           <div class="field"><label>Crear comandos con mis teclas nuevas<small>Las acciones a las que das tecla en el juego y <span class="ai-name">Nova</span> no tenía</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="comandos_auto_juego"><i></i></span></div></div>
           <div class="field"><label>Ruta de actionmaps.xml<small>Vacío = buscarlo solo</small></label><div class="ctl"><input type="text" data-set="actionmaps_ruta" placeholder="…\StarCitizen\LIVE\user\client\0\Profiles\default\actionmaps.xml"></div></div>
         </div>
+      </div>
+      <div class="panel" style="margin-top:18px">
+        <div class="panel-h"><span>PERFILES DE NAVE</span><span class="hint">Avisos distintos según la nave en la que vas</span></div>
+        <p class="muted">Elige una nave y marca qué quieres que te avise en ella. Lo que no cambies sigue como en «Qué te avisa en voz». En el editor de comandos puedes además limitar un comando a ciertas naves («Solo en estas naves»).</p>
+        <div class="toolbar">
+          <input id="shipName" list="shipList" placeholder="Nave (p. ej. Cutlass Black)">
+          <datalist id="shipList"></datalist>
+          <button class="btn" id="btnShipAdd">＋ CREAR PERFIL</button>
+          <span class="muted small" id="shipNow"></span>
+        </div>
+        <div id="shipProfiles" class="ship-profiles"></div>
       </div>
       <div class="panel" style="margin-top:18px">
         <div class="panel-h"><span>COMANDOS DE VOZ</span><span class="hint" id="cmdCount"></span></div>
@@ -300,6 +322,22 @@
           <p class="muted small">Con el global.ini <span class="ai-name">Nova</span> entiende los avisos del juego en tu idioma (grupo, canal de la nave, torre, zonas…) y los nombres oficiales de lugares y naves. Los datos de scmdb.net tienen licencia CC BY-NC-ND 4.0: se descargan en tu PC para tu uso y no se redistribuyen.</p>
         </div>
       </div>
+      <div class="grid2" style="margin-top:18px">
+        <div class="panel">
+          <div class="panel-h"><span>ESTADO DE LOS SERVIDORES</span><span class="chip" id="rsiChip">—</span></div>
+          <pre class="rsi-status" id="rsiText">Sin comprobar.</pre>
+          <div class="row gap wrap" style="margin-top:10px"><button class="btn" id="btnRsi">⟳ COMPROBAR AHORA</button></div>
+          <div class="field" style="margin-top:10px"><label>Comprobar al arrancar<small>status.robertsspaceindustries.com · te avisa si hay caídas o mantenimiento</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="estado_rsi_al_iniciar"><i></i></span></div></div>
+          <div class="field"><label>Bodega por defecto (SCU)<small>Para las rutas de comercio si no sé tu nave · 0 = la de la nave en la que vas</small></label><div class="ctl"><input type="number" min="0" max="10000" step="1" data-set="carga_scu"></div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><span>DISCORD</span><span class="chip" id="dcChip">—</span></div>
+          <p class="muted">Cuando le pidas «búscame a un jugador», la ficha se manda también a este canal. En Discord: <b>Editar canal › Integraciones › Webhooks › Nuevo webhook › Copiar URL</b>.</p>
+          <div class="field"><label>Webhook del canal<small>Oculto · vacío = no mandar nada</small></label><div class="ctl"><input type="text" id="dcUrl" class="masked" autocomplete="off" spellcheck="false" placeholder="https://discord.com/api/webhooks/…"></div></div>
+          <div class="field"><label>Mandar las fichas de jugadores</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="discord_enviar_jugadores"><i></i></span></div></div>
+          <div class="row gap wrap"><button class="btn" id="btnDcTest">ENVIAR PRUEBA</button></div>
+        </div>
+      </div>
       <div class="panel" style="margin-top:18px">
         <div class="panel-h"><span>TRADUCCIÓN AL ESPAÑOL</span><span class="chip" id="trChip">—</span></div>
         <div class="tr-grid">
@@ -358,6 +396,7 @@
           <pre class="diary-sum" id="diarySum">Todavía no hay datos de esta sesión de juego.</pre>
           <div class="diary-side">
             <div class="field"><label>Guardar la bitácora</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="diario_activo"><i></i></span></div></div>
+            <div class="field"><label>Anotar objetivos fijados<small>«Fija el objetivo» por voz, con nave y lugar</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="objetivo_bitacora"><i></i></span></div></div>
             <div class="aviso-h" style="margin:8px 0 6px">Bitácoras guardadas</div>
             <div class="list-sm" id="diaryFiles"></div>
             <div class="row gap wrap" style="margin-top:10px">
@@ -365,6 +404,15 @@
               <button class="btn" id="btnDiaryFolder">CARPETA</button>
             </div>
           </div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:18px">
+        <div class="panel-h"><span>ESTADÍSTICAS DE PILOTO</span><span class="hint" id="statsHint">Todas tus sesiones, semana a semana</span></div>
+        <div class="kb-stats" id="statsTotals"></div>
+        <div class="stats-wrap"><table class="stats" id="statsTable"></table></div>
+        <div class="row gap wrap" style="margin-top:10px">
+          <button class="btn" id="btnStatsRebuild">⟳ RECALCULAR DESDE LOS GAME.LOG ANTIGUOS</button>
+          <span class="muted small" id="statsJob">Lee la carpeta logbackups del juego para sumar sesiones de antes de instalar NOVA.</span>
         </div>
       </div>
       </div>
@@ -383,6 +431,8 @@
       <label class="span2">Respuestas de Nova <small>Una por línea, se elige al azar · {t} = señor · vacío = respuesta automática</small><textarea id="edResp" rows="2" placeholder="Escudos frontales al máximo, {t}."></textarea></label>
       <label class="span2">Descripción para la IA <small>Ayuda a que entienda cuándo usarlo si lo pides con otras palabras</small><input id="edDesc" placeholder="Pasa toda la energía de escudos al frente."></label>
       <label class="switch-line span2"><span class="switch"><input type="checkbox" id="edExact"><i></i></span> Solo con la frase exacta (la IA nunca lo ejecutará por su cuenta)</label>
+      <label class="span2">Solo en estas naves <small>Separadas por comas · vacío = en todas · permite la misma frase con teclas distintas en cada nave</small><input id="edShips" list="shipList" placeholder="Cutlass Black, Prospector"></label>
+      <label class="switch-line span2"><span class="switch"><input type="checkbox" id="edLog"><i></i></span> Anotarlo en la bitácora (con nave y lugar), como «fija el objetivo»</label>
     </div>
     <datalist id="catList"></datalist>
     <div class="panel-h sub"><span>SECUENCIA DE TECLAS</span><span class="hint">Pulsa «● GRABAR» y la combinación en tu teclado</span></div>
@@ -533,6 +583,7 @@
 </div>
 <div class="toasts" id="toasts"></div>
 <script src="/app.js"></script>
+<script src="/v11.js"></script>
 <script src="/acerca/acerca.js"></script>
 </body>
 </html>

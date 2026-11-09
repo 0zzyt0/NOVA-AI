@@ -115,6 +115,11 @@ LINES = {
     "carga_lenta": ("CARGA", "La carga va lenta: «{x}» lleva {segundos} s"),
     "carga_fallo": ("CARGA", "Fallo de carga en «{x}» ({segundos} s)"),
     "tiron_red": ("RED", "Tirón de red de {segundos} s"),
+    "objetivo": ("OBJETIVO", "{x}{en_nave}{lugar_p}"),
+    "jugador_buscado": ("JUGADOR", "{detail}"),
+    "jugador_org": ("JUGADOR", "{detail}"),
+    "temporizador_nuevo": ("TEMPORIZADOR", "{x}: termina a las {hora}{lugar_p}"),
+    "temporizador_fin": ("TEMPORIZADOR", "Terminado: {x}{lugar_p}"),
     "llamarada_solar": ("PELIGRO", "Llamarada solar"),
     "combustible_bajo": ("NAVE", "Combustible bajo"),
 }
@@ -348,6 +353,7 @@ class Diary:
         d["a_manos"] = f" a manos de {d['asesino']}" if d.get("asesino") and d.get("asesino") != d.get("nombre") else ""
         d["piloto"] = f" (piloto: {d['nombre']})" if d.get("nombre") and ev.kind == "nave_abatida" else ""
         d["en_nave"] = f" en la {d['nave']}" if d.get("nave") else ""
+        d["lugar_p"] = f" ({d['lugar']})" if d.get("lugar") and ev.kind in ("objetivo", "temporizador_nuevo", "temporizador_fin") else ""
         d["fuel"] = f" (combustible estimado {d['combustible']})" if d.get("combustible") else ""
         d["nombre_sp"] = f" de {d['nombre']}" if d.get("nombre") else ""
         try:
@@ -391,8 +397,12 @@ class Diary:
             self.dir.mkdir(parents=True, exist_ok=True)
             tmp = LAST_FILE.with_suffix(".tmp") if self.dir == DIARY_DIR else self.dir / "ultima_sesion.tmp"
             target = LAST_FILE if self.dir == DIARY_DIR else self.dir / "ultima_sesion.json"
-            tmp.write_text(json.dumps(self.state(), ensure_ascii=False, indent=1), encoding="utf-8")
+            st = self.state()
+            tmp.write_text(json.dumps(st, ensure_ascii=False, indent=1), encoding="utf-8")
             os.replace(tmp, target)
+            # Estadísticas entre sesiones (horas, bajas, saltos, contratos…)
+            from .stats import Stats, record_from_state
+            Stats(self.dir / "estadisticas.json").save_session(record_from_state({**st, "ultimo": self.last_time}))
         except OSError as e:
             log.warning("Diario: %s", e)
 
