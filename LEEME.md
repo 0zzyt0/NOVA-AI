@@ -74,10 +74,10 @@ Antes de usar nada, Nova abre una ventana para terminar de configurarse. Puedes 
 3. **¿Cómo te llamas?** («Me llamo Antonio»). Ahí eliges también cómo quieres que te trate: señor, capitán, por tu nombre…
 4. **¿Cómo quieres que me llame?** Cualquier nombre: Nova, Atenea, Jarvis… Te avisa si es muy corto o una palabra demasiado común, porque se activaría sin querer.
 5. **Ejercicios de sonido:** «Perfecto, mi nombre es Atenea. Vamos a entrenar mis oídos…». Pulsa «Escuchar cómo suena» y después **di solo su nombre tres veces**.
-6. **Lee 3 frases** que contienen su nombre:
-   - «Atenea, mi nombre es Antonio.»
-   - «Atenea, mi nave favorita es la Anvil Paladin.»
-   - «Atenea, pertenezco a la organización Espada del Alba de Star Citizen.»
+6. **Lee 3 frases** sobre Star Citizen que empiezan por su nombre. Se eligen **al azar** cada vez que haces la configuración:
+   - una con **muchas vocales seguidas**, para que capte bien tu vocalización: «Atenea, aún oigo el aeropuerto de Área Dieciocho y huelo a aceite.»
+   - otra con **ñ, ll, y, b, v, g, j, n y m**, los sonidos que más le cuestan: «Atenea, la señal de ayuda llega de un jugador bajo el hielo de Yela; vamos ya en la Gladius.»
+   - y otra que mezcla las dos: «Atenea, oye, ayúdame: llevo veinte cajas de oro bajo la niebla y mañana viajo a Pyro.»
 7. **Listo:** resumen. Opcional: tu clave gratis de Gemini.
 
 **Lo que aprende:**
@@ -245,7 +245,7 @@ Los avisos se ponen en cola: no se pierden aunque Nova esté hablando. Si uno ll
 
 ## 7 ter. Archivos de Bitácora
 
-Cada sesión de juego queda apuntada en un archivo `.log` que puedes abrir con el Bloc de notas, en `%LOCALAPPDATA%\NOVA AI\datos\diario\` (por ejemplo `2026-11-07_2147_0zzyt0.log`). En **Memoria → Archivos de bitácora** ves el resumen de la sesión y las bitácoras guardadas (se conservan las 60 últimas).
+Cada sesión de juego queda apuntada en un archivo `.log` que puedes abrir con el Bloc de notas, en `%LOCALAPPDATA%\NOVA AI\datos\diario\` (por ejemplo `2026-11-07_2147_Nebula_Rider.log`). En **Memoria → Archivos de bitácora** ves el resumen de la sesión y las bitácoras guardadas (se conservan las 60 últimas).
 
 **Cada línea:** la hora y lo que pasó: llegadas, saltos, subir y bajar de naves, quién entra y sale de tu nave y del grupo, la torre, amistades, contratos, planos, heridas…
 
@@ -270,7 +270,7 @@ Sale del propio Game.log: si abres Nova con la partida empezada o después de ju
 
 ## 7 octies. Novedades de la versión 1.1
 
-- **Buscar jugadores.** Di «Nova, localízame a un jugador» o «búscame a un jugador»: te pedirá que **escribas el apodo** en el cuadro de texto de la Cabina (por voz se entendería mal). Lee su ficha pública en `robertsspaceindustries.com/en/citizens/APODO` y te da: Apodo en juego, HandleName, UEE Citizen Record, Fecha de alta (Enlisted), Fluency (idioma) y Main Organization; después abre `robertsspaceindustries.com/en/orgs/ORG` (miembros, tipo, actividad). La ficha se guarda en la bitácora (etiqueta `JUGADOR`) y, si pegas un webhook en **Fuentes de datos › Discord**, se manda a ese canal. Si hay cualquier error o la ficha no trae esos datos: «Usuario no encontrado, ¿Está bien escrito el apodo?». También vale escribirlo de una vez: «búscame al jugador 0zzyt0».
+- **Buscar jugadores.** Di «Nova, localízame a un jugador» o «búscame a un jugador»: te pedirá que **escribas el apodo** en el cuadro de texto de la Cabina (por voz se entendería mal). Lee su ficha pública en `robertsspaceindustries.com/en/citizens/APODO` y te da: Apodo en juego, HandleName, UEE Citizen Record, Fecha de alta (Enlisted), Fluency (idioma) y Main Organization; después abre `robertsspaceindustries.com/en/orgs/ORG` (miembros, tipo, actividad). La ficha se guarda en la bitácora (etiqueta `JUGADOR`) y, si pegas un webhook en **Fuentes de datos › Discord**, se manda a ese canal. Si hay cualquier error o la ficha no trae esos datos: «Usuario no encontrado, ¿Está bien escrito el apodo?». Si el jugador o su organización tienen algún dato oculto (RSI lo muestra como `[REDACTED]`), Nova te avisa de que esa información está oculta. También vale escribirlo de una vez: «búscame al jugador Nebula_Rider».
 - **Temporizadores** para refinados, contratos o lo que quieras: «avísame en 3 horas y 20 minutos, el refinado de ARC-L1». Se ven en la Cabina, se crean también a mano y **siguen aunque cierres Nova** (si terminan con ella cerrada, te lo dice al volver). Quedan en la bitácora (`TEMPORIZADOR`).
 - **Rutas de comercio con beneficio real:** con los precios de UEX, Nova calcula cuántas SCU caben en la nave en la que vas (o la que le digas), el stock del origen, la demanda del destino y tu dinero, y ordena por lo que ganas de verdad. Si no sabe tu nave, usa la «Bodega por defecto» de Fuentes de datos.
 - **Perfiles de nave:** en **Juego › Perfiles de nave**, cada nave puede tener sus propios avisos en voz. En el editor de comandos, **Solo en estas naves** limita un comando a ciertas naves (y deja usar la misma frase con teclas distintas en cada una).

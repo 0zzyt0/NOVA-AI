@@ -72,6 +72,20 @@ def _labelled(page: str, label: str) -> str:
     return ""
 
 
+HIDDEN_TEXT = "Oculto (aparece como [REDACTED] en RSI)"
+
+
+def redacted(value: str) -> bool:
+    """RSI enseña «[REDACTED]» en lo que el jugador o la organización ocultan."""
+    return "REDACTED" in (value or "").upper()
+
+
+def shown(value: str, empty: str = "—") -> str:
+    if redacted(value):
+        return HIDDEN_TEXT
+    return value or empty
+
+
 def es_date(enlisted: str) -> str:
     """'Apr 20, 2016' -> '20 abr 2016'."""
     m = re.match(r"([A-Za-z]{3})[a-z]*\.? (\d{1,2}), (\d{4})", enlisted or "")
@@ -116,30 +130,40 @@ class Citizen:
         """Los campos que pide la ficha, en orden."""
         o = self.org
         if o.oculta:
-            main = "Oculta (el jugador no la muestra)"
+            main = "Oculta (aparece como [REDACTED] en RSI)"
         elif o.sid or o.nombre:
             main = f"{o.nombre or o.sid} [{o.sid}]" + (f" · rango: {o.rango}" if o.rango else "")
         else:
             main = "Sin organización principal"
-        return [("Apodo en juego", self.apodo_juego or self.handle), ("HandleName", self.handle),
-                ("UEE Citizen Record", self.expediente or "—"),
-                ("Fecha de alta (Enlisted)", f"{self.alta} ({es_date(self.alta)})" if self.alta else "—"),
-                ("Fluency (Idioma)", es_langs(self.idiomas) or "—"), ("Main Organization", main)]
+        alta = shown(self.alta) if redacted(self.alta) or not self.alta else f"{self.alta} ({es_date(self.alta)})"
+        idiomas = shown(self.idiomas) if redacted(self.idiomas) else (es_langs(self.idiomas) or "—")
+        return [("Apodo en juego", shown(self.apodo_juego or self.handle)), ("HandleName", shown(self.handle)),
+                ("UEE Citizen Record", shown(self.expediente)),
+                ("Fecha de alta (Enlisted)", alta),
+                ("Fluency (Idioma)", idiomas), ("Main Organization", main)]
+
+    def hidden_fields(self) -> list[str]:
+        """Lo que aparece como [REDACTED] (oculto) en la ficha del jugador o de su organización."""
+        out = [k for k, v in self.lines() if v.startswith("Oculta") or v == HIDDEN_TEXT]
+        out += [f"organización · {k.lower()}" for k, v in self.org_lines() if v == HIDDEN_TEXT]
+        return out
 
     def org_lines(self) -> list[tuple[str, str]]:
         o = self.org
         if not (o.sid and not o.oculta and (o.miembros or o.etiquetas or o.actividad_principal)):
             return []
-        out = [("Organización", f"{o.nombre} [{o.sid}]")]
+        out = [("Organización", f"{shown(o.nombre)} [{o.sid}]" if not redacted(o.nombre) else HIDDEN_TEXT)]
         if o.miembros:
-            out.append(("Miembros", o.miembros))
+            out.append(("Miembros", shown(o.miembros)))
         if o.etiquetas:
-            out.append(("Tipo", " · ".join(o.etiquetas)))
-        acts = " / ".join(x for x in (o.actividad_principal, o.actividad_secundaria) if x)
+            tags = [t for t in o.etiquetas if not redacted(t)]
+            out.append(("Tipo", " · ".join(tags) if tags else HIDDEN_TEXT))
+        acts = [x for x in (o.actividad_principal, o.actividad_secundaria) if x]
         if acts:
-            out.append(("Actividad", acts))
+            out.append(("Actividad", HIDDEN_TEXT if all(redacted(x) for x in acts)
+                        else " / ".join(x for x in acts if not redacted(x))))
         if o.descripcion:
-            out.append(("Descripción", o.descripcion))
+            out.append(("Descripción", shown(o.descripcion)))
         out.append(("Página de la org", o.url))
         return out
 
@@ -198,6 +222,8 @@ def parse_citizen(page: str, handle: str) -> Citizen:
         i = next((i for i, ln in enumerate(lines) if ln.lower() == "main organization"), -1)
         if i >= 0 and i + 1 < len(lines) and lines[i + 1] != "Spectrum Identification (SID)":
             o.nombre = lines[i + 1]
+    if redacted(o.sid) or redacted(o.nombre):  # organización principal tapada con [REDACTED]
+        o.oculta, o.sid, o.nombre, o.rango = True, "", "", ""
     if o.sid and not o.nombre:
         o.nombre = o.sid
     if re.search(r"(?i)\bno main org|has no main org|NO ORG", _text(scope)) and not o.sid:
@@ -217,6 +243,8 @@ def parse_org(page: str, sid: str) -> Org:
     m = re.search(r"(\d[\d,.]*)\s+members?\b", txt, re.I)
     if m:
         o.miembros = m.group(1)
+    elif re.search(r"(?i)\[?REDACTED\]?\s+members?\b", txt):
+        o.miembros = "[REDACTED]"
     m = re.search(r'<ul[^>]*class="[^"]*\btags\b[^"]*"[^>]*>(.*?)</ul>', page, re.S)
     if m:
         o.etiquetas = [t for t in (_text(x) for x in re.findall(r"<li[^>]*>(.*?)</li>", m.group(1), re.S)) if t]

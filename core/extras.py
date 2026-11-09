@@ -25,7 +25,7 @@ def is_lookup(norm: str) -> bool:
 
 
 def handle_in(text: str) -> str:
-    """Apodo escrito en la misma frase («búscame al jugador 0zzyt0»), o ''."""
+    """Apodo escrito en la misma frase («búscame al jugador Nebula_Rider»), o ''."""
     m = HANDLE_AFTER.search(text or "")
     if not m:
         return ""
@@ -43,22 +43,30 @@ def clean_handle(text: str) -> str:
 
 def spoken(c: Citizen, t: str) -> str:
     """Resumen corto para decir en voz alta (la ficha completa va al chat)."""
-    who = c.apodo_juego or c.handle
+    from .rsi import redacted
+    who = c.handle if redacted(c.apodo_juego) or not c.apodo_juego else c.apodo_juego
     parts = [f"Ficha de {who}" + (f", handle {c.handle}" if c.handle and c.handle != who else "")]
-    if c.alta:
+    if c.alta and not redacted(c.alta):
         parts.append(f"alta en {es_date(c.alta)}")
-    if c.idiomas:
+    if c.idiomas and not redacted(c.idiomas):
         from .rsi import LANGS
         langs = [LANGS.get(x.strip().lower(), x.strip()) for x in c.idiomas.split(",") if x.strip()]
         parts.append("habla " + (" y ".join([", ".join(langs[:-1]), langs[-1]]) if len(langs) > 1 else langs[0]))
     o = c.org
     if o.oculta:
-        parts.append("organización principal oculta")
+        parts.append("la organización principal la tiene oculta")
     elif o.nombre or o.sid:
         parts.append(f"organización {o.nombre or o.sid}" + (f", {o.miembros} miembros" if o.miembros else ""))
     else:
         parts.append("sin organización principal")
-    return parts[0] + (": " + ", ".join(parts[1:]) if len(parts) > 1 else "") + f". Tiene la ficha completa en pantalla, {t}."
+    text = parts[0] + (": " + ", ".join(parts[1:]) if len(parts) > 1 else "") + "."
+    hidden = [h for h in c.hidden_fields() if h != "Main Organization"]
+    if hidden:
+        nice = {"Apodo en juego": "el apodo en juego", "HandleName": "el handle", "UEE Citizen Record": "el expediente",
+                "Fecha de alta (Enlisted)": "la fecha de alta", "Fluency (Idioma)": "los idiomas"}
+        said = [nice.get(h, h) for h in hidden]
+        text += f" Ojo: tiene oculta en RSI esta información: {', '.join(said)}."
+    return text + f" Tiene la ficha completa en pantalla, {t}."
 
 
 def diary_detail(c: Citizen) -> str:

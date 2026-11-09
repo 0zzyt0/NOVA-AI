@@ -65,6 +65,46 @@ def check_exercise(heard: str, name: str, names: list[str]) -> dict:
     return {"ok": False, "note": "He oído otra cosa. Di solo mi nombre, despacio y claro."}
 
 
+# ------------------------------------------------------------ frases del entrenamiento
+# Se eligen al azar al empezar la configuración: una con muchas vocales seguidas (hiatos y diptongos,
+# para que el oído capte bien la vocalización), otra con ñ, ll, y, b, v, g, j, n y m, y otra que mezcla las dos.
+PHRASES_VOWELS = [
+    "{nombre}, aún oigo el aeropuerto de Área Dieciocho y huelo a aceite.",
+    "{nombre}, la euforia aérea aumenta cuando aterrizo la Aurora en Orison.",
+    "{nombre}, ahí iba a aparecer una Idris aliada; oí su aviso en Euterpe.",
+    "{nombre}, guía a la Aurora hacia el área de aduanas; oía ruidos en el aire.",
+    "{nombre}, aquí el piloto: la Aquila aúlla al oeste de Daymar.",
+    "{nombre}, ¿oíste? Hay oro e iones en la órbita; aeronave lista para aterrizar.",
+    "{nombre}, aún huele a ozono; el cuántico aguanta hasta Hurston.",
+]
+PHRASES_CONSONANTS = [
+    "{nombre}, mañana llevo mi Vanguard y un Gladius bajo la nieve de Yela.",
+    "{nombre}, ya llegó mi compañero en la Vulture; viajamos juntos con la Banu Merchantman.",
+    "{nombre}, la señal de ayuda llega de un jugador bajo el hielo de Yela; vamos ya en la Gladius.",
+    "{nombre}, llevo un año viajando en mi Avenger bajo la lluvia de Magnus y nunca me engaña el radar.",
+    "{nombre}, el viejo cañón ya brilla; baja y vigila la montaña de Hurston.",
+    "{nombre}, mi pequeña Mustang lleva gemas y joyas bajo la nave; vigila y ayúdame.",
+]
+PHRASES_MIXED = [
+    "{nombre}, aquel jugador iba hacia la montaña; llévame ya en la Cutlass Black.",
+    "{nombre}, oye, ayúdame: llevo veinte cajas de oro bajo la niebla y mañana viajo a Pyro.",
+    "{nombre}, aún huele a gasolina; ya llegué con la Avenger al hangar de Lorville.",
+    "{nombre}, oía a mi compañero gritar: baja ya, el Vanduul nos aleja de la luna.",
+    "{nombre}, la Reclaimer aguanta; mañana llevamos el botín y la joya al aeropuerto de New Babbage.",
+]
+OLD_DEFAULT_PHRASES = [  # las fijas de la 1.0: si siguen guardadas, se usan las nuevas al azar
+    "{nombre}, mi nombre es {piloto}.",
+    "{nombre}, mi nave favorita es la Anvil Paladin.",
+    "{nombre}, pertenezco a la organización Espada del Alba de Star Citizen.",
+]
+
+
+def random_phrases(rng=None) -> list[str]:
+    import random
+    r = rng or random.SystemRandom()
+    return [r.choice(PHRASES_VOWELS), r.choice(PHRASES_CONSONANTS), r.choice(PHRASES_MIXED)]
+
+
 def check_phrase(heard: str, expected: str, name: str, names: list[str]) -> dict:
     """Frase de entrenamiento: «{nombre}, mi nave favorita es…»."""
     h = simplify(heard)

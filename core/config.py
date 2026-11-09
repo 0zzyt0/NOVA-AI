@@ -112,11 +112,7 @@ DEFAULTS: dict = {
     "tratamiento": "señor",
     "asistente_completado": False,  # False = al abrir sale la ventana de configuración inicial
     "nombre_variantes": [],  # cómo escribe Whisper el nombre cuando TÚ lo dices (aprendido)
-    "frases_entrenamiento": [
-        "{nombre}, mi nombre es {piloto}.",
-        "{nombre}, mi nave favorita es la Anvil Paladin.",
-        "{nombre}, pertenezco a la organización Espada del Alba de Star Citizen.",
-    ],
+    "frases_entrenamiento": [],  # vacío = 3 frases al azar sobre Star Citizen (core/training.py)
     # --- IA ---------------------------------------------------------------
     "ia_cadena": [  # se prueba en orden; si uno falla o se queda sin cuota, salta al siguiente
         {"proveedor": "gemini", "modelo": "gemini-flash-lite-latest"},

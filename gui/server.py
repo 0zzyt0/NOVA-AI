@@ -508,9 +508,16 @@ class UIServer:
 
     # --- configuración inicial y entrenamiento del oído
     def _phrases(self) -> list[str]:
+        """Frases del entrenamiento: las tuyas si las cambiaste; si no, 3 al azar sobre Star Citizen
+        (se eligen al empezar la configuración y no cambian hasta la siguiente)."""
+        from core.training import OLD_DEFAULT_PHRASES, random_phrases
         s = self.nova.settings
         name, pilot = s.get("nombre_asistente"), s.get("nombre_piloto") or s.get("tratamiento")
-        frases = s.get("frases_entrenamiento") or DEFAULTS["frases_entrenamiento"]
+        frases = s.get("frases_entrenamiento") or []
+        if not frases or frases == OLD_DEFAULT_PHRASES:
+            if not getattr(self, "_random_phrases", None):
+                self._random_phrases = random_phrases()
+            frases = self._random_phrases
         return [f.replace("{nombre}", name).replace("{piloto}", pilot) for f in frases][:6]
 
     def _setup_info(self) -> dict:
@@ -590,6 +597,7 @@ class UIServer:
         return r
 
     def api_setup_finish(self) -> dict:
+        self._random_phrases = None  # la próxima configuración tendrá frases nuevas al azar
         n, s = self.nova, self.nova.settings
         sens = calibrate(self._setup_samples)
         if sens is not None:
