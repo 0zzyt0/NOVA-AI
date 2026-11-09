@@ -20,7 +20,7 @@ Te escucha, te responde con voz natural, pulsa las teclas del juego por ti y sab
 
 - **Te escucha:** mantén una tecla, un botón del ratón o del HOTAS, o simplemente di su nombre: *«Nova, baja el tren»*. El nombre lo eliges tú.
 - **Maneja la nave:** lee tus teclas de Star Citizen (`actionmaps.xml`) y las pulsa por ti: tren, pista, escudos, salto cuántico… Con un editor para crear tus propios comandos y secuencias.
-- **Conversa y busca:** lore, naves, minería, planos de fabricación, misiones y precios, con datos del parche LIVE (scmdb.net, UEX Corp, Star Citizen Wiki) y una enciclopedia local.
+- **Conversa y busca** (con tu clave gratuita de IA): lore, naves, minería, planos de fabricación, misiones y precios, con datos del parche LIVE (scmdb.net, UEX Corp, Star Citizen Wiki) y una enciclopedia local.
 - **Sigue tu partida:** lee el `Game.log` en directo, en el idioma de tu juego: dónde estás, quién entra en tu nave, la torre, contratos, combate, curas en camilla médica, cargas…
 - **Cuaderno de bitácora:** apunta cada sesión: dónde dejaste el personaje, la última nave, muertes, bajas, incapacitaciones…
 - **Star Citizen en español:** instala y mantiene al día la traducción de la comunidad (0zzyt0) con un clic, y te avisa cada 3 meses.
@@ -56,9 +56,9 @@ NOVA AI usa servicios gratuitos, en una **cadena de motores**: si uno se queda s
 | 3 | Groq | `openai/gpt-oss-120b` |
 | 4 | OpenRouter | `openrouter/free` |
 
-El **instalador oficial** trae claves gratuitas de prueba (compartidas, con límite diario). Cada usuario puede poner las suyas en *Inteligencia › Claves gratuitas*; el manual explica paso a paso cómo conseguirlas gratis en Google AI Studio, Groq y OpenRouter.
+El instalador de *Releases* **no trae claves de IA**: Nova obedece los comandos de voz desde el primer momento, y para conversar y buscar necesita al menos una clave gratuita. Se consiguen en 2 minutos y sin tarjeta (Gemini y Groq son las recomendadas): la sección 12 del manual lo explica paso a paso. Después se pegan en *Inteligencia › Claves gratuitas*.
 
-**Sobre las claves en este repositorio:** las claves de fábrica están **cifradas** (`recursos/claves_iniciales.enc`, ver [`core/keyvault.py`](core/keyvault.py)) y la llave maestra **no está en el repositorio**: solo viaja dentro del instalador oficial. Si compilas tu propia versión, usa tus claves con [`build/cifrar_claves.py`](build/cifrar_claves.py), o no pongas ninguna y cada usuario pondrá las suyas.
+**Sobre las claves en este repositorio:** el programa admite claves de fábrica **cifradas** (`recursos/claves_iniciales.enc`, ver [`core/keyvault.py`](core/keyvault.py)), pero la llave maestra **no está en el repositorio ni en la versión pública**, así que esas claves no se pueden usar ni leer. Si compilas tu propia versión, usa tus claves con [`build/cifrar_claves.py`](build/cifrar_claves.py), o no pongas ninguna y cada usuario pondrá las suyas.
 
 ## Ejecutar desde el código
 

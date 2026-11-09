@@ -87,7 +87,7 @@ Antes de usar nada, Nova abre una ventana para terminar de configurarse. Puedes 
 
 ## 2. Claves gratuitas (sección «Inteligencia»)
 
-**El programa base ya trae claves gratuitas** de Gemini, Groq, OpenRouter y DeepSeek, puestas en su sitio al instalar: Nova conversa desde el primer minuto. Son claves de prueba con un límite diario compartido; si se agotan o dejan de funcionar, consigue las tuyas (gratis) y pégalas encima. Tus claves nunca se sustituyen por las de fábrica.
+**Claves de serie:** algunas versiones del instalador traen claves gratuitas de prueba (cifradas) para Gemini, Groq, OpenRouter y DeepSeek, puestas en su sitio al instalar. La versión pública de GitHub **no las trae**: consigue las tuyas, gratis y en 2 minutos (pasos abajo y en el manual). Si tu versión sí las trae, tienen un límite diario compartido; tus claves nunca se sustituyen por las de fábrica.
 
 Sin ninguna clave, Nova ya ejecuta comandos por frase directa. **Para conversar y buscar** necesita al menos una.
 
