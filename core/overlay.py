@@ -509,21 +509,18 @@ if IS_WINDOWS:
         mons.sort(key=lambda m: (not m[1], m[0][0], m[0][1]))  # principal primero, luego de izquierda a derecha
         return mons
 
+    # El procedimiento de ventana vive todo el programa (si se liberase, Windows llamaría a memoria muerta).
+    _WNDPROC_KEEP = WNDPROC(lambda h, m, w, l: user32.DefWindowProcW(h, m, w, l))
+
     class _LayeredWindow:
         _class_registered = False
 
+        _class_lock = threading.Lock()
+
         def __init__(self) -> None:
-            self._wndproc = WNDPROC(lambda h, m, w, l: user32.DefWindowProcW(h, m, w, l))
             hinst = kernel32.GetModuleHandleW(None)
-            if not _LayeredWindow._class_registered:
-                wc = WNDCLASSEXW()
-                wc.cbSize = ctypes.sizeof(WNDCLASSEXW)
-                wc.lpfnWndProc = self._wndproc
-                wc.hInstance = hinst
-                wc.lpszClassName = "NovaOverlay"
-                if not user32.RegisterClassExW(ctypes.byref(wc)):
-                    raise OSError(f"RegisterClassEx falló ({ctypes.get_last_error()})")
-                _LayeredWindow._class_registered = True
+            with _LayeredWindow._class_lock:  # una sola clase para el logo y los hologramas (hilos distintos)
+                self._register(hinst)
             ex = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE
             self.hwnd = user32.CreateWindowExW(ex, "NovaOverlay", "Nova Overlay", WS_POPUP,
                                                0, 0, 1, 1, None, None, hinst, None)
@@ -535,6 +532,18 @@ if IS_WINDOWS:
             self.bits = ctypes.c_void_p()
             self.size = (0, 0)
             self.old = None
+
+        @staticmethod
+        def _register(hinst) -> None:
+            if not _LayeredWindow._class_registered:
+                wc = WNDCLASSEXW()
+                wc.cbSize = ctypes.sizeof(WNDCLASSEXW)
+                wc.lpfnWndProc = _WNDPROC_KEEP
+                wc.hInstance = hinst
+                wc.lpszClassName = "NovaOverlay"
+                if not user32.RegisterClassExW(ctypes.byref(wc)):
+                    raise OSError(f"RegisterClassEx falló ({ctypes.get_last_error()})")
+                _LayeredWindow._class_registered = True
 
         def _ensure_bitmap(self, w: int, h: int) -> None:
             if (w, h) == self.size:

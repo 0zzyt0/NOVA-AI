@@ -126,7 +126,12 @@ def main() -> None:
             nova.diary.flush()
             session.dirty = True
             save_all()
+            try:
+                nova.update_on_close()  # ¿versión nueva? (o la que dejaste «para al cerrar»)
+            except Exception:
+                log.exception("Actualización al cerrar")
             overlay.stop()
+            nova.holo.stop()
             nova.tts.stop()
             nova.tts.out.close()
             if nova.listener:
@@ -135,6 +140,7 @@ def main() -> None:
             os._exit(0)
 
     server.on_shutdown = shutdown
+    nova.request_quit = lambda: threading.Thread(target=shutdown, daemon=True, name="apagado").start()
 
     def check_sources() -> None:
         """Antes de activar nada: ¿hay datos nuevos en scmdb.net, UEX, la wiki o tu global.ini?"""

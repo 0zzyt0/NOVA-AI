@@ -1,6 +1,6 @@
 # NOVA AI · Normas de uso y Política de privacidad
 
-Versión 1.1 · noviembre de 2026
+Versión 1.2 · noviembre de 2026
 
 ## En pocas palabras
 
@@ -18,7 +18,9 @@ Para funcionar, Nova usa servicios de internet gratuitos. Esto es exactamente lo
 - **Voz de Nova:** con las voces de Microsoft Edge, el texto de la respuesta se envía a Microsoft para generar el audio. Con Piper o la voz de Windows no sale nada.
 - **Información del juego:** búsquedas en Star Citizen Wiki, UEX Corp, scmdb.net y DuckDuckGo sobre naves, misiones, precios o lugares. Al arrancar, Nova comprueba si esas fuentes tienen datos nuevos.
 - **Traducción al español:** solo si lo aceptas, Nova descarga la traducción de la comunidad (0zzyt0) desde su Google Drive y la instala en tu carpeta del juego.
-- **Fichas de jugadores y estado de los servidores:** cuando le pides buscar un jugador, Nova lee su ficha pública en robertsspaceindustries.com (solo el apodo que escribes) y la de su organización; al arrancar lee la página pública status.robertsspaceindustries.com. Son las mismas páginas que abrirías tú en el navegador.
+- **Fichas de jugadores y estado de los servidores:** cuando le pides buscar un jugador, Nova lee su ficha pública en robertsspaceindustries.com (solo el apodo que escribes, o el del objetivo de una recompensa sobre un jugador que aceptes) y la de su organización; al arrancar lee la página pública status.robertsspaceindustries.com. Son las mismas páginas que abrirías tú en el navegador.
+- **Fichas de planetas, lunas y lugares:** cuando le pides información de un planeta o llegas cerca de uno, Nova lee su página pública en verseguide.com (por ejemplo verseguide.com/location/STANTON/2B) y la guarda unos días en tu equipo. Las fotos de perfil y los logotipos de las organizaciones se descargan de robertsspaceindustries.com. Si activas la traducción, la descripción (en inglés) se manda a tu motor de IA para pasarla al español.
+- **Actualizaciones:** al iniciar y al cerrar, NOVA pregunta a GitHub (api.github.com) cuál es la última versión publicada de NOVA AI. Si actualizas, descarga de GitHub el instalador oficial. Se puede desactivar en Fuentes de datos.
 - **Discord (opcional):** solo si pegas el webhook de un canal tuyo, Nova manda a ese canal la ficha pública del jugador que hayas buscado. Sin webhook no se envía nada.
 
 Nada más sale de tu PC. El Game.log del juego se lee en tu ordenador y el archivo nunca se envía: a la IA solo le llega el breve resumen de la partida del punto anterior.

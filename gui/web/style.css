@@ -489,3 +489,19 @@ table.stats th{font-size:10.5px;letter-spacing:1px;color:var(--dim);text-align:r
 table.stats td{text-align:right;padding:5px 8px;border-bottom:1px solid var(--line);font-family:var(--mono);color:#e2eef6}
 table.stats th:first-child,table.stats td:first-child,table.stats th:last-child,table.stats td:last-child{text-align:left}
 #statsTotals{grid-template-columns:repeat(4,1fr)}
+
+/* ---------- v1.2 hologramas ---------- */
+.holo-prev{min-height:220px;display:flex;align-items:center;justify-content:center;background:radial-gradient(600px 300px at 50% 40%,rgba(32,184,232,.08),transparent),rgba(0,0,0,.25);border:1px solid var(--line);padding:10px}
+.holo-prev img{max-width:100%;height:auto;display:block;filter:drop-shadow(0 0 14px rgba(32,184,232,.25))}
+
+/* ---------- v1.3 actualizaciones ---------- */
+.upd-box{width:min(640px,94vw)}
+.upd-head{display:flex;gap:16px;align-items:center;margin:6px 0 14px}
+.upd-head img{width:64px;height:64px;filter:drop-shadow(0 0 12px rgba(32,184,232,.5))}
+.upd-title{font-size:18px;color:#eefaff}
+.upd-title b{color:var(--cy);font-family:var(--mono)}
+.upd-q{font-size:20px;font-weight:600;color:#fff;margin:4px 0 6px;letter-spacing:.5px}
+.upd-notes{max-height:200px;overflow:auto;font-size:13px;color:#cfe6f2;background:rgba(0,0,0,.2);border:1px solid var(--line);padding:10px 12px;margin-bottom:12px;line-height:1.5}
+.upd-bar{position:relative;height:22px;border:1px solid var(--line2);background:rgba(0,0,0,.25);margin-bottom:12px}
+.upd-bar i{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,rgba(32,184,232,.35),rgba(32,184,232,.8));transition:width .3s}
+.upd-bar span{position:relative;display:block;text-align:center;font:12px/22px var(--mono);color:#fff}

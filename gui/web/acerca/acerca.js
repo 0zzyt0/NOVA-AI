@@ -2,7 +2,7 @@
    túnel infinito de 8 bits, una flecha volando dentro, scroller en seno y música en bucle. */
 (() => {
   "use strict";
-  const VERSION = "1.1";
+  const VERSION = "1.2";
 
   // ------------------------------------------------------------ fuente de píxeles 5×7
   const F = {
@@ -85,14 +85,14 @@
 <p>NOVA AI es un proyecto de fans, independiente y sin ánimo de lucro. No está afiliado, patrocinado ni respaldado por Cloud Imperium Games.</p>
 
 <div class="kg-s">[ FUENTES DE DATOS ]</div>
-<p>Las páginas de consulta <b>scmdb.net</b> (https://scmdb.net) y <b>UEX Corp</b> (https://uexcorp.space) son propiedad de sus respectivos autores, tienen sus propias condiciones de uso y sus contenidos están protegidos.</p>
+<p>Las páginas de consulta <b>scmdb.net</b> (https://scmdb.net), <b>UEX Corp</b> (https://uexcorp.space) y <b>VerseGuide</b> (https://verseguide.com) son propiedad de sus respectivos autores, tienen sus propias condiciones de uso y sus contenidos están protegidos. Las fichas de jugadores, sus fotos y los logotipos de las organizaciones vienen de las páginas públicas de robertsspaceindustries.com y pertenecen a sus titulares.</p>
 <p>NOVA AI se limita a <b>consultarlas en línea y a leer la información que publican</b>, igual que lo haría cualquier persona desde su navegador:</p>
 <p class="kg-l">» <b>No modifica, altera ni manipula</b> sus datos.<br>» <b>No los redistribuye</b> ni los publica en ningún otro lugar: lo que se descarga se guarda solo en tu equipo, para tu uso personal.<br>» <b>No se atribuye su autoría</b>: todo el mérito de esa información es de quienes la crean y la mantienen.</p>
 <p>Lo mismo se aplica a Star Citizen Wiki (starcitizen.tools) y a la traducción al español de la comunidad.</p>
 
 <div class="kg-c kg-y" style="margin-top:14px">o7 · Nos vemos en el 'verso</div>`;
 
-  const SCROLL = "*** NOVA AI V1.1 *** ASISTENTE DE VUELO PARA STAR CITIZEN *** CODIGO: AARON B. ROLDAN - 0ZZYT0 *** " +
+  const SCROLL = "*** NOVA AI V1.2 *** ASISTENTE DE VUELO PARA STAR CITIZEN *** CODIGO: AARON B. ROLDAN - 0ZZYT0 *** " +
     "MOTOR DE IA: CLAUDE OPUS 5.5 *** SALUDOS A LA ORG. DEFCORP *** GRACIAS A FAIBO, GALLEG0, SR.SCOTT, ALPACAINTROUBLE, " +
     "LOTHER Y MUCHOS MAS *** LIBRE USO Y MODIFICACION: CITA TU BASE *** PULSA ESC PARA SALIR *** O7 ***          ";
 

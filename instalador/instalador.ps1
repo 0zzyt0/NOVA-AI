@@ -7,10 +7,12 @@
   accesos directos y lo registra en «Aplicaciones instaladas» con su desinstalador.
   Tus datos (ajustes, comandos, memoria) viven aparte, en %LOCALAPPDATA%\NOVA AI\datos.
 #>
-param([string]$Destino = '', [string]$Origen = '')
+param([string]$Destino = '', [string]$Origen = '', [switch]$Actualizar, [switch]$SinIniciar)
+# -Actualizar: lo abre NOVA AI cuando hay una versión nueva en GitHub (empieza solo, sin preguntar de nuevo
+#  las normas si ya estaban aceptadas). -SinIniciar: no volver a abrir NOVA al terminar (actualizar «al cerrar»).
 $ErrorActionPreference = 'Continue'
 $AppName = 'NOVA AI'
-$AppVersion = '1.1.0'
+$AppVersion = '1.2.0'
 # Origen: carpeta con el programa a instalar. «NOVA AI Setup.exe» la pasa (la descomprime en TEMP);
 # con INSTALAR.bat es la carpeta padre de este script.
 $Src = if ($Origen) { $Origen } elseif ($PSScriptRoot) { Split-Path -Parent $PSScriptRoot } else { (Get-Location).Path }
@@ -42,6 +44,8 @@ if (-not $isAdmin) {
         if (-not $PSCommandPath) { throw 'sin ruta del script' }
         $argList = '-NoProfile -ExecutionPolicy Bypass -STA -File "' + $PSCommandPath + '" -Origen "' + $Src + '"'
         if ($Destino) { $argList += ' -Destino "' + $Destino + '"' }
+        if ($Actualizar) { $argList += ' -Actualizar' }
+        if ($SinIniciar) { $argList += ' -SinIniciar' }
         Start-Process -FilePath 'powershell.exe' -Verb RunAs -ArgumentList $argList -ErrorAction Stop
         exit 0
     } catch {
@@ -1279,11 +1283,14 @@ function On-Tick {
                 if ($d.Net) { Set-Diag $ui.DiagNet $true 'Conexión con los repositorios establecida' }
                 else { Set-Diag $ui.DiagNet $false 'Sin conexión con pypi.org · revisa internet o el firewall' }
                 if ($d.Repair) { $ui.Subtitle.Text = 'INSTALACIÓN PREVIA DETECTADA  //  MODO REPARACIÓN Y ACTUALIZACIÓN'; $script:typed = 999 }
+                if ($Actualizar) { $ui.Subtitle.Text = 'ACTUALIZANDO NOVA AI A LA VERSIÓN ' + $AppVersion; $script:typed = 999 }
                 $ui.BtnStart.IsEnabled = $true
                 Update-Estimate
                 Set-Arc 0.001
                 $ui.EtaSmall.Text = 'EN ESPERA'
                 $script:phase = 'options'
+                # Actualización desde NOVA: empieza sola en cuanto las normas están aceptadas
+                if ($Actualizar -and $script:termsAccepted) { Start-Install }
             }
         }
         'install' {
@@ -1385,7 +1392,9 @@ function Finish-Install {
             }
         } catch {}
     }
-    if ($ui.ChkLaunch.IsChecked) {
+    if ($SinIniciar) {
+        $script:autoCloseAt = [DateTime]::Now.AddSeconds(6)  # actualizada «al cerrar»: no se vuelve a abrir
+    } elseif ($ui.ChkLaunch.IsChecked -or $Actualizar) {
         $script:autoLaunchAt = [DateTime]::Now.AddSeconds(4)
     }
 }
@@ -1413,7 +1422,7 @@ function Start-Nova {
 }
 
 # ===========================================================  NORMAS
-$TermsVersion = '1.1'
+$TermsVersion = '1.2'
 $script:termsAccepted = ''
 function Add-TermsLine([string]$text, [string]$kind) {
     $tb = New-Object Windows.Controls.TextBlock
@@ -1456,7 +1465,18 @@ $ui.ChkTerms.Add_Unchecked({ $ui.BtnAccept.IsEnabled = $false })
 $ui.BtnAccept.Add_Click({
     $script:termsAccepted = Get-Date -Format 'yyyy-MM-dd HH:mm'
     Show-Panel 'PanelOptions'
+    if ($Actualizar -and $script:phase -eq 'options') { Start-Install }
 })
+# Al actualizar: si ya aceptaste estas mismas normas, no se vuelven a pedir
+if ($Actualizar) {
+    try {
+        $prev = Get-Content -LiteralPath (Join-Path $Root 'instalado.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+        if ($prev.normas_version -eq $TermsVersion -and $prev.normas_aceptadas) {
+            $script:termsAccepted = [string]$prev.normas_aceptadas
+            Show-Panel 'PanelOptions'
+        }
+    } catch {}
+}
 $ui.BtnDecline.Add_Click({ $window.Close() })
 
 # ===========================================================  EVENTOS
@@ -1511,6 +1531,7 @@ $window.Add_Closing({
 $timer = New-Object Windows.Threading.DispatcherTimer
 $timer.Interval = [TimeSpan]::FromMilliseconds(100)
 $script:autoLaunchAt = $null
+$script:autoCloseAt = $null
 $script:lastUiError = ''
 $timer.Add_Tick({
     try {
@@ -1518,6 +1539,10 @@ $timer.Add_Tick({
         if ($script:autoLaunchAt -and [DateTime]::Now -ge $script:autoLaunchAt) {
             $script:autoLaunchAt = $null
             Start-Nova
+            $window.Close()
+        }
+        if ($script:autoCloseAt -and [DateTime]::Now -ge $script:autoCloseAt) {
+            $script:autoCloseAt = $null
             $window.Close()
         }
     } catch {

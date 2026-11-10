@@ -19,6 +19,9 @@ from .logrules import CONST, RULE_KEYS, TILDE_FIELDS
 
 log = logging.getLogger("nova.localization")
 
+HANDLE_LIKE = re.compile(r"[_\-\d]|[a-z][A-Z]|^[A-Z0-9]{4,}$")
+GENERIC_TARGET = re.compile(r"(?i)(?:sospechos[oa]|suspect|criminal|objetivo|target|recompensa|bounty)\s*:\s*"
+                            r"([A-Za-z0-9_\-]{3,60})\s*$")
 TOKEN = re.compile(r"%(?:\.\d+)?(?:ls|hs|[lh]?[sSdiuf])|~(\w+)\(([^)]*)\)")
 NUMERIC = set("diuf")
 
@@ -228,6 +231,7 @@ class GameText:
             for k, v in src.items():
                 if k.startswith("notification_") and k.endswith("_title") and v and "%" not in v:
                     titles.add(v.strip().lower())
+        self._target_rx = None
         with self._lock:
             self.rules = [r[:6] for r in rules]
             self._suffix_ship = ship_rx
@@ -254,6 +258,60 @@ class GameText:
                 kind, cat, data = self._classify_suffix(kind, cat, data)
             return kind, cat, data, key
         return None
+
+    # ------------------------------------------------- objetivos de recompensas (cazarrecompensas)
+    def bounty_target(self, text: str) -> str:
+        """Título u objetivo de un contrato -> nombre del objetivo (~mission(TargetName)) si es un apodo
+        sin espacios (como los de los jugadores). '' si no lo es o no se reconoce."""
+        t = re.sub(r"</?EM\d>", "", text or "").strip()
+        if not t:
+            return ""
+        rxs = getattr(self, "_target_rx", None)
+        if rxs is None:
+            rxs = self._build_target_rx()
+        for rx, strong in rxs:
+            m = rx.fullmatch(t)
+            if m:
+                name = m.group("t").strip(" '\"«»")
+                # Contratos JcJ: siempre. Otros: solo si el nombre parece un apodo de jugador
+                # (los PNJ suelen tener nombres normales, «Gonzo», «Wade Rocha»).
+                return name if strong or HANDLE_LIKE.search(name) else ""
+        m = GENERIC_TARGET.search(t)
+        return m.group(1) if m and HANDLE_LIKE.search(m.group(1)) else ""
+
+    def _build_target_rx(self) -> list:
+        out, seen = [], set()
+        for src in (self.entries, {k.lower(): v for k, v in EN.items()}):
+            for k, v in src.items():
+                if "~mission(targetname)" not in (v or "").lower() or len(v) > 160:
+                    continue
+                if not any(w in k for w in ("title", "_obj", "objective", "marker")):
+                    continue
+                tpl = re.sub(r"</?EM\d>", "", v)
+                tpl = re.sub(r"\[[^\]]*\]\*?", "", tpl).strip().rstrip(" .:")
+                if tpl in seen:
+                    continue
+                seen.add(tpl)
+                parts, pos, has = [], 0, False
+                for m in TOKEN.finditer(tpl):
+                    parts.append(_literal(tpl[pos:m.start()]))
+                    pos = m.end()
+                    if m.group(1) and m.group(2).lower() == "targetname" and not has:
+                        parts.append(r"(?P<t>[A-Za-z0-9_\-]{2,60})")
+                        has = True
+                    else:
+                        parts.append(r".+?")
+                parts.append(_literal(tpl[pos:]))
+                if not has:
+                    continue
+                try:
+                    out.append((re.compile(r"\s*" + "".join(parts) + r"\s*[.:]?\s*", re.I),
+                                "pvp" in k or "player" in k))
+                except re.error:
+                    continue
+        out.sort(key=lambda r: not r[1])  # primero las plantillas de contratos JcJ
+        self._target_rx = out
+        return out
 
     def ship_channel(self, where: str) -> str:
         """«canal 'Argo MOLE : 0zzyt0'» -> «Argo MOLE : 0zzyt0» (o "" si no es un canal de nave)."""

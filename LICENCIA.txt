@@ -51,9 +51,12 @@ afiliado, patrocinado ni respaldado por Cloud Imperium Games.
 FUENTES DE DATOS
 ----------------
 
-Las páginas de consulta scmdb.net (https://scmdb.net) y UEX Corp
-(https://uexcorp.space) son propiedad de sus respectivos autores, tienen sus
-propias condiciones de uso y sus contenidos están protegidos.
+Las páginas de consulta scmdb.net (https://scmdb.net), UEX Corp
+(https://uexcorp.space) y VerseGuide (https://verseguide.com) son propiedad de
+sus respectivos autores, tienen sus propias condiciones de uso y sus contenidos
+están protegidos. Las fichas de jugadores, sus fotos de perfil y los logotipos
+de las organizaciones vienen de las páginas públicas de robertsspaceindustries.com
+y pertenecen a sus titulares.
 
 NOVA AI se limita a consultarlas en línea y a leer la información que
 publican, igual que lo haría cualquier persona desde su navegador:

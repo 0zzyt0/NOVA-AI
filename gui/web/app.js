@@ -48,6 +48,8 @@ function go(sec, remember = true, sub = "") {
   if (sec === "voz" || sec === "interfaz") loadDevices();
   if (sec === "ia") loadIA();
   if (window.V11) V11.onSection(sec);
+  if (window.V12) V12.onSection(sec);
+  if (window.V13) V13.onSection(sec);
 }
 $$("#nav button").forEach((b) => b.addEventListener("click", () => go(b.dataset.sec)));
 // Subapartados (pestañas dentro de una sección)
@@ -216,7 +218,7 @@ function connect() {
     else if (ev.t === "trad") Trad.progress(ev);
     else if (ev.t === "trad_aviso") { STATE.traduccion_aviso = true; Trad.maybeAsk(); }
     else if (ev.t === "reset") afterReset();
-    else if (window.V11) V11.onEvent(ev);
+    else if (window.V11) { V11.onEvent(ev); if (window.V12) V12.onEvent(ev); if (window.V13) V13.onEvent(ev); }
   };
 }
 function goodbye(es) {
@@ -311,6 +313,7 @@ async function loadState() {
   showSetting("tts_voz_piper");
   paintNames();
   if (window.V11) V11.afterState();
+  if (window.V13) V13.afterState();
   if (STATE.session && STATE.session.seccion && STATE.session.seccion !== "cabina") go(STATE.session.seccion, false);
   paintSources(STATE.fuentes);
   if (STATE.arranque && STATE.arranque.comprobando) Boot.show(STATE.arranque.informe || {});

@@ -14,7 +14,7 @@ import os
 import threading
 from pathlib import Path
 
-VERSION = "1.1.0"
+VERSION = "1.2.0"
 APP_NAME = "NOVA AI"
 APP_DIR = Path(__file__).resolve().parent.parent
 FACTORY_DIR = APP_DIR / "datos"  # archivos de fábrica que vienen con el programa (solo lectura)
@@ -169,6 +169,20 @@ DEFAULTS: dict = {
     "perfiles_nave": {},  # {"Cutlass Black": {"dinero": False, ...}} avisos distintos según la nave
     "naves_conocidas": [],  # naves en las que te ha visto subir (para los perfiles)
     "carga_scu": 0,  # SCU de bodega por defecto para las rutas (0 = el de tu nave actual)
+    # --- v1.2: hologramas de información sobre el juego --------------------
+    "holo_activo": True,  # mostrar fichas en holograma sobre el juego
+    "holo_opacidad": 0.85,  # 0.2 … 1
+    "holo_segundos": 14,  # tiempo en pantalla
+    "holo_posicion": "centro-derecha",
+    "holo_escala": 1.0,  # tamaño (0.6 … 1.6)
+    "holo_jugadores": True,  # al buscar un jugador
+    "holo_recompensas": True,  # al aceptar una recompensa sobre un jugador
+    "holo_planetas": True,  # al pedir información de un planeta, luna o lugar
+    "holo_llegadas": True,  # al llegar cerca de un planeta o luna
+    "holo_lugares": True,  # al llegar a un lugar planetario (cueva, puesto, base…)
+    "holo_traducir": True,  # traducir al español las descripciones (con la IA)
+    # --- v1.3: actualizaciones de NOVA AI desde GitHub ---------------------
+    "actualizar_programa": True,  # comprobar si hay versión nueva al iniciar y al cerrar
     "actualizar_al_iniciar": True,  # comprobar scmdb.net / UEX / wiki al arrancar
     "datos_canal": "live",  # live o ptu (versión de datos de scmdb)
     "teclas_retardo_ms": 60,

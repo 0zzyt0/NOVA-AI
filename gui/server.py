@@ -230,6 +230,7 @@ class UIServer:
             "name_warning": wake.name_warning(s.get("nombre_asistente")),
             "timers": self.api_timers(),
             "estado_rsi": self.api_rsi_status(),
+            "actualizacion": self.nova.selfupdate.info(),
         }
 
     # --- cabina
@@ -482,6 +483,73 @@ class UIServer:
         discord.send(url, "NOVA AI conectada", [("Prueba", "Este canal recibirá las fichas de jugadores que busques.")],
                      footer=f"NOVA AI {VERSION}")
         return "Mensaje de prueba enviado"
+
+    # --- v1.2: hologramas
+    def _holo_png(self, card) -> str:
+        import base64
+        from core import holo
+        from core.overlay import _hex
+        png = holo.preview_png(card, _hex(self.nova.settings.get("overlay_color")), 0.9)
+        return "data:image/png;base64," + base64.b64encode(png).decode()
+
+    def api_holo_preview(self) -> dict:
+        card = self.nova.last_holo
+        return {"png": self._holo_png(card) if card else "", "status": self.nova.holo.status}
+
+    def _sample_card(self, tipo: str):
+        from core import holo
+        from core.rsi import Citizen, Org
+        from core.verseguide import Body, Place
+        n = self.nova
+        if tipo in ("jugador", "recompensa"):
+            c = Citizen(apodo_juego="Kaelen Voss", handle="Nebula_Rider", expediente="#4872210", alta="Mar 14, 2019",
+                        idiomas="Spanish, Portuguese", org=Org(sid="ORIONVG", nombre="Orión Vanguard", rango="Navegante",
+                                                               miembros="245", etiquetas=["PMC", "Casual"]))
+            return holo.card_player(c, "recompensa" if tipo == "recompensa" else "consulta"), \
+                "Ejemplo con un jugador ficticio"
+        try:  # Daymar de verseguide.com (si hay conexión) para ver un ejemplo real
+            b = n.vg.body("STANTON", "2B")
+            tex = n._texture(b)
+            if tipo == "lugar":
+                p = next((x for x in b.lugares if x.tipo == "underground" and not x.oculto), None) or b.lugares[0]
+                return holo.card_place(b, p, tex), "Ejemplo real de verseguide.com"
+            return holo.card_body(b, tex), "Ejemplo real de verseguide.com"
+        except Exception:
+            b = Body(sistema="STANTON", codigo="2B", nombre="Daymar", designacion="Stanton 2b", tipo="Planetary Moon",
+                     subtipo="Planetary Moon", radio_km=295, gravedad_g=0.36, dia_h=2.5, peligro=4, economia=2, poblacion=1,
+                     descripcion="Ejemplo sin conexión: la ficha real se descarga de verseguide.com.",
+                     color=[0.9, 0.8, 0.6], lugares=[Place("Security Post Prashad", "underground", "security-post",
+                                                           temp_media=41, temp_min=22, temp_max=60)])
+            if tipo == "lugar":
+                return holo.card_place(b, b.lugares[0]), "Sin conexión con verseguide.com: ejemplo de muestra"
+            return holo.card_body(b), "Sin conexión con verseguide.com: ejemplo de muestra"
+
+    def api_holo_test(self, tipo: str = "jugador") -> dict:
+        card, nota = self._sample_card(str(tipo))
+        self.nova._show_holo(card, force=True)
+        if self.nova.holo.status not in ("activo", "inactivo"):
+            nota += f" · overlay: {self.nova.holo.status}"
+        return {"png": self._holo_png(card), "nota": nota}
+
+    def api_holo_hide(self) -> bool:
+        self.nova.holo.dismiss()
+        return True
+
+    # --- v1.3: actualizaciones del programa
+    def api_update_info(self) -> dict:
+        return self.nova.selfupdate.info()
+
+    def api_update_check(self) -> dict:
+        from core.selfupdate import is_dev_copy
+        if is_dev_copy():
+            raise ValueError("Esta es una copia de desarrollo (git): no se actualiza sola.")
+        self.nova.selfupdate.check()
+        return self.nova.selfupdate.info()
+
+    def api_update_choice(self, eleccion: str) -> str:
+        if eleccion not in ("ahora", "no", "al_cerrar"):
+            raise ValueError("Opción no válida")
+        return self.nova.update_choice(eleccion)
 
     def api_clear_history(self) -> bool:
         self.nova.memory.clear_history()

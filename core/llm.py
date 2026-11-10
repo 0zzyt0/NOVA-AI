@@ -206,6 +206,20 @@ class Brain:
         return ("Señor, todos mis motores de IA están fuera de servicio o sin cuota ahora mismo. "
                 "Puedo seguir ejecutando órdenes de la nave por frase directa.")
 
+    def quick(self, prompt: str, system: str = "Eres un traductor. Responde solo con el resultado.") -> str:
+        """Petición suelta (sin herramientas, sin memoria ni personalidad): p. ej. traducir un texto.
+        '' si no hay motor disponible."""
+        for entry in self.chain():
+            try:
+                r = self._create(entry, [{"role": "system", "content": system},
+                                         {"role": "user", "content": prompt}], None)
+                text = (r.choices[0].message.content or "").strip()
+                if text:
+                    return text
+            except Exception as e:  # noqa: BLE001
+                self._handle_error(f"{entry['proveedor']}:{entry['modelo']}", e)
+        return ""
+
     def _loop(self, entry: dict, messages: list, schemas, executed: list[str]) -> tuple[str, list[str]]:
         info_results: list[str] = []
         for _ in range(7):

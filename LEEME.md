@@ -14,6 +14,7 @@ Nova es tu IA de a bordo (y puedes ponerle el nombre que quieras):
 - **Usa tus teclas:** lee tu configuración de controles de Star Citizen cada vez que arranca.
 - **Brilla en el juego:** su logo aparece en una esquina y parpadea mientras te habla (overlay).
 - **Pone Star Citizen en español:** instala y mantiene al día la traducción de 0zzyt0.
+- **Novedades 1.2:** fichas en holograma sobre el juego: ficha policial de jugadores y de objetivos de recompensa, y fichas de planetas, lunas y lugares de verseguide.com.
 - **Novedades 1.1:** busca jugadores en la web de RSI (y los manda a Discord), temporizadores de refinado y contratos, rutas con el beneficio real de tu bodega, perfiles por nave, estado de los servidores y estadísticas de todas tus sesiones.
 
 Todo lo que usa es **gratis**.
@@ -279,6 +280,28 @@ Sale del propio Game.log: si abres Nova con la partida empezada o después de ju
 - **Estadísticas de piloto:** horas, bajas, muertes, saltos y contratos de **todas** tus sesiones, semana a semana (Memoria › Archivos de bitácora). «Recalcular» lee los Game.log antiguos del juego (`logbackups`). Pregúntale «¿cuántas bajas llevo este mes?».
 - **🧹 Limpiar transmisiones:** botón en la Cabina que vacía el chat (la memoria y la bitácora no se tocan).
 
+## 7 nonies. Novedades de la versión 1.2: hologramas
+
+Nova enseña **fichas en holograma encima del juego** (como el logo: con Star Citizen en «Ventana sin bordes», sin robar el foco ni los clics). Aparecen con una animación de proyector, tienen líneas de barrido mientras están en pantalla y se pliegan al irse. Se ajustan en **Interfaz › Hologramas**: opacidad, tiempo en pantalla, tamaño, posición y en qué casos aparecen; los botones «Probar» enseñan un ejemplo.
+
+- **Ficha policial UEE de un jugador** («búscame a un jugador»): foto de perfil, apodo, handle, expediente, fecha de alta, idiomas y la organización con su logotipo. Los datos ocultos salen tachados como `REDACTED`.
+- **Objetivo de recompensa:** si aceptas un contrato de cazarrecompensas sobre un **jugador** (por ejemplo «Capturar al sospechoso: Nebula_Rider»), Nova busca al objetivo en RSI y te enseña su ficha con el sello **OBJETIVO DE CAZA**. Los objetivos que son PNJ no se buscan.
+- **Planetas y lunas:** «Nova, háblame de Daymar» → ficha de verseguide.com con el cuerpo girando, tipo, radio, gravedad, duración del día, atmósfera, nivel de peligro, economía y población, cuántos lugares tiene y su descripción (traducida al español con tu IA, una sola vez).
+- **Lugares planetarios** (cuevas, puestos avanzados, bases, búnkeres…): «Nova, ¿qué es Security Post Kareah?» → tipo, dónde está, temperatura y descripción.
+- **Al llegar:** cuando el Game.log indica que te acercas a un planeta o una luna, o que llegas a uno de sus lugares, la ficha aparece sola (como mucho una vez cada media hora para el mismo sitio).
+
+Las páginas de VerseGuide se guardan 3 días en tu equipo (`datos\cache\verseguide`) para no pedirlas una y otra vez.
+
+## 7 decies. Actualizaciones automáticas
+
+Desde la 1.2, **al iniciar y al cerrar** NOVA mira en GitHub ([github.com/0zzyt0/NOVA-AI](https://github.com/0zzyt0/NOVA-AI/releases)) si hay una versión nueva. Si la hay, te avisa en pantalla y de viva voz: **«Se ha detectado una nueva versión vX.X de NOVA AI. ¿Quieres actualizar ahora?»**
+
+- **Sí:** descarga el instalador oficial de esa versión, comprueba que está completo y es el publicado (tamaño y huella SHA-256), y lo abre en modo actualización. Windows pide permiso, la instalación empieza sola y NOVA vuelve a abrirse actualizada.
+- **No:** sigues con tu versión (en esa sesión no vuelve a preguntar).
+- **Al cerrar la aplicación:** lo descarga ya y lo instala cuando cierres NOVA, sin volver a abrirla.
+
+También puedes contestar por voz («sí», «no», «al cerrar»). Si no contestas y cierras, te lo pregunta en una ventana al salir. Tus datos, ajustes y comandos se conservan. Se desactiva y se busca a mano en **Fuentes de datos › Actualizaciones de NOVA AI**.
+
 ## 7 quater. Fuentes de datos y enciclopedia
 
 **Al arrancar, antes de activar nada,** Nova comprueba si hay datos nuevos en sus páginas de consulta. Lo verás en una pantalla con el progreso; con «Continuar sin esperar» sigue en segundo plano. Sin internet usa la última copia guardada.
@@ -288,6 +311,7 @@ Sale del propio Game.log: si abres Nova con la partida empezada o después de ju
 | **scmdb.net** | Misiones con pago, reputación y **planos (BP)** que dan; recetas de fabricación; minería por ubicación; refinerías; equipo de minería; armas, armaduras y componentes fabricables | Solo cuando sale un parche (versión LIVE nueva) |
 | **UEX Corp** ([uexcorp.space](https://uexcorp.space/?set_lang=es_ES)) | Precios medios de mercancías, naves (SCU, tripulación, plataforma), métodos de refinado. Los precios y rutas en directo se siguen consultando al momento | Cada 24 h o cuando cambia la versión |
 | **Star Citizen Wiki** | Lore y detalles (se consulta en directo) | Solo se comprueba que responde |
+| **VerseGuide** ([verseguide.com](https://verseguide.com)) | Fichas de planetas, lunas y lugares planetarios (cuevas, puestos, bases) para los hologramas | Al pedirla o al llegar; se guarda 3 días |
 | **Tu global.ini** | Textos oficiales: naves, objetos (fabricante, tipo, tamaño), planetas y lunas con sus minerales, recursos y criaturas, estaciones, delitos, lore y consejos | Se recarga si un parche lo cambia |
 
 Con todo eso Nova monta una **enciclopedia local** de unas 12.000 entradas, que consulta primero: es instantánea y es de tu versión del juego. Ejemplos:
@@ -376,7 +400,7 @@ Además, Nova tiene un control propio: si buscó en la wiki o en internet, no en
 
 Debajo de **Memoria**, en pequeño, está **ⓘ Acerca de**: una ventana al estilo de los keygens de los 90 y 2000, con su túnel de colores de 8 bits, una flecha volando dentro, el texto que se desplaza abajo y la música de NOVA AI en bucle. Ahí están los créditos, la licencia y los derechos de terceros. Se cierra con **Esc** o con el botón **Cerrar**; el botón **♪ Música** la silencia.
 
-**NOVA AI · Versión oficial 1.1**, de **Aaron B. Roldan** (gametag de Star Citizen: **0zzyt0**), desarrollada con el motor de IA Claude Opus 5.5 (Anthropic). Agradecimientos a la Org. Defcorp y a Faibo, Galleg0, Sr.Scott, AlpacaInTrouble, Lother y muchos más.
+**NOVA AI · Versión oficial 1.2**, de **Aaron B. Roldan** (gametag de Star Citizen: **0zzyt0**), desarrollada con el motor de IA Claude Opus 5.5 (Anthropic). Agradecimientos a la Org. Defcorp y a Faibo, Galleg0, Sr.Scott, AlpacaInTrouble, Lother y muchos más.
 
 **Licencia:** libre uso y modificación. Si usas este proyecto o lo modificas, por favor menciona de dónde has sacado las ideas y cuál es tu base. Texto completo, con los derechos de terceros, en `LICENCIA.txt`.
 

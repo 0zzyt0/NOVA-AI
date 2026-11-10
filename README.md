@@ -5,7 +5,7 @@
 <h1 align="center">NOVA AI</h1>
 <p align="center"><b>Asistente de vuelo por voz para Star Citizen</b><br>
 Te escucha, te responde con voz natural, pulsa las teclas del juego por ti y sabe qué está pasando en tu partida.<br>
-<i>Versión oficial 1.1 · Windows 10/11 · en español · todo gratis</i></p>
+<i>Versión oficial 1.2 · Windows 10/11 · en español · todo gratis</i></p>
 
 <p align="center">
   <a href="../../releases/latest"><b>⬇ Descargar NOVA AI Setup.exe</b></a> ·
@@ -26,6 +26,15 @@ Te escucha, te responde con voz natural, pulsa las teclas del juego por ti y sab
 - **Star Citizen en español:** instala y mantiene al día la traducción de la comunidad (0zzyt0) con un clic, y te avisa cada 3 meses.
 - **Brilla en el juego:** un overlay con su logo que cambia de color: escuchando, entendido, buscando o hablando.
 - **Recuerda:** lo que le cuentas, la conversación y dónde lo dejaste, aunque cierres el programa.
+
+### Novedades de la 1.2: hologramas y actualizaciones
+
+- **Se actualiza sola:** al iniciar y al cerrar mira las Releases de este repositorio y pregunta «Se ha detectado una nueva versión vX.X de NOVA AI. ¿Quieres actualizar ahora?» [Sí] [No] [Al cerrar la aplicación].
+
+- **Fichas en holograma sobre el juego**, con animación de proyector y opacidad, tamaño, posición y duración a tu gusto.
+- **Ficha policial UEE** de un jugador: foto, datos y logotipo de su organización (los datos ocultos salen como `REDACTED`).
+- **Cazarrecompensas:** al aceptar una recompensa sobre un jugador, ficha del objetivo con el sello «OBJETIVO DE CAZA».
+- **Planetas, lunas y lugares planetarios** (cuevas, puestos, bases) de [verseguide.com](https://verseguide.com): al pedirlos por voz o al llegar cerca, con el cuerpo girando en 3D.
 
 ### Novedades de la 1.1
 
@@ -107,7 +116,7 @@ Tus datos se quedan en tu PC (`%LOCALAPPDATA%\NOVA AI\datos`): sin servidores pr
 
 <p align="center"><img src="docs/img/acerca.gif" width="520" alt="Acerca de"></p>
 
-**NOVA AI · Versión oficial 1.1**, de **Aaron B. Roldan** (gametag de Star Citizen: **0zzyt0**). Desarrollado con el motor de IA **Claude Opus 5.5** (Anthropic).
+**NOVA AI · Versión oficial 1.2**, de **Aaron B. Roldan** (gametag de Star Citizen: **0zzyt0**). Desarrollado con el motor de IA **Claude Opus 5.5** (Anthropic).
 
 **Agradecimientos** a la **Org. Defcorp**, y gracias a: Faibo, Galleg0, Sr.Scott, AlpacaInTrouble, Lother… ¡y muchos más!
 

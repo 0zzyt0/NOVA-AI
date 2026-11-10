@@ -48,6 +48,7 @@ class Tools:
         self.stats = None  # estadísticas entre sesiones
         self.status_check = None  # estado de los servidores de RSI
         self.on_timer_added: Callable[[dict], None] = lambda t: None
+        self.on_place: Callable[[str], str] | None = None  # ficha de planeta/lugar (la pone el asistente)
 
     # ---------------------------------------------------------------- utilidades
     def _get(self, url: str, params: dict | None = None, ttl: int = 0, timeout: int = 12) -> Any:
@@ -170,6 +171,16 @@ class Tools:
                 "name": "listar_temporizadores",
                 "description": "Temporizadores en marcha y cuánto les queda.",
                 "parameters": {"type": "object", "properties": {}}}},
+            {"type": "function", "function": {
+                "name": "ficha_lugar",
+                "description": "Ficha de un PLANETA, LUNA o LUGAR PLANETARIO (cueva, puesto avanzado, base, ciudad, "
+                               "búnker, estación de superficie…) según verseguide.com: tipo, radio, gravedad, atmósfera, "
+                               "peligro, lugares que tiene, temperatura y descripción. Además la enseña en holograma "
+                               "sobre el juego. Úsala SIEMPRE que pregunten por un planeta, luna o lugar planetario.",
+                "parameters": {"type": "object", "properties": {
+                    "nombre": {"type": "string", "description": "p. ej. 'Daymar', 'Hurston', 'Security Post Kareah', "
+                                                                "'cueva de Aberdeen', 'Bloom'"}},
+                    "required": ["nombre"]}}},
             {"type": "function", "function": {
                 "name": "estado_servidores",
                 "description": "Estado de los servidores de Star Citizen (status.robertsspaceindustries.com): "
@@ -558,6 +569,11 @@ class Tools:
 
     def t_listar_temporizadores(self) -> str:
         return self.timers.describe() if self.timers is not None else "No hay temporizadores."
+
+    def t_ficha_lugar(self, nombre: str) -> str:
+        if self.on_place is None:
+            return "SIN DATOS"
+        return self.on_place(nombre)
 
     def t_estado_servidores(self) -> str:
         if self.status_check is None:

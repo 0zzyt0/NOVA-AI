@@ -183,6 +183,7 @@
         <button data-sub="hablar">💬 Cómo hablarle</button>
         <button data-sub="sonido">🔊 Salida de audio</button>
         <button data-sub="overlay">◆ Overlay en el juego</button>
+        <button data-sub="holo">◇ Hologramas</button>
       </div>
       <div class="subsec on" data-sub="mic"><div class="grid2">
         <div class="panel">
@@ -264,6 +265,37 @@
         </div>
       </div>
       </div>
+      <div class="subsec" data-sub="holo">
+      <div class="ov-wrap">
+        <div class="panel">
+          <div class="panel-h"><span>HOLOGRAMA</span><span class="hint" id="holoStatus"></span></div>
+          <div class="holo-prev" id="holoPrev"><div class="muted small">Aquí verás la última ficha que se ha mostrado.</div></div>
+          <div class="row gap wrap" style="margin-top:14px">
+            <button class="btn pri" data-holo-test="jugador">◇ PROBAR FICHA DE JUGADOR</button>
+            <button class="btn" data-holo-test="recompensa">Objetivo de recompensa</button>
+            <button class="btn" data-holo-test="planeta">Planeta</button>
+            <button class="btn" data-holo-test="lugar">Lugar planetario</button>
+            <button class="btn" id="btnHoloHide">Ocultar</button>
+          </div>
+          <div class="note">Fichas sobre el juego con estilo de holograma: <b>ficha policial UEE</b> de un jugador (foto y logotipo de su organización, de robertsspaceindustries.com) y <b>fichas de planetas, lunas y lugares</b> (cuevas, puestos, bases…) de <b>verseguide.com</b>. Se ven con Star Citizen en «Ventana sin bordes», como el logo.</div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><span>AJUSTES</span><span class="hint">Usa los colores del overlay</span></div>
+          <div class="field"><label>Hologramas activados</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_activo"><i></i></span></div></div>
+          <div class="field"><label>Opacidad<small>Menos = más transparente</small></label><div class="ctl"><input type="range" min="0.2" max="1" step="0.05" data-set="holo_opacidad"><span class="val" data-val="holo_opacidad" data-fmt="%"></span></div></div>
+          <div class="field"><label>Tiempo en pantalla</label><div class="ctl"><input type="range" min="5" max="60" step="1" data-set="holo_segundos"><span class="val" data-val="holo_segundos" data-fmt="{} s"></span></div></div>
+          <div class="field"><label>Tamaño<small>Medido a 1080p</small></label><div class="ctl"><input type="range" min="0.6" max="1.6" step="0.05" data-set="holo_escala"><span class="val" data-val="holo_escala" data-fmt="x{}"></span></div></div>
+          <div class="field"><label>Posición</label><div class="ctl"><select data-set="holo_posicion"><option value="centro-derecha">Centro derecha</option><option value="arriba-derecha">Arriba derecha</option><option value="abajo-derecha">Abajo derecha</option><option value="centro-izquierda">Centro izquierda</option><option value="arriba-izquierda">Arriba izquierda</option><option value="abajo-izquierda">Abajo izquierda</option><option value="arriba-centro">Arriba centro</option><option value="centro">Centro</option></select></div></div>
+          <div class="panel-h sub"><span>CUÁNDO APARECE</span></div>
+          <div class="field"><label>Al buscar un jugador<small>«Búscame a un jugador»</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_jugadores"><i></i></span></div></div>
+          <div class="field"><label>Al aceptar una recompensa sobre un jugador<small>Cazarrecompensas: ficha del objetivo</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_recompensas"><i></i></span></div></div>
+          <div class="field"><label>Al pedir información de un planeta o lugar</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_planetas"><i></i></span></div></div>
+          <div class="field"><label>Al llegar cerca de un planeta o luna</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_llegadas"><i></i></span></div></div>
+          <div class="field"><label>Al llegar a un lugar planetario<small>Cuevas, puestos avanzados, bases…</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_lugares"><i></i></span></div></div>
+          <div class="field"><label>Traducir las descripciones<small>Vienen en inglés; usa tu IA (una vez por lugar)</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_traducir"><i></i></span></div></div>
+        </div>
+      </div>
+      </div>
     </section>
 
 <!-- ================================ IA ================================ -->
@@ -337,6 +369,12 @@
           <div class="field"><label>Mandar las fichas de jugadores</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="discord_enviar_jugadores"><i></i></span></div></div>
           <div class="row gap wrap"><button class="btn" id="btnDcTest">ENVIAR PRUEBA</button></div>
         </div>
+      </div>
+      <div class="panel" style="margin-top:18px">
+        <div class="panel-h"><span>ACTUALIZACIONES DE NOVA AI</span><span class="chip" id="updChip">—</span></div>
+        <p class="muted">NOVA mira en GitHub si hay una versión nueva <b>al iniciar y al cerrar</b>. Si la hay, te pregunta: <b>Sí</b> (se descarga el instalador oficial y NOVA se reinicia actualizada), <b>No</b>, o <b>Al cerrar la aplicación</b>. Tus datos se conservan.</p>
+        <div class="field"><label>Comprobar al iniciar y al cerrar<small id="updInfo">—</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="actualizar_programa"><i></i></span></div></div>
+        <div class="row gap wrap"><button class="btn" id="btnUpdCheck">⟳ BUSCAR ACTUALIZACIONES AHORA</button><button class="btn pri" id="btnUpdShow" hidden>⬆ ACTUALIZAR</button></div>
       </div>
       <div class="panel" style="margin-top:18px">
         <div class="panel-h"><span>TRADUCCIÓN AL ESPAÑOL</span><span class="chip" id="trChip">—</span></div>
@@ -421,6 +459,28 @@
 </main>
 
 <!-- ============================== EDITOR ============================== -->
+<div class="modal" id="updModal" hidden>
+  <div class="modal-box panel upd-box">
+    <div class="panel-h"><span>⬆ ACTUALIZACIÓN DISPONIBLE</span><span class="hint">github.com/0zzyt0/NOVA-AI</span></div>
+    <div class="upd-head">
+      <img src="/logo.png" alt="">
+      <div>
+        <div class="upd-title">Se ha detectado una nueva versión <b id="updNew">v?</b> de NOVA AI</div>
+        <div class="upd-q">¿Quieres actualizar ahora?</div>
+        <div class="muted small">Tienes la <span id="updCur">v?</span>. Tus datos, ajustes y comandos se conservan.</div>
+      </div>
+    </div>
+    <div class="upd-notes" id="updNotes"></div>
+    <div class="upd-bar" id="updBar" hidden><i id="updFill"></i><span id="updPct">0 %</span></div>
+    <div class="modal-foot">
+      <a class="muted small" id="updPage" href="https://github.com/0zzyt0/NOVA-AI/releases" target="_blank" rel="noopener">Ver la versión en GitHub</a>
+      <span class="grow"></span>
+      <button class="btn" data-upd="no">NO</button>
+      <button class="btn" data-upd="al_cerrar">AL CERRAR LA APLICACIÓN</button>
+      <button class="btn pri" data-upd="ahora">SÍ</button>
+    </div>
+  </div>
+</div>
 <div class="modal" id="editor" hidden>
   <div class="modal-box panel">
     <div class="panel-h"><span id="edTitle">NUEVO COMANDO</span><button class="icon-btn" data-close style="margin-left:auto">✕</button></div>
@@ -584,6 +644,8 @@
 <div class="toasts" id="toasts"></div>
 <script src="/app.js"></script>
 <script src="/v11.js"></script>
+<script src="/v12.js"></script>
+<script src="/v13.js"></script>
 <script src="/acerca/acerca.js"></script>
 </body>
 </html>

@@ -89,18 +89,65 @@ func prepare() (string, func(), error) {
 		"Descomprime el .zip completo antes de ejecutarlo (no lo abras desde dentro del .zip)")
 }
 
-func run(mode, ps1, src, ready string) ([]byte, int) {
+// Opciones que NOVA AI pasa al actualizarse desde GitHub:
+//   /actualizar      empezar sola (sin volver a pedir las normas si ya estaban aceptadas)
+//   /sin-iniciar     no volver a abrir NOVA al terminar (actualización «al cerrar»)
+//   /destino=RUTA    carpeta donde está instalada
+type options struct {
+	update, noLaunch bool
+	dest             string
+}
+
+func parseArgs(list []string) options {
+	var o options
+	for _, a := range list {
+		low := strings.ToLower(strings.TrimLeft(a, "/-"))
+		switch {
+		case low == "actualizar":
+			o.update = true
+		case low == "sin-iniciar" || low == "siniciar":
+			o.noLaunch = true
+		case strings.HasPrefix(low, "destino="):
+			d := strings.Trim(a[strings.Index(a, "=")+1:], "\"")
+			if filepath.IsAbs(d) {
+				o.dest = filepath.Clean(d)
+			}
+		}
+	}
+	return o
+}
+
+func run(mode, ps1, src, ready string, o options) ([]byte, int) {
 	args := []string{"-NoProfile", "-ExecutionPolicy", "Bypass", "-STA", "-WindowStyle", "Hidden"}
+	extra := ""
 	if mode == "archivo" {
 		args = append(args, "-File", ps1, "-Origen", src)
+		if o.dest != "" {
+			args = append(args, "-Destino", o.dest)
+		}
+		if o.update {
+			args = append(args, "-Actualizar")
+		}
+		if o.noLaunch {
+			args = append(args, "-SinIniciar")
+		}
 	} else {
+		if o.dest != "" {
+			extra += " -Destino $env:NOVA_DESTINO"
+		}
+		if o.update {
+			extra += " -Actualizar"
+		}
+		if o.noLaunch {
+			extra += " -SinIniciar"
+		}
 		// Sin pasar por un archivo .ps1: evita las directivas de ejecución que bloquean scripts.
 		args = append(args, "-Command",
-			"& ([scriptblock]::Create([IO.File]::ReadAllText($env:NOVA_PS1))) -Origen $env:NOVA_ORIGEN")
+			"& ([scriptblock]::Create([IO.File]::ReadAllText($env:NOVA_PS1))) -Origen $env:NOVA_ORIGEN"+extra)
 	}
 	cmd := win.Hidden(exec.Command(win.PowerShell(), args...))
 	cmd.Dir = src
-	cmd.Env = append(os.Environ(), "NOVA_SETUP_READY="+ready, "NOVA_PS1="+ps1, "NOVA_ORIGEN="+src)
+	cmd.Env = append(os.Environ(), "NOVA_SETUP_READY="+ready, "NOVA_PS1="+ps1, "NOVA_ORIGEN="+src, "NOVA_DESTINO="+o.dest)
 	var out bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &out, &out
 	code := 0
@@ -130,8 +177,9 @@ func main() {
 	var log bytes.Buffer
 	fmt.Fprintf(&log, "NOVA AI Setup · %s\nOrigen: %s\n", time.Now().Format("2006-01-02 15:04:05"), src)
 	code := 0
+	opts := parseArgs(os.Args[1:])
 	for _, mode := range []string{"archivo", "bloque"} {
-		out, c := run(mode, ps1, src, ready)
+		out, c := run(mode, ps1, src, ready, opts)
 		code = c
 		fmt.Fprintf(&log, "\n--- modo %s · código %d ---\n%s\n", mode, c, out)
 		if win.Exists(ready) || c == 3 {

@@ -32,6 +32,7 @@ NOTIFICATION = re.compile(r'Added notification\s+"(.*?)(?:"\s*\[\d+\]|"\s*Missio
 LOCINV = re.compile(r"requested inventory for Location\[([^\]]+)\]")
 LOCATION = re.compile(r"Location\[([^\]]+)\]")
 SHARD = re.compile(r"shard\[([^\]]+)\]")
+PLANET_CELLS = re.compile(r"planet cells:\s*(\d+)\s*\[\s*\d+\]\s*meshes:.*?name:\s*(\S+)")
 QT_DEST = re.compile(r"selected point (\S+) as their destination")
 TIMESTAMP = re.compile(r"^<(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d)(?:\.(\d+))?Z?>")
 CHARACTER = re.compile(r"\bname\s+(\S+)\s+-\s+state\s+STATE_CURRENT")
@@ -428,7 +429,9 @@ class GameLog(threading.Thread):
         self._seen: dict[str, float] = {}
         self._replaying = False
         self._qt_target = ""
+        self._qt_raw = ""
         self._qt_fuel = ""
+        self._near_body = ""  # cuerpo celeste cargado cerca (estadística «planet cells» del log)
         self._last_announced = ""
         self._now = 0.0  # hora (del log) del registro que se está leyendo
         self._vehicles: dict[str, str] = {}  # id de entidad -> nombre de nave
@@ -464,7 +467,7 @@ class GameLog(threading.Thread):
     # ------------------------------------------------------------------ parseo
     def _emit(self, kind: str, category: str, data: dict | None = None, detail: str = "") -> None:
         data = {k: (v or "").strip(" :.\"") if isinstance(v, str) else v for k, v in (data or {}).items()}
-        detail = detail or " · ".join(str(v) for v in data.values() if v)
+        detail = detail or " · ".join(str(v) for k, v in data.items() if v and k != "raw")
         key = f"{kind}|{detail}"
         now = self._now or time.time()
         if abs(now - self._seen.get(key, -1e9)) < 3:  # el juego repite el mismo aviso varias veces
@@ -497,7 +500,7 @@ class GameLog(threading.Thread):
         if self.on_event and not self._replaying:
             self.on_event(ev)
 
-    def _set_location(self, place: str, source: str) -> None:
+    def _set_location(self, place: str, source: str, raw: str = "") -> None:
         if not place or place == self.location:
             return
         self.location = place
@@ -505,7 +508,7 @@ class GameLog(threading.Thread):
         if place == self._last_announced:
             return
         self._last_announced = place
-        self._emit("ubicacion", "ubicacion", {"lugar": place})
+        self._emit("ubicacion", "ubicacion", {"lugar": place, "raw": raw})
 
     def _ship(self, cls: str) -> str:
         """Nombre bonito de una nave a partir de su clase interna; prefiere el que muestra el HUD."""
@@ -527,10 +530,16 @@ class GameLog(threading.Thread):
         if "Added notification" in rec:
             self._notification(rec)
             return
+        if "planet cells:" in rec:
+            m = PLANET_CELLS.search(rec)
+            if m and int(m.group(1)) >= 20 and m.group(2).lower() != self._near_body:
+                self._near_body = m.group(2).lower()
+                self._emit("cerca_de_cuerpo", "", {"x": pretty_loc(m.group(2), self.text), "raw": m.group(2)})
+            return
         if "RequestLocationInventory" in rec:
             m = LOCINV.search(rec) or LOCATION.search(rec)
             if m:
-                self._set_location(self._pretty(m.group(1)), "inventario")
+                self._set_location(self._pretty(m.group(1)), "inventario", m.group(1))
             return
         if "Log started on" in rec:
             self._in_pu = False
@@ -558,6 +567,7 @@ class GameLog(threading.Thread):
             self._remember_vehicles(rec)
             m = QT_DEST.search(rec)
             self._qt_target = pretty_dest(m.group(1), self.text) if m else ""
+            self._qt_raw = m.group(1) if m else ""
             self._qt_fuel = ""
             return
         if "<Calculate Route>" in rec and "fuel estimate" in rec:
@@ -568,9 +578,10 @@ class GameLog(threading.Thread):
         if any(k in rec for k in QT_ARRIVE):
             self._remember_vehicles(rec)
             dest, self._qt_target = self._qt_target, ""
+            raw, self._qt_raw = self._qt_raw, ""
             if dest:
                 self.location = self._last_announced = dest
-                self._emit("llegada_cuantica", "ubicacion", {"lugar": dest, "combustible": self._qt_fuel})
+                self._emit("llegada_cuantica", "ubicacion", {"lugar": dest, "combustible": self._qt_fuel, "raw": raw})
             else:
                 self._emit("llegada_cuantica_sin_destino", "ubicacion", {}, detail="salto completado")
             return

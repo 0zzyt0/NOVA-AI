@@ -86,6 +86,15 @@ def shown(value: str, empty: str = "—") -> str:
     return value or empty
 
 
+def _abs(src: str) -> str:
+    src = html.unescape(src or "").strip()
+    if src.startswith("//"):
+        return "https:" + src
+    if src.startswith("/"):
+        return BASE + src
+    return src
+
+
 def es_date(enlisted: str) -> str:
     """'Apr 20, 2016' -> '20 abr 2016'."""
     m = re.match(r"([A-Za-z]{3})[a-z]*\.? (\d{1,2}), (\d{4})", enlisted or "")
@@ -109,6 +118,7 @@ class Org:
     descripcion: str = ""
     url: str = ""
     oculta: bool = False
+    logo: str = ""  # imagen del logotipo (robertsspaceindustries.com)
 
 
 @dataclass
@@ -122,6 +132,7 @@ class Citizen:
     org: Org = field(default_factory=Org)
     url: str = ""
     consultado: float = 0.0
+    avatar: str = ""  # foto de perfil
 
     def as_dict(self) -> dict:
         return asdict(self)
@@ -195,6 +206,10 @@ def parse_citizen(page: str, handle: str) -> Citizen:
         i = next((i for i, ln in enumerate(lines) if ln == "Handle name"), -1)
         if i > 0:
             c.apodo_juego = lines[i - 1]
+    m = re.search(r'class="[^"]*\bprofile\b[^"]*".*?class="[^"]*\bthumb\b[^"]*"[^>]*>\s*(?:<a[^>]*>\s*)?<img[^>]+src="([^"]+)"',
+                  page, re.S | re.I)
+    if m:
+        c.avatar = _abs(m.group(1))
     c.alta = _labelled(page, "Enlisted")
     c.idiomas = _labelled(page, "Fluency")
     c.ubicacion = _labelled(page, "Location")
@@ -211,6 +226,9 @@ def parse_citizen(page: str, handle: str) -> Citizen:
         scope = page[i:min(end, i + 8000)]
         if re.search(r'main-org[^"]*visibility-[RH]\b', page[i:i + 200]):
             o.oculta = True
+    m = re.search(r'<img[^>]+src="([^"]+)"', scope)
+    if m and not o.oculta:
+        o.logo = _abs(m.group(1))
     o.sid = _labelled(scope, "Spectrum Identification (SID)")
     o.rango = _labelled(scope, "Organization rank")
     m = re.search(r'<a[^>]*href="/(?:en/)?orgs/([A-Za-z0-9_\-]+)"[^>]*>([^<]{1,80})</a>', scope)
@@ -223,7 +241,7 @@ def parse_citizen(page: str, handle: str) -> Citizen:
         if i >= 0 and i + 1 < len(lines) and lines[i + 1] != "Spectrum Identification (SID)":
             o.nombre = lines[i + 1]
     if redacted(o.sid) or redacted(o.nombre):  # organización principal tapada con [REDACTED]
-        o.oculta, o.sid, o.nombre, o.rango = True, "", "", ""
+        o.oculta, o.sid, o.nombre, o.rango, o.logo = True, "", "", "", ""
     if o.sid and not o.nombre:
         o.nombre = o.sid
     if re.search(r"(?i)\bno main org|has no main org|NO ORG", _text(scope)) and not o.sid:
@@ -239,6 +257,9 @@ def parse_org(page: str, sid: str) -> Org:
     if m:
         name = _text(re.sub(r'<span[^>]*class="[^"]*symbol[^"]*"[^>]*>.*?</span>', "", m.group(1)))
         o.nombre = name.strip(" /") or sid
+    m = re.search(r'class="[^"]*\blogo\b[^"]*"[^>]*>\s*(?:<a[^>]*>\s*)?<img[^>]+src="([^"]+)"', page, re.S)
+    if m:
+        o.logo = _abs(m.group(1))
     txt = _text(page)
     m = re.search(r"(\d[\d,.]*)\s+members?\b", txt, re.I)
     if m:
@@ -290,6 +311,7 @@ class RSI:
                 full = parse_org(self._page(c.org.url), c.org.sid)
                 full.rango = c.org.rango
                 full.nombre = full.nombre or c.org.nombre
+                full.logo = full.logo or c.org.logo
                 c.org = full
             except Exception as e:  # la ficha del jugador vale aunque falle la de la organización
                 log.warning("Organización %s: %s", c.org.sid, e)

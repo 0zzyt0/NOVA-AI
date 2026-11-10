@@ -27,7 +27,7 @@ STOP_WORDS = {"silencio", "callate", "calla", "para", "basta", "stop", "cancela"
 PAUSE_WORDS = {"desactivate", "pausa", "modo pausa", "a dormir", "apagate", "descansa"}
 RESUME_WORDS = {"activate", "despierta", "vuelve", "reactivate", "enciendete", "en linea"}
 INFO_TOOLS = {"buscar_wiki_star_citizen", "buscar_en_internet", "leer_pagina_web",
-              "uex_precios_mercancia", "uex_rutas_comercio", "estado_servidores"}
+              "uex_precios_mercancia", "uex_rutas_comercio", "estado_servidores", "ficha_lugar"}
 ECHO_TAIL = 0.8  # segundos tras hablar en los que el micrófono sigue sordo (eco de la sala)
 
 
@@ -61,6 +61,22 @@ class Nova:
         self.tools.status_check = self.status_check
         self.tools.on_timer_added = self._timer_added
         self._await_handle_until = 0.0  # esperando que escribas el apodo de un jugador
+        # v1.2: hologramas con fichas de jugadores, planetas y lugares (verseguide.com)
+        from .holo import HoloOverlay
+        from .verseguide import VerseGuide
+
+        self.holo = HoloOverlay(settings)
+        self.vg = VerseGuide()
+        self._holo_seen: dict[str, float] = {}
+        self.last_holo = None  # última ficha mostrada (para la ventana de NOVA)
+        self.tools.on_place = self.place_info
+        # v1.3: actualizaciones del programa desde GitHub
+        from .selfupdate import Updater
+
+        self.selfupdate = Updater(settings)
+        self.selfupdate.on_change = lambda: self.on_ui({"t": "actualizacion"})
+        self._update_question_until = 0.0
+        self.request_quit: Callable[[], None] = lambda: None  # lo pone nova.py (cerrar NOVA)
         self.on_ui: Callable[[dict], None] = lambda ev: None  # avisos para la ventana (foco, temporizadores…)
         self.brain = Brain(settings, self.tools, self.memory, self.gamelog)
         self.stt = SpeechToText(settings)
@@ -199,9 +215,142 @@ class Nova:
         if c.org_lines():
             self._diary_event("jugador_org", extras.org_detail(c), x=c.org.sid)
         self._say(extras.spoken(c, t))
+        if self.settings.get("holo_jugadores", True):
+            self._holo_player(c, "consulta")
         sent = extras.send_player_to_discord(self.settings, c)
         if sent:
             self.on_message("sistema", sent)
+
+    # ------------------------------------------------------------ hologramas (v1.2)
+    def _seen_recently(self, key: str, seconds: float) -> bool:
+        now = time.time()
+        if now - self._holo_seen.get(key, -1e9) < seconds:
+            return True
+        self._holo_seen[key] = now
+        return False
+
+    def _show_holo(self, card, force: bool = False) -> None:
+        self.last_holo = card
+        self.on_ui({"t": "holo"})
+        self.holo.show(card, force=force)
+
+    def _holo_player(self, c, motivo: str) -> None:
+        def work() -> None:
+            from .holo import card_player, fetch_image
+            try:
+                photo = fetch_image(c.avatar) if c.avatar else None
+                logo = fetch_image(c.org.logo) if c.org.logo and not c.org.oculta else None
+                self._show_holo(card_player(c, motivo, photo, logo))
+            except Exception:
+                log.exception("Holograma de jugador")
+        threading.Thread(target=work, daemon=True, name="holo-jugador").start()
+
+    def _check_bounty(self, ev: GameEvent) -> None:
+        """Contrato u objetivo de cazarrecompensas sobre un jugador: ficha policial del objetivo."""
+        if not self.settings.get("holo_recompensas", True):
+            return
+        name = self.gamelog.text.bounty_target((ev.data or {}).get("x", "")) if self.gamelog.text else ""
+        if not name or self._seen_recently(f"bounty:{name.lower()}", 600):
+            return
+
+        def work() -> None:
+            try:
+                c = extras.lookup(name)
+            except Exception:
+                log.info("Objetivo %s: no es un jugador de RSI (o no se pudo consultar)", name)
+                return
+            self.on_message("ficha", "OBJETIVO DE RECOMPENSA\n" + c.text())
+            self._diary_event("jugador_buscado", "Objetivo de recompensa · " + extras.diary_detail(c), x=c.handle)
+            self._holo_player(c, "recompensa")
+            if not self.paused:
+                org = c.org.nombre or c.org.sid
+                self._say(f"{self.settings.get('tratamiento')}, objetivo de la recompensa identificado: {c.handle}"
+                          + (f", de la organización {org}" if org and not c.org.oculta else "")
+                          + ". Ficha en el overlay.")
+        threading.Thread(target=work, daemon=True, name="holo-recompensa").start()
+
+    def _check_body(self, ev: GameEvent) -> None:
+        """Llegas cerca de un planeta, luna o lugar planetario: su ficha de VerseGuide en holograma."""
+        from .verseguide import resolve_body
+
+        s = self.settings
+        if not (s.get("holo_llegadas", True) or s.get("holo_lugares", True)):
+            return
+        data = ev.data or {}
+        raw, place_name = data.get("raw", ""), data.get("lugar") or data.get("x") or ""
+        hit = resolve_body(raw) or resolve_body(place_name)
+        if not hit:
+            return
+        body_key = f"body:{hit[0]}/{hit[1]}"
+        if ev.kind == "cerca_de_cuerpo" and body_key in self._holo_seen:
+            return
+
+        def work() -> None:
+            try:
+                b = self.vg.body(hit[0], hit[1])
+            except LookupError as e:
+                log.info("VerseGuide: %s", e)
+                return
+            place = None
+            if s.get("holo_lugares", True) and place_name and ev.kind in ("ubicacion", "llegada_cuantica"):
+                place = b.find_place(place_name.split("(")[0])
+            if place and not self._seen_recently(f"place:{b.codigo}:{place.nombre}", 1800):
+                self._translate(b, place)
+                from .holo import card_place
+                self._show_holo(card_place(b, place, self._texture(b)))
+                self.on_message("sistema", f"📍 {place.nombre} ({b.nombre}): ficha en el overlay")
+                return
+            if s.get("holo_llegadas", True) and not self._seen_recently(body_key, 1800):
+                self._translate(b)
+                from .holo import card_body
+                self._show_holo(card_body(b, self._texture(b)))
+                self.on_message("sistema", f"🪐 {b.nombre}: ficha en el overlay")
+        threading.Thread(target=work, daemon=True, name="holo-cuerpo").start()
+
+    def _texture(self, b):
+        from .holo import fetch_image
+        return fetch_image(b.imagen) if b.imagen else None
+
+    def _translate(self, b, place=None) -> None:
+        """Descripciones de VerseGuide/RSI (en inglés) al español con la IA; se guardan en la caché."""
+        if not self.settings.get("holo_traducir", True):
+            return
+        changed = False
+        for obj in ((place,) if place else ()) + (b,):
+            if obj is None or obj.descripcion_es or not obj.descripcion or len(obj.descripcion) < 12:
+                continue
+            es = self.brain.quick("Traduce al español de España este texto de Star Citizen. Mantén los nombres "
+                                  "propios. Responde solo con la traducción:\n\n" + obj.descripcion[:900])
+            if es:
+                obj.descripcion_es = es.strip().strip('"')
+                changed = True
+        if changed:
+            self.vg.save(b)
+
+    def place_info(self, nombre: str) -> str:
+        """Herramienta de la IA: ficha de un planeta, luna o lugar planetario (y holograma)."""
+        from .holo import card_body, card_place
+        from .verseguide import place_text
+
+        system = ""
+        for key in ("PYRO", "NYX", "STANTON"):
+            if key.lower() in (self.gamelog.location or "").lower() or key.lower() in (self.gamelog.shard or "").lower():
+                system = key
+                break
+        try:
+            hit = self.vg.find(nombre, system_hint=system)
+        except LookupError as e:
+            return f"SIN DATOS: no pude leer verseguide.com ({e})."
+        if not hit:
+            return f"SIN DATOS: no encuentro «{nombre}» en verseguide.com."
+        b, place = hit
+        self._translate(b, place)
+        text = place_text(b, place) if place else b.texto()
+        self.on_message("ficha", ("LUGAR PLANETARIO\n" if place else "CUERPO CELESTE\n") + text)
+        if self.settings.get("holo_planetas", True):
+            tex = self._texture(b)
+            self._show_holo(card_place(b, place, tex) if place else card_body(b, tex))
+        return text + "\n(La ficha ya está en pantalla y en el overlay.)"
 
     def _timer_added(self, t: dict) -> None:
         hora = time.strftime("%H:%M", time.localtime(t["fin"]))
@@ -226,10 +375,103 @@ class Nova:
         else:
             self._say(f"{tr}, aviso de temporizador: {t['motivo']}{where}.")
 
+    # ------------------------------------------------------------ actualizaciones (v1.3)
+    @staticmethod
+    def _update_answer(norm: str) -> str:
+        if "al cerrar" in norm or "cuando cierre" in norm or "luego" in norm or "despues" in norm:
+            return "al_cerrar"
+        if norm in ("no", "ahora no", "no gracias", "no actualices", "mejor no") or norm.startswith("no "):
+            return "no"
+        if norm in ("si", "vale", "venga", "adelante", "actualiza", "actualizala", "si actualiza", "actualiza ahora",
+                    "si actualiza ahora", "si por favor", "dale") or norm.startswith("si "):
+            return "ahora"
+        return ""
+
+    def check_update(self, announce: bool = True) -> None:
+        """Al iniciar: ¿hay versión nueva en GitHub? Si la hay, pregunta (ventana + voz)."""
+        from .selfupdate import is_dev_copy
+
+        if not self.settings.get("actualizar_programa", True) or is_dev_copy():
+            return
+        info = self.selfupdate.check()
+        if not info:
+            return
+        self.on_message("sistema", f"⬆ Nueva versión {info['texto']} de NOVA AI disponible en GitHub.")
+        self.on_ui({"t": "actualizacion", "preguntar": True})
+        if announce and not self.paused and not self.training:
+            self._update_question_until = time.time() + 120
+            self._say(f"Se ha detectado una nueva versión {info['texto'].lstrip('v')} de NOVA AI. "
+                      f"¿Quiere actualizar ahora? Puede decirme sí, no o al cerrar la aplicación.")
+
+    def update_choice(self, choice: str) -> str:
+        """«ahora» · «no» · «al_cerrar». Devuelve un texto para la ventana."""
+        up = self.selfupdate
+        self._update_question_until = 0.0
+        up.choice = choice
+        tr = self.settings.get("tratamiento")
+        if choice == "no":
+            self._say(f"Entendido, {tr}. Seguimos con esta versión.")
+            self.on_ui({"t": "actualizacion"})
+            return "Seguimos con esta versión"
+        if choice == "al_cerrar":
+            self._say(f"De acuerdo, {tr}. La instalaré cuando cierre la aplicación.")
+            threading.Thread(target=self._predownload, daemon=True, name="descarga-actualizacion").start()
+            return "Se instalará al cerrar NOVA"
+        # ahora
+        self._say(f"Descargando la nueva versión, {tr}. Windows le pedirá permiso para instalarla.")
+
+        def work() -> None:
+            try:
+                up.download()
+            except RuntimeError as e:
+                self.on_message("sistema", f"⚠ No se pudo descargar la actualización: {e}")
+                self._say(f"No he podido descargar la actualización, {tr}. Lo intentaré al cerrar.")
+                up.choice = "al_cerrar"
+                return
+            if up.launch(relaunch=True):
+                self.on_message("sistema", "⬆ Instalando la nueva versión. NOVA se cierra y volverá a abrirse sola.")
+                time.sleep(1.5)
+                self.request_quit()
+            else:
+                self.on_message("sistema", "⚠ No se pudo abrir el instalador. Puedes descargarlo de GitHub.")
+        threading.Thread(target=work, daemon=True, name="actualizar-ahora").start()
+        return "Descargando…"
+
+    def _predownload(self) -> None:
+        try:
+            self.selfupdate.download()
+        except RuntimeError as e:
+            log.info("Actualización: %s (se reintentará al cerrar)", e)
+
+    def update_on_close(self) -> None:
+        """Al cerrar: instala si lo pediste «al cerrar»; si no, comprueba y pregunta (ventana de Windows)."""
+        from .selfupdate import ask_native, is_dev_copy
+
+        up = self.selfupdate
+        if not self.settings.get("actualizar_programa", True) or is_dev_copy():
+            return
+        if up.choice == "ahora":
+            return  # ya se abrió el instalador
+        if up.choice != "al_cerrar":
+            if up.choice == "no":
+                return  # ya dijiste que no en esta sesión: no insistir
+            info = up.check(timeout=5) if up.state not in ("disponible", "listo") else up.latest
+            if not info or up.state not in ("disponible", "listo"):
+                return
+            if not ask_native(info["texto"]):
+                return
+        try:
+            up.download()
+        except RuntimeError as e:
+            log.warning("Actualización al cerrar: %s", e)
+            return
+        up.launch(relaunch=False)
+
     def start_extras(self) -> None:
-        """Al arrancar: temporizadores pendientes y estado de los servidores de RSI."""
+        """Al arrancar: temporizadores pendientes, estado de los servidores de RSI y versión nueva."""
         self.timers.on_change = lambda: self.on_ui({"t": "timers"})
         self.timers.start()
+        threading.Thread(target=self.check_update, daemon=True, name="buscar-version").start()
         if self.settings.get("estado_rsi_al_iniciar", True):
             threading.Thread(target=self._boot_status, daemon=True, name="estado-rsi").start()
 
@@ -292,6 +534,11 @@ class Nova:
         self.on_message("juego", f"📡 {label}: {ev.detail}" if ev.detail else f"📡 {label}")
         if ev.kind == "nave_subes" and not ev.replay:
             extras.remember_ship(self.settings, (ev.data or {}).get("nave", ""))
+        if not ev.replay and not self.training:
+            if ev.kind in ("contrato_aceptado", "objetivo_nuevo"):
+                self._check_bounty(ev)
+            elif ev.kind in ("llegada_cuantica", "ubicacion", "jurisdiccion", "cerca_de_cuerpo"):
+                self._check_body(ev)
         if self.paused or self.training or not ev.category or not self.settings.get("gamelog_comentarios"):
             return
         # Perfil de la nave en la que vas: cada nave puede tener sus propios avisos.
@@ -386,6 +633,13 @@ class Nova:
             self.memory.clear_history()
             self._say(f"Conversación olvidada. Empezamos de cero, {self.settings.get('tratamiento')}.")
             return
+
+        # Respuesta a «¿Quieres actualizar ahora?» (también se puede contestar en la ventana)
+        if time.time() < self._update_question_until:
+            answer = self._update_answer(norm)
+            if answer:
+                self.update_choice(answer)
+                return
 
         # 0) Buscar un jugador en la web de RSI: el apodo se escribe (por voz se entendería mal).
         if source == "texto" and time.time() < self._await_handle_until:
