@@ -31,6 +31,17 @@ INFO_TOOLS = {"buscar_wiki_star_citizen", "buscar_en_internet", "leer_pagina_web
 ECHO_TAIL = 0.8  # segundos tras hablar en los que el micrófono sigue sordo (eco de la sala)
 
 
+def _network_error(e: BaseException) -> bool:
+    """¿El fallo fue de conexión (y no «no existe»)?"""
+    import requests
+
+    while e is not None:
+        if isinstance(e, (requests.ConnectionError, requests.Timeout, ConnectionError, TimeoutError)):
+            return True
+        e = e.__cause__ or e.__context__
+    return False
+
+
 class Nova:
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
@@ -66,6 +77,7 @@ class Nova:
         from .verseguide import VerseGuide
 
         self.holo = HoloOverlay(settings)
+        self.holo.play = self.play_sfx
         self.vg = VerseGuide()
         self._holo_seen: dict[str, float] = {}
         self.last_holo = None  # última ficha mostrada (para la ventana de NOVA)
@@ -211,9 +223,7 @@ class Nova:
         self._searching = max(0, self._searching - 1)
         self.flash("green")
         self.on_message("ficha", "FICHA DE JUGADOR\n" + c.text())
-        self._diary_event("jugador_buscado", extras.diary_detail(c), x=c.handle)
-        if c.org_lines():
-            self._diary_event("jugador_org", extras.org_detail(c), x=c.org.sid)
+        self._log_player(c)
         self._say(extras.spoken(c, t))
         if self.settings.get("holo_jugadores", True):
             self._holo_player(c, "consulta")
@@ -221,7 +231,37 @@ class Nova:
         if sent:
             self.on_message("sistema", sent)
 
+    def _log_player(self, c=None, nota: str = "", kind: str = "jugador_buscado", name: str = "", org: str = "") -> None:
+        """Bitácora: (fecha) (hora) (jugador) (organización) en «Busquedas_de_jugadores.log» y,
+        si hay una sesión de juego abierta, también en su bitácora."""
+        if c is not None:
+            name = c.handle + (f" ({c.apodo_juego})" if c.apodo_juego and c.apodo_juego != c.handle
+                               and "REDACTED" not in c.apodo_juego.upper() else "")
+            o = c.org
+            org = "organización oculta" if o.oculta else (f"{o.nombre or o.sid} [{o.sid}]" if (o.sid or o.nombre)
+                                                          else "sin organización")
+        try:
+            line = self.diary.log_player_search(name, org, nota)
+            if self.diary.file:
+                self._diary_event(kind, line.split(" · ", 2)[-1], x=name)
+        except Exception:
+            log.exception("Bitácora de jugadores")
+
     # ------------------------------------------------------------ hologramas (v1.2)
+    def play_sfx(self, name: str) -> None:
+        """Sonidos de los hologramas (encendido, apagado y alerta de objetivo de captura)."""
+        if not self.settings.get("holo_sonidos", True):
+            return
+        from . import sfx
+        data = sfx.get(name)
+        if data is None:
+            return
+        try:
+            vol = max(0.0, min(1.0, float(self.settings.get("holo_volumen", 0.7))))
+            self.tts.out.play_fx(data * vol, sfx.RATE)
+        except Exception:  # noqa: BLE001 — sin altavoz no pasa nada
+            log.debug("Sonido %s", name, exc_info=True)
+
     def _seen_recently(self, key: str, seconds: float) -> bool:
         now = time.time()
         if now - self._holo_seen.get(key, -1e9) < seconds:
@@ -246,28 +286,45 @@ class Nova:
         threading.Thread(target=work, daemon=True, name="holo-jugador").start()
 
     def _check_bounty(self, ev: GameEvent) -> None:
-        """Contrato u objetivo de cazarrecompensas sobre un jugador: ficha policial del objetivo."""
-        if not self.settings.get("holo_recompensas", True):
+        """Contrato u objetivo de cazarrecompensas: se busca al objetivo en RSI. Si tiene ficha es un
+        jugador (ficha policial en rojo y alarma); si no la tiene, es un piloto NPC."""
+        if not self.settings.get("recompensas_buscar", True):
             return
         name = self.gamelog.text.bounty_target((ev.data or {}).get("x", "")) if self.gamelog.text else ""
         if not name or self._seen_recently(f"bounty:{name.lower()}", 600):
             return
+        tr = self.settings.get("tratamiento")
+
+        def npc(reason: str = "no tiene ficha en RSI") -> None:
+            self.on_message("sistema", f"🎯 Objetivo nuevo: Neutralizar «{name}» · Piloto NPC ({reason})")
+            self._log_player(name=name, org="piloto NPC", nota="objetivo de recompensa", kind="objetivo_recompensa")
+            if not self.paused:
+                self._say(f"{tr}, el objetivo {name} es un piloto NPC.")
 
         def work() -> None:
+            from .rsi import HANDLE_RE
+            if " " in name.strip() or not HANDLE_RE.match(name.strip()):
+                npc()  # los apodos de RSI no llevan espacios: es un personaje del juego
+                return
+            self.on_message("sistema", f"🎯 Objetivo nuevo: Neutralizar «{name}» · buscando su ficha en RSI…")
             try:
                 c = extras.lookup(name)
-            except Exception:
-                log.info("Objetivo %s: no es un jugador de RSI (o no se pudo consultar)", name)
+            except Exception as e:  # noqa: BLE001
+                if _network_error(e):
+                    self.on_message("sistema", f"⚠ No pude consultar RSI para «{name}» (sin conexión).")
+                    return
+                npc()
                 return
             self.on_message("ficha", "OBJETIVO DE RECOMPENSA\n" + c.text())
-            self._diary_event("jugador_buscado", "Objetivo de recompensa · " + extras.diary_detail(c), x=c.handle)
-            self._holo_player(c, "recompensa")
+            self._log_player(c, "objetivo de recompensa", "objetivo_recompensa")
+            if self.settings.get("holo_recompensas", True):
+                self._holo_player(c, "recompensa")
             if not self.paused:
                 org = c.org.nombre or c.org.sid
-                self._say(f"{self.settings.get('tratamiento')}, objetivo de la recompensa identificado: {c.handle}"
+                self._say(f"Atención, {tr}: el objetivo de la recompensa es un jugador, {c.handle}"
                           + (f", de la organización {org}" if org and not c.org.oculta else "")
                           + ". Ficha en el overlay.")
-        threading.Thread(target=work, daemon=True, name="holo-recompensa").start()
+        threading.Thread(target=work, daemon=True, name="recompensa").start()
 
     def _check_body(self, ev: GameEvent) -> None:
         """Llegas cerca de un planeta, luna o lugar planetario: su ficha de VerseGuide en holograma."""

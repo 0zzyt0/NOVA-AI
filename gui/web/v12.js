@@ -17,6 +17,7 @@ window.V12 = (() => {
     } finally { b.disabled = false; }
   })));
   $("#btnHoloHide").addEventListener("click", safe(async () => { await api("holo_hide"); }));
+  $$("[data-sfx]").forEach((b) => b.addEventListener("click", safe(async () => { await api("sfx_test", { nombre: b.dataset.sfx }); })));
   return {
     onEvent(ev) { if (ev.t === "holo") preview(); },
     onSection(sec) { if (sec === "interfaz") preview(); },

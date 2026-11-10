@@ -505,3 +505,4 @@ table.stats th:first-child,table.stats td:first-child,table.stats th:last-child,
 .upd-bar{position:relative;height:22px;border:1px solid var(--line2);background:rgba(0,0,0,.25);margin-bottom:12px}
 .upd-bar i{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,rgba(32,184,232,.35),rgba(32,184,232,.8));transition:width .3s}
 .upd-bar span{position:relative;display:block;text-align:center;font:12px/22px var(--mono);color:#fff}
+.ov-sep{margin:22px 0 12px}

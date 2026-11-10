@@ -280,12 +280,12 @@ Sale del propio Game.log: si abres Nova con la partida empezada o después de ju
 - **Estadísticas de piloto:** horas, bajas, muertes, saltos y contratos de **todas** tus sesiones, semana a semana (Memoria › Archivos de bitácora). «Recalcular» lee los Game.log antiguos del juego (`logbackups`). Pregúntale «¿cuántas bajas llevo este mes?».
 - **🧹 Limpiar transmisiones:** botón en la Cabina que vacía el chat (la memoria y la bitácora no se tocan).
 
-## 7 nonies. Novedades de la versión 1.2: hologramas
+## 7 nonies. Hologramas (versión 1.2 y 1.2.1)
 
-Nova enseña **fichas en holograma encima del juego** (como el logo: con Star Citizen en «Ventana sin bordes», sin robar el foco ni los clics). Aparecen con una animación de proyector, tienen líneas de barrido mientras están en pantalla y se pliegan al irse. Se ajustan en **Interfaz › Hologramas**: opacidad, tiempo en pantalla, tamaño, posición y en qué casos aparecen; los botones «Probar» enseñan un ejemplo.
+Nova enseña **fichas en holograma encima del juego** (como el logo: con Star Citizen en «Ventana sin bordes», sin robar el foco ni los clics). Aparecen con una animación de proyector, tienen líneas de barrido mientras están en pantalla y se pliegan al irse. Al encenderse y al apagarse suenan (se puede quitar o bajar el volumen). Se ajustan en **Interfaz › Overlay NOVA AI**, junto al logo: opacidad, tiempo en pantalla, tamaño, posición, sonido y en qué casos aparecen; los botones «Probar» enseñan un ejemplo.
 
-- **Ficha policial UEE de un jugador** («búscame a un jugador»): foto de perfil, apodo, handle, expediente, fecha de alta, idiomas y la organización con su logotipo. Los datos ocultos salen tachados como `REDACTED`.
-- **Objetivo de recompensa:** si aceptas un contrato de cazarrecompensas sobre un **jugador** (por ejemplo «Capturar al sospechoso: Nebula_Rider»), Nova busca al objetivo en RSI y te enseña su ficha con el sello **OBJETIVO DE CAZA**. Los objetivos que son PNJ no se buscan.
+- **Ficha policial UEE de un jugador** («búscame a un jugador»), en **tono azul**: foto de perfil, apodo, handle, expediente, fecha de alta, idiomas y la organización con su logotipo. Los datos ocultos salen tachados como `REDACTED`. Cada búsqueda queda anotada en **Memoria › Archivos de bitácora**, en el archivo `Busquedas_de_jugadores.log`, con fecha, hora, jugador y organización.
+- **Objetivos de recompensa:** al aceptar una misión de cazarrecompensas o JcJ (o cuando aparece «Objetivo nuevo: Neutralizar XX»), Nova busca a XX en RSI. Si tiene ficha es un **jugador**: suena una **alerta** y su ficha sale en **rojo** con el sello **OBJETIVO DE CAZA**. Si no la tiene (o su nombre lleva espacios), te dice que es un **piloto NPC**. También queda en la bitácora de búsquedas.
 - **Planetas y lunas:** «Nova, háblame de Daymar» → ficha de verseguide.com con el cuerpo girando, tipo, radio, gravedad, duración del día, atmósfera, nivel de peligro, economía y población, cuántos lugares tiene y su descripción (traducida al español con tu IA, una sola vez).
 - **Lugares planetarios** (cuevas, puestos avanzados, bases, búnkeres…): «Nova, ¿qué es Security Post Kareah?» → tipo, dónde está, temperatura y descripción.
 - **Al llegar:** cuando el Game.log indica que te acercas a un planeta o una luna, o que llegas a uno de sus lugares, la ficha aparece sola (como mucho una vez cada media hora para el mismo sitio).
@@ -400,7 +400,7 @@ Además, Nova tiene un control propio: si buscó en la wiki o en internet, no en
 
 Debajo de **Memoria**, en pequeño, está **ⓘ Acerca de**: una ventana al estilo de los keygens de los 90 y 2000, con su túnel de colores de 8 bits, una flecha volando dentro, el texto que se desplaza abajo y la música de NOVA AI en bucle. Ahí están los créditos, la licencia y los derechos de terceros. Se cierra con **Esc** o con el botón **Cerrar**; el botón **♪ Música** la silencia.
 
-**NOVA AI · Versión oficial 1.2**, de **Aaron B. Roldan** (gametag de Star Citizen: **0zzyt0**), desarrollada con el motor de IA Claude Opus 5.5 (Anthropic). Agradecimientos a la Org. Defcorp y a Faibo, Galleg0, Sr.Scott, AlpacaInTrouble, Lother y muchos más.
+**NOVA AI · Versión oficial 1.2.1**, de **Aaron B. Roldan** (gametag de Star Citizen: **0zzyt0**), desarrollada con el motor de IA Claude Opus 5.5 (Anthropic). Agradecimientos a la Org. Defcorp y a Faibo, Galleg0, Sr.Scott, AlpacaInTrouble, Lother y muchos más.
 
 **Licencia:** libre uso y modificación. Si usas este proyecto o lo modificas, por favor menciona de dónde has sacado las ideas y cuál es tu base. Texto completo, con los derechos de terceros, en `LICENCIA.txt`.
 

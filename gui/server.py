@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import queue
 import secrets
 import subprocess
@@ -507,12 +508,15 @@ class UIServer:
                                                                miembros="245", etiquetas=["PMC", "Casual"]))
             return holo.card_player(c, "recompensa" if tipo == "recompensa" else "consulta"), \
                 "Ejemplo con un jugador ficticio"
-        try:  # Daymar de verseguide.com (si hay conexión) para ver un ejemplo real
+        try:  # Daymar de verseguide.com (si hay conexión) para ver un ejemplo real, ya traducido
             b = n.vg.body("STANTON", "2B")
             tex = n._texture(b)
             if tipo == "lugar":
-                p = next((x for x in b.lugares if x.tipo == "underground" and not x.oculto), None) or b.lugares[0]
+                p = next((x for x in b.lugares if x.tipo == "underground" and not x.oculto and x.descripcion), None) \
+                    or next((x for x in b.lugares if not x.oculto), b.lugares[0])
+                n._translate(b, p)
                 return holo.card_place(b, p, tex), "Ejemplo real de verseguide.com"
+            n._translate(b)
             return holo.card_body(b, tex), "Ejemplo real de verseguide.com"
         except Exception:
             b = Body(sistema="STANTON", codigo="2B", nombre="Daymar", designacion="Stanton 2b", tipo="Planetary Moon",
@@ -526,10 +530,17 @@ class UIServer:
 
     def api_holo_test(self, tipo: str = "jugador") -> dict:
         card, nota = self._sample_card(str(tipo))
+        if card.kind != "jugador" and self.nova.settings.get("holo_traducir", True) and card.desc \
+                and re.search(r"\b(the|and|of|is|this|with)\b", card.desc):
+            nota += " · la descripción sigue en inglés: comprueba que tu motor de IA responde (Inteligencia)"
         self.nova._show_holo(card, force=True)
         if self.nova.holo.status not in ("activo", "inactivo"):
             nota += f" · overlay: {self.nova.holo.status}"
         return {"png": self._holo_png(card), "nota": nota}
+
+    def api_sfx_test(self, nombre: str = "holo_on") -> bool:
+        self.nova.play_sfx(str(nombre))
+        return True
 
     def api_holo_hide(self) -> bool:
         self.nova.holo.dismiss()

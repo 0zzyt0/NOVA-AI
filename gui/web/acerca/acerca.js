@@ -2,7 +2,7 @@
    túnel infinito de 8 bits, una flecha volando dentro, scroller en seno y música en bucle. */
 (() => {
   "use strict";
-  const VERSION = "1.2";
+  const VERSION = "1.2.1";
 
   // ------------------------------------------------------------ fuente de píxeles 5×7
   const F = {
@@ -92,7 +92,7 @@
 
 <div class="kg-c kg-y" style="margin-top:14px">o7 · Nos vemos en el 'verso</div>`;
 
-  const SCROLL = "*** NOVA AI V1.2 *** ASISTENTE DE VUELO PARA STAR CITIZEN *** CODIGO: AARON B. ROLDAN - 0ZZYT0 *** " +
+  const SCROLL = "*** NOVA AI V1.2.1 *** ASISTENTE DE VUELO PARA STAR CITIZEN *** CODIGO: AARON B. ROLDAN - 0ZZYT0 *** " +
     "MOTOR DE IA: CLAUDE OPUS 5.5 *** SALUDOS A LA ORG. DEFCORP *** GRACIAS A FAIBO, GALLEG0, SR.SCOTT, ALPACAINTROUBLE, " +
     "LOTHER Y MUCHOS MAS *** LIBRE USO Y MODIFICACION: CITA TU BASE *** PULSA ESC PARA SALIR *** O7 ***          ";
 

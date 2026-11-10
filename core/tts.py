@@ -128,6 +128,7 @@ class AudioOut:
         self._device_name = object()
         self.level = 0.0  # volumen actual de la voz (para el overlay y la ventana)
         self.last_sound = 0.0
+        self._fx: list[list] = []  # efectos de sonido (hologramas): se mezclan encima de la voz
 
     def _ensure_stream(self) -> None:
         import sounddevice as sd
@@ -171,6 +172,18 @@ class AudioOut:
             self.last_sound = time.time()
         else:
             self.level *= 0.6
+        if self._fx:  # efectos: se suman sin esperar a que termine la voz
+            with self._lock:
+                keep = []
+                for item in self._fx:
+                    data, pos = item
+                    take = min(len(data) - pos, frames)
+                    out[:take] += data[pos:pos + take]
+                    item[1] = pos + take
+                    if item[1] < len(data):
+                        keep.append(item)
+                self._fx = keep
+            np.clip(out, -1.0, 1.0, out=out)
 
     def push(self, samples: np.ndarray, rate: int, still_valid: Callable[[], bool] = lambda: True) -> bool:
         """Encola audio. `still_valid` se comprueba con la cola bloqueada, así un
@@ -182,6 +195,16 @@ class AudioOut:
                 return False
             self._chunks.append(data)
             return True
+
+    def play_fx(self, samples: np.ndarray, rate: int) -> None:
+        """Efecto de sonido corto mezclado con lo que suene (no hace cola detrás de la voz)."""
+        try:
+            self._ensure_stream()
+        except Exception:  # noqa: BLE001
+            return
+        data = resample(np.asarray(samples, dtype=np.float32), rate)
+        with self._lock:
+            self._fx.append([data, 0])
 
     def clear(self, before: Callable[[], None] | None = None) -> None:
         with self._lock:

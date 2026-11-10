@@ -71,6 +71,9 @@ SYSTEM_ES = {"STANTON": "Stanton", "PYRO": "Pyro", "NYX": "Nyx"}
 TAG_ES = {"outpost": "Puesto avanzado", "industrial": "Instalación industrial", "underground": "Subterráneo (cueva o búnker)",
           "settlement": "Asentamiento", "derelict": "Abandonado", "station": "Estación", "race": "Circuito de carreras",
           "city": "Ciudad", "cave": "Cueva", "landmark": "Lugar de interés", "wreck": "Restos de nave"}
+TAG_SHORT = {"outpost": "puestos", "industrial": "industriales", "underground": "cuevas/búnkeres", "settlement": "asentamientos",
+             "derelict": "abandonados", "station": "estaciones", "race": "circuitos", "city": "ciudades", "cave": "cuevas",
+             "landmark": "lugares de interés", "wreck": "restos"}
 SUBTAG_ES = {"security-post": "puesto de seguridad", "planetary-alignment-facility": "estación de alineación planetaria",
              "forward-operating-base": "base de operaciones avanzada", "mining": "minería", "salvage-yard": "desguace",
              "farm": "granja", "shelter": "refugio", "stash-house": "escondite", "race-track": "circuito",
@@ -440,7 +443,7 @@ class Body:
         for p in self.lugares:
             if p.oculto:
                 continue
-            k = TAG_ES.get(p.tipo, p.tipo or "otros")
+            k = TAG_SHORT.get(p.tipo, p.tipo or "otros")
             count[k] = count.get(k, 0) + 1
         return sorted(count.items(), key=lambda kv: -kv[1])
 
@@ -451,7 +454,7 @@ class Body:
         for k, v in sorted(self.compuestos.items(), key=lambda kv: -_num(kv[1])):
             if _num(v) > 0:
                 parts.append(f"{COMPOUND_ES.get(k, k)} {_fmt(_num(v), 1)} %")
-        return ", ".join(parts[:3])
+        return ", ".join(parts[:2])
 
     def campos(self) -> list[tuple[str, str]]:
         out = [("Tipo", self.tipo_es()), ("Sistema", SYSTEM_ES.get(self.sistema, self.sistema))]
@@ -471,7 +474,7 @@ class Body:
                         " · ".join(f"{v}/10" if v is not None else "?" for v in (self.peligro, self.economia, self.poblacion))))
         lug = self.resumen_lugares()
         if lug:
-            out.append(("Lugares", ", ".join(f"{n} {k.lower()}" for k, n in lug[:4])))
+            out.append(("Lugares", ", ".join(f"{n} {k}" for k, n in lug[:3])))
         return out
 
     def texto(self) -> str:

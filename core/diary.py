@@ -26,6 +26,7 @@ log = logging.getLogger("nova.diary")
 DIARY_DIR = DATA_DIR / "diario"
 LAST_FILE = DIARY_DIR / "ultima_sesion.json"
 MAX_FILES = 60  # se guardan las últimas 60 sesiones
+PLAYERS_FILE = "Busquedas_de_jugadores.log"  # todas las búsquedas de jugadores (no se borra)
 
 # tipo de evento -> (etiqueta, plantilla). Sin plantilla = no se apunta en el diario.
 LINES = {
@@ -117,6 +118,7 @@ LINES = {
     "tiron_red": ("RED", "Tirón de red de {segundos} s"),
     "objetivo": ("OBJETIVO", "{x}{en_nave}{lugar_p}"),
     "jugador_buscado": ("JUGADOR", "{detail}"),
+    "objetivo_recompensa": ("OBJETIVO", "{detail}"),
     "jugador_org": ("JUGADOR", "{detail}"),
     "temporizador_nuevo": ("TEMPORIZADOR", "{x}: termina a las {hora}{lugar_p}"),
     "temporizador_fin": ("TEMPORIZADOR", "Terminado: {x}{lugar_p}"),
@@ -412,9 +414,30 @@ class Diary:
             if self.file:
                 self._save_state()
 
+    def log_player_search(self, nombre: str, organizacion: str, nota: str = "", when: float | None = None) -> str:
+        """Línea básica de cada búsqueda de jugador en «Busquedas_de_jugadores.log» (y en la bitácora
+        de la sesión): (fecha) (hora) (jugador) (organización)."""
+        when = when or time.time()
+        line = (f"{time.strftime('%d/%m/%Y', time.localtime(when))} · {time.strftime('%H:%M', time.localtime(when))}"
+                f" · {nombre or '?'} · {organizacion or 'sin organización'}" + (f" · {nota}" if nota else ""))
+        if not self.settings.get("diario_activo", True):
+            return line
+        try:
+            self.dir.mkdir(parents=True, exist_ok=True)
+            f = self.dir / PLAYERS_FILE
+            new = not f.exists()
+            with open(f, "a", encoding="utf-8") as out:
+                if new:
+                    out.write("CUADERNO DE BITÁCORA · NOVA AI · BÚSQUEDAS DE JUGADORES\n"
+                              "Fecha · Hora · Jugador · Organización\n" + "-" * 60 + "\n")
+                out.write(line + "\n")
+        except OSError as e:
+            log.warning("Búsquedas de jugadores: %s", e)
+        return line
+
     def _prune(self) -> None:
         try:
-            files = sorted(self.dir.glob("*.log"), key=lambda p: p.stat().st_mtime)
+            files = sorted((p for p in self.dir.glob("*.log") if p.name != PLAYERS_FILE), key=lambda p: p.stat().st_mtime)
             for p in files[:-MAX_FILES]:
                 p.unlink()
         except OSError:

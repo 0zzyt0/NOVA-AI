@@ -12,7 +12,7 @@ param([string]$Destino = '', [string]$Origen = '', [switch]$Actualizar, [switch]
 #  las normas si ya estaban aceptadas). -SinIniciar: no volver a abrir NOVA al terminar (actualizar «al cerrar»).
 $ErrorActionPreference = 'Continue'
 $AppName = 'NOVA AI'
-$AppVersion = '1.2.0'
+$AppVersion = '1.2.1'
 # Origen: carpeta con el programa a instalar. «NOVA AI Setup.exe» la pasa (la descomprime en TEMP);
 # con INSTALAR.bat es la carpeta padre de este script.
 $Src = if ($Origen) { $Origen } elseif ($PSScriptRoot) { Split-Path -Parent $PSScriptRoot } else { (Get-Location).Path }

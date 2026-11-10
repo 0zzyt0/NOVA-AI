@@ -14,7 +14,7 @@ import os
 import threading
 from pathlib import Path
 
-VERSION = "1.2.0"
+VERSION = "1.2.1"
 APP_NAME = "NOVA AI"
 APP_DIR = Path(__file__).resolve().parent.parent
 FACTORY_DIR = APP_DIR / "datos"  # archivos de fábrica que vienen con el programa (solo lectura)
@@ -177,10 +177,13 @@ DEFAULTS: dict = {
     "holo_escala": 1.0,  # tamaño (0.6 … 1.6)
     "holo_jugadores": True,  # al buscar un jugador
     "holo_recompensas": True,  # al aceptar una recompensa sobre un jugador
+    "recompensas_buscar": True,  # buscar en RSI el objetivo de cada recompensa (jugador o piloto NPC)
     "holo_planetas": True,  # al pedir información de un planeta, luna o lugar
     "holo_llegadas": True,  # al llegar cerca de un planeta o luna
     "holo_lugares": True,  # al llegar a un lugar planetario (cueva, puesto, base…)
     "holo_traducir": True,  # traducir al español las descripciones (con la IA)
+    "holo_sonidos": True,  # sonido al encenderse y apagarse (y alerta con los objetivos de captura)
+    "holo_volumen": 0.7,
     # --- v1.3: actualizaciones de NOVA AI desde GitHub ---------------------
     "actualizar_programa": True,  # comprobar si hay versión nueva al iniciar y al cerrar
     "actualizar_al_iniciar": True,  # comprobar scmdb.net / UEX / wiki al arrancar

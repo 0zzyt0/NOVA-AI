@@ -19,6 +19,7 @@ from .logrules import CONST, RULE_KEYS, TILDE_FIELDS
 
 log = logging.getLogger("nova.localization")
 
+BOUNTY_KEYS = ("bounty", "pvp", "kill", "assassin", "headhunter", "bhg_", "eliminat", "hunt", "criminal")
 HANDLE_LIKE = re.compile(r"[_\-\d]|[a-z][A-Z]|^[A-Z0-9]{4,}$")
 GENERIC_TARGET = re.compile(r"(?i)(?:sospechos[oa]|suspect|criminal|objetivo|target|recompensa|bounty)\s*:\s*"
                             r"([A-Za-z0-9_\-]{3,60})\s*$")
@@ -261,23 +262,23 @@ class GameText:
 
     # ------------------------------------------------- objetivos de recompensas (cazarrecompensas)
     def bounty_target(self, text: str) -> str:
-        """Título u objetivo de un contrato -> nombre del objetivo (~mission(TargetName)) si es un apodo
-        sin espacios (como los de los jugadores). '' si no lo es o no se reconoce."""
+        """Título u objetivo de un contrato de cazarrecompensas (o JcJ) -> nombre del objetivo
+        (~mission(TargetName)): «Neutralizar Wade Rocha» -> «Wade Rocha», «Capturar al sospechoso:
+        Nebula_Rider» -> «Nebula_Rider». '' si el texto no es de una recompensa."""
         t = re.sub(r"</?EM\d>", "", text or "").strip()
         if not t:
             return ""
         rxs = getattr(self, "_target_rx", None)
         if rxs is None:
             rxs = self._build_target_rx()
-        for rx, strong in rxs:
+        for rx, _strong in rxs:
             m = rx.fullmatch(t)
             if m:
                 name = m.group("t").strip(" '\"«»")
-                # Contratos JcJ: siempre. Otros: solo si el nombre parece un apodo de jugador
-                # (los PNJ suelen tener nombres normales, «Gonzo», «Wade Rocha»).
-                return name if strong or HANDLE_LIKE.search(name) else ""
+                if 2 <= len(name) <= 60 and not re.search(r"~mission|%[sd]", name):
+                    return name
         m = GENERIC_TARGET.search(t)
-        return m.group(1) if m and HANDLE_LIKE.search(m.group(1)) else ""
+        return m.group(1) if m else ""
 
     def _build_target_rx(self) -> list:
         out, seen = [], set()
@@ -287,17 +288,19 @@ class GameText:
                     continue
                 if not any(w in k for w in ("title", "_obj", "objective", "marker")):
                     continue
+                if not any(w in k for w in BOUNTY_KEYS):  # solo recompensas, caza y JcJ
+                    continue
                 tpl = re.sub(r"</?EM\d>", "", v)
                 tpl = re.sub(r"\[[^\]]*\]\*?", "", tpl).strip().rstrip(" .:")
-                if tpl in seen:
-                    continue
+                if tpl in seen or len(re.sub(r"\W", "", TOKEN.sub("", tpl))) < 4:
+                    continue  # sin texto fijo («~mission(TargetName)» a secas) valdría para cualquier aviso
                 seen.add(tpl)
                 parts, pos, has = [], 0, False
                 for m in TOKEN.finditer(tpl):
                     parts.append(_literal(tpl[pos:m.start()]))
                     pos = m.end()
                     if m.group(1) and m.group(2).lower() == "targetname" and not has:
-                        parts.append(r"(?P<t>[A-Za-z0-9_\-]{2,60})")
+                        parts.append(r"(?P<t>[^:|\[\]]{2,60}?)")
                         has = True
                     else:
                         parts.append(r".+?")

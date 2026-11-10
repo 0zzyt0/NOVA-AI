@@ -31,6 +31,8 @@ CYAN = (32, 184, 232)
 TEXT = (226, 246, 255)
 DIM = (128, 176, 200)
 RED = (255, 92, 92)
+BLUE_HOLO = (70, 150, 255)  # ficha de jugador: tono azulado
+RED_HOLO = (255, 64, 64)  # objetivo de captura: rojo
 GOLD = (232, 194, 90)
 NAVY = (5, 16, 30)
 W_BASE = 660
@@ -40,10 +42,10 @@ IMAGE_HOSTS = re.compile(r"^https://(?:[\w-]+\.)?robertsspaceindustries\.com/", 
 
 # ------------------------------------------------------------------ fuentes
 _FONTS: dict = {}
-_FONT_FILES = {
-    "sans": ["bahnschrift.ttf", "segoeui.ttf", "arial.ttf", "DejaVuSansCondensed.ttf", "DejaVuSans.ttf"],
+_FONT_FILES = {  # letra legible: seminegrita para los datos, negrita para títulos y etiquetas
+    "sans": ["bahnschrift.ttf", "seguisb.ttf", "segoeuib.ttf", "arialbd.ttf", "DejaVuSansCondensed-Bold.ttf", "DejaVuSans-Bold.ttf"],
     "bold": ["bahnschrift.ttf", "segoeuib.ttf", "arialbd.ttf", "DejaVuSansCondensed-Bold.ttf", "DejaVuSans-Bold.ttf"],
-    "mono": ["consola.ttf", "cour.ttf", "DejaVuSansMono.ttf"],
+    "mono": ["consolab.ttf", "consola.ttf", "courbd.ttf", "DejaVuSansMono-Bold.ttf", "DejaVuSansMono.ttf"],
 }
 _FONT_DIRS = [Path("C:/Windows/Fonts"), Path.home() / "AppData/Local/Microsoft/Windows/Fonts",
               Path("/usr/share/fonts/truetype/dejavu"), Path("/usr/share/fonts/TTF")]
@@ -64,8 +66,7 @@ def font(size: int, kind: str = "sans"):
                     f = ImageFont.truetype(str(p), size)
                     if name == "bahnschrift.ttf":  # fuente variable de Windows: elegir grosor
                         try:
-                            f.set_variation_by_name("Bold" if kind == "bold" else "SemiLight Condensed"
-                                                    if kind == "sans" else "Regular")
+                            f.set_variation_by_name("Bold" if kind == "bold" else "SemiBold")
                         except Exception:  # noqa: BLE001
                             pass
                     break
@@ -138,6 +139,7 @@ class Card:
     meters: list[tuple[str, int | None]] = field(default_factory=list)
     footer: str = ""
     seed: str = ""
+    accent: tuple = ()  # color propio del holograma (jugador: azul · objetivo de captura: rojo)
 
 
 def card_player(c, motivo: str = "consulta", photo=None, logo=None) -> Card:
@@ -163,7 +165,7 @@ def card_player(c, motivo: str = "consulta", photo=None, logo=None) -> Card:
     else:
         org_lines = ["Sin organización principal"]
     bounty = motivo == "recompensa"
-    return Card(kind="jugador", title=(c.handle or "").upper(),
+    return Card(kind="jugador", title=(c.handle or "").upper(), accent=RED_HOLO if bounty else BLUE_HOLO,
                 header="ORDEN DE BÚSQUEDA · CAZARRECOMPENSAS" if bounty else "REGISTRO DE CIUDADANO",
                 subtitle="UEE · OFICINA DEL ADVOCACY", fields=fields, photo=photo, logo=logo,
                 org_lines=[x for x in org_lines if x], stamp="OBJETIVO DE CAZA" if bounty else "CONSULTA",
@@ -335,17 +337,17 @@ def render(card: Card, scale: float = 1.0, accent=CYAN) -> Layout:
 
     s = max(0.5, min(scale, 2.5))
     W = int(W_BASE * s)
-    acc = tuple(int(x) for x in accent)
-    warn = RED if card.alert else acc
+    acc = tuple(int(x) for x in (card.accent or accent))
+    warn = (255, 205, 205) if card.alert else acc
     pad = int(20 * s)
     # Medir la altura según el contenido
     tmp = ImageDraw.Draw(Image.new("RGBA", (10, 10)))
     f_title = font(int(30 * s), "bold")
-    f_head = font(int(12 * s), "mono")
-    f_lab = font(int(11 * s), "mono")
-    f_val = font(int(17 * s), "sans")
-    f_desc = font(int(14 * s), "sans")
-    f_small = font(int(11 * s), "sans")
+    f_head = font(int(13 * s), "mono")
+    f_lab = font(int(12 * s), "mono")
+    f_val = font(int(18 * s), "sans")
+    f_desc = font(int(15 * s), "sans")
+    f_small = font(int(12 * s), "sans")
     header_h = int(78 * s)
     if card.kind == "jugador":
         body_h = int(292 * s)
@@ -353,16 +355,18 @@ def render(card: Card, scale: float = 1.0, accent=CYAN) -> Layout:
         rows = len(card.fields) + (1 if card.meters else 0)
         body_h = max(int(214 * s), int((rows * 44 + 10) * s))
     desc_lines = _wrap(tmp, card.desc, f_desc, W - 2 * pad, 4) if card.desc else []
-    desc_h = int((len(desc_lines) * 19 + 16) * s) if desc_lines else 0
+    desc_h = int((len(desc_lines) * 21 + 16) * s) if desc_lines else 0
     H = header_h + body_h + desc_h + int(34 * s)
 
     img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     # Fondo: cristal oscuro con degradado y rejilla fina
     bg = np.zeros((H, W, 4), dtype=np.float32)
     gy = np.linspace(0, 1, H, dtype=np.float32)[:, None]
-    bg[..., 0] = NAVY[0] + 10 * (1 - gy)
-    bg[..., 1] = NAVY[1] + 22 * (1 - gy)
-    bg[..., 2] = NAVY[2] + 30 * (1 - gy)
+    base = np.array(NAVY, dtype=np.float32) * 0.8 + np.array(acc, dtype=np.float32) * 0.07  # fondo teñido del color
+    top_glow = np.array(acc, dtype=np.float32) * 0.13
+    bg[..., 0] = base[0] + top_glow[0] * (1 - gy)
+    bg[..., 1] = base[1] + top_glow[1] * (1 - gy)
+    bg[..., 2] = base[2] + top_glow[2] * (1 - gy)
     bg[..., 3] = 200
     grid = int(18 * s)
     yy, xx = np.mgrid[0:H, 0:W]
@@ -370,6 +374,13 @@ def render(card: Card, scale: float = 1.0, accent=CYAN) -> Layout:
     bg[on, 0:3] += np.array(acc, dtype=np.float32) * 0.08
     img = Image.fromarray(np.clip(bg, 0, 255).astype(np.uint8), "RGBA")
     d = ImageDraw.Draw(img)
+    _plain_text = d.text
+
+    def _text(xy, text, fill=None, font=None, anchor=None, **kw):  # contorno oscuro: se lee sobre cualquier fondo
+        kw.setdefault("stroke_width", max(1, int(1.2 * s)))
+        kw.setdefault("stroke_fill", (0, 6, 14, 215))
+        return _plain_text(xy, text, fill=fill, font=font, anchor=anchor, **kw)
+    d.text = _text
     lw = max(1, int(1.4 * s))
     d.rectangle((0, 0, W - 1, H - 1), outline=acc + (120,), width=lw)
     # Esquinas tipo HUD
@@ -403,7 +414,7 @@ def render(card: Card, scale: float = 1.0, accent=CYAN) -> Layout:
         y = header_h + body_h + int(2 * s)
         d.line((pad, y, W - pad, y), fill=acc + (90,), width=lw)
         for i, line in enumerate(desc_lines):
-            d.text((pad, y + int((8 + i * 19) * s)), line, font=f_desc, fill=(200, 226, 240, 245))
+            d.text((pad, y + int((8 + i * 21) * s)), line, font=f_desc, fill=(214, 236, 248, 255))
     # Pie: fuente y «código de barras»
     fy = H - int(22 * s)
     d.text((pad, fy), card.footer, font=f_small, fill=DIM + (220,))
@@ -652,7 +663,8 @@ def preview_png(card: Card, accent=CYAN, scale: float = 1.0, background: bool = 
     """La tarjeta ya aparecida, como PNG (para la ventana de NOVA y el manual)."""
     from PIL import Image
 
-    anim = Animation(render(card, scale, accent), accent, opacity=1.0)
+    acc = card.accent or accent
+    anim = Animation(render(card, scale, acc), acc, opacity=1.0)
     anim._next_glitch = 1e18
     anim.begin(0.0)
     im = to_rgba_image(anim.frame(2.0))
@@ -689,6 +701,7 @@ class HoloOverlay(threading.Thread):
         self._skip = threading.Event()
         self.status = "inactivo"
         self.current: Card | None = None
+        self.play = lambda name: None  # efectos de sonido (los pone el asistente)
 
     def show(self, card: Card, force: bool = False) -> None:
         """force: se ve aunque el juego no esté delante (botón «Probar»)."""
@@ -734,20 +747,28 @@ class HoloOverlay(threading.Thread):
             try:
                 rect, _src = target_area(self.settings)
                 k = scale_for(rect[3] - rect[1]) * float(self.settings.get("holo_escala", 1.0))
-                acc = self._accent()
+                acc = card.accent or self._accent()
                 lay = render(card, k, acc)
                 anim = Animation(lay, acc, float(self.settings.get("holo_opacidad", 0.85)),
                                  float(self.settings.get("holo_segundos", 14)))
                 self.current = card
                 self._skip.clear()
+                if card.alert:
+                    self.play("alerta")  # objetivo de captura: advertencia antes de la ficha
+                    time.sleep(0.5)
+                self.play("holo_on")
                 anim.begin(time.time())
                 shown = False
+                off_played = False
                 margin = int(28 * scale_for(rect[3] - rect[1]))
                 while not self._stop.is_set():
                     now = time.time()
                     if self._skip.is_set():
                         anim.leave(now)
                         self._skip.clear()
+                    if not off_played and anim.leave_at is not None and now >= anim.leave_at:
+                        off_played = True
+                        self.play("holo_off")
                     if anim.done(now):
                         break
                     visible = force or not self.settings.get("overlay_solo_juego") or (

@@ -182,8 +182,7 @@
         <button data-sub="mic" class="on">🎙 Micrófono y reconocimiento</button>
         <button data-sub="hablar">💬 Cómo hablarle</button>
         <button data-sub="sonido">🔊 Salida de audio</button>
-        <button data-sub="overlay">◆ Overlay en el juego</button>
-        <button data-sub="holo">◇ Hologramas</button>
+        <button data-sub="overlay">◆ Overlay NOVA AI</button>
       </div>
       <div class="subsec on" data-sub="mic"><div class="grid2">
         <div class="panel">
@@ -264,8 +263,7 @@
           <div class="field"><label>En pausa o no te ha entendido</label><div class="ctl"><input type="color" data-set="overlay_color_error" class="swatch"><span class="val" data-val="overlay_color_error" data-fmt="{}"></span></div></div>
         </div>
       </div>
-      </div>
-      <div class="subsec" data-sub="holo">
+      <div class="panel-h ov-sep"><span>HOLOGRAMAS DE INFORMACIÓN</span><span class="hint">Fichas de jugadores, planetas y lugares sobre el juego</span></div>
       <div class="ov-wrap">
         <div class="panel">
           <div class="panel-h"><span>HOLOGRAMA</span><span class="hint" id="holoStatus"></span></div>
@@ -293,6 +291,11 @@
           <div class="field"><label>Al llegar cerca de un planeta o luna</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_llegadas"><i></i></span></div></div>
           <div class="field"><label>Al llegar a un lugar planetario<small>Cuevas, puestos avanzados, bases…</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_lugares"><i></i></span></div></div>
           <div class="field"><label>Traducir las descripciones<small>Vienen en inglés; usa tu IA (una vez por lugar)</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_traducir"><i></i></span></div></div>
+          <div class="field"><label>Buscar el objetivo de cada recompensa<small>Ficha si es un jugador · aviso si es un piloto NPC</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="recompensas_buscar"><i></i></span></div></div>
+          <div class="panel-h sub"><span>SONIDO</span><span class="hint">Jugador: azul · Objetivo de captura: rojo y alerta</span></div>
+          <div class="field"><label>Sonido al encender y apagar</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_sonidos"><i></i></span></div></div>
+          <div class="field"><label>Volumen</label><div class="ctl"><input type="range" min="0.1" max="1" step="0.05" data-set="holo_volumen"><span class="val" data-val="holo_volumen" data-fmt="%"></span></div></div>
+          <div class="row gap wrap"><button class="btn sm" data-sfx="holo_on">▶ Encendido</button><button class="btn sm" data-sfx="holo_off">▶ Apagado</button><button class="btn sm" data-sfx="alerta">▶ Alerta de captura</button></div>
         </div>
       </div>
       </div>
