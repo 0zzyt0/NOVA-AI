@@ -1,0 +1,723 @@
+{
+ "_info": "Comandos de fábrica de NOVA AI traducidos (fr). Se suman a datos\\comandos.json.",
+ "categorias": {
+  "Combate": "Combat",
+  "Despegue y aterrizaje": "Décollage et atterrissage",
+  "Energía y sistemas": "Énergie et systèmes",
+  "Interfaz": "Interface",
+  "Navegación": "Navigation",
+  "Secuencias": "Séquences",
+  "Minería y salvamento": "Minage et récupération",
+  "Personales": "Personnelles",
+  "Del juego (automático)": "Du jeu (automatique)"
+ },
+ "comandos": {
+  "preparar_vuelo": {
+   "nombre": "Préparer le vaisseau pour le vol (Flight Ready)",
+   "frases": [
+    "prépare le vaisseau",
+    "préparer le vaisseau",
+    "prêt pour le vol",
+    "démarre le vaisseau",
+    "allume le vaisseau",
+    "flight ready"
+   ],
+   "respuestas": [
+    "Systèmes en ligne. Prête à voler, {t}.",
+    "Moteurs chauds et café froid. Prête quand vous voulez, {t}."
+   ]
+  },
+  "tren_bajar": {
+   "nombre": "Sortir le train d'atterrissage",
+   "frases": [
+    "sors le train d'atterrissage",
+    "sortir le train",
+    "sors le train",
+    "train sorti",
+    "déploie le train",
+    "baisse le train",
+    "sors les pattes"
+   ],
+   "respuestas": [
+    "Train d'atterrissage déployé, {t}.",
+    "Train sorti. Pattes dehors."
+   ]
+  },
+  "tren_subir": {
+   "nombre": "Rentrer le train d'atterrissage",
+   "frases": [
+    "rentre le train d'atterrissage",
+    "rentrer le train",
+    "rentre le train",
+    "train rentré",
+    "remonte le train",
+    "rentre les pattes"
+   ],
+   "respuestas": [
+    "Train rentré, {t}.",
+    "Train rentré. Là, on a l'air d'un vaisseau sérieux."
+   ]
+  },
+  "aterrizaje_auto": {
+   "nombre": "Atterrissage automatique",
+   "frases": [
+    "atterrissage automatique",
+    "pose le vaisseau",
+    "atterris",
+    "atterris toi-même",
+    "auto atterrissage"
+   ],
+   "respuestas": [
+    "Atterrissage automatique activé. Je prends les commandes, {t}.",
+    "Atterrissage. Promis, je ne raye pas la peinture."
+   ]
+  },
+  "pedir_permiso": {
+   "nombre": "Demander l'autorisation d'atterrir/décoller à la tour",
+   "frases": [
+    "demande l'atterrissage",
+    "demande l'autorisation d'atterrir",
+    "demande le décollage",
+    "demande l'autorisation de décoller",
+    "appelle la tour",
+    "contacte la tour",
+    "ouvre le hangar"
+   ],
+   "respuestas": [
+    "Demande envoyée à la tour, {t}.",
+    "J'appelle le contrôle. Pourvu qu'on ne nous mette pas en attente cette fois."
+   ]
+  },
+  "vtol": {
+   "nombre": "Basculer le mode VTOL",
+   "frases": [
+    "mode vtol",
+    "active le vtol",
+    "désactive le vtol",
+    "bascule le vtol"
+   ],
+   "respuestas": [
+    "Mode VTOL basculé."
+   ]
+  },
+  "salir_asiento": {
+   "nombre": "Se lever du siège",
+   "frases": [
+    "sors du siège",
+    "lève-toi",
+    "se lever"
+   ],
+   "respuestas": [
+    "Je quitte le siège. Étirez-vous un peu, {t}."
+   ]
+  },
+  "escudos_on": {
+   "nombre": "Activer les boucliers",
+   "frases": [
+    "active les boucliers",
+    "activer les boucliers",
+    "boucliers levés",
+    "lève les boucliers",
+    "monte les boucliers"
+   ],
+   "respuestas": [
+    "Boucliers activés, {t}.",
+    "Boucliers levés. Qu'ils essaient maintenant."
+   ]
+  },
+  "escudos_off": {
+   "nombre": "Désactiver les boucliers",
+   "frases": [
+    "désactive les boucliers",
+    "désactiver les boucliers",
+    "boucliers baissés",
+    "baisse les boucliers",
+    "coupe les boucliers"
+   ],
+   "respuestas": [
+    "Boucliers désactivés.",
+    "Boucliers baissés. On vole torse nu, {t}."
+   ]
+  },
+  "energia_on": {
+   "nombre": "Activer l'énergie principale",
+   "frases": [
+    "active l'énergie",
+    "activer l'énergie",
+    "allume l'énergie",
+    "énergie principale",
+    "rétablis l'énergie"
+   ],
+   "respuestas": [
+    "Énergie principale en ligne.",
+    "De la lumière, de la puissance et un peu de foi. Énergie rétablie, {t}."
+   ]
+  },
+  "energia_off": {
+   "nombre": "Couper l'énergie principale",
+   "frases": [
+    "coupe l'énergie",
+    "désactive l'énergie",
+    "éteins l'énergie",
+    "couper l'énergie",
+    "mode éteint"
+   ],
+   "respuestas": [
+    "Énergie principale coupée.",
+    "J'éteins tout. Si vous entendez des bruits bizarres, ce n'est pas moi."
+   ]
+  },
+  "armas_on": {
+   "nombre": "Activer les armes",
+   "frases": [
+    "active les armes",
+    "activer les armes",
+    "armes prêtes",
+    "armes en ligne",
+    "prépare les armes"
+   ],
+   "respuestas": [
+    "Armes en ligne, {t}.",
+    "Armes prêtes. Choisissez qui ne va pas vous apprécier aujourd'hui."
+   ]
+  },
+  "armas_off": {
+   "nombre": "Désactiver les armes",
+   "frases": [
+    "désactive les armes",
+    "désactiver les armes",
+    "range les armes",
+    "armes hors ligne"
+   ],
+   "respuestas": [
+    "Armes désactivées.",
+    "Armes hors ligne. Mode pacifiste activé."
+   ]
+  },
+  "propulsores": {
+   "nombre": "Basculer les propulseurs",
+   "frases": [
+    "active les propulseurs",
+    "désactive les propulseurs",
+    "allume les moteurs",
+    "éteins les moteurs",
+    "bascule les propulseurs"
+   ],
+   "respuestas": [
+    "Propulseurs basculés."
+   ]
+  },
+  "luces": {
+   "nombre": "Basculer les feux extérieurs",
+   "frases": [
+    "lumières",
+    "allume les lumières",
+    "éteins les lumières",
+    "phares",
+    "feux"
+   ],
+   "respuestas": [
+    "Feux basculés.",
+    "Que la lumière soit. Ou pas, selon leur état."
+   ]
+  },
+  "modo_maestro": {
+   "nombre": "Changer de mode maître (NAV / SCM)",
+   "frases": [
+    "mode quantique",
+    "mode combat",
+    "mode de combat",
+    "mode navigation",
+    "change de mode",
+    "mode scm",
+    "mode nav"
+   ],
+   "respuestas": [
+    "Changement de mode maître.",
+    "Mode changé, {t}."
+   ]
+  },
+  "salto_cuantico": {
+   "nombre": "Lancer le saut quantique",
+   "frases": [
+    "saut quantique",
+    "lance le saut",
+    "saute",
+    "engage le quantique",
+    "active le quantique"
+   ],
+   "respuestas": [
+    "Moteur quantique en charge. Accrochez-vous, {t}.",
+    "On saute. Rendez-vous de l'autre côté."
+   ]
+  },
+  "crucero": {
+   "nombre": "Basculer le régulateur de vitesse",
+   "frases": [
+    "régulateur de vitesse",
+    "mode croisière",
+    "croisière"
+   ],
+   "respuestas": [
+    "Régulateur de vitesse basculé."
+   ]
+  },
+  "desacoplado": {
+   "nombre": "Basculer le mode découplé",
+   "frases": [
+    "mode découplé",
+    "découple",
+    "couple",
+    "mode couplé"
+   ],
+   "respuestas": [
+    "Mode découplé basculé."
+   ]
+  },
+  "freno": {
+   "nombre": "Frein spatial",
+   "frases": [
+    "frein",
+    "freine",
+    "frein spatial",
+    "arrête le vaisseau",
+    "halte"
+   ],
+   "respuestas": [
+    "Freinage.",
+    "Freins à fond, {t}."
+   ]
+  },
+  "ping": {
+   "nombre": "Ping radar",
+   "frases": [
+    "ping",
+    "ping radar",
+    "scanne la zone",
+    "radar"
+   ],
+   "respuestas": [
+    "Impulsion envoyée.",
+    "Je scanne la zone, {t}."
+   ]
+  },
+  "modo_escaneo": {
+   "nombre": "Mode scan",
+   "frases": [
+    "mode scan",
+    "mode scanner",
+    "active le scanner"
+   ],
+   "respuestas": [
+    "Mode scan basculé."
+   ]
+  },
+  "objetivo_hostil": {
+   "nombre": "Cible hostile suivante",
+   "frases": [
+    "hostile suivant",
+    "cible hostile",
+    "verrouille un hostile",
+    "ennemi suivant",
+    "verrouille un ennemi"
+   ],
+   "respuestas": [
+    "Hostile verrouillé.",
+    "J'en ai un vilain dans le viseur, {t}."
+   ]
+  },
+  "objetivo_atacante": {
+   "nombre": "Attaquant suivant",
+   "frases": [
+    "attaquant suivant",
+    "qui me tire dessus",
+    "verrouille l'attaquant",
+    "qui nous tire dessus"
+   ],
+   "respuestas": [
+    "Attaquant verrouillé, {t}."
+   ]
+  },
+  "objetivo_siguiente": {
+   "nombre": "Cible suivante",
+   "frases": [
+    "cible suivante",
+    "change de cible",
+    "cible",
+    "verrouille la cible",
+    "fixe l'objectif",
+    "marque la cible",
+    "sélectionne la cible"
+   ],
+   "respuestas": [
+    "Cible changée."
+   ]
+  },
+  "objetivo_quitar": {
+   "nombre": "Retirer la cible",
+   "frases": [
+    "retire la cible",
+    "lâche la cible",
+    "libère la cible",
+    "efface la cible"
+   ],
+   "respuestas": [
+    "Cible libérée."
+   ]
+  },
+  "bengalas": {
+   "nombre": "Lancer des leurres thermiques",
+   "frases": [
+    "leurres",
+    "lance les leurres",
+    "fusées éclairantes",
+    "contre-mesures",
+    "flares"
+   ],
+   "respuestas": [
+    "Leurres lancés !",
+    "Leurres lancés. Feu d'artifice."
+   ]
+  },
+  "chaff": {
+   "nombre": "Lancer des paillettes (chaff)",
+   "frases": [
+    "chaff",
+    "lance le chaff",
+    "paillettes",
+    "brouillage",
+    "lance le brouillage"
+   ],
+   "respuestas": [
+    "Chaff lancé !"
+   ]
+  },
+  "gimbal": {
+   "nombre": "Basculer le cardan des armes",
+   "frases": [
+    "gimbal",
+    "change le gimbal",
+    "mode gimbal",
+    "armes fixes",
+    "cardan"
+   ],
+   "respuestas": [
+    "Mode cardan changé."
+   ]
+  },
+  "modo_operador": {
+   "nombre": "Mode opérateur suivant",
+   "frases": [
+    "mode opérateur",
+    "mode suivant",
+    "change le mode opérateur"
+   ],
+   "respuestas": [
+    "Mode opérateur changé."
+   ]
+  },
+  "soltar_carga": {
+   "nombre": "Larguer la cargaison",
+   "frases": [
+    "largue la cargaison confirmé",
+    "lâche la cargaison confirmé"
+   ],
+   "respuestas": [
+    "Cargaison larguée. J'espère que ce n'était rien de cher, {t}."
+   ]
+  },
+  "mobiglas": {
+   "nombre": "Ouvrir le mobiGlas",
+   "frases": [
+    "mobiglas",
+    "ouvre le mobiglas"
+   ],
+   "respuestas": [
+    "MobiGlas."
+   ]
+  },
+  "mapa": {
+   "nombre": "Ouvrir la carte stellaire",
+   "frases": [
+    "carte",
+    "ouvre la carte",
+    "carte stellaire"
+   ],
+   "respuestas": [
+    "Carte stellaire."
+   ]
+  },
+  "camara": {
+   "nombre": "Changer de caméra",
+   "frases": [
+    "change de caméra",
+    "caméra",
+    "vue extérieure",
+    "troisième personne"
+   ],
+   "respuestas": [
+    "Caméra changée."
+   ]
+  },
+  "secuencia_despegue": {
+   "nombre": "Séquence de décollage complète",
+   "frases": [
+    "séquence de décollage",
+    "lance le décollage",
+    "on décolle",
+    "décolle"
+   ],
+   "respuestas": [
+    "Séquence de décollage lancée. Attachez votre ceinture, {t}.",
+    "Décollage en cours. Si j'oublie quelque chose, faites comme si c'était voulu."
+   ]
+  },
+  "secuencia_aterrizaje": {
+   "nombre": "Séquence d'atterrissage complète",
+   "frases": [
+    "séquence d'atterrissage",
+    "lance l'atterrissage",
+    "pose-nous",
+    "on atterrit"
+   ],
+   "respuestas": [
+    "Séquence d'atterrissage lancée, {t}.",
+    "On descend. Gardez les mains dans le cockpit."
+   ]
+  }
+ },
+ "acciones": {
+  "v_flightready": [
+   "Préparer le vaisseau pour le vol",
+   [
+    "prépare le vaisseau"
+   ]
+  ],
+  "v_toggle_landing_system": [
+   "Train d'atterrissage",
+   [
+    "train d'atterrissage"
+   ]
+  ],
+  "v_autoland": [
+   "Atterrissage automatique",
+   [
+    "atterrissage automatique"
+   ]
+  ],
+  "v_atc_request": [
+   "Demander l'autorisation à la tour",
+   [
+    "appelle la tour"
+   ]
+  ],
+  "v_vtol_toggle": [
+   "Mode VTOL",
+   [
+    "mode vtol"
+   ]
+  ],
+  "pl_exit": [
+   "Se lever du siège",
+   [
+    "lève-toi"
+   ]
+  ],
+  "v_power_toggle": [
+   "Énergie principale",
+   [
+    "énergie principale"
+   ]
+  ],
+  "v_power_toggle_shields": [
+   "Énergie des boucliers",
+   [
+    "boucliers"
+   ]
+  ],
+  "v_power_toggle_weapons": [
+   "Énergie des armes",
+   [
+    "armes"
+   ]
+  ],
+  "v_power_toggle_thrusters": [
+   "Énergie des propulseurs",
+   [
+    "propulseurs"
+   ]
+  ],
+  "v_lights": [
+   "Feux extérieurs",
+   [
+    "lumières"
+   ]
+  ],
+  "v_doors_open_all": [
+   "Ouvrir toutes les portes",
+   [
+    "ouvre les portes"
+   ]
+  ],
+  "v_doors_close_all": [
+   "Fermer toutes les portes",
+   [
+    "ferme les portes"
+   ]
+  ],
+  "v_doors_lock_all": [
+   "Verrouiller les portes",
+   [
+    "verrouille les portes"
+   ]
+  ],
+  "v_doors_unlock_all": [
+   "Déverrouiller les portes",
+   [
+    "déverrouille les portes"
+   ]
+  ],
+  "v_master_mode_cycle": [
+   "Changer de mode maître (NAV/SCM)",
+   [
+    "change de mode"
+   ]
+  ],
+  "v_master_mode_set_nav": [
+   "Mode navigation (NAV)",
+   [
+    "mode navigation"
+   ]
+  ],
+  "v_master_mode_set_scm": [
+   "Mode combat (SCM)",
+   [
+    "mode combat"
+   ]
+  ],
+  "v_toggle_qdrive_engagement": [
+   "Saut quantique",
+   [
+    "saut quantique"
+   ]
+  ],
+  "v_toggle_quantum_mode": [
+   "Mode quantique",
+   [
+    "mode quantique"
+   ]
+  ],
+  "v_ifcs_throttle_swap_mode": [
+   "Régulateur de vitesse",
+   [
+    "régulateur de vitesse"
+   ]
+  ],
+  "v_ifcs_vector_decoupling_toggle": [
+   "Mode découplé",
+   [
+    "mode découplé"
+   ]
+  ],
+  "v_space_brake": [
+   "Frein spatial",
+   [
+    "frein"
+   ]
+  ],
+  "v_invoke_ping": [
+   "Ping radar",
+   [
+    "ping"
+   ]
+  ],
+  "v_toggle_scan_mode": [
+   "Mode scanner",
+   [
+    "mode scanner"
+   ]
+  ],
+  "v_starmap": [
+   "Carte stellaire",
+   [
+    "carte"
+   ]
+  ],
+  "mobiglas": [
+   "mobiGlas",
+   [
+    "mobiglas"
+   ]
+  ],
+  "v_view_cycle_fwd": [
+   "Changer de caméra",
+   [
+    "caméra"
+   ]
+  ],
+  "v_target_cycle_hostile_fwd": [
+   "Cible hostile suivante",
+   [
+    "hostile suivant"
+   ]
+  ],
+  "v_target_cycle_attacker_fwd": [
+   "Attaquant suivant",
+   [
+    "attaquant suivant"
+   ]
+  ],
+  "v_target_cycle_all_fwd": [
+   "Cible suivante",
+   [
+    "cible suivante"
+   ]
+  ],
+  "v_target_unlock": [
+   "Retirer la cible",
+   [
+    "retire la cible"
+   ]
+  ],
+  "v_weapon_countermeasure_decoy_launch": [
+   "Lancer des leurres",
+   [
+    "leurres"
+   ]
+  ],
+  "v_weapon_countermeasure_noise_launch": [
+   "Lancer du chaff",
+   [
+    "chaff"
+   ]
+  ],
+  "v_operator_mode_cycle_forward": [
+   "Mode opérateur suivant",
+   [
+    "mode suivant"
+   ]
+  ],
+  "v_toggle_missile_mode": [
+   "Mode missiles",
+   [
+    "mode missiles"
+   ]
+  ],
+  "v_toggle_mining_mode": [
+   "Mode minage",
+   [
+    "mode minage"
+   ]
+  ],
+  "v_toggle_salvage_mode": [
+   "Mode récupération",
+   [
+    "mode récupération"
+   ]
+  ],
+  "v_jettison_volatile_cargo": [
+   "Larguer la cargaison",
+   []
+  ]
+ }
+}

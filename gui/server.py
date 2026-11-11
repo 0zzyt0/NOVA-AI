@@ -21,20 +21,20 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from core import sc_actions, triggers, wake
+from core import i18n, sc_actions, triggers, wake
 from core.audio import list_devices
 from core.config import (APP_DIR, COMMANDS_FILE, DATA_DIR, DEFAULTS, FINAL_PHRASE, LOG_FILE, PROVIDERS, VERSION,
                          is_installed)
 from core.training import calibrate, check_exercise, check_phrase, extract_name
 from core.gamelog import CATEGORIES
 from core.overlay import RESOLUTIONS, list_monitors
-from core.tts import PIPER_VOICES, list_edge_voices
+from core.tts import PIPER_VOICES, list_edge_voices, piper_voices
 
 log = logging.getLogger("nova.ui")
 WEB = Path(__file__).resolve().parent / "web"
 TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
          ".css": "text/css; charset=utf-8", ".png": "image/png", ".ico": "image/x-icon", ".svg": "image/svg+xml",
-         ".ogg": "audio/ogg"}
+         ".ogg": "audio/ogg", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".pdf": "application/pdf"}
 
 # Ajustes que, al cambiar, necesitan hacer algo más que guardarse.
 RELOAD_COMMANDS = {"teclas_juego_sync", "actionmaps_ruta", "comandos_auto_juego"}
@@ -63,6 +63,7 @@ class UIServer:
         self.httpd: ThreadingHTTPServer | None = None
         nova.on_message = self._on_message
         nova.on_ui = self._on_ui
+        nova.open_manual = self.api_open_manual
         self.stats_job: dict = {"activo": False}
         nova.on_status = lambda text: self.broadcast({"t": "status", "text": text})
 
@@ -131,10 +132,25 @@ class UIServer:
                         return self._send(403, b"no", "text/plain")
                     return server._serve_events(self)
                 if path in ("/", "/index.html"):
+                    lang = i18n.norm(server.nova.settings.get("idioma"))
+                    cat = json.dumps(i18n.client_catalog(lang), ensure_ascii=False).replace("</", "<\\/")
                     html = (WEB / "index.html").read_text(encoding="utf-8").replace("__TOKEN__", server.token)
+                    html = html.replace('"__LANG__"', json.dumps(lang)).replace("__I18N__", cat)
                     return self._send(200, html.encode("utf-8"), TYPES[".html"])
                 if path in ("/logo.png", "/favicon.ico"):
                     f = APP_DIR / "recursos" / ("nova.png" if path == "/logo.png" else "nova.ico")
+                elif path in ("/logos/made_by_the_community.png", "/logos/logo_0zzyt0.png"):
+                    f = APP_DIR / "recursos" / path.rsplit("/", 1)[-1]
+                elif path in ("/manual", "/manual/"):
+                    f = WEB / "manual" / "index.html"
+                    lang = i18n.norm(server.nova.settings.get("idioma"))
+                    if lang != "es" and f.is_file():  # v1.3: el manual en tu idioma (traducido y guardado)
+                        from core import manual_tr
+                        cache = DATA_DIR / "cache"
+                        if manual_tr.ensure(f, cache, lang):
+                            f = manual_tr.cached(f, cache, lang) or f
+                        else:
+                            return self._send(200, manual_tr.waiting_page(f, lang).encode("utf-8"), TYPES[".html"])
                 else:
                     f = (WEB / path.lstrip("/")).resolve()
                     if WEB.resolve() not in f.parents:
@@ -146,11 +162,15 @@ class UIServer:
             def do_POST(self):  # noqa: N802
                 if self.path != "/api/call" or self.headers.get("X-Nova-Token") != server.token:
                     return self._send(403, b"{}", "application/json")
+                req = {}
                 try:
                     length = int(self.headers.get("Content-Length") or 0)
                     req = json.loads(self.rfile.read(length) or b"{}")
                     data = server.call(req.get("fn", ""), req.get("args") or {})
                     out = {"ok": True, "data": data}
+                except ValueError as e:  # aviso para el usuario («Primero pega el webhook…»): no es un fallo
+                    log.info("API %s: %s", req.get("fn", "") if isinstance(req, dict) else "", e)
+                    out = {"ok": False, "error": str(e)}
                 except Exception as e:  # cualquier fallo vuelve a la ventana, nunca tumba a Nova
                     log.exception("API %s", self.path)
                     out = {"ok": False, "error": str(e)}
@@ -208,7 +228,7 @@ class UIServer:
             "keys_set": {p: bool(s.key_for(p)) for p in PROVIDERS},
             "providers": {k: {"nombre": v["nombre"], "modelos": v["modelos"], "url": v["clave_url"]}
                           for k, v in PROVIDERS.items()},
-            "piper_voices": list(PIPER_VOICES),
+            "piper_voices": piper_voices(i18n.norm(s.get("idioma"))),
             "ptt_text": triggers.pretty(s.get("ptt_tecla")),
             "stt": {"mode": n.stt.mode(), "status": n.stt.status},
             "game": {"status": n.gamelog.status, "location": n.gamelog.location, "ship": n.gamelog.ship,
@@ -232,6 +252,9 @@ class UIServer:
             "timers": self.api_timers(),
             "estado_rsi": self.api_rsi_status(),
             "actualizacion": self.nova.selfupdate.info(),
+            "ahorro": self.api_savings(),
+            "discord_last": self.nova.discord_last,
+            "sfx_presets": self._sfx_presets(),
         }
 
     # --- cabina
@@ -304,9 +327,12 @@ class UIServer:
         return self.nova.brain.list_models(provider)
 
     def api_voices(self) -> list[str]:
-        if self._voices is None:
-            self._voices = list_edge_voices()
-        return self._voices
+        lang = i18n.norm(self.nova.settings.get("idioma"))
+        if not isinstance(self._voices, dict):
+            self._voices = {}
+        if lang not in self._voices:
+            self._voices[lang] = list_edge_voices(lang)
+        return self._voices[lang]
 
     def api_devices(self) -> dict:
         ins, outs = list_devices()
@@ -354,8 +380,11 @@ class UIServer:
         return {"commands": b.as_list(), "sync": b.sync, "warnings": b.warnings, "hidden": b.hidden_commands()}
 
     def api_catalog(self) -> list[dict]:
-        return [{"id": k, "nombre": v[0], "tecla": v[1], "mantener": v[2], "categoria": v[4]}
-                for k, v in sorted(sc_actions.CATALOG.items(), key=lambda kv: (kv[1][4], kv[1][0]))]
+        from core.commands import _lang, lang_overlay
+        cats = lang_overlay(_lang()).get("categorias", {})
+        rows = [{"id": k, "nombre": sc_actions.label(k), "tecla": v[1], "mantener": v[2],
+                 "categoria": cats.get(v[4], v[4])} for k, v in sc_actions.CATALOG.items()]
+        return sorted(rows, key=lambda r: (r["categoria"], r["nombre"]))
 
     def api_save_command(self, data: dict) -> dict:
         cmd = self.nova.commands.save_command(data)
@@ -477,13 +506,24 @@ class UIServer:
         return self.stats_job
 
     def api_discord_test(self) -> str:
-        from core import discord
+        """Manda una ficha de ejemplo con el mismo formato que las de verdad (así se prueba todo el camino)."""
+        from core import extras
+        from core.rsi import Citizen, Org
         url = self.nova.settings.get("discord_webhook")
         if not url:
             raise ValueError("Primero pega el webhook del canal.")
-        discord.send(url, "NOVA AI conectada", [("Prueba", "Este canal recibirá las fichas de jugadores que busques.")],
-                     footer=f"NOVA AI {VERSION}")
-        return "Mensaje de prueba enviado"
+        c = Citizen(apodo_juego="Kaelen Voss (EJEMPLO)", handle="Nebula_Rider", expediente="#4872210",
+                    alta="Mar 14, 2019", idiomas="Spanish, Portuguese",
+                    org=Org(sid="ORIONVG", nombre="Orión Vanguard", rango="Navegante", miembros="245",
+                            etiquetas=["PMC", "Casual"]))
+        st = dict(self.nova.settings.data)
+        st["discord_enviar_jugadores"] = True
+        sent = extras.send_player_to_discord(_Dict(st), c)
+        self.nova.discord_last = {"ok": sent.startswith("📨"), "texto": sent, "hora": time.time(), "jugador": "prueba"}
+        self.nova.on_ui({"t": "discord", **self.nova.discord_last})
+        if not sent.startswith("📨"):
+            raise ValueError(sent.lstrip("⚠ ").replace("No pude mandarla a Discord: ", ""))
+        return "Ficha de ejemplo enviada al canal"
 
     # --- v1.2: hologramas
     def _holo_png(self, card) -> str:
@@ -539,8 +579,104 @@ class UIServer:
         return {"png": self._holo_png(card), "nota": nota}
 
     def api_sfx_test(self, nombre: str = "holo_on") -> bool:
-        self.nova.play_sfx(str(nombre))
+        self.nova.play_sfx(str(nombre), force=True)
         return True
+
+    # --- v1.2.2: sonidos propios, chat del juego y ahorro de tokens
+    @staticmethod
+    def _sfx_presets() -> dict:
+        from core import sfx
+        return sfx.presets()
+
+    def api_sfx_upload(self, evento: str, nombre: str, datos: str) -> dict:
+        """Un audio tuyo (WAV, MP3, OGG o FLAC, máx. 4 MB) para encender, apagar o la alerta."""
+        import base64
+
+        from core import sfx
+        key = self.nova.SFX_KEYS.get(evento)
+        if not key:
+            raise ValueError("Sonido desconocido")
+        ext = Path(nombre or "").suffix.lower()
+        if ext not in sfx.CUSTOM_EXT:
+            raise ValueError("Usa un archivo WAV, MP3, OGG o FLAC")
+        raw = base64.b64decode(datos.split(",", 1)[-1], validate=False)
+        if len(raw) > 4 * 1024 * 1024:
+            raise ValueError("El archivo es demasiado grande (máximo 4 MB)")
+        folder = DATA_DIR / "sonidos"
+        folder.mkdir(parents=True, exist_ok=True)
+        for old in folder.glob(f"{evento}.*"):
+            old.unlink(missing_ok=True)
+        dest = folder / f"{evento}{ext}"
+        dest.write_bytes(raw)
+        try:
+            data = sfx.decode_file(dest)
+        except ValueError:
+            dest.unlink(missing_ok=True)
+            raise
+        s = self.nova.settings
+        s.set(key + "_archivo", str(dest))
+        s.set(key + "_nombre", Path(nombre).name[:80])
+        s.set(key, "archivo")
+        self.nova.play_sfx(evento, force=True)
+        return {"valor": "archivo", "segundos": round(len(data) / sfx.RATE, 1), "nombre": Path(nombre).name}
+
+    def api_chat_test(self, texto: str, enviar: bool = False) -> dict:
+        from core import gamechat
+        texto = gamechat.clean(texto)
+        if not texto:
+            raise ValueError("Escribe un mensaje")
+        target = self.nova.settings.get("chat_idioma", "en") or "en"
+        tr, motor = self.nova.translator.translate(texto, target, "es")
+        if not tr:
+            raise ValueError("No pude traducirlo (sin conexión con Google Translate ni con la IA)")
+        if enviar:
+            def later() -> None:
+                time.sleep(5)  # tiempo para volver al juego
+                self.nova._chat_type(texto, gamechat.clean(tr), motor)
+            threading.Thread(target=later, daemon=True, name="chat-prueba").start()
+        return {"traduccion": tr, "motor": motor}
+
+    def api_savings(self) -> dict:
+        n = self.nova
+        d = dict(n.savings.data)
+        d.update(total=n.savings.total(), respuestas=n.answers.count(), traducciones=n.translator.count(),
+                 recientes=n.answers.recent(12))
+        return d
+
+    # --- v1.2.2: Diccionario de consultas
+    def api_dictionary_info(self) -> dict:
+        d = self.nova.dictionary
+        d.load()
+        groups = d.groups_count()
+        learned = sum(1 for e in d.entries.values() if e.source in ("internet", "ia", "wiki"))
+        edited = sum(1 for e in d.entries.values() if e.source == "tú")
+        return {"existe": d.exists(), "ruta": str(d.path), "entradas": len(d.entries), "grupos": groups,
+                "aprendidas": learned, "editadas": edited,
+                "tamano_kb": round(d.path.stat().st_size / 1024) if d.exists() else 0}
+
+    def api_dictionary_search(self, consulta: str) -> dict:
+        from core import dictionary as D
+        e, fam = self.nova.dictionary.find(str(consulta or ""))
+        if e is None and not fam:
+            return {"texto": "", "encontrado": False}
+        return {"texto": D.card_text(e, fam), "encontrado": True}
+
+    def api_dictionary_open(self) -> bool:
+        d = self.nova.dictionary
+        if not d.exists():
+            d.save()
+        if sys.platform == "win32":
+            os.startfile(str(d.path))  # noqa: S606 — se abre con el Bloc de notas (o el editor de .txt)
+        return True
+
+    def api_dictionary_refresh(self) -> int:
+        return self.nova._dictionary_refresh(force=True)
+
+    def api_answers_clear(self) -> int:
+        return self.nova.answers.clear()
+
+    def api_translations_clear(self) -> int:
+        return self.nova.translator.clear()
 
     def api_holo_hide(self) -> bool:
         self.nova.holo.dismiss()
@@ -724,6 +860,8 @@ class UIServer:
         from core import translation as T
         if self._tr_busy.is_set():
             return False
+        if i18n.norm(self.nova.settings.get("idioma")) != "es":
+            raise ValueError("La traducción de 0zzyt0 es solo para jugar en español. Usa «Añade el global.ini de tu idioma».")
         live, _ = self._live()
         if not live:
             raise ValueError("No encuentro la carpeta de Star Citizen. Elígela con «Elegir carpeta del juego».")
@@ -828,6 +966,14 @@ class UIServer:
                 "globalini": {"ruta": str(n.gamelog.text.path or ""), "idioma": n.gamelog.text.language,
                               "textos": len(n.gamelog.text.entries), "reglas": len(n.gamelog.text.rules)}}
 
+    def api_sources_check(self) -> list[dict]:
+        """Comprueba (sin abrir el navegador) que cada página de consulta responde desde este PC."""
+        from core import sources_check
+        res = sources_check.run()
+        bad = [r["nombre"] for r in res if not r["ok"]]
+        log.info("Comprobación de páginas: %s", "todo bien" if not bad else "fallan " + ", ".join(bad))
+        return res
+
     def api_update_now(self) -> bool:
         if self.nova.updater.running.is_set():
             return False
@@ -878,6 +1024,96 @@ class UIServer:
                 os.startfile(str(target))  # noqa: S606
         return True
 
+    # ------------------------------------------------------------ v1.3: idiomas
+    def api_languages(self) -> dict:
+        s = self.nova.settings
+        return {"idioma": i18n.norm(s.get("idioma")), "elegido": bool(s.get("idioma_elegido")),
+                "sistema": i18n.detect_windows(),
+                "lista": [{"codigo": c, "nombre": d["nombre"]} for c, d in i18n.LANGS.items()],
+                "voces": i18n.EDGE_VOICES, "tratamientos": {c: d["tratamientos"] for c, d in i18n.LANGS.items()}}
+
+    def api_set_language(self, idioma: str) -> dict:
+        """Cambia el idioma de toda la app: ventana, voz de Nova, lo que entiende y sus comandos."""
+        n, s = self.nova, self.nova.settings
+        new = i18n.norm(idioma)
+        old = i18n.norm(s.get("idioma"))
+        changes = i18n.apply_language(s, new, old)
+        s.set("idioma_elegido", True, save=False)
+        s.save()
+        i18n.set_lang(new)
+        self._random_phrases = None  # frases de entrenamiento en el idioma nuevo
+        try:
+            n.on_language()
+        except Exception:  # noqa: BLE001
+            log.exception("cambio de idioma")
+        log.info("Idioma: %s → %s (%s)", old, new, changes)
+        if new != "es" and (WEB / "manual" / "index.html").exists():  # el manual se va traduciendo ya
+            try:
+                from core import manual_tr
+                manual_tr.ensure(WEB / "manual" / "index.html", DATA_DIR / "cache", new)
+            except Exception:  # noqa: BLE001
+                log.exception("Manual")
+        return {"idioma": new, "recargar": new != old, "cambios": changes}
+
+    def api_globalini_info(self) -> dict:
+        from core import translation as TR
+        s = self.nova.settings
+        lives = TR.find_live_dirs(s, self.nova.gamelog.path)
+        live = lives[0] if lives else None
+        lang = i18n.norm(s.get("idioma"))
+        return {"propio": s.get("globalini_propio") or "", "propio_idioma": s.get("globalini_propio_idioma") or "",
+                "live": str(live) if live else "", "idioma_juego": TR.read_cfg_language(live) if live else "",
+                "huecos": list(TR.GAME_LANG_CODES), "hueco": i18n.GAME_LANG.get(lang, "english")}
+
+    def api_globalini_install(self, nombre: str, datos: str, hueco: str = "") -> dict:
+        """«Add your language global.ini [HERE]»: lo instala en el juego con copia, user.cfg y lo usa Nova."""
+        import base64
+
+        from core import translation as TR
+        if not str(nombre or "").lower().endswith(".ini"):
+            raise ValueError("Elige un archivo global.ini")
+        raw = base64.b64decode(datos.split(",", 1)[-1], validate=False)
+        s = self.nova.settings
+        lives = TR.find_live_dirs(s, self.nova.gamelog.path)
+        if not lives:
+            raise ValueError("No encuentro la carpeta de Star Citizen. Indícala en «Carpeta de Star Citizen».")
+        hueco = hueco or i18n.GAME_LANG.get(i18n.norm(s.get("idioma")), "english")
+        res = TR.install_custom_ini(raw, lives[0], hueco, s)
+        try:
+            self.nova.gamelog.load_texts(force=True)
+        except Exception:  # noqa: BLE001
+            log.exception("recargar global.ini")
+        return res
+
+    def api_globalini_undo(self) -> dict:
+        from core import translation as TR
+        res = TR.uninstall_custom_ini(self.nova.settings)
+        try:
+            self.nova.gamelog.load_texts(force=True)
+        except Exception:  # noqa: BLE001
+            log.exception("recargar global.ini")
+        return res
+
+    def api_open_manual(self) -> str:
+        """El manual de NOVA AI (versión web, dentro del programa) en el navegador de Windows."""
+        port = self.httpd.server_address[1] if getattr(self, "httpd", None) else 0
+        url = f"http://127.0.0.1:{port}/manual/"
+        if not (WEB / "manual" / "index.html").exists():
+            raise ValueError("El manual no está en la carpeta del programa. Reinstala NOVA AI.")
+        if sys.platform == "win32":
+            os.startfile(url)  # noqa: S606 — el navegador predeterminado
+        else:
+            import webbrowser
+            webbrowser.open(url)
+        return url
+
     def api_shutdown(self) -> bool:
         threading.Thread(target=self.on_shutdown, daemon=True, name="apagado").start()
         return True
+
+
+class _Dict(dict):
+    """Ajustes sueltos con la misma forma que Settings (get con valor por defecto)."""
+
+    def get(self, key, default=None):
+        return dict.get(self, key, default if default is not None else DEFAULTS.get(key))

@@ -1,0 +1,745 @@
+{
+ "_info": "Comandos de fábrica de NOVA AI traducidos (en). Se suman a datos\\comandos.json.",
+ "categorias": {
+  "Combate": "Combat",
+  "Despegue y aterrizaje": "Take-off & landing",
+  "Energía y sistemas": "Power & systems",
+  "Interfaz": "Interface",
+  "Navegación": "Navigation",
+  "Secuencias": "Sequences",
+  "Minería y salvamento": "Mining & salvage",
+  "Personales": "Personal",
+  "Del juego (automático)": "From the game (automatic)"
+ },
+ "comandos": {
+  "preparar_vuelo": {
+   "nombre": "Prepare ship for flight (Flight Ready)",
+   "frases": [
+    "flight ready",
+    "prepare the ship",
+    "ready for flight",
+    "start the ship",
+    "power up the ship",
+    "start up the ship",
+    "get the ship ready"
+   ],
+   "respuestas": [
+    "Systems online. Ready to fly, {t}.",
+    "Engines hot and coffee cold. Ready when you are, {t}."
+   ]
+  },
+  "tren_bajar": {
+   "nombre": "Lower landing gear",
+   "frases": [
+    "lower landing gear",
+    "lower the landing gear",
+    "landing gear down",
+    "gear down",
+    "deploy landing gear",
+    "deploy the gear",
+    "lower the gear",
+    "legs out"
+   ],
+   "respuestas": [
+    "Landing gear deployed, {t}.",
+    "Gear down. Legs out."
+   ]
+  },
+  "tren_subir": {
+   "nombre": "Raise landing gear",
+   "frases": [
+    "raise landing gear",
+    "raise the landing gear",
+    "landing gear up",
+    "gear up",
+    "retract landing gear",
+    "retract the gear",
+    "raise the gear",
+    "legs in"
+   ],
+   "respuestas": [
+    "Gear retracted, {t}.",
+    "Gear up. Now we look like a serious ship."
+   ]
+  },
+  "aterrizaje_auto": {
+   "nombre": "Auto land",
+   "frases": [
+    "auto land",
+    "autoland",
+    "land the ship",
+    "you land",
+    "automatic landing",
+    "set her down"
+   ],
+   "respuestas": [
+    "Auto landing engaged. I have the controls, {t}.",
+    "Landing. I promise not to scratch the paint."
+   ]
+  },
+  "pedir_permiso": {
+   "nombre": "Request landing/take-off clearance from the tower",
+   "frases": [
+    "request landing",
+    "request landing permission",
+    "request take-off",
+    "request takeoff",
+    "ask for landing permission",
+    "call the tower",
+    "contact the tower",
+    "open the hangar"
+   ],
+   "respuestas": [
+    "Request sent to the tower, {t}.",
+    "Calling control. Hopefully they won't put us on hold this time."
+   ]
+  },
+  "vtol": {
+   "nombre": "Toggle VTOL mode",
+   "frases": [
+    "vtol mode",
+    "vtol on",
+    "vtol off",
+    "toggle vtol"
+   ],
+   "respuestas": [
+    "VTOL mode toggled."
+   ]
+  },
+  "salir_asiento": {
+   "nombre": "Get out of the seat",
+   "frases": [
+    "get out of the seat",
+    "get up",
+    "stand up",
+    "leave the seat"
+   ],
+   "respuestas": [
+    "Leaving the seat. Have a stretch, {t}."
+   ]
+  },
+  "escudos_on": {
+   "nombre": "Shields on",
+   "frases": [
+    "shields on",
+    "activate shields",
+    "shields up",
+    "raise shields",
+    "turn on shields",
+    "enable shields"
+   ],
+   "respuestas": [
+    "Shields online, {t}.",
+    "Shields up. Let them try now."
+   ]
+  },
+  "escudos_off": {
+   "nombre": "Shields off",
+   "frases": [
+    "shields off",
+    "deactivate shields",
+    "shields down",
+    "lower shields",
+    "turn off shields",
+    "disable shields"
+   ],
+   "respuestas": [
+    "Shields offline.",
+    "Shields down. We're flying bare-chested now, {t}."
+   ]
+  },
+  "energia_on": {
+   "nombre": "Main power on",
+   "frases": [
+    "power on",
+    "main power on",
+    "turn on the power",
+    "activate power",
+    "restore power",
+    "main power"
+   ],
+   "respuestas": [
+    "Main power online.",
+    "Light, power and a bit of faith. Power restored, {t}."
+   ]
+  },
+  "energia_off": {
+   "nombre": "Main power off",
+   "frases": [
+    "power off",
+    "main power off",
+    "turn off the power",
+    "cut the power",
+    "cut power",
+    "shut down power"
+   ],
+   "respuestas": [
+    "Main power cut.",
+    "Shutting everything down. If you hear strange noises, it wasn't me."
+   ]
+  },
+  "armas_on": {
+   "nombre": "Weapons on",
+   "frases": [
+    "weapons on",
+    "activate weapons",
+    "arm weapons",
+    "weapons online",
+    "weapons ready",
+    "ready the weapons"
+   ],
+   "respuestas": [
+    "Weapons online, {t}.",
+    "Weapons ready. Pick who's not going to like you today."
+   ]
+  },
+  "armas_off": {
+   "nombre": "Weapons off",
+   "frases": [
+    "weapons off",
+    "deactivate weapons",
+    "disarm weapons",
+    "weapons offline",
+    "stow the weapons"
+   ],
+   "respuestas": [
+    "Weapons offline.",
+    "Weapons offline. Pacifist mode engaged."
+   ]
+  },
+  "propulsores": {
+   "nombre": "Toggle thrusters",
+   "frases": [
+    "thrusters on",
+    "thrusters off",
+    "engines on",
+    "engines off",
+    "turn on the engines",
+    "turn off the engines",
+    "toggle thrusters"
+   ],
+   "respuestas": [
+    "Thrusters toggled."
+   ]
+  },
+  "luces": {
+   "nombre": "Toggle exterior lights",
+   "frases": [
+    "lights",
+    "lights on",
+    "lights off",
+    "turn on the lights",
+    "turn off the lights",
+    "headlights"
+   ],
+   "respuestas": [
+    "Lights toggled.",
+    "Let there be light. Or not, depending on how they were."
+   ]
+  },
+  "modo_maestro": {
+   "nombre": "Change master mode (NAV / SCM)",
+   "frases": [
+    "quantum mode",
+    "combat mode",
+    "nav mode",
+    "navigation mode",
+    "scm mode",
+    "change mode",
+    "switch mode",
+    "switch master mode"
+   ],
+   "respuestas": [
+    "Changing master mode.",
+    "Mode changed, {t}."
+   ]
+  },
+  "salto_cuantico": {
+   "nombre": "Start quantum jump",
+   "frases": [
+    "quantum jump",
+    "quantum travel",
+    "jump",
+    "engage quantum",
+    "activate quantum",
+    "start the jump"
+   ],
+   "respuestas": [
+    "Quantum drive spooling. Hold on, {t}.",
+    "Jumping. See you on the other side."
+   ]
+  },
+  "crucero": {
+   "nombre": "Toggle cruise control",
+   "frases": [
+    "cruise control",
+    "cruise mode",
+    "cruise"
+   ],
+   "respuestas": [
+    "Cruise control toggled."
+   ]
+  },
+  "desacoplado": {
+   "nombre": "Toggle decoupled mode",
+   "frases": [
+    "decoupled mode",
+    "decouple",
+    "couple",
+    "coupled mode"
+   ],
+   "respuestas": [
+    "Decoupled mode toggled."
+   ]
+  },
+  "freno": {
+   "nombre": "Space brake",
+   "frases": [
+    "brake",
+    "space brake",
+    "stop the ship",
+    "full stop",
+    "halt the ship"
+   ],
+   "respuestas": [
+    "Braking.",
+    "Full brakes, {t}."
+   ]
+  },
+  "ping": {
+   "nombre": "Radar ping",
+   "frases": [
+    "ping",
+    "radar ping",
+    "scan the area",
+    "scan area",
+    "radar"
+   ],
+   "respuestas": [
+    "Pulse sent.",
+    "Scanning the area, {t}."
+   ]
+  },
+  "modo_escaneo": {
+   "nombre": "Scan mode",
+   "frases": [
+    "scan mode",
+    "scanner mode",
+    "activate the scanner"
+   ],
+   "respuestas": [
+    "Scan mode toggled."
+   ]
+  },
+  "objetivo_hostil": {
+   "nombre": "Next hostile target",
+   "frases": [
+    "next hostile",
+    "hostile target",
+    "target hostile",
+    "next enemy",
+    "target enemy"
+   ],
+   "respuestas": [
+    "Hostile locked.",
+    "I've got an ugly one in my sights, {t}."
+   ]
+  },
+  "objetivo_atacante": {
+   "nombre": "Next attacker",
+   "frases": [
+    "next attacker",
+    "who is shooting me",
+    "who's shooting at us",
+    "target attacker",
+    "who is shooting at us"
+   ],
+   "respuestas": [
+    "Attacker locked, {t}."
+   ]
+  },
+  "objetivo_siguiente": {
+   "nombre": "Next target",
+   "frases": [
+    "next target",
+    "change target",
+    "target",
+    "set the objective",
+    "lock target",
+    "lock the target",
+    "mark the target",
+    "select target"
+   ],
+   "respuestas": [
+    "Target changed."
+   ]
+  },
+  "objetivo_quitar": {
+   "nombre": "Clear target",
+   "frases": [
+    "clear target",
+    "release the target",
+    "drop target",
+    "unlock target"
+   ],
+   "respuestas": [
+    "Target released."
+   ]
+  },
+  "bengalas": {
+   "nombre": "Launch flares",
+   "frases": [
+    "flares",
+    "launch flares",
+    "fire flares",
+    "decoys",
+    "countermeasures"
+   ],
+   "respuestas": [
+    "Flares away!",
+    "Decoys launched. Light show."
+   ]
+  },
+  "chaff": {
+   "nombre": "Launch chaff",
+   "frases": [
+    "chaff",
+    "launch chaff",
+    "fire chaff",
+    "jamming",
+    "noise"
+   ],
+   "respuestas": [
+    "Chaff away!"
+   ]
+  },
+  "gimbal": {
+   "nombre": "Toggle weapon gimbal",
+   "frases": [
+    "gimbal",
+    "toggle gimbal",
+    "gimbal mode",
+    "fixed weapons"
+   ],
+   "respuestas": [
+    "Gimbal mode changed."
+   ]
+  },
+  "modo_operador": {
+   "nombre": "Next operator mode",
+   "frases": [
+    "operator mode",
+    "next mode",
+    "change operator mode"
+   ],
+   "respuestas": [
+    "Operator mode changed."
+   ]
+  },
+  "soltar_carga": {
+   "nombre": "Jettison cargo",
+   "frases": [
+    "jettison cargo confirmed",
+    "drop the cargo confirmed"
+   ],
+   "respuestas": [
+    "Cargo jettisoned. I hope it wasn't anything expensive, {t}."
+   ]
+  },
+  "mobiglas": {
+   "nombre": "Open mobiGlas",
+   "frases": [
+    "mobiglas",
+    "open the mobiglas",
+    "open mobiglas"
+   ],
+   "respuestas": [
+    "MobiGlas."
+   ]
+  },
+  "mapa": {
+   "nombre": "Open star map",
+   "frases": [
+    "map",
+    "open the map",
+    "star map"
+   ],
+   "respuestas": [
+    "Star map."
+   ]
+  },
+  "camara": {
+   "nombre": "Change camera",
+   "frases": [
+    "change camera",
+    "camera",
+    "external view",
+    "third person"
+   ],
+   "respuestas": [
+    "Camera changed."
+   ]
+  },
+  "secuencia_despegue": {
+   "nombre": "Full take-off sequence",
+   "frases": [
+    "take-off sequence",
+    "takeoff sequence",
+    "start take-off",
+    "let's take off",
+    "take off"
+   ],
+   "respuestas": [
+    "Starting take-off sequence. Buckle up, {t}.",
+    "Take-off under way. If I forget something, pretend it was on purpose."
+   ]
+  },
+  "secuencia_aterrizaje": {
+   "nombre": "Full landing sequence",
+   "frases": [
+    "landing sequence",
+    "start landing",
+    "take us down",
+    "let's land"
+   ],
+   "respuestas": [
+    "Landing sequence started, {t}.",
+    "Going down. Keep your hands inside the cockpit."
+   ]
+  }
+ },
+ "acciones": {
+  "v_flightready": [
+   "Prepare ship for flight",
+   [
+    "flight ready"
+   ]
+  ],
+  "v_toggle_landing_system": [
+   "Landing gear",
+   [
+    "landing gear"
+   ]
+  ],
+  "v_autoland": [
+   "Auto land",
+   [
+    "auto land"
+   ]
+  ],
+  "v_atc_request": [
+   "Request clearance from the tower",
+   [
+    "call the tower"
+   ]
+  ],
+  "v_vtol_toggle": [
+   "VTOL mode",
+   [
+    "vtol mode"
+   ]
+  ],
+  "pl_exit": [
+   "Get out of the seat",
+   [
+    "get up"
+   ]
+  ],
+  "v_power_toggle": [
+   "Main power",
+   [
+    "main power"
+   ]
+  ],
+  "v_power_toggle_shields": [
+   "Shield power",
+   [
+    "shields"
+   ]
+  ],
+  "v_power_toggle_weapons": [
+   "Weapon power",
+   [
+    "weapons"
+   ]
+  ],
+  "v_power_toggle_thrusters": [
+   "Thruster power",
+   [
+    "thrusters"
+   ]
+  ],
+  "v_lights": [
+   "Exterior lights",
+   [
+    "lights"
+   ]
+  ],
+  "v_doors_open_all": [
+   "Open all doors",
+   [
+    "open the doors"
+   ]
+  ],
+  "v_doors_close_all": [
+   "Close all doors",
+   [
+    "close the doors"
+   ]
+  ],
+  "v_doors_lock_all": [
+   "Lock doors",
+   [
+    "lock the doors"
+   ]
+  ],
+  "v_doors_unlock_all": [
+   "Unlock doors",
+   [
+    "unlock the doors"
+   ]
+  ],
+  "v_master_mode_cycle": [
+   "Change master mode (NAV/SCM)",
+   [
+    "change mode"
+   ]
+  ],
+  "v_master_mode_set_nav": [
+   "Navigation mode (NAV)",
+   [
+    "navigation mode"
+   ]
+  ],
+  "v_master_mode_set_scm": [
+   "Combat mode (SCM)",
+   [
+    "combat mode"
+   ]
+  ],
+  "v_toggle_qdrive_engagement": [
+   "Quantum jump",
+   [
+    "quantum jump"
+   ]
+  ],
+  "v_toggle_quantum_mode": [
+   "Quantum mode",
+   [
+    "quantum mode"
+   ]
+  ],
+  "v_ifcs_throttle_swap_mode": [
+   "Cruise control",
+   [
+    "cruise control"
+   ]
+  ],
+  "v_ifcs_vector_decoupling_toggle": [
+   "Decoupled mode",
+   [
+    "decoupled mode"
+   ]
+  ],
+  "v_space_brake": [
+   "Space brake",
+   [
+    "brake"
+   ]
+  ],
+  "v_invoke_ping": [
+   "Radar ping",
+   [
+    "ping"
+   ]
+  ],
+  "v_toggle_scan_mode": [
+   "Scan mode",
+   [
+    "scan mode"
+   ]
+  ],
+  "v_starmap": [
+   "Star map",
+   [
+    "map"
+   ]
+  ],
+  "mobiglas": [
+   "mobiGlas",
+   [
+    "mobiglas"
+   ]
+  ],
+  "v_view_cycle_fwd": [
+   "Change camera",
+   [
+    "camera"
+   ]
+  ],
+  "v_target_cycle_hostile_fwd": [
+   "Next hostile target",
+   [
+    "next hostile"
+   ]
+  ],
+  "v_target_cycle_attacker_fwd": [
+   "Next attacker",
+   [
+    "next attacker"
+   ]
+  ],
+  "v_target_cycle_all_fwd": [
+   "Next target",
+   [
+    "next target"
+   ]
+  ],
+  "v_target_unlock": [
+   "Clear target",
+   [
+    "clear target"
+   ]
+  ],
+  "v_weapon_countermeasure_decoy_launch": [
+   "Launch flares",
+   [
+    "flares"
+   ]
+  ],
+  "v_weapon_countermeasure_noise_launch": [
+   "Launch chaff",
+   [
+    "chaff"
+   ]
+  ],
+  "v_operator_mode_cycle_forward": [
+   "Next operator mode",
+   [
+    "next mode"
+   ]
+  ],
+  "v_toggle_missile_mode": [
+   "Missile mode",
+   [
+    "missile mode"
+   ]
+  ],
+  "v_toggle_mining_mode": [
+   "Mining mode",
+   [
+    "mining mode"
+   ]
+  ],
+  "v_toggle_salvage_mode": [
+   "Salvage mode",
+   [
+    "salvage mode"
+   ]
+  ],
+  "v_jettison_volatile_cargo": [
+   "Jettison cargo",
+   []
+  ]
+ }
+}

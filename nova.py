@@ -15,6 +15,28 @@ from logging.handlers import RotatingFileHandler
 
 from core.config import DATA_DIR, LOG_FILE, Settings
 
+
+def first_language(settings) -> None:
+    """v1.3: idioma de NOVA AI. El instalador deja datos\\idioma.txt con el que eligió el piloto; si no hay
+    nada elegido todavía, se usa el de Windows. Después se cambia en Ajustes."""
+    from core import i18n
+    f = DATA_DIR / "idioma.txt"
+    chosen = ""
+    try:
+        chosen = f.read_text(encoding="utf-8-sig").strip()
+        f.unlink()
+    except OSError:
+        pass
+    if not chosen and settings.get("asistente_completado") and not settings.get("idioma_elegido"):
+        settings.set("idioma_elegido", True)  # ya usabas NOVA AI (en español): no se cambia nada
+        return
+    if chosen or not settings.get("idioma_elegido"):
+        lang = i18n.norm(chosen or i18n.detect_windows())
+        changes = i18n.apply_language(settings, lang, i18n.norm(settings.get("idioma")))
+        settings.set("idioma_elegido", bool(chosen) or bool(settings.get("idioma_elegido")), save=False)
+        settings.save()
+        logging.getLogger("nova").info("Idioma inicial: %s %s", lang, changes)
+
 log = logging.getLogger("nova")
 
 
@@ -71,6 +93,7 @@ def main() -> None:
         return
 
     settings = Settings()
+    first_language(settings)
     from core.assistant import Nova
     from core.overlay import Overlay
     from core.session import Session
@@ -171,6 +194,9 @@ def main() -> None:
 
         if not settings.get("asistente_completado"):
             return  # en la configuración inicial ya se pregunta por la traducción
+        from core import i18n
+        if i18n.norm(settings.get("idioma")) != "es":
+            return  # la traducción de 0zzyt0 es solo para jugar en español
         st = server.api_translation_status()
         if T.reminder_due(settings, st):
             server.tr_reminder = True

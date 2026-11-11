@@ -1,0 +1,726 @@
+{
+ "_info": "Comandos de fábrica de NOVA AI traducidos (de). Se suman a datos\\comandos.json.",
+ "categorias": {
+  "Combate": "Kampf",
+  "Despegue y aterrizaje": "Start und Landung",
+  "Energía y sistemas": "Energie und Systeme",
+  "Interfaz": "Oberfläche",
+  "Navegación": "Navigation",
+  "Secuencias": "Abläufe",
+  "Minería y salvamento": "Bergbau und Bergung",
+  "Personales": "Eigene",
+  "Del juego (automático)": "Aus dem Spiel (automatisch)"
+ },
+ "comandos": {
+  "preparar_vuelo": {
+   "nombre": "Schiff startklar machen (Flight Ready)",
+   "frases": [
+    "schiff startklar machen",
+    "mach das schiff startklar",
+    "startklar",
+    "flugbereit",
+    "starte das schiff",
+    "fahr das schiff hoch",
+    "flight ready"
+   ],
+   "respuestas": [
+    "Systeme online. Startklar, {t}.",
+    "Triebwerke heiß, Kaffee kalt. Bereit, wann immer Sie wollen, {t}."
+   ]
+  },
+  "tren_bajar": {
+   "nombre": "Fahrwerk ausfahren",
+   "frases": [
+    "fahrwerk ausfahren",
+    "fahr das fahrwerk aus",
+    "fahrwerk raus",
+    "fahrwerk runter",
+    "landestützen ausfahren",
+    "beine raus"
+   ],
+   "respuestas": [
+    "Fahrwerk ausgefahren, {t}.",
+    "Fahrwerk unten. Beinchen raus."
+   ]
+  },
+  "tren_subir": {
+   "nombre": "Fahrwerk einfahren",
+   "frases": [
+    "fahrwerk einfahren",
+    "fahr das fahrwerk ein",
+    "fahrwerk rein",
+    "fahrwerk hoch",
+    "landestützen einfahren",
+    "beine rein"
+   ],
+   "respuestas": [
+    "Fahrwerk eingefahren, {t}.",
+    "Fahrwerk oben. Jetzt sehen wir aus wie ein ernsthaftes Schiff."
+   ]
+  },
+  "aterrizaje_auto": {
+   "nombre": "Automatische Landung",
+   "frases": [
+    "automatische landung",
+    "autolandung",
+    "lande das schiff",
+    "lande du",
+    "setz das schiff auf"
+   ],
+   "respuestas": [
+    "Automatische Landung aktiv. Ich übernehme, {t}.",
+    "Landeanflug. Ich verspreche, den Lack nicht zu zerkratzen."
+   ]
+  },
+  "pedir_permiso": {
+   "nombre": "Lande-/Starterlaubnis beim Tower anfragen",
+   "frases": [
+    "landung anfragen",
+    "landeerlaubnis anfragen",
+    "start anfragen",
+    "starterlaubnis anfragen",
+    "ruf den tower",
+    "kontaktiere den tower",
+    "öffne den hangar"
+   ],
+   "respuestas": [
+    "Anfrage an den Tower gesendet, {t}.",
+    "Ich rufe die Flugkontrolle. Hoffentlich landen wir diesmal nicht in der Warteschleife."
+   ]
+  },
+  "vtol": {
+   "nombre": "VTOL-Modus umschalten",
+   "frases": [
+    "vtol modus",
+    "vtol an",
+    "vtol aus",
+    "vtol umschalten"
+   ],
+   "respuestas": [
+    "VTOL-Modus umgeschaltet."
+   ]
+  },
+  "salir_asiento": {
+   "nombre": "Vom Sitz aufstehen",
+   "frases": [
+    "steh auf",
+    "aufstehen",
+    "verlass den sitz"
+   ],
+   "respuestas": [
+    "Ich verlasse den Sitz. Strecken Sie sich ein wenig, {t}."
+   ]
+  },
+  "escudos_on": {
+   "nombre": "Schilde aktivieren",
+   "frases": [
+    "schilde an",
+    "schilde aktivieren",
+    "aktiviere die schilde",
+    "schilde hoch",
+    "fahr die schilde hoch"
+   ],
+   "respuestas": [
+    "Schilde aktiviert, {t}.",
+    "Schilde oben. Sollen sie es jetzt versuchen."
+   ]
+  },
+  "escudos_off": {
+   "nombre": "Schilde deaktivieren",
+   "frases": [
+    "schilde aus",
+    "schilde deaktivieren",
+    "deaktiviere die schilde",
+    "schilde runter",
+    "fahr die schilde runter"
+   ],
+   "respuestas": [
+    "Schilde deaktiviert.",
+    "Schilde unten. Jetzt fliegen wir oben ohne, {t}."
+   ]
+  },
+  "energia_on": {
+   "nombre": "Hauptenergie einschalten",
+   "frases": [
+    "energie an",
+    "hauptenergie an",
+    "schalte die energie ein",
+    "energie einschalten",
+    "hauptenergie"
+   ],
+   "respuestas": [
+    "Hauptenergie online.",
+    "Licht, Kraft und ein bisschen Glaube. Energie wiederhergestellt, {t}."
+   ]
+  },
+  "energia_off": {
+   "nombre": "Hauptenergie ausschalten",
+   "frases": [
+    "energie aus",
+    "hauptenergie aus",
+    "schalte die energie aus",
+    "energie abschalten",
+    "energie kappen"
+   ],
+   "respuestas": [
+    "Hauptenergie abgeschaltet.",
+    "Ich schalte alles ab. Wenn Sie seltsame Geräusche hören, war ich das nicht."
+   ]
+  },
+  "armas_on": {
+   "nombre": "Waffen aktivieren",
+   "frases": [
+    "waffen an",
+    "waffen aktivieren",
+    "aktiviere die waffen",
+    "waffen bereit",
+    "waffen online",
+    "mach die waffen bereit"
+   ],
+   "respuestas": [
+    "Waffen online, {t}.",
+    "Waffen bereit. Suchen Sie aus, wer Sie heute nicht mögen wird."
+   ]
+  },
+  "armas_off": {
+   "nombre": "Waffen deaktivieren",
+   "frases": [
+    "waffen aus",
+    "waffen deaktivieren",
+    "deaktiviere die waffen",
+    "waffen weg",
+    "waffen offline"
+   ],
+   "respuestas": [
+    "Waffen deaktiviert.",
+    "Waffen offline. Pazifistenmodus aktiv."
+   ]
+  },
+  "propulsores": {
+   "nombre": "Triebwerke umschalten",
+   "frases": [
+    "triebwerke an",
+    "triebwerke aus",
+    "schalte die triebwerke ein",
+    "schalte die triebwerke aus",
+    "triebwerke umschalten"
+   ],
+   "respuestas": [
+    "Triebwerke umgeschaltet."
+   ]
+  },
+  "luces": {
+   "nombre": "Außenbeleuchtung umschalten",
+   "frases": [
+    "licht",
+    "licht an",
+    "licht aus",
+    "scheinwerfer",
+    "beleuchtung"
+   ],
+   "respuestas": [
+    "Licht umgeschaltet.",
+    "Es werde Licht. Oder auch nicht, je nachdem."
+   ]
+  },
+  "modo_maestro": {
+   "nombre": "Hauptmodus wechseln (NAV / SCM)",
+   "frases": [
+    "quantenmodus",
+    "kampfmodus",
+    "navigationsmodus",
+    "modus wechseln",
+    "wechsle den modus",
+    "scm modus",
+    "nav modus"
+   ],
+   "respuestas": [
+    "Wechsle den Hauptmodus.",
+    "Modus gewechselt, {t}."
+   ]
+  },
+  "salto_cuantico": {
+   "nombre": "Quantensprung starten",
+   "frases": [
+    "quantensprung",
+    "sprung starten",
+    "spring",
+    "quantenantrieb aktivieren",
+    "aktiviere den quantenantrieb"
+   ],
+   "respuestas": [
+    "Quantenantrieb lädt. Festhalten, {t}.",
+    "Wir springen. Wir sehen uns auf der anderen Seite."
+   ]
+  },
+  "crucero": {
+   "nombre": "Tempomat umschalten",
+   "frases": [
+    "tempomat",
+    "reisemodus",
+    "reisegeschwindigkeit"
+   ],
+   "respuestas": [
+    "Tempomat umgeschaltet."
+   ]
+  },
+  "desacoplado": {
+   "nombre": "Entkoppelten Modus umschalten",
+   "frases": [
+    "entkoppelter modus",
+    "entkoppeln",
+    "koppeln",
+    "gekoppelter modus"
+   ],
+   "respuestas": [
+    "Entkoppelter Modus umgeschaltet."
+   ]
+  },
+  "freno": {
+   "nombre": "Raumbremse",
+   "frases": [
+    "bremse",
+    "bremsen",
+    "raumbremse",
+    "stopp das schiff",
+    "halt das schiff an"
+   ],
+   "respuestas": [
+    "Bremse.",
+    "Vollbremsung, {t}."
+   ]
+  },
+  "ping": {
+   "nombre": "Radar-Ping",
+   "frases": [
+    "ping",
+    "radar ping",
+    "scanne die gegend",
+    "scanne das gebiet",
+    "radar"
+   ],
+   "respuestas": [
+    "Impuls gesendet.",
+    "Ich scanne das Gebiet, {t}."
+   ]
+  },
+  "modo_escaneo": {
+   "nombre": "Scanmodus",
+   "frases": [
+    "scanmodus",
+    "scanner modus",
+    "aktiviere den scanner"
+   ],
+   "respuestas": [
+    "Scanmodus umgeschaltet."
+   ]
+  },
+  "objetivo_hostil": {
+   "nombre": "Nächstes feindliches Ziel",
+   "frases": [
+    "nächster feind",
+    "feindliches ziel",
+    "feind aufschalten",
+    "nächster gegner",
+    "gegner aufschalten"
+   ],
+   "respuestas": [
+    "Feind aufgeschaltet.",
+    "Ich habe einen hässlichen im Visier, {t}."
+   ]
+  },
+  "objetivo_atacante": {
+   "nombre": "Nächster Angreifer",
+   "frases": [
+    "nächster angreifer",
+    "wer schießt auf mich",
+    "angreifer aufschalten",
+    "wer schießt auf uns"
+   ],
+   "respuestas": [
+    "Angreifer aufgeschaltet, {t}."
+   ]
+  },
+  "objetivo_siguiente": {
+   "nombre": "Nächstes Ziel",
+   "frases": [
+    "nächstes ziel",
+    "ziel wechseln",
+    "ziel",
+    "ziel aufschalten",
+    "ziel markieren",
+    "ziel festlegen",
+    "ziel auswählen"
+   ],
+   "respuestas": [
+    "Ziel gewechselt."
+   ]
+  },
+  "objetivo_quitar": {
+   "nombre": "Ziel lösen",
+   "frases": [
+    "ziel lösen",
+    "ziel freigeben",
+    "ziel aufheben",
+    "ziel entfernen"
+   ],
+   "respuestas": [
+    "Ziel freigegeben."
+   ]
+  },
+  "bengalas": {
+   "nombre": "Täuschkörper abwerfen",
+   "frases": [
+    "flares",
+    "täuschkörper",
+    "wirf täuschkörper ab",
+    "gegenmaßnahmen",
+    "leuchtkörper"
+   ],
+   "respuestas": [
+    "Flares raus!",
+    "Täuschkörper abgeworfen. Lichtershow."
+   ]
+  },
+  "chaff": {
+   "nombre": "Düppel abwerfen (Chaff)",
+   "frases": [
+    "chaff",
+    "wirf chaff ab",
+    "düppel",
+    "störsignal",
+    "rauschen"
+   ],
+   "respuestas": [
+    "Chaff raus!"
+   ]
+  },
+  "gimbal": {
+   "nombre": "Waffen-Gimbal umschalten",
+   "frases": [
+    "gimbal",
+    "gimbal umschalten",
+    "gimbal modus",
+    "feste waffen"
+   ],
+   "respuestas": [
+    "Gimbal-Modus gewechselt."
+   ]
+  },
+  "modo_operador": {
+   "nombre": "Nächster Bedienermodus",
+   "frases": [
+    "bedienermodus",
+    "nächster modus",
+    "bedienermodus wechseln"
+   ],
+   "respuestas": [
+    "Bedienermodus gewechselt."
+   ]
+  },
+  "soltar_carga": {
+   "nombre": "Fracht abwerfen",
+   "frases": [
+    "fracht abwerfen bestätigt",
+    "ladung abwerfen bestätigt"
+   ],
+   "respuestas": [
+    "Fracht abgeworfen. Ich hoffe, es war nichts Teures, {t}."
+   ]
+  },
+  "mobiglas": {
+   "nombre": "mobiGlas öffnen",
+   "frases": [
+    "mobiglas",
+    "öffne das mobiglas"
+   ],
+   "respuestas": [
+    "MobiGlas."
+   ]
+  },
+  "mapa": {
+   "nombre": "Sternenkarte öffnen",
+   "frases": [
+    "karte",
+    "öffne die karte",
+    "sternenkarte"
+   ],
+   "respuestas": [
+    "Sternenkarte."
+   ]
+  },
+  "camara": {
+   "nombre": "Kamera wechseln",
+   "frases": [
+    "kamera wechseln",
+    "kamera",
+    "außenansicht",
+    "third person",
+    "dritte person"
+   ],
+   "respuestas": [
+    "Kamera gewechselt."
+   ]
+  },
+  "secuencia_despegue": {
+   "nombre": "Komplette Startsequenz",
+   "frases": [
+    "startsequenz",
+    "start einleiten",
+    "wir starten",
+    "heb ab"
+   ],
+   "respuestas": [
+    "Startsequenz eingeleitet. Anschnallen, {t}.",
+    "Start läuft. Falls ich etwas vergesse, tun Sie so, als wäre es Absicht."
+   ]
+  },
+  "secuencia_aterrizaje": {
+   "nombre": "Komplette Landesequenz",
+   "frases": [
+    "landesequenz",
+    "landung einleiten",
+    "bring uns runter",
+    "wir landen"
+   ],
+   "respuestas": [
+    "Landesequenz eingeleitet, {t}.",
+    "Sinkflug. Bitte die Hände im Cockpit lassen."
+   ]
+  }
+ },
+ "acciones": {
+  "v_flightready": [
+   "Schiff startklar machen",
+   [
+    "startklar"
+   ]
+  ],
+  "v_toggle_landing_system": [
+   "Fahrwerk",
+   [
+    "fahrwerk"
+   ]
+  ],
+  "v_autoland": [
+   "Automatische Landung",
+   [
+    "automatische landung"
+   ]
+  ],
+  "v_atc_request": [
+   "Erlaubnis beim Tower anfragen",
+   [
+    "ruf den tower"
+   ]
+  ],
+  "v_vtol_toggle": [
+   "VTOL-Modus",
+   [
+    "vtol modus"
+   ]
+  ],
+  "pl_exit": [
+   "Vom Sitz aufstehen",
+   [
+    "steh auf"
+   ]
+  ],
+  "v_power_toggle": [
+   "Hauptenergie",
+   [
+    "hauptenergie"
+   ]
+  ],
+  "v_power_toggle_shields": [
+   "Schildenergie",
+   [
+    "schilde"
+   ]
+  ],
+  "v_power_toggle_weapons": [
+   "Waffenenergie",
+   [
+    "waffen"
+   ]
+  ],
+  "v_power_toggle_thrusters": [
+   "Triebwerksenergie",
+   [
+    "triebwerke"
+   ]
+  ],
+  "v_lights": [
+   "Außenbeleuchtung",
+   [
+    "licht"
+   ]
+  ],
+  "v_doors_open_all": [
+   "Alle Türen öffnen",
+   [
+    "öffne die türen"
+   ]
+  ],
+  "v_doors_close_all": [
+   "Alle Türen schließen",
+   [
+    "schließ die türen"
+   ]
+  ],
+  "v_doors_lock_all": [
+   "Türen verriegeln",
+   [
+    "verriegle die türen"
+   ]
+  ],
+  "v_doors_unlock_all": [
+   "Türen entriegeln",
+   [
+    "entriegle die türen"
+   ]
+  ],
+  "v_master_mode_cycle": [
+   "Hauptmodus wechseln (NAV/SCM)",
+   [
+    "modus wechseln"
+   ]
+  ],
+  "v_master_mode_set_nav": [
+   "Navigationsmodus (NAV)",
+   [
+    "navigationsmodus"
+   ]
+  ],
+  "v_master_mode_set_scm": [
+   "Kampfmodus (SCM)",
+   [
+    "kampfmodus"
+   ]
+  ],
+  "v_toggle_qdrive_engagement": [
+   "Quantensprung",
+   [
+    "quantensprung"
+   ]
+  ],
+  "v_toggle_quantum_mode": [
+   "Quantenmodus",
+   [
+    "quantenmodus"
+   ]
+  ],
+  "v_ifcs_throttle_swap_mode": [
+   "Tempomat",
+   [
+    "tempomat"
+   ]
+  ],
+  "v_ifcs_vector_decoupling_toggle": [
+   "Entkoppelter Modus",
+   [
+    "entkoppelter modus"
+   ]
+  ],
+  "v_space_brake": [
+   "Raumbremse",
+   [
+    "bremse"
+   ]
+  ],
+  "v_invoke_ping": [
+   "Radar-Ping",
+   [
+    "ping"
+   ]
+  ],
+  "v_toggle_scan_mode": [
+   "Scanmodus",
+   [
+    "scanmodus"
+   ]
+  ],
+  "v_starmap": [
+   "Sternenkarte",
+   [
+    "karte"
+   ]
+  ],
+  "mobiglas": [
+   "mobiGlas",
+   [
+    "mobiglas"
+   ]
+  ],
+  "v_view_cycle_fwd": [
+   "Kamera wechseln",
+   [
+    "kamera"
+   ]
+  ],
+  "v_target_cycle_hostile_fwd": [
+   "Nächstes feindliches Ziel",
+   [
+    "nächster feind"
+   ]
+  ],
+  "v_target_cycle_attacker_fwd": [
+   "Nächster Angreifer",
+   [
+    "nächster angreifer"
+   ]
+  ],
+  "v_target_cycle_all_fwd": [
+   "Nächstes Ziel",
+   [
+    "nächstes ziel"
+   ]
+  ],
+  "v_target_unlock": [
+   "Ziel lösen",
+   [
+    "ziel lösen"
+   ]
+  ],
+  "v_weapon_countermeasure_decoy_launch": [
+   "Täuschkörper abwerfen",
+   [
+    "flares"
+   ]
+  ],
+  "v_weapon_countermeasure_noise_launch": [
+   "Chaff abwerfen",
+   [
+    "chaff"
+   ]
+  ],
+  "v_operator_mode_cycle_forward": [
+   "Nächster Bedienermodus",
+   [
+    "nächster modus"
+   ]
+  ],
+  "v_toggle_missile_mode": [
+   "Raketenmodus",
+   [
+    "raketenmodus"
+   ]
+  ],
+  "v_toggle_mining_mode": [
+   "Bergbaumodus",
+   [
+    "bergbaumodus"
+   ]
+  ],
+  "v_toggle_salvage_mode": [
+   "Bergungsmodus",
+   [
+    "bergungsmodus"
+   ]
+  ],
+  "v_jettison_volatile_cargo": [
+   "Fracht abwerfen",
+   []
+  ]
+ }
+}

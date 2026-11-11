@@ -57,14 +57,38 @@ _FILLERS = {
 
 def simplify(text: str) -> str:
     """Minúsculas, sin tildes ni signos: '¡Oye, Nova!' -> 'oye nova'"""
-    t = unicodedata.normalize("NFKD", text.lower())
+    t = unicodedata.normalize("NFKD", text.lower().replace("ß", "ss"))
     t = "".join(c for c in t if not unicodedata.combining(c))
     return " ".join(re.findall(r"[a-z0-9ñ]+", t))
 
 
+def _tr(text: str) -> str:
+    from .i18n import tr
+    return tr(text)
+
+
+def _lang() -> str:
+    from .i18n import lang
+    return lang()
+
+
+_OVERLAYS: dict = {}
+
+
+def lang_overlay(lang: str) -> dict:
+    """Comandos de fábrica traducidos: datos\\comandos.<idioma>.json (vacío en español)."""
+    if lang == "es":
+        return {}
+    if lang not in _OVERLAYS:
+        _OVERLAYS[lang] = _read_json(COMMANDS_FILE.with_name(f"comandos.{lang}.json"), {})
+    return _OVERLAYS[lang]
+
+
 def normalize(text: str, extra_names: tuple[str, ...] = ()) -> str:
     """Además quita muletillas y el nombre: '¡Oye Nova, BAJA el tren, por favor!' -> 'baja el tren'"""
-    drop = _FILLERS | {w for n in extra_names for w in simplify(n).split()}
+    from .i18n import lang
+    from .lang_data import FILLERS
+    drop = _FILLERS | FILLERS.get(lang(), set()) | {w for n in extra_names for w in simplify(n).split()}
     return " ".join(w for w in simplify(text).split() if w not in drop)
 
 
@@ -152,9 +176,22 @@ class CommandBook:
         personal = _read_json(PERSONAL_FILE, {"comandos": []}).get("comandos", [])
         merged: dict[str, Command] = {}
         fields_ = Command.__dataclass_fields__
+        from .i18n import lang
+        lg = lang()
+        overlay = lang_overlay(lg)
+        self._localized_ids = set()
         for item in base:
             c = Command(**{k: v for k, v in item.items() if k in fields_})
             c.origen = "base"
+            ov = overlay.get("comandos", {}).get(c.id)
+            if ov:  # v1.3: nombre, frases y respuestas en el idioma elegido (las de español siguen valiendo)
+                c.nombre = ov.get("nombre") or c.nombre
+                c.descripcion = ov.get("descripcion") or c.descripcion
+                c.categoria = overlay.get("categorias", {}).get(c.categoria, c.categoria)
+                c.frases = list(ov.get("frases") or []) or c.frases  # en su idioma (STT ya no oye español)
+                if ov.get("respuestas"):
+                    c.respuestas = list(ov["respuestas"])
+                    self._localized_ids.add(c.id)
             merged[c.id] = c
         for item in personal:
             if item.get("borrado"):
@@ -162,6 +199,11 @@ class CommandBook:
                 continue
             c = Command(**{k: v for k, v in item.items() if k in fields_})
             c.origen = "modificado" if c.id in merged else "personal"
+            ov = overlay.get("comandos", {}).get(c.id)
+            if ov:  # comando de fábrica que cambiaste: se le suman las frases del idioma
+                c.frases = list(dict.fromkeys(c.frases + list(ov.get("frases") or [])))
+                c.categoria = overlay.get("categorias", {}).get(c.categoria, c.categoria)
+                self._localized_ids.discard(c.id)
             merged[c.id] = c
 
         self._apply_game_keys(merged, warnings)
@@ -198,7 +240,7 @@ class CommandBook:
         path = keybinds.find_actionmaps(self.settings.get("actionmaps_ruta"), self.gamelog_path_fn())
         if not path:
             self.sync = {"estado": "no encontrado", "ruta": "",
-                         "detalle": "No encuentro actionmaps.xml. Se usan las teclas por defecto del juego."}
+                         "detalle": _tr("No encuentro actionmaps.xml. Se usan las teclas por defecto del juego.")}
             return
         try:
             binds = keybinds.parse_actionmaps(path)
@@ -244,8 +286,12 @@ class CommandBook:
                 step.update({"tecla": b.tecla} if b.tecla else {"raton": b.raton})
                 if b.doble:
                     step["doble"] = True
+                acts = lang_overlay(_lang()).get("acciones", {})
+                if name in acts and cat:
+                    cat = (acts[name][0], cat[1], cat[2], list(acts[name][1]),
+                           lang_overlay(_lang()).get("categorias", {}).get(cat[4], cat[4]))
                 merged[cid] = Command(
-                    id=cid, nombre=sc_actions.label(name),
+                    id=cid, nombre=cat[0] if cat else sc_actions.label(name),
                     descripcion=f"Acción del juego '{name}' tal como la tienes configurada en Star Citizen.",
                     categoria="Del juego (automático)", frases=list(cat[3]) if cat else [],
                     respuestas=[], acciones=[step], origen="juego")
@@ -371,6 +417,10 @@ class CommandBook:
         return None
 
     # ---------------------------------------------------------------- ejecución
+    def localized(self, cmd: Command) -> bool:
+        """¿Sus respuestas ya están en el idioma elegido (archivo comandos.<idioma>.json)?"""
+        return cmd.id in getattr(self, "_localized_ids", set())
+
     def response_for(self, cmd: Command) -> str:
         t = self.settings.get("tratamiento")
         text = random.choice(cmd.respuestas) if cmd.respuestas else f"{cmd.nombre}. Hecho, {t}."

@@ -506,3 +506,33 @@ table.stats th:first-child,table.stats td:first-child,table.stats th:last-child,
 .upd-bar i{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,rgba(32,184,232,.35),rgba(32,184,232,.8));transition:width .3s}
 .upd-bar span{position:relative;display:block;text-align:center;font:12px/22px var(--mono);color:#fff}
 .ov-sep{margin:22px 0 12px}
+
+/* ------------------------------------------------------------- v1.2.2 */
+.power-line{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;margin-top:12px;padding:10px 12px;
+  border:1px solid rgba(63,216,168,.45);background:rgba(63,216,168,.06);cursor:pointer;transition:.15s}
+.power-line .pw-txt{display:flex;flex-direction:column;gap:2px}
+.power-line b{font-size:12.5px;letter-spacing:2px;color:var(--ok)}
+.power-line small{font-size:11px;color:var(--dim)}
+.power-line.off{border-color:rgba(255,107,122,.6);background:rgba(255,107,122,.08)}
+.power-line.off b{color:var(--bad)}
+.grid2.tight{gap:26px}
+.grid2.tight>div{min-width:0}
+.chat-test{display:flex;gap:8px;margin-top:12px}
+.chat-test input{flex:1;min-width:0}
+#chatTestOut{margin-top:8px;min-height:18px}
+.sfx-row{padding:9px 0;border-bottom:1px solid rgba(32,184,232,.07)}
+.sfx-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px;font-size:13px}
+.sfx-h small{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55%}
+.sfx-ctl{display:grid;grid-template-columns:1fr 46px auto auto;gap:8px;align-items:center}
+.sfx-ctl select{grid-column:1/-1;width:100%}
+.sfx-ctl .val{min-width:0;text-align:right}
+.save-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:4px 0 14px}
+.save-stats div{border:1px solid var(--line);background:var(--panel2);padding:10px 12px}
+.save-stats b{display:block;font-size:26px;color:var(--ok);font-weight:600;text-shadow:0 0 12px rgba(63,216,168,.45)}
+.save-stats span{font-size:11px;color:var(--dim);letter-spacing:1px}
+#msgIn.ask-chat{border-color:var(--warn);box-shadow:0 0 0 1px rgba(232,193,90,.5),0 0 14px rgba(232,193,90,.25)}
+.field .ctl input[type=range]{min-width:0}.field .ctl .val{flex-shrink:0}
+#dicOut{white-space:pre-wrap;word-break:break-word;max-height:260px}
+
+.kg-nfo .kg-logos{display:flex;justify-content:center;gap:22px;margin:10px 0 4px}.kg-nfo .kg-logos img{width:96px;height:96px;object-fit:contain;filter:drop-shadow(0 0 8px rgba(120,160,255,.35))}
+nav button.nav-manual{color:#ffd98a;margin-bottom:2px}nav button.nav-manual:hover{color:#ffe9b8;background:rgba(232,193,90,.08)}

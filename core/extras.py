@@ -14,19 +14,26 @@ log = logging.getLogger("nova.extras")
 
 # «localízame a un jugador», «búscame a un jugador», «encuentra al jugador…», «ficha del jugador…»
 LOOKUP_RE = re.compile(r"\b(localiza\w*|busca\w*|encuentra\w*|investiga\w*|ficha)\b.{0,25}\bjugador(a|es)?\b")
+# v1.3: lo mismo en inglés, catalán, francés y alemán («find me a player», «cherche un joueur»…)
+from .lang_data import PLAYER_NAMED, PLAYER_VERBS, PLAYER_WORD  # noqa: E402
+LOOKUP_ANY = re.compile(rf"\b({PLAYER_VERBS}|fiche|fitxa|steckbrief)\b.{{0,25}}\b({PLAYER_WORD})\b")
+HANDLE_ANY = re.compile(rf"\b(?:{PLAYER_WORD})\s*(?:[:,\-]|{PLAYER_NAMED})?\s*"
+                        r"[«\"']?([A-Za-z0-9_\-]{2,60})[»\"']?\s*[.!?]?\s*$", re.I)
 HANDLE_AFTER = re.compile(r"jugador(?:a|es)?\s*(?:[:,\-]|llamad[oa]|que se llama|con (?:el )?apodo)?\s*"
                           r"[«\"']?([A-Za-z0-9_\-]{2,60})[»\"']?\s*[.!?]?\s*$", re.I)
 WAIT_HANDLE_S = 180  # tras pedirte el apodo, el siguiente texto escrito se toma como apodo durante 3 min
-FILLERS = {"un", "una", "uno", "el", "la", "al", "por", "favor", "porfa", "ahora", "ya"}
+FILLERS = {"un", "una", "uno", "el", "la", "al", "por", "favor", "porfa", "ahora", "ya",
+           "a", "an", "the", "please", "now", "le", "les", "un", "une", "der", "die", "den", "einen", "bitte",
+           "jetzt", "maintenant", "ara", "els"}
 
 
 def is_lookup(norm: str) -> bool:
-    return bool(LOOKUP_RE.search(norm or ""))
+    return bool(LOOKUP_RE.search(norm or "") or LOOKUP_ANY.search(norm or ""))
 
 
 def handle_in(text: str) -> str:
     """Apodo escrito en la misma frase («búscame al jugador Nebula_Rider»), o ''."""
-    m = HANDLE_AFTER.search(text or "")
+    m = HANDLE_AFTER.search(text or "") or HANDLE_ANY.search(text or "")
     if not m:
         return ""
     h = m.group(1)
@@ -83,17 +90,24 @@ def discord_fields(c: Citizen) -> list[tuple[str, str]]:
     for k, v in c.org_lines():
         if k in ("Organización", "Página de la org"):
             continue
-        fields.append((f"Org · {k}", v[:300]))
+        fields.append((f"Org · {k}", str(v or "")[:300]))
     return fields
 
 
-def send_player_to_discord(settings, c: Citizen, http=None) -> str:
-    """Devuelve '' si no toca mandar nada, o un texto con el resultado para el chat."""
+def send_player_to_discord(settings, c: Citizen, http=None, motivo: str = "consulta") -> str:
+    """Devuelve '' si no toca mandar nada, o un texto con el resultado para el chat.
+    motivo: 'consulta' (búsqueda normal, azul) o 'recompensa' (objetivo de captura, rojo)."""
     url = (settings.get("discord_webhook") or "").strip()
     if not url or not settings.get("discord_enviar_jugadores", True):
         return ""
+    bounty = motivo == "recompensa"
+    org = c.org
     try:
-        discord.send(url, f"Ficha de jugador: {c.apodo_juego or c.handle}", discord_fields(c), link=c.url,
+        discord.send(url, ("🎯 Objetivo de recompensa: " if bounty else "Ficha de jugador: ") + (c.apodo_juego or c.handle),
+                     discord_fields(c), link=c.url, color=discord.RED if bounty else discord.COLOR,
+                     thumb=c.avatar or "",
+                     author=(f"{org.nombre or org.sid} [{org.sid}]" if (org.sid or org.nombre) and not org.oculta else ""),
+                     author_icon=org.logo if not org.oculta else "",
                      footer=f"NOVA AI · consultado {time.strftime('%d/%m/%Y %H:%M')}", http=http)
         return "📨 Ficha enviada a Discord."
     except Exception as e:  # noqa: BLE001 - cualquier fallo se cuenta, no tumba a Nova

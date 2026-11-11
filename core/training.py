@@ -18,7 +18,8 @@ _AI_INTRO = re.compile(
     r"^.*?\b(?:quiero que te llames|me gustaria que te llamaras|me gustaría que te llamaras|te vas a llamar|"
     r"te llamaras|te llamarás|llamate|llámate|tu nombre (?:sera|será|es)|te llamas|te llamare|te llamaré|"
     r"te pondre|te pondré|ponte)\s+", re.IGNORECASE)
-_TRAILING = re.compile(r"\b(por favor|gracias|vale|y ya)\b.*$", re.IGNORECASE)
+_TRAILING = re.compile(r"\b(por favor|gracias|vale|y ya|please|thanks|thank you|si us plau|gràcies|s'il te pla[iî]t|merci|bitte|danke)\b.*$",
+                       re.IGNORECASE)
 
 
 def _titlecase(words: list[str]) -> str:
@@ -36,6 +37,12 @@ def extract_name(text: str, who: str = "piloto") -> tuple[str, bool]:
         return "", False
     pattern = _PILOT_INTRO if who == "piloto" else _AI_INTRO
     m = pattern.match(raw)
+    if not m:  # v1.3: «my name is…», «je m'appelle…», «ich heiße…», «em dic…»
+        from .i18n import lang
+        from .lang_data import AI_INTRO, PILOT_INTRO
+        extra = (PILOT_INTRO if who == "piloto" else AI_INTRO).get(lang())
+        if extra:
+            m = re.match(rf"^.*?\b(?:{extra})\s+", raw, re.IGNORECASE)
     body = raw[m.end():] if m else raw
     body = _TRAILING.sub("", body)
     words = re.findall(r"[A-Za-zÁÉÍÓÚÜÑáéíóúüñ'-]+", body)
@@ -99,9 +106,15 @@ OLD_DEFAULT_PHRASES = [  # las fijas de la 1.0: si siguen guardadas, se usan las
 ]
 
 
-def random_phrases(rng=None) -> list[str]:
+def random_phrases(rng=None, lang: str | None = None) -> list[str]:
     import random
+
+    from .i18n import lang as current
+    from .lang_data import TRAINING
     r = rng or random.SystemRandom()
+    sets = TRAINING.get(lang or current())
+    if sets:  # v1.3: frases en el idioma de NOVA AI
+        return [r.choice(sets[0]), r.choice(sets[1]), r.choice(sets[2])]
     return [r.choice(PHRASES_VOWELS), r.choice(PHRASES_CONSONANTS), r.choice(PHRASES_MIXED)]
 
 

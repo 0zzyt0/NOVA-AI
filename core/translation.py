@@ -309,3 +309,89 @@ def answer_reminder(settings, answer: str) -> None:
     else:
         settings.set("traduccion_recordar", False, save=False)
         settings.set("traduccion_aviso", time.time() + EVERY)
+
+
+# ------------------------------------------------- v1.3: «Add your language global.ini [HERE]»
+# Idiomas que Star Citizen acepta en g_language (solo carga uno de estos)
+GAME_LANG_CODES = ("english", "spanish_(spain)", "spanish_(latin_america)", "french_(france)", "german_(germany)",
+                   "italian_(italy)", "portuguese_(brazil)", "polish_(poland)", "japanese_(japan)",
+                   "korean_(south_korea)", "chinese_(simplified)", "chinese_(traditional)")
+INI_LINE = re.compile(r"^[\w.\-@]+(?:,P)?\s*=", re.M)
+BACKUP_SUFFIX = ".antes_de_nova"
+
+
+def check_ini(data: bytes) -> int:
+    """Nº de textos del global.ini; ValueError si no lo parece."""
+    if len(data) > 64 * 1024 * 1024:
+        raise ValueError("El archivo es demasiado grande para ser un global.ini (máximo 64 MB).")
+    try:
+        text = data.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        try:
+            text = data.decode("utf-16")
+        except UnicodeError:
+            raise ValueError("El archivo no es un global.ini de Star Citizen (no es texto UTF-8).") from None
+    n = len(INI_LINE.findall(text))
+    if n < 500:
+        raise ValueError("El archivo no parece un global.ini de Star Citizen (tiene muy pocos textos).")
+    return n
+
+
+def install_custom_ini(data: bytes, live: Path, lang: str, settings=None) -> dict:
+    """Copia tu global.ini a LIVE\\data\\Localization\\<lang>\\ (guardando el que hubiera) y ajusta user.cfg."""
+    if lang not in GAME_LANG_CODES:
+        raise ValueError(f"Star Citizen no admite el idioma «{lang}».")
+    if not is_live_dir(live):
+        raise ValueError(f"{live} no parece la carpeta LIVE de Star Citizen.")
+    n = check_ini(data)
+    dest = live / "data" / "Localization" / lang / "global.ini"
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    backup = dest.with_name("global.ini" + BACKUP_SUFFIX)
+    had = dest.exists()
+    if had and not backup.exists():
+        shutil.copy2(dest, backup)
+    before = read_cfg_language(live)
+    dest.write_bytes(data)
+    _merge_user_cfg(live, lang)
+    if settings is not None:
+        settings.set("globalini_ruta", str(dest), save=False)
+        settings.set("globalini_propio", str(dest), save=False)
+        settings.set("globalini_propio_idioma", lang, save=False)
+        settings.set("globalini_idioma_antes", before or "", save=False)
+        settings.save()
+    log.info("global.ini propio instalado en %s (%d textos, copia: %s)", dest, n, backup if had else "no había")
+    return {"ruta": str(dest), "idioma": lang, "textos": n, "copia": str(backup) if backup.exists() else "",
+            "antes": before}
+
+
+def uninstall_custom_ini(settings) -> dict:
+    """Deshace lo anterior: devuelve el global.ini que había (o lo quita) y el idioma de user.cfg."""
+    path = (settings.get("globalini_propio") or "").strip()
+    if not path:
+        raise ValueError("No hay ningún global.ini instalado desde NOVA AI.")
+    dest = Path(path)
+    backup = dest.with_name("global.ini" + BACKUP_SUFFIX)
+    restored = False
+    if backup.exists():
+        shutil.copy2(backup, dest)
+        backup.unlink(missing_ok=True)
+        restored = True
+    else:
+        dest.unlink(missing_ok=True)
+    live = dest.parents[3] if len(dest.parents) > 3 else None
+    before = settings.get("globalini_idioma_antes") or ""
+    if live and is_live_dir(live):
+        if before:
+            _merge_user_cfg(live, before)
+        else:  # no había idioma: quita la línea que pusimos
+            cfg = live / "user.cfg"
+            if cfg.exists():
+                lines = [ln for ln in cfg.read_text(encoding="utf-8", errors="replace").splitlines()
+                         if not re.match(r"\s*g_language\s*=", ln, re.I)]
+                cfg.write_text("\r\n".join(lines) + ("\r\n" if lines else ""), encoding="utf-8")
+    if (settings.get("globalini_ruta") or "") == path:
+        settings.set("globalini_ruta", "", save=False)
+    settings.set("globalini_propio", "", save=False)
+    settings.set("globalini_propio_idioma", "", save=False)
+    settings.save()
+    return {"restaurado": restored, "idioma": before}

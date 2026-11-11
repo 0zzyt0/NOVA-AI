@@ -6,6 +6,7 @@ __pycache__/
 # Datos personales del usuario (en modo portátil)
 datos/*
 !datos/comandos.json
+!datos/comandos.*.json
 
 # Secretos: la llave maestra de las claves de fábrica NUNCA se sube
 recursos/llave_claves.bin

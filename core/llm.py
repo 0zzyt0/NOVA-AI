@@ -14,7 +14,7 @@ log = logging.getLogger("nova.llm")
 
 INFO_TOOLS = {"buscar_wiki_star_citizen", "buscar_en_internet", "leer_pagina_web",
               "uex_precios_mercancia", "uex_rutas_comercio", "buscar_datos_juego", "buscar_misiones",
-              "plano_fabricacion", "donde_minar"}
+              "plano_fabricacion", "donde_minar", "datos_ubicacion", "donde_comprar"}
 EMPTY_MARKERS = ("SIN RESULTADOS", "SIN DATOS", "No pude conectar", "Error en", "no está instalada")
 
 HUMOR = {
@@ -59,6 +59,24 @@ creíble dentro del universo pero con algún detalle absurdo, y termina SIEMPRE 
 Usa esa frase SOLO cuando te lo hayas inventado, nunca después de información real."""
 
 
+def intro_facts(name: str) -> str:
+    from .config import VERSION
+    from .intro import prompt_facts
+    return prompt_facts(name, VERSION)
+
+
+def lang_line(settings, t: str) -> str:
+    """En qué idioma habla Nova (v1.3: es, en, ca, fr, de) y cómo trata al piloto."""
+    from .i18n import AI_LANG, norm
+    lang = norm(settings.get("idioma"))
+    if lang == "es":
+        return f'Hablas SIEMPRE en español de España y tratas al piloto de "{t}" (de usted).'
+    return (f'Hablas SIEMPRE en {AI_LANG[lang]} (el piloto ha elegido ese idioma; estas instrucciones están en '
+            f'español, pero tú respondes solo en {AI_LANG[lang]}, con trato formal) y tratas al piloto de "{t}". '
+            f'Si una herramienta te da datos en español o inglés, cuéntalos en {AI_LANG[lang]}. '
+            f'Las frases fijas que se te indican abajo dilas también traducidas a {AI_LANG[lang]}.')
+
+
 def system_prompt(settings, memory, gamelog, commands_ok: bool, phrase: str = FINAL_PHRASE) -> str:
     name = settings.get("nombre_asistente")
     t = settings.get("tratamiento")
@@ -66,7 +84,7 @@ def system_prompt(settings, memory, gamelog, commands_ok: bool, phrase: str = FI
     pilot_line = f"\nEl piloto se llama {pilot}; usa su nombre de vez en cuando, con naturalidad." if pilot else ""
     game = gamelog.summary() if gamelog else "Lector del Game.log desactivado."
     return f"""Eres {name}, la inteligencia artificial de a bordo de la nave del piloto en el universo de Star Citizen.
-Hablas SIEMPRE en español de España y tratas al piloto de "{t}".{pilot_line}
+{lang_line(settings, t)}{pilot_line}
 
 ## Cómo hablas
 - Tus respuestas se LEEN EN VOZ ALTA: frases naturales, cortas (1-3 frases salvo que pidan detalle).
@@ -86,10 +104,15 @@ Hablas SIEMPRE en español de España y tratas al piloto de "{t}".{pilot_line}
   2) buscar_wiki_star_citizen (starcitizen.tools, mejor en inglés) para lore y detalles.
   3) uex_* para precios y rutas en directo (uexcorp.space); buscar_en_internet para noticias y lo más reciente.
 - Páginas de consulta del piloto: scmdb.net (misiones, planos, minería del parche LIVE), uexcorp.space (comercio),
-  starcitizen.tools (wiki). No te fíes de tu memoria para estadísticas, precios, planos o novedades.
+  starcitizen.tools (wiki), starmap.space (planetas y lugares: usa datos_ubicacion), verseguide.com (fichas de
+  planetas y lugares). Para DÓNDE COMPRAR un objeto usa donde_comprar (UEX) y dilo tú en voz alta. Para el
+  rendimiento de una nave, spviewer.eu; para calculadoras de carga y rutas, schaulers.com: NO abras el navegador
+  por tu cuenta; si sirve, ofrécelo y ábrelo con abrir_pagina_consulta solo si el piloto dice que sí. No te fíes de tu memoria para estadísticas, precios, planos o novedades.
 - «Plano», «blueprint» y «BP» son lo mismo. Resume en tu voz lo que encuentres; no leas datos crudos.
 
 {unknown_rule(settings, phrase)}
+
+{intro_facts(name)}
 
 ## Lo que sabes del piloto (memoria)
 {memory.facts_text()}
@@ -117,6 +140,10 @@ def _clean_assistant(msg) -> dict:
     return out
 
 
+class Cancelled(Exception):
+    """Se pidió detener a Nova mientras pensaba."""
+
+
 class Brain:
     def __init__(self, settings, tools, memory, gamelog) -> None:
         self.settings, self.tools, self.memory, self.gamelog = settings, tools, memory, gamelog
@@ -124,7 +151,27 @@ class Brain:
         self._cooldown: dict[str, float] = {}
         self.last_model = ""
         self.last_ok = True  # False si no hubo motor disponible o todos fallaron
+        self.last_tools: list[str] = []  # herramientas que usó la última respuesta
+        self.last_invented = False
         self.on_status = lambda s: None
+        self._cancel_gen = 0  # «detener a Nova»: lo que esté pensando se descarta
+
+    def cancel(self) -> None:
+        """Descarta la respuesta en curso (y no ejecuta más herramientas)."""
+        self._cancel_gen += 1
+
+    def _history(self) -> list[dict]:
+        """Lo que se manda de la conversación. Con «ahorro de tokens»: menos turnos y respuestas recortadas."""
+        n = int(self.settings.get("max_turnos_contexto"))
+        if not self.settings.get("ahorro_tokens", True):
+            return self.memory.recent(n)
+        out = []
+        for m in self.memory.recent(min(n, int(self.settings.get("ahorro_turnos", 6)))):
+            text = m.get("content") or ""
+            if len(text) > 600:
+                m = {**m, "content": text[:600].rsplit(" ", 1)[0] + "…"}
+            out.append(m)
+        return out
 
     # ------------------------------------------------------------ proveedores
     def _client(self, provider: str):
@@ -136,7 +183,7 @@ class Brain:
             headers = {"HTTP-Referer": "https://github.com/nova-copiloto", "X-Title": "Nova Copiloto"} \
                 if provider == "openrouter" else None
             self._clients[cache_key] = OpenAI(base_url=PROVIDERS[provider]["base_url"], api_key=key,
-                                              timeout=40, max_retries=0, default_headers=headers)
+                                              timeout=25, max_retries=0, default_headers=headers)
         return self._clients[cache_key]
 
     def chain(self) -> list[dict]:
@@ -171,32 +218,47 @@ class Brain:
         sys_msg = system_prompt(self.settings, self.memory, self.gamelog, True, phrase)
         if extra_system:
             sys_msg += "\n" + extra_system
-        history = self.memory.recent(int(self.settings.get("max_turnos_contexto")))
+        history = self._history()
         base = [{"role": "system", "content": sys_msg}, *history, {"role": "user", "content": user_text}]
         schemas = self.tools.schemas() if use_tools else None
 
         chain = self.chain()
         self.last_ok = False
+        self.last_tools, self.last_invented = [], False
+        gen = self._cancel_gen
         if not chain:
             return ("No tengo ningún motor de IA configurado, señor. Ponga al menos una clave gratuita "
                     "de Gemini o Groq en Ajustes y le prometo ser brillante.")
         executed: list[str] = []
         last_error = ""
+        t0 = time.time()
         for entry in chain:
+            if time.time() - t0 > 60:  # ya se ha esperado bastante: no seguir probando motores
+                last_error = last_error or "tiempo agotado"
+                break
             tag = f"{entry['proveedor']}:{entry['modelo']}"
             messages = list(base)
             if executed:  # un proveedor anterior falló a medias: no repetir teclas
                 messages.append({"role": "system", "content":
                                  "YA se ejecutó esto (NO lo repitas): " + "; ".join(executed)})
             try:
-                reply, info_results = self._loop(entry, messages, schemas, executed)
+                reply, info_results, used = self._loop(entry, messages, schemas, executed, gen)
+            except Cancelled:
+                self.last_ok = False
+                return ""
             except Exception as e:  # noqa: BLE001 — cualquier fallo pasa al siguiente
                 last_error = self._handle_error(tag, e)
                 continue
+            if gen != self._cancel_gen:
+                return ""
+            self.last_tools = used
             self.last_model = tag
             self.last_ok = bool(reply)
             if self.settings.get("inventar_si_no_sabe"):
                 reply = self._guard_invention(reply, info_results, phrase, invention_phrases(self.settings))
+                self.last_invented = has_confession(reply, invention_phrases(self.settings))
+            if info_results and all(any(m in r for m in EMPTY_MARKERS) for r in info_results):
+                self.last_invented = True  # no encontró nada: no es un dato para guardar
             if remember_turn:
                 self.memory.add_turn("user", user_text)
                 self.memory.add_turn("assistant", reply)
@@ -220,15 +282,23 @@ class Brain:
                 self._handle_error(f"{entry['proveedor']}:{entry['modelo']}", e)
         return ""
 
-    def _loop(self, entry: dict, messages: list, schemas, executed: list[str]) -> tuple[str, list[str]]:
+    def _loop(self, entry: dict, messages: list, schemas, executed: list[str],
+              gen: int | None = None) -> tuple[str, list[str], list[str]]:
         info_results: list[str] = []
-        for _ in range(7):
+        used: list[str] = []
+        saving = self.settings.get("ahorro_tokens", True)
+        cap = 3500 if saving else 6000  # cada resultado se reenvía en cada vuelta: mejor corto
+        for _ in range(5 if saving else 7):
+            if gen is not None and gen != self._cancel_gen:
+                raise Cancelled()
             self.on_status(f"Pensando ({entry['modelo']})…")
             resp = self._create(entry, messages, schemas)
+            if gen is not None and gen != self._cancel_gen:
+                raise Cancelled()
             msg = resp.choices[0].message
             calls = getattr(msg, "tool_calls", None) or []
             if not calls:
-                return (msg.content or "").strip(), info_results
+                return (msg.content or "").strip(), info_results, used
             messages.append(_clean_assistant(msg))
             for c in calls:
                 name = c.function.name
@@ -236,8 +306,11 @@ class Brain:
                     args = json.loads(c.function.arguments or "{}")
                 except ValueError:
                     args = {}
+                if gen is not None and gen != self._cancel_gen:
+                    raise Cancelled()
                 self.on_status(f"Usando {name.replace('_', ' ')}…")
-                result = self.tools.call(name, args)
+                result = self.tools.call(name, args)[:cap]
+                used.append(name)
                 log.info("Herramienta %s(%s) -> %s", name, args, result[:160].replace("\n", " "))
                 if name == "ejecutar_comando_nave":
                     executed.append(result)
@@ -246,7 +319,7 @@ class Brain:
                 messages.append({"role": "tool", "tool_call_id": c.id, "content": result})
         # Demasiadas vueltas: pide una respuesta final sin herramientas.
         resp = self._create(entry, messages + [{"role": "system", "content": "Responde ya al piloto con lo que tienes."}], None)
-        return (resp.choices[0].message.content or "").strip(), info_results
+        return (resp.choices[0].message.content or "").strip(), info_results, used
 
     def _handle_error(self, tag: str, e: Exception) -> str:
         status = getattr(e, "status_code", None)

@@ -24,6 +24,8 @@ from pathlib import Path
 
 import numpy as np
 
+from .verseguide import desc_for  # noqa: E402
+
 log = logging.getLogger("nova.holo")
 IS_WINDOWS = sys.platform == "win32"
 
@@ -149,10 +151,13 @@ def card_player(c, motivo: str = "consulta", photo=None, logo=None) -> Card:
     def v(x):
         return "[REDACTED]" if redacted(x) else (x or "—")
 
-    langs = ", ".join(LANGS.get(x.strip().lower(), x.strip()) for x in (c.idiomas or "").split(",") if x.strip())
+    from .i18n import lang as _lang
+    es = _lang() == "es"
+    langs = ", ".join((LANGS.get(x.strip().lower(), x.strip()) if es else x.strip())
+                      for x in (c.idiomas or "").split(",") if x.strip())
     fields = [("APODO EN JUEGO", v(c.apodo_juego or c.handle)), ("HANDLE", v(c.handle)),
               ("EXPEDIENTE UEE", v(c.expediente)),
-              ("FECHA DE ALTA", v(c.alta) if redacted(c.alta) or not c.alta else es_date(c.alta)),
+              ("FECHA DE ALTA", v(c.alta) if redacted(c.alta) or not c.alta or not es else es_date(c.alta)),
               ("IDIOMAS", v(c.idiomas) if redacted(c.idiomas) or not c.idiomas else langs)]
     o = c.org
     org_lines = []
@@ -196,7 +201,7 @@ def card_body(b, texture=None) -> Card:
     meters = [("PELIGRO", b.peligro), ("ECONOMÍA", b.economia), ("POBLACIÓN", b.poblacion)] \
         if any(x is not None for x in (b.peligro, b.economia, b.poblacion)) else []
     return Card(kind="planeta", title=b.nombre.upper(), subtitle=sub,
-                header=(b.designacion or b.codigo).upper(), fields=fields, desc=b.descripcion_es or b.descripcion,
+                header=(b.designacion or b.codigo).upper(), fields=fields, desc=desc_for(b),
                 texture=texture, tint=tuple(int(x * 255) for x in (b.color or [])[:3]), meters=meters,
                 footer="Fuente: verseguide.com · robertsspaceindustries.com", seed=b.nombre)
 
@@ -211,7 +216,7 @@ def card_place(b, p, texture=None) -> Card:
             t += f"  ({_fmt(p.temp_min)} a {_fmt(p.temp_max)} °C)"
         fields.append(("TEMPERATURA", t))
     return Card(kind="lugar", title=p.nombre.upper(), subtitle="Lugar planetario", header="UBICACIÓN DE SUPERFICIE",
-                fields=fields, desc=p.descripcion_es or p.descripcion, texture=texture,
+                fields=fields, desc=desc_for(p), texture=texture,
                 tint=tuple(int(x * 255) for x in (b.color or [])[:3]), footer="Fuente: verseguide.com", seed=p.nombre)
 
 
@@ -332,8 +337,48 @@ class Layout:
     marker: bool = False  # lugar planetario: punto que late sobre el planeta
 
 
+def _t(x: str) -> str:
+    """Etiqueta en mayúsculas traducida («PELIGRO» → «DANGER»)."""
+    from .i18n import lang, tr
+    if lang() == "es":
+        return x
+    out = tr(x)
+    if out == x:
+        low = tr(x.capitalize())
+        out = low.upper() if low != x.capitalize() else x
+    return out
+
+
+def _localized(card: Card) -> Card:
+    """v1.3: etiquetas y textos fijos del holograma en el idioma de NOVA AI (los datos no se tocan)."""
+    from dataclasses import replace
+
+    from .i18n import lang, tr
+    if lang() == "es":
+        return card
+
+    def t(x: str) -> str:
+        if not x:
+            return x
+        out = tr(x)
+        if out == x and x.isupper():  # «APODO EN JUEGO» → busca «Apodo en juego»
+            low = tr(x.capitalize())
+            out = low.upper() if low != x.capitalize() else x
+        return out
+
+    def tv(x):  # valores: solo frases fijas (tipo de lugar, «Organización principal oculta»…)
+        return " · ".join(tr(part) for part in x.split(" · ")) if isinstance(x, str) else x
+
+    return replace(card, header=t(card.header), subtitle=" · ".join(t(x) for x in card.subtitle.split(" · ")),
+                   stamp=t(card.stamp), footer=card.footer.replace("Fuente:", tr("Fuente:")),
+                   fields=[(t(k), tv(v)) for k, v in card.fields], meters=[(t(k), v) for k, v in card.meters],
+                   org_lines=[tv(x) for x in card.org_lines])
+
+
 def render(card: Card, scale: float = 1.0, accent=CYAN) -> Layout:
     from PIL import Image, ImageDraw, ImageFilter
+
+    card = _localized(card)
 
     s = max(0.5, min(scale, 2.5))
     W = int(W_BASE * s)
@@ -455,7 +500,7 @@ def _draw_player(img, d, card, s, top, W, pad, acc, warn, f_lab, f_val, f_small)
         d.pieslice((cx - int(70 * s), cy + int(20 * s), cx + int(70 * s), cy + int(160 * s)), 180, 360, fill=acc + (90,))
     d.rectangle((px + int(12 * s), py + ph - int(42 * s), px + pw - int(12 * s), py + ph - int(10 * s)),
                 fill=(2, 10, 18, 235), outline=acc + (130,))
-    rec = next((v for k, v in card.fields if k == "EXPEDIENTE UEE"), "")
+    rec = next((v for k, v in card.fields if k in ("EXPEDIENTE UEE", _t("EXPEDIENTE UEE"))), "")
     d.text((px + pw // 2, py + ph - int(26 * s)), f"Nº {rec}" if rec not in ("—", "[REDACTED]") else "Nº ——",
            font=font(int(13 * s), "mono"), fill=TEXT + (255,), anchor="mm")
     # Sello
@@ -487,7 +532,7 @@ def _draw_player(img, d, card, s, top, W, pad, acc, warn, f_lab, f_val, f_small)
     oy = top + int(216 * s)
     oh = int(62 * s)
     d.rectangle((x, oy, W - pad, oy + oh), fill=(2, 10, 18, 170), outline=GOLD + (120,))
-    d.text((x, oy - int(17 * s)), "ORGANIZACIÓN PRINCIPAL", font=f_lab, fill=DIM + (255,))
+    d.text((x, oy - int(17 * s)), _t("ORGANIZACIÓN PRINCIPAL"), font=f_lab, fill=DIM + (255,))
     lx = x + int(6 * s)
     tx = lx + int(8 * s)
     if card.logo is not None:
@@ -533,7 +578,7 @@ def _draw_body(img, d, card, s, top, W, pad, acc, f_lab, f_val, layout: Layout) 
             d.text((mx, y), label, font=f_lab, fill=DIM + (255,))
             for k in range(10):
                 on = val is not None and k < val
-                col = (RED if k >= 7 else GOLD if k >= 4 else acc) if label == "PELIGRO" else acc
+                col = (RED if k >= 7 else GOLD if k >= 4 else acc) if label in ("PELIGRO", _t("PELIGRO")) else acc
                 d.rectangle((mx + k * (seg + 2), y + int(16 * s), mx + k * (seg + 2) + seg, y + int(28 * s)),
                             fill=col + ((235,) if on else (40,)))
             mx += int(10 * (seg + 2) + 20 * s)
@@ -550,7 +595,14 @@ class Animation:
 
     APPEAR, LEAVE = 0.95, 0.55
 
-    def __init__(self, layout: Layout, accent=CYAN, opacity: float = 0.9, duration: float = 14.0) -> None:
+    def __init__(self, layout: Layout, accent=CYAN, opacity: float = 0.9, duration: float = 14.0,
+                 level: str = "cine") -> None:
+        self.level = level if level in ("cine", "ligero", "ninguno") else "cine"
+        if self.level == "ligero":
+            self.APPEAR, self.LEAVE = 0.35, 0.3
+        elif self.level == "ninguno":
+            self.APPEAR, self.LEAVE = 0.0, 0.0
+        self._static = None
         self.layout = layout
         base = np.asarray(layout.image, dtype=np.float32) / 255.0
         self.base = base
@@ -577,7 +629,62 @@ class Animation:
         return self.leave_at is not None and now >= self.leave_at + self.LEAVE
 
     def frame(self, now: float) -> np.ndarray:
-        """BGRA premultiplicado uint8."""
+        """BGRA premultiplicado uint8. Tres niveles: cine (todo), ligero (fundidos) y ninguno (estático)."""
+        if self.level == "ninguno":
+            if self._static is None:
+                self._static = self._plain(1.0, 0.1)
+            return self._static
+        if self.level == "ligero":
+            t = now - (self.start if self.start is not None else now)
+            k = _ease(t / self.APPEAR) if t < self.APPEAR else 1.0
+            if self.leave_at is not None and now >= self.leave_at:
+                k *= 1 - _ease((now - self.leave_at) / self.LEAVE)
+            return self._plain(k, t)
+        return self._cine(now)
+
+    def _plain(self, k: float, t: float) -> np.ndarray:
+        """Tarjeta sin efectos (el planeta gira despacio en «ligero»)."""
+        img = self.base.copy()
+        lay = self.layout
+        if lay.planet is not None:
+            p = lay.planet.frame(t * 0.018 + 0.1, tuple(self.acc * 255))
+            x, y = lay.planet_xy
+            hh, ww = p.shape[:2]
+            region = img[y:y + hh, x:x + ww]
+            a = p[..., 3:4]
+            region[..., :3] = p[..., :3] * a + region[..., :3] * (1 - a)
+            region[..., 3:4] = a + region[..., 3:4] * (1 - a)
+        a = np.clip(img[..., 3:4] * self.opacity * k, 0, 1)
+        return self._pack(img[..., :3] * a, a)
+
+    @staticmethod
+    def _pack(c: np.ndarray, a: np.ndarray) -> np.ndarray:
+        h, w = a.shape[:2]
+        out = np.empty((h, w, 4), dtype=np.uint8)
+        out[..., 0] = (c[..., 2] * 255).astype(np.uint8)
+        out[..., 1] = (c[..., 1] * 255).astype(np.uint8)
+        out[..., 2] = (c[..., 0] * 255).astype(np.uint8)
+        out[..., 3] = (a[..., 0] * 255).astype(np.uint8)
+        return out
+
+    def _sparks(self, t: float) -> np.ndarray:
+        """v1.3 «cinematográfico»: motas de luz que suben por la tarjeta."""
+        if not hasattr(self, "_pts"):
+            r = self._rnd
+            self._pts = [(r.uniform(0, self.w), r.uniform(0, self.h), r.uniform(10, 34), r.uniform(0.6, 1.6),
+                          r.uniform(0, 6.28)) for _ in range(max(12, self.w // 22))]
+        glow = np.zeros((self.h, self.w), dtype=np.float32)
+        for x0, y0, speed, size, ph in self._pts:
+            y = (y0 - t * speed) % self.h
+            x = x0 + 4 * np.sin(t * 1.3 + ph)
+            xi, yi = int(x), int(y)
+            if 1 <= xi < self.w - 2 and 1 <= yi < self.h - 2:
+                tw = 0.55 + 0.45 * np.sin(t * 5 + ph)
+                glow[yi - 1:yi + 2, xi - 1:xi + 2] += 0.25 * tw * size
+                glow[yi, xi] += 0.6 * tw
+        return np.clip(glow, 0, 1)[..., None]
+
+    def _cine(self, now: float) -> np.ndarray:
         t = now - (self.start if self.start is not None else now)
         img = self.base.copy()
         lay = self.layout
@@ -638,14 +745,21 @@ class Animation:
             gy, gh, dx = self._g
             img[gy:gy + gh] = np.roll(img[gy:gy + gh], dx, axis=1)
             alpha[gy:gy + gh] = np.roll(alpha[gy:gy + gh], dx, axis=1)
+        # Aberración cromática (rojo y azul separados) al proyectarse y durante los glitches
+        shift = 0
+        if t < self.APPEAR:
+            shift = int(round(6 * (1 - _ease(t / self.APPEAR))))
+        elif now < self._glitch_until:
+            shift = 3
+        if shift:
+            img[..., 0] = np.roll(img[..., 0], shift, axis=1)
+            img[..., 2] = np.roll(img[..., 2], -shift, axis=1)
+        # Motas de luz flotando dentro de la tarjeta
+        sp = self._sparks(t) * img[..., 3:4]
+        img[..., :3] = np.clip(img[..., :3] + sp * (0.5 + 0.5 * self.acc), 0, 1)
+        alpha = np.clip(alpha + sp * 0.5, 0, 1)
         a = np.clip(alpha * self.opacity * k, 0, 1)
-        c = img[..., :3] * a
-        out = np.empty((self.h, self.w, 4), dtype=np.uint8)
-        out[..., 0] = (c[..., 2] * 255).astype(np.uint8)
-        out[..., 1] = (c[..., 1] * 255).astype(np.uint8)
-        out[..., 2] = (c[..., 0] * 255).astype(np.uint8)
-        out[..., 3] = (a[..., 0] * 255).astype(np.uint8)
-        return out
+        return self._pack(img[..., :3] * a, a)
 
 
 def to_rgba_image(bgra: np.ndarray):
@@ -749,8 +863,9 @@ class HoloOverlay(threading.Thread):
                 k = scale_for(rect[3] - rect[1]) * float(self.settings.get("holo_escala", 1.0))
                 acc = card.accent or self._accent()
                 lay = render(card, k, acc)
+                fx = self.settings.get("efectos_nivel", "cine")
                 anim = Animation(lay, acc, float(self.settings.get("holo_opacidad", 0.85)),
-                                 float(self.settings.get("holo_segundos", 14)))
+                                 float(self.settings.get("holo_segundos", 14)), level=fx)
                 self.current = card
                 self._skip.clear()
                 if card.alert:
@@ -785,7 +900,7 @@ class HoloOverlay(threading.Thread):
                     if not shown:
                         win.show()
                         shown = True
-                    time.sleep(1 / 30)
+                    time.sleep(1 / 30 if fx == "cine" else 1 / 20 if fx == "ligero" else 1 / 8)
                 win.hide()
                 self.current = None
             except Exception as e:  # noqa: BLE001 — una tarjeta rota no tumba los hologramas

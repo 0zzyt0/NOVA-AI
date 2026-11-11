@@ -12,6 +12,7 @@ para que Nova sepa al día siguiente dónde lo dejaste.
 from __future__ import annotations
 
 import json
+import re
 import logging
 import os
 import threading
@@ -20,6 +21,8 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from .config import DATA_DIR
+
+from .i18n import tr as _  # noqa: E402
 
 log = logging.getLogger("nova.diary")
 
@@ -119,6 +122,7 @@ LINES = {
     "objetivo": ("OBJETIVO", "{x}{en_nave}{lugar_p}"),
     "jugador_buscado": ("JUGADOR", "{detail}"),
     "objetivo_recompensa": ("OBJETIVO", "{detail}"),
+    "chat_enviado": ("CHAT", "{detail}"),
     "jugador_org": ("JUGADOR", "{detail}"),
     "temporizador_nuevo": ("TEMPORIZADOR", "{x}: termina a las {hora}{lugar_p}"),
     "temporizador_fin": ("TEMPORIZADOR", "Terminado: {x}{lugar_p}"),
@@ -470,32 +474,32 @@ class Diary:
     def summary_text(self, full: bool = False) -> str:
         with self._lock:
             if self.start is None and not self.lines:
-                return previous_summary() or "Todavía no hay datos de esta sesión de juego."
+                return previous_summary() or _("Todavía no hay datos de esta sesión de juego.")
             t = lambda x: time.strftime("%H:%M", time.localtime(x)) if x else "?"
             out = []
             if full:
                 out.append("=" * 30 + " RESUMEN DE LA SESIÓN " + "=" * 20)
-            head = f"Personaje: {self.player or '?'}"
+            head = _("Personaje: {x}", x=self.player or "?")
             if self.version:
-                head += f" · versión {self.version}"
+                head += " · " + _("versión {x}", x=self.version)
             if self.server:
-                head += f" · servidor {self.server}"
+                head += " · " + _("servidor {x}", x=self.server)
             out.append(head)
             end = self.end or self.last_time
-            out.append(f"Sesión: {t(self.start)} – {t(end) if self.end else 'en curso'}"
+            out.append(_("Sesión: {x}", x=f"{t(self.start)} – {t(end) if self.end else _('en curso')}")
                        + (f" ({_fmt_duration(end - self.start)})" if self.start and end else ""))
-            verb = "Dónde dejaste el personaje" if self.end else "Dónde está el personaje"
-            out.append(f"{verb}: {self.location or 'desconocido'}")
+            verb = _("Dónde dejaste el personaje") if self.end else _("Dónde está el personaje")
+            out.append(f"{verb}: {self.location or _('desconocido')}")
             if self.ship_now:
-                out.append(f"Nave en la que estás: {self.ship_now}")
+                out.append(_("Nave en la que estás: {x}", x=self.ship_now))
             if self.ship_piloted:
-                out.append(f"Última nave pilotada: {self.ship_piloted} ({t(self.ship_piloted_at)})")
+                out.append(_("Última nave pilotada: {x}", x=f"{self.ship_piloted} ({t(self.ship_piloted_at)})"))
             state = [self.ship_state]
             if self.ship_delivered:
-                state.append(f"última entrega: {self.ship_delivered}")
+                state.append(_("última entrega: {x}", x=self.ship_delivered))
             if self.last_jump:
                 state.append(f"último salto: {self.last_jump}" + (f" (combustible estimado {self.last_fuel})" if self.last_fuel else ""))
-            out.append("Estado de la nave: " + " · ".join(state))
+            out.append(_("Estado de la nave: {x}", x=" · ".join(_(x) for x in state if x)))
             if self.ships:
                 out.append("Naves a las que has subido: " + ", ".join(f"{s} (×{n})" for s, n in self.ships.most_common()))
             for ship, c in self.crew.items():
@@ -541,9 +545,9 @@ class Diary:
             if self.places and full:
                 out.append("Recorrido: " + " → ".join(self.places[-20:]))
             if full:
-                out.append("Nota: desde la versión 4.0.2 el juego solo anota las muertes, incapacitaciones y naves "
-                           "destruidas en las que participas tú; el resto no llega al Game.log.")
-            return "\n".join(out)
+                out.append(_("Nota: desde la versión 4.0.2 el juego solo anota las muertes, incapacitaciones y naves "
+                             "destruidas en las que participas tú; el resto no llega al Game.log."))
+            return "\n".join(_line(x) for x in out)
 
     def recent_files(self, n: int = 10) -> list[dict]:
         try:
@@ -551,6 +555,24 @@ class Diary:
         except OSError:
             return []
         return [{"nombre": p.name, "ruta": str(p), "tam": p.stat().st_size} for p in files]
+
+
+_PIECE = re.compile(r"^(?P<lead>[^:()]{2,60}?)(?P<sep>: | \(|$)(?P<rest>.*)$", re.S)
+
+
+def _line(text: str) -> str:
+    """Traduce las etiquetas de una línea del resumen («Muertes: 2 · bajas: 5» → «Deaths: 2 · kills: 5»)."""
+    from .i18n import lang
+    if lang() == "es" or not text:
+        return text
+    out = []
+    for piece in text.split(" · "):
+        m = _PIECE.match(piece)
+        if m and m.group("sep"):
+            out.append(_(m.group("lead")) + m.group("sep") + m.group("rest"))
+        else:
+            out.append(_(piece))
+    return " · ".join(out)
 
 
 def last_location() -> str:

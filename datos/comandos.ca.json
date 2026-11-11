@@ -1,0 +1,722 @@
+{
+ "_info": "Comandos de fábrica de NOVA AI traducidos (ca). Se suman a datos\\comandos.json.",
+ "categorias": {
+  "Combate": "Combat",
+  "Despegue y aterrizaje": "Enlairament i aterratge",
+  "Energía y sistemas": "Energia i sistemes",
+  "Interfaz": "Interfície",
+  "Navegación": "Navegació",
+  "Secuencias": "Seqüències",
+  "Minería y salvamento": "Mineria i salvament",
+  "Personales": "Personals",
+  "Del juego (automático)": "Del joc (automàtic)"
+ },
+ "comandos": {
+  "preparar_vuelo": {
+   "nombre": "Preparar la nau per al vol (Flight Ready)",
+   "frases": [
+    "prepara la nau",
+    "preparar nau",
+    "llest per volar",
+    "arrenca la nau",
+    "arrencar nau",
+    "encén la nau",
+    "flight ready"
+   ],
+   "respuestas": [
+    "Sistemes en línia. Llesta per volar, {t}.",
+    "Motors calents i cafè fred. Llesta quan vostè digui, {t}."
+   ]
+  },
+  "tren_bajar": {
+   "nombre": "Baixar el tren d'aterratge",
+   "frases": [
+    "baixa el tren d'aterratge",
+    "baixar tren d'aterratge",
+    "baixa el tren",
+    "baixar tren",
+    "desplega el tren",
+    "tren avall",
+    "treu les potes"
+   ],
+   "respuestas": [
+    "Tren d'aterratge desplegat, {t}.",
+    "Tren avall. Potes fora."
+   ]
+  },
+  "tren_subir": {
+   "nombre": "Pujar el tren d'aterratge",
+   "frases": [
+    "puja el tren d'aterratge",
+    "pujar tren d'aterratge",
+    "puja el tren",
+    "pujar tren",
+    "recull el tren",
+    "tren amunt",
+    "fica les potes"
+   ],
+   "respuestas": [
+    "Tren recollit, {t}.",
+    "Tren amunt. Ara sí que semblem una nau seriosa."
+   ]
+  },
+  "aterrizaje_auto": {
+   "nombre": "Aterratge automàtic",
+   "frases": [
+    "aterratge automàtic",
+    "aterra la nau",
+    "aterra tu",
+    "autoaterratge",
+    "posa la nau"
+   ],
+   "respuestas": [
+    "Aterratge automàtic activat. Agafo els comandaments, {t}.",
+    "Aterrant. Prometo no ratllar la pintura."
+   ]
+  },
+  "pedir_permiso": {
+   "nombre": "Demanar permís d'aterratge/enlairament a la torre",
+   "frases": [
+    "sol·licita aterratge",
+    "demana permís per aterrar",
+    "sol·licita enlairament",
+    "demana permís per enlairar-se",
+    "truca a la torre",
+    "contacta amb la torre",
+    "obre el hangar"
+   ],
+   "respuestas": [
+    "Sol·licitud enviada a la torre, {t}.",
+    "Trucant a control. Espero que aquesta vegada no ens posin a la cua."
+   ]
+  },
+  "vtol": {
+   "nombre": "Alternar mode VTOL",
+   "frases": [
+    "mode vtol",
+    "activa vtol",
+    "desactiva vtol",
+    "alterna vtol"
+   ],
+   "respuestas": [
+    "Mode VTOL alternat."
+   ]
+  },
+  "salir_asiento": {
+   "nombre": "Aixecar-se del seient",
+   "frases": [
+    "surt del seient",
+    "aixeca't",
+    "aixecar-se"
+   ],
+   "respuestas": [
+    "Sortint del seient. Estiri's una mica, {t}."
+   ]
+  },
+  "escudos_on": {
+   "nombre": "Activar escuts",
+   "frases": [
+    "activa els escuts",
+    "activar escuts",
+    "escuts amunt",
+    "aixeca els escuts",
+    "puja els escuts"
+   ],
+   "respuestas": [
+    "Escuts activats, {t}.",
+    "Escuts amunt. Que provin ara."
+   ]
+  },
+  "escudos_off": {
+   "nombre": "Desactivar escuts",
+   "frases": [
+    "desactiva els escuts",
+    "desactivar escuts",
+    "escuts avall",
+    "baixa els escuts",
+    "apaga els escuts"
+   ],
+   "respuestas": [
+    "Escuts desactivats.",
+    "Escuts avall. Ara anem a pit descobert, {t}."
+   ]
+  },
+  "energia_on": {
+   "nombre": "Activar energia principal",
+   "frases": [
+    "activa l'energia",
+    "activar energia",
+    "encén l'energia",
+    "energia principal",
+    "dona energia"
+   ],
+   "respuestas": [
+    "Energia principal en línia.",
+    "Llum, força i una mica de fe. Energia restablerta, {t}."
+   ]
+  },
+  "energia_off": {
+   "nombre": "Desactivar energia principal",
+   "frases": [
+    "desactiva l'energia",
+    "desactivar energia",
+    "apaga l'energia",
+    "talla l'energia",
+    "mode apagat"
+   ],
+   "respuestas": [
+    "Energia principal tallada.",
+    "Apagant-ho tot. Si sent sorolls estranys, no he estat jo."
+   ]
+  },
+  "armas_on": {
+   "nombre": "Activar armes",
+   "frases": [
+    "activa les armes",
+    "activar armes",
+    "armes a punt",
+    "armes en línia",
+    "prepara les armes"
+   ],
+   "respuestas": [
+    "Armes en línia, {t}.",
+    "Armes a punt. Triï a qui no li caurà bé avui."
+   ]
+  },
+  "armas_off": {
+   "nombre": "Desactivar armes",
+   "frases": [
+    "desactiva les armes",
+    "desactivar armes",
+    "armes fora",
+    "desa les armes"
+   ],
+   "respuestas": [
+    "Armes desactivades.",
+    "Armes fora de línia. Mode pacifista activat."
+   ]
+  },
+  "propulsores": {
+   "nombre": "Alternar propulsors",
+   "frases": [
+    "activa els propulsors",
+    "desactiva els propulsors",
+    "activa els motors",
+    "apaga els motors",
+    "encén els motors",
+    "alterna propulsors"
+   ],
+   "respuestas": [
+    "Propulsors alternats."
+   ]
+  },
+  "luces": {
+   "nombre": "Alternar llums exteriors",
+   "frases": [
+    "llums",
+    "encén els llums",
+    "apaga els llums",
+    "fars"
+   ],
+   "respuestas": [
+    "Llums alternats.",
+    "Que es faci la llum. O no, segons com estiguessin."
+   ]
+  },
+  "modo_maestro": {
+   "nombre": "Canviar mode mestre (NAV / SCM)",
+   "frases": [
+    "mode quàntic",
+    "mode combat",
+    "mode de combat",
+    "mode navegació",
+    "canvia de mode",
+    "mode scm",
+    "mode nav"
+   ],
+   "respuestas": [
+    "Canviant mode mestre.",
+    "Mode canviat, {t}."
+   ]
+  },
+  "salto_cuantico": {
+   "nombre": "Iniciar salt quàntic",
+   "frases": [
+    "salt quàntic",
+    "inicia el salt",
+    "salta",
+    "activa el quàntic"
+   ],
+   "respuestas": [
+    "Motor quàntic carregant. Agafi's fort, {t}.",
+    "Saltant. Ens veiem a l'altra banda."
+   ]
+  },
+  "crucero": {
+   "nombre": "Alternar control de creuer",
+   "frases": [
+    "control de creuer",
+    "mode creuer",
+    "creuer"
+   ],
+   "respuestas": [
+    "Control de creuer alternat."
+   ]
+  },
+  "desacoplado": {
+   "nombre": "Alternar mode desacoblat",
+   "frases": [
+    "mode desacoblat",
+    "desacobla",
+    "acobla",
+    "mode acoblat"
+   ],
+   "respuestas": [
+    "Mode desacoblat alternat."
+   ]
+  },
+  "freno": {
+   "nombre": "Fre espacial",
+   "frases": [
+    "fre",
+    "frena",
+    "fre espacial",
+    "atura la nau",
+    "alto"
+   ],
+   "respuestas": [
+    "Frenant.",
+    "Fre a fons, {t}."
+   ]
+  },
+  "ping": {
+   "nombre": "Ping de radar",
+   "frases": [
+    "ping",
+    "ping de radar",
+    "escaneja la zona",
+    "radar"
+   ],
+   "respuestas": [
+    "Pols enviat.",
+    "Escanejant la zona, {t}."
+   ]
+  },
+  "modo_escaneo": {
+   "nombre": "Mode escaneig",
+   "frases": [
+    "mode escaneig",
+    "mode escàner",
+    "activa l'escàner"
+   ],
+   "respuestas": [
+    "Mode escaneig alternat."
+   ]
+  },
+  "objetivo_hostil": {
+   "nombre": "Següent objectiu hostil",
+   "frases": [
+    "següent hostil",
+    "objectiu hostil",
+    "fixa hostil",
+    "següent enemic",
+    "fixa enemic"
+   ],
+   "respuestas": [
+    "Hostil fixat.",
+    "En tinc un de lleig a la mira, {t}."
+   ]
+  },
+  "objetivo_atacante": {
+   "nombre": "Següent atacant",
+   "frases": [
+    "següent atacant",
+    "qui em dispara",
+    "fixa atacant",
+    "qui ens dispara"
+   ],
+   "respuestas": [
+    "Atacant fixat, {t}."
+   ]
+  },
+  "objetivo_siguiente": {
+   "nombre": "Següent objectiu",
+   "frases": [
+    "següent objectiu",
+    "canvia d'objectiu",
+    "objectiu",
+    "fixa l'objectiu",
+    "fixa objectiu",
+    "marca l'objectiu",
+    "selecciona objectiu"
+   ],
+   "respuestas": [
+    "Objectiu canviat."
+   ]
+  },
+  "objetivo_quitar": {
+   "nombre": "Treure objectiu",
+   "frases": [
+    "treu l'objectiu",
+    "deixa anar l'objectiu",
+    "allibera l'objectiu",
+    "neteja objectiu"
+   ],
+   "respuestas": [
+    "Objectiu alliberat."
+   ]
+  },
+  "bengalas": {
+   "nombre": "Llançar bengales",
+   "frases": [
+    "bengales",
+    "llança bengales",
+    "esquers",
+    "contramesures"
+   ],
+   "respuestas": [
+    "Bengales fora!",
+    "Esquers llançats. Festa de llums."
+   ]
+  },
+  "chaff": {
+   "nombre": "Llançar interferències (chaff)",
+   "frases": [
+    "chaff",
+    "llança chaff",
+    "interferències",
+    "llança interferències",
+    "soroll"
+   ],
+   "respuestas": [
+    "Chaff fora!"
+   ]
+  },
+  "gimbal": {
+   "nombre": "Alternar gimbal d'armes",
+   "frases": [
+    "gimbal",
+    "canvia el gimbal",
+    "mode gimbal",
+    "armes fixes"
+   ],
+   "respuestas": [
+    "Mode de gimbal canviat."
+   ]
+  },
+  "modo_operador": {
+   "nombre": "Següent mode d'operador",
+   "frases": [
+    "mode operador",
+    "següent mode",
+    "canvia el mode d'operador"
+   ],
+   "respuestas": [
+    "Mode d'operador canviat."
+   ]
+  },
+  "soltar_carga": {
+   "nombre": "Expulsar la càrrega",
+   "frases": [
+    "expulsa la càrrega confirmat",
+    "deixa anar la càrrega confirmat"
+   ],
+   "respuestas": [
+    "Càrrega expulsada. Espero que no fos res car, {t}."
+   ]
+  },
+  "mobiglas": {
+   "nombre": "Obrir el mobiGlas",
+   "frases": [
+    "mobiglas",
+    "obre el mobiglas"
+   ],
+   "respuestas": [
+    "MobiGlas."
+   ]
+  },
+  "mapa": {
+   "nombre": "Obrir el mapa estel·lar",
+   "frases": [
+    "mapa",
+    "obre el mapa",
+    "mapa estel·lar"
+   ],
+   "respuestas": [
+    "Mapa estel·lar."
+   ]
+  },
+  "camara": {
+   "nombre": "Canviar càmera",
+   "frases": [
+    "canvia la càmera",
+    "càmera",
+    "vista exterior",
+    "tercera persona"
+   ],
+   "respuestas": [
+    "Càmera canviada."
+   ]
+  },
+  "secuencia_despegue": {
+   "nombre": "Seqüència completa d'enlairament",
+   "frases": [
+    "seqüència d'enlairament",
+    "inicia l'enlairament",
+    "enlairem-nos",
+    "enlaira't"
+   ],
+   "respuestas": [
+    "Iniciant la seqüència d'enlairament. Corda't el cinturó, {t}.",
+    "Enlairament en marxa. Si m'oblido alguna cosa, faci veure que era expressament."
+   ]
+  },
+  "secuencia_aterrizaje": {
+   "nombre": "Seqüència completa d'aterratge",
+   "frases": [
+    "seqüència d'aterratge",
+    "inicia l'aterratge",
+    "porta'ns avall",
+    "aterrem"
+   ],
+   "respuestas": [
+    "Seqüència d'aterratge iniciada, {t}.",
+    "Baixant. Mantingui les mans dins de la cabina."
+   ]
+  }
+ },
+ "acciones": {
+  "v_flightready": [
+   "Preparar la nau per al vol",
+   [
+    "prepara la nau"
+   ]
+  ],
+  "v_toggle_landing_system": [
+   "Tren d'aterratge",
+   [
+    "tren d'aterratge"
+   ]
+  ],
+  "v_autoland": [
+   "Aterratge automàtic",
+   [
+    "aterratge automàtic"
+   ]
+  ],
+  "v_atc_request": [
+   "Demanar permís a la torre",
+   [
+    "truca a la torre"
+   ]
+  ],
+  "v_vtol_toggle": [
+   "Mode VTOL",
+   [
+    "mode vtol"
+   ]
+  ],
+  "pl_exit": [
+   "Aixecar-se del seient",
+   [
+    "aixeca't"
+   ]
+  ],
+  "v_power_toggle": [
+   "Energia principal",
+   [
+    "energia principal"
+   ]
+  ],
+  "v_power_toggle_shields": [
+   "Energia d'escuts",
+   [
+    "escuts"
+   ]
+  ],
+  "v_power_toggle_weapons": [
+   "Energia d'armes",
+   [
+    "armes"
+   ]
+  ],
+  "v_power_toggle_thrusters": [
+   "Energia de propulsors",
+   [
+    "propulsors"
+   ]
+  ],
+  "v_lights": [
+   "Llums exteriors",
+   [
+    "llums"
+   ]
+  ],
+  "v_doors_open_all": [
+   "Obrir totes les portes",
+   [
+    "obre les portes"
+   ]
+  ],
+  "v_doors_close_all": [
+   "Tancar totes les portes",
+   [
+    "tanca les portes"
+   ]
+  ],
+  "v_doors_lock_all": [
+   "Bloquejar portes",
+   [
+    "bloqueja les portes"
+   ]
+  ],
+  "v_doors_unlock_all": [
+   "Desbloquejar portes",
+   [
+    "desbloqueja les portes"
+   ]
+  ],
+  "v_master_mode_cycle": [
+   "Canviar mode mestre (NAV/SCM)",
+   [
+    "canvia de mode"
+   ]
+  ],
+  "v_master_mode_set_nav": [
+   "Mode navegació (NAV)",
+   [
+    "mode navegació"
+   ]
+  ],
+  "v_master_mode_set_scm": [
+   "Mode combat (SCM)",
+   [
+    "mode combat"
+   ]
+  ],
+  "v_toggle_qdrive_engagement": [
+   "Salt quàntic",
+   [
+    "salt quàntic"
+   ]
+  ],
+  "v_toggle_quantum_mode": [
+   "Mode quàntic",
+   [
+    "mode quàntic"
+   ]
+  ],
+  "v_ifcs_throttle_swap_mode": [
+   "Control de creuer",
+   [
+    "control de creuer"
+   ]
+  ],
+  "v_ifcs_vector_decoupling_toggle": [
+   "Mode desacoblat",
+   [
+    "mode desacoblat"
+   ]
+  ],
+  "v_space_brake": [
+   "Fre espacial",
+   [
+    "fre"
+   ]
+  ],
+  "v_invoke_ping": [
+   "Ping de radar",
+   [
+    "ping"
+   ]
+  ],
+  "v_toggle_scan_mode": [
+   "Mode escàner",
+   [
+    "mode escàner"
+   ]
+  ],
+  "v_starmap": [
+   "Mapa estel·lar",
+   [
+    "mapa"
+   ]
+  ],
+  "mobiglas": [
+   "mobiGlas",
+   [
+    "mobiglas"
+   ]
+  ],
+  "v_view_cycle_fwd": [
+   "Canviar càmera",
+   [
+    "càmera"
+   ]
+  ],
+  "v_target_cycle_hostile_fwd": [
+   "Següent objectiu hostil",
+   [
+    "següent hostil"
+   ]
+  ],
+  "v_target_cycle_attacker_fwd": [
+   "Següent atacant",
+   [
+    "següent atacant"
+   ]
+  ],
+  "v_target_cycle_all_fwd": [
+   "Següent objectiu",
+   [
+    "següent objectiu"
+   ]
+  ],
+  "v_target_unlock": [
+   "Treure objectiu",
+   [
+    "treu l'objectiu"
+   ]
+  ],
+  "v_weapon_countermeasure_decoy_launch": [
+   "Llançar bengales",
+   [
+    "bengales"
+   ]
+  ],
+  "v_weapon_countermeasure_noise_launch": [
+   "Llançar chaff",
+   [
+    "chaff"
+   ]
+  ],
+  "v_operator_mode_cycle_forward": [
+   "Següent mode d'operador",
+   [
+    "següent mode"
+   ]
+  ],
+  "v_toggle_missile_mode": [
+   "Mode míssils",
+   [
+    "mode míssils"
+   ]
+  ],
+  "v_toggle_mining_mode": [
+   "Mode mineria",
+   [
+    "mode mineria"
+   ]
+  ],
+  "v_toggle_salvage_mode": [
+   "Mode salvament",
+   [
+    "mode salvament"
+   ]
+  ],
+  "v_jettison_volatile_cargo": [
+   "Expulsar la càrrega",
+   []
+  ]
+ }
+}

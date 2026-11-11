@@ -353,17 +353,18 @@ class RSI:
 
 
 def status_text(st: dict) -> str:
+    from .i18n import tr as _
     comp = st.get("componentes") or {}
     es = {"Operational": "operativo", "Degraded Performance": "rendimiento degradado", "Degraded": "degradado",
           "Partial Outage": "caída parcial", "Major Outage": "caída grave", "Under Maintenance": "en mantenimiento",
           "Maintenance": "en mantenimiento", "Down": "caído", "Disrupted": "con incidencias"}
     names = {"Platform": "Plataforma (web y lanzador)", "Persistent Universe": "Universo persistente",
              "Arena Commander": "Arena Commander", "Electronic Access": "Electronic Access"}
-    parts = [f"{names.get(k, k)}: {es.get(v, v)}" for k, v in comp.items()]
+    parts = [f"{_(names.get(k, k))}: {_(es.get(v, v))}" for k, v in comp.items()]
     for a in st.get("avisos") or []:
         when = time.strftime("%d/%m %H:%M", time.localtime(a["fecha"]))
-        parts.append(("Programado" if a.get("futuro") else "Aviso") + f" ({when}): {a['titulo']}")
+        parts.append(_("Programado" if a.get("futuro") else "Aviso") + f" ({when}): {a['titulo']}")
     if not parts:
-        return "No he podido leer el estado de los servidores."
-    head = "Todo operativo." if st.get("ok") and not st.get("avisos") else "Atención a los servidores:"
+        return _("No he podido leer el estado de los servidores.")
+    head = _("Todo operativo.") if st.get("ok") and not st.get("avisos") else _("Atención a los servidores:")
     return head + "\n" + "\n".join("- " + p for p in parts)

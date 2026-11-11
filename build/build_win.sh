@@ -7,6 +7,11 @@
 #   NOVA AI Setup.exe   instalador todo en uno (lleva el programa dentro)
 #   Nova/               carpeta lista para comprimir (con el instalador ligero dentro)
 #
+# Por fases (para firmar con SignPath en GitHub Actions; ver .github/workflows/compilar.yml):
+#   NOVA_STAGE=exes  build/build_win.sh   solo NOVA AI.exe, Desinstalar NOVA AI.exe y el instalador ligero
+#   (firmarlos)
+#   NOVA_STAGE=pack  build/build_win.sh   empaqueta con esos .exe ya firmados el instalador todo en uno y dist/Nova
+#
 # Claves de fábrica: si existe recursos/llave_claves.bin (no está en el repositorio), el instalador
 # la incluye y el programa trae claves de IA de serie. Sin ella, cada usuario pone las suyas.
 set -e
@@ -22,8 +27,10 @@ $PY $B/winres.py $B/goapp/cmd/desinstalar/rsrc_windows_amd64.syso $R/nova_desins
 
 export GOOS=windows GOARCH=amd64 CGO_ENABLED=0
 GOFLAGS_LD="-H windowsgui -s -w"
+STAGE=${NOVA_STAGE:-all}
 cd $B/goapp
 mkdir -p $ROOT/instalador/bin
+if [ "$STAGE" != "pack" ]; then
 echo "· NOVA AI.exe y Desinstalar NOVA AI.exe"
 go build -trimpath -ldflags "$GOFLAGS_LD" -o "$ROOT/instalador/bin/NOVA AI.exe" ./cmd/lanzador
 go build -trimpath -ldflags "$GOFLAGS_LD" -o "$ROOT/instalador/bin/Desinstalar NOVA AI.exe" ./cmd/desinstalar
@@ -31,6 +38,11 @@ go build -trimpath -ldflags "$GOFLAGS_LD" -o "$ROOT/instalador/bin/Desinstalar N
 echo "· Instalador ligero (usa la carpeta en la que está)"
 : > cmd/setup/payload.zip
 go build -trimpath -ldflags "$GOFLAGS_LD" -o "$ROOT/NOVA AI Setup.exe" ./cmd/setup
+fi
+if [ "$STAGE" = "exes" ]; then echo "Listo (fase exes): instalador/bin/*.exe y NOVA AI Setup.exe"; exit 0; fi
+for f in "$ROOT/instalador/bin/NOVA AI.exe" "$ROOT/instalador/bin/Desinstalar NOVA AI.exe" "$ROOT/NOVA AI Setup.exe"; do
+  [ -s "$f" ] || { echo "Falta $f (compila antes la fase exes)"; exit 1; }
+done
 
 echo "· Instalador todo en uno"
 cd $ROOT
@@ -39,8 +51,10 @@ TMPZIP=$(mktemp -d)/payload.zip
 $PY - "$TMPZIP" <<'PYEOF'
 import sys, zipfile, os
 out = sys.argv[1]
-items = ["core", "gui", "recursos", "instalador", "nova.py", "requirements.txt", "LEEME.md", "NORMAS_Y_PRIVACIDAD.md",
-         "LICENCIA.txt", "INICIAR.bat", "DEPURAR.bat", "DESINSTALAR.bat", "INSTALAR_CONSOLA.bat", "datos/comandos.json"]
+import glob
+items = ["core", "gui", "recursos", "instalador", "nova.py", "requirements.txt", "LEEME.md", "LICENSE", "LICENCIA.txt", "INICIAR.bat",
+         "DEPURAR.bat", "DESINSTALAR.bat", "INSTALAR_CONSOLA.bat"] + sorted(glob.glob("NORMAS_Y_PRIVACIDAD*.md")) \
+        + sorted(glob.glob("datos/comandos*.json"))
 with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
     for it in items:
         if os.path.isfile(it):
@@ -62,7 +76,7 @@ cd $B/goapp && go build -trimpath -ldflags "$GOFLAGS_LD" -o "$DIST/NOVA AI Setup
 echo "· Carpeta Nova para el .zip"
 rm -rf "$DIST/Nova"; mkdir -p "$DIST/Nova/datos"
 cd $ROOT
-cp -r core gui recursos instalador nova.py requirements.txt LEEME.md NORMAS_Y_PRIVACIDAD.md LICENCIA.txt *.bat "NOVA AI Setup.exe" "$DIST/Nova/"
-cp datos/comandos.json "$DIST/Nova/datos/"
+cp -r core gui recursos instalador nova.py requirements.txt LEEME.md NORMAS_Y_PRIVACIDAD*.md LICENSE LICENCIA.txt *.bat "NOVA AI Setup.exe" "$DIST/Nova/"
+cp datos/comandos*.json "$DIST/Nova/datos/"
 [ -f recursos/llave_claves.bin ] && echo "  (con claves de fábrica)" || echo "  (sin claves de fábrica: cada usuario pondrá las suyas)"
 echo "Listo: $DIST"

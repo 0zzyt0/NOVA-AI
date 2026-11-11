@@ -22,14 +22,14 @@ window.V13 = (() => {
     $("#updPct").textContent = st === "listo" ? "Descargado · abriendo el instalador…" : Math.round((info.progreso || 0) * 100) + " %";
     $$("[data-upd]").forEach((b) => (b.disabled = busy));
     const chip = $("#updChip");
-    const map = { al_dia: "AL DÍA", disponible: "NUEVA " + (info.nueva || ""), descargando: "DESCARGANDO", listo: "LISTA",
-      error: "SIN CONEXIÓN", comprobando: "COMPROBANDO…", inactivo: "—" };
+    const map = { al_dia: T("AL DÍA"), disponible: T("NUEVA {v}", { v: info.nueva || "" }), descargando: T("DESCARGANDO"), listo: T("LISTA"),
+      error: T("SIN CONEXIÓN"), comprobando: T("COMPROBANDO…"), inactivo: "—" };
     chip.textContent = map[st] || "—";
     chip.className = "chip" + (st === "disponible" || st === "listo" ? " warn" : st === "error" ? " dim" : "");
-    let txt = "Versión instalada: " + (info.actual || "?");
-    if (info.comprobado) txt += " · comprobado a las " + new Date(info.comprobado * 1000).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
-    if (st === "error" && info.error) txt += " · " + info.error;
-    if (info.eleccion === "al_cerrar") txt += " · se instalará al cerrar NOVA";
+    let txt = T("Versión instalada: {v}", { v: info.actual || "?" });
+    if (info.comprobado) txt += " · " + T("comprobado a las {h}", { h: new Date(info.comprobado * 1000).toLocaleTimeString(LOCALE, { hour: "2-digit", minute: "2-digit" }) });
+    if (st === "error" && info.error) txt += " · " + T(info.error);
+    if (info.eleccion === "al_cerrar") txt += " · " + T("se instalará al cerrar NOVA");
     $("#updInfo").textContent = txt;
     $("#btnUpdShow").hidden = !(st === "disponible" || st === "listo");
   }

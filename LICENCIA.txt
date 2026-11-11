@@ -1,34 +1,49 @@
 ===============================================================================
   NOVA AI · Asistente de vuelo por voz para Star Citizen
-  Versión oficial 1.0
+  Versión oficial 1.3
   Copyright (c) 2026 Aaron B. Roldan · Gametag de Star Citizen: 0zzyt0
   Desarrollado con el motor de IA Claude Opus 5.5 (Anthropic)
 ===============================================================================
 
-LICENCIA DE USO: LIBRE USO Y MODIFICACIÓN
------------------------------------------
+LICENCIA DE USO: MIT
+--------------------
 
-1. Libre uso.
-   Puedes usar NOVA AI de forma gratuita, en tantos equipos como quieras.
+NOVA AI es software libre bajo la licencia MIT (aprobada por la Open Source
+Initiative). El texto que vale legalmente es el original en inglés, que está
+abajo y en el archivo LICENSE. En resumen:
 
-2. Libre modificación y distribución.
-   Puedes estudiar el código, modificarlo, adaptarlo a tus necesidades y
-   compartir tus propias versiones.
+  - Puedes usar NOVA AI gratis, en tantos equipos como quieras.
+  - Puedes estudiar el código, modificarlo, compartirlo y publicar tus propias
+    versiones, también dentro de otros proyectos.
+  - La única condición: conserva el aviso de copyright y esta licencia en
+    las copias o versiones que compartas (así se sabe que se basan en NOVA AI,
+    de Aaron B. Roldan · 0zzyt0).
+  - Se ofrece "tal cual", sin garantías: su autor no se hace responsable de
+    pérdidas o daños derivados de su uso, incluidas las sanciones dentro del
+    juego. Úsalo con sentido común y respetando las condiciones de Star Citizen.
 
-3. Reconocimiento (te lo pedimos por favor).
-   Si usas este proyecto o lo modificas, menciona de dónde has sacado las
-   ideas y cuál es tu base. Por ejemplo:
+MIT License
 
-       "Basado en NOVA AI, de Aaron B. Roldan (0zzyt0)."
+Copyright (c) 2026 Aaron B. Roldan (0zzyt0)
 
-   Mantén también este archivo junto a tu versión, para que quien la reciba
-   sepa de dónde viene y qué derechos de terceros debe respetar.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-4. Sin garantía.
-   NOVA AI se ofrece gratis y "tal cual", sin garantías de ningún tipo. Su
-   autor no se hace responsable de pérdidas o daños derivados de su uso,
-   incluidas las sanciones que pudieran producirse dentro del juego. Úsalo con
-   sentido común y respetando las condiciones de uso de Star Citizen.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
 
 Esta licencia cubre únicamente el código y los recursos propios de NOVA AI. NO
 cubre el contenido de terceros descrito a continuación, que conserva sus
@@ -52,9 +67,13 @@ FUENTES DE DATOS
 ----------------
 
 Las páginas de consulta scmdb.net (https://scmdb.net), UEX Corp
-(https://uexcorp.space) y VerseGuide (https://verseguide.com) son propiedad de
-sus respectivos autores, tienen sus propias condiciones de uso y sus contenidos
-están protegidos. Las fichas de jugadores, sus fotos de perfil y los logotipos
+(https://uexcorp.space), VerseGuide (https://verseguide.com), Star Citizen Wiki
+(https://starcitizen.tools), StarMap (https://starmap.space), SC Ships
+Performances Viewer (https://www.spviewer.eu), Universal Item Finder de
+Meepowski (https://finder.cstone.space) y SC Haulers (https://schaulers.com)
+son propiedad de sus respectivos autores, tienen sus propias condiciones de uso
+y sus contenidos están protegidos. NOVA AI no sería posible sin ellas: todo el
+mérito de su información es de quienes las crean y las mantienen. Las fichas de jugadores, sus fotos de perfil y los logotipos
 de las organizaciones vienen de las páginas públicas de robertsspaceindustries.com
 y pertenecen a sus titulares.
 

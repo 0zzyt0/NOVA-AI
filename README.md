@@ -5,13 +5,14 @@
 <h1 align="center">NOVA AI</h1>
 <p align="center"><b>Asistente de vuelo por voz para Star Citizen</b><br>
 Te escucha, te responde con voz natural, pulsa las teclas del juego por ti y sabe qué está pasando en tu partida.<br>
-<i>Versión oficial 1.2.1 · Windows 10/11 · en español · todo gratis</i></p>
+<i>Versión oficial 1.3 · Windows 10/11 · español, English, català, français, Deutsch · todo gratis</i></p>
 
 <p align="center">
   <a href="../../releases/latest"><b>⬇ Descargar NOVA AI Setup.exe</b></a> ·
   <a href="LEEME.md">Guía completa (LEEME)</a> ·
   <a href="../../releases/latest">Manual de usuario (PDF)</a> ·
-  <a href="LICENCIA.txt">Licencia</a>
+  <a href="LICENSE">Licencia MIT</a> ·
+  <a href="#code-signing-policy">Code signing policy</a>
 </p>
 
 ![Cabina de NOVA AI](docs/img/cabina.jpg)
@@ -26,6 +27,24 @@ Te escucha, te responde con voz natural, pulsa las teclas del juego por ti y sab
 - **Star Citizen en español:** instala y mantiene al día la traducción de la comunidad (0zzyt0) con un clic, y te avisa cada 3 meses.
 - **Brilla en el juego:** un overlay con su logo que cambia de color: escuchando, entendido, buscando o hablando.
 - **Recuerda:** lo que le cuentas, la conversación y dónde lo dejaste, aunque cierres el programa.
+
+### Novedades de la 1.3
+
+- **Cinco idiomas** (español, inglés, catalán, francés y alemán), elegibles en el instalador o en Ajustes: ventana, voz de Nova, lo que entiende, comandos de voz, hologramas y manual.
+- **«Add your Language global.ini of Star Citizen [HERE]»**: instala el global.ini de la comunidad en tu idioma (con copia de seguridad y user.cfg).
+- **Ventana nueva «Cristal holográfico»** ordenada por tareas y **efectos en tres niveles** (cinematográficos, ligeros o sin efectos) para el logo y los hologramas.
+- **«¿Dónde compro un P4-AR?»** por voz con los datos de UEX, sin abrir el navegador, y **comprobación de las páginas de consulta** desde la app.
+
+### Novedades de la 1.2.2
+
+- **Interruptor «NOVA ACTIVA»** en la Cabina: detiene a Nova al momento y cancela todas las búsquedas en curso.
+- **Mensajes al chat del juego:** «Nova, envía mensaje al chat…» lo traduce al inglés con Google Translate y lo escribe en el chat (F12).
+- **Discord:** cada ficha de jugador (y cada objetivo de recompensa) se manda sola, con foto y logotipo; la Cabina dice si llegó.
+- **Sonidos de los hologramas a tu gusto:** varios para elegir o un audio tuyo, con volumen para cada uno.
+- **Diccionario de consultas:** su memoria física en un .txt por grupos y en orden alfabético (unas 7.000 entradas del juego, con sus variantes). Contesta desde ahí sin gastar IA (overlay en morado) y memoriza lo que aprende en internet (en blanco). No caduca nunca.
+- **Ahorro de tokens:** respuestas guardadas de datos fijos, planetas y lugares sin IA y traducciones gratis.
+- **Más páginas de la comunidad:** StarMap (API pública), SPViewer, Universal Item Finder (CStone) y SC Haulers.
+- **Manual dentro del programa** (📖 Consulta el Manual) con guía rápida y glosario, y Nova se presenta si le preguntas «¿quién eres?».
 
 ### Novedades de la 1.2: hologramas y actualizaciones
 
@@ -116,13 +135,28 @@ Tus datos se quedan en tu PC (`%LOCALAPPDATA%\NOVA AI\datos`): sin servidores pr
 
 <p align="center"><img src="docs/img/acerca.gif" width="520" alt="Acerca de"></p>
 
-**NOVA AI · Versión oficial 1.2.1**, de **Aaron B. Roldan** (gametag de Star Citizen: **0zzyt0**). Desarrollado con el motor de IA **Claude Opus 5.5** (Anthropic).
+**NOVA AI · Versión oficial 1.3**, de **Aaron B. Roldan** (gametag de Star Citizen: **0zzyt0**). Desarrollado con el motor de IA **Claude Opus 5.5** (Anthropic).
 
 **Agradecimientos** a la **Org. Defcorp**, y gracias a: Faibo, Galleg0, Sr.Scott, AlpacaInTrouble, Lother… ¡y muchos más!
 
 ## Licencia
 
-**Libre uso y modificación.** Si usas este proyecto o lo modificas, por favor menciona de dónde has sacado las ideas y cuál es tu base. Por ejemplo: *«Basado en NOVA AI, de Aaron B. Roldan (0zzyt0)»*. Texto completo en [LICENCIA.txt](LICENCIA.txt).
+NOVA AI es **software libre bajo la [licencia MIT](LICENSE)**: puedes usarlo, modificarlo y compartirlo, también dentro de otros proyectos, siempre que conserves el aviso de copyright y la licencia. Resumen en español y derechos de terceros en [LICENCIA.txt](LICENCIA.txt).
+
+## Code signing policy
+
+Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org).
+
+*Firma de código gratuita de SignPath.io, con certificado de SignPath Foundation.* Los ejecutables de Windows (`NOVA AI Setup.exe`, `NOVA AI.exe` y `Desinstalar NOVA AI.exe`) se compilan desde este repositorio con GitHub Actions y se firman solo después de que el aprobador revise y autorice cada versión.
+
+**Team roles / Roles del equipo**
+
+- Committers and reviewers / Autores y revisores: [Aaron B. Roldan (@0zzyt0)](https://github.com/0zzyt0)
+- Approvers / Aprobadores: [Aaron B. Roldan (@0zzyt0)](https://github.com/0zzyt0)
+
+**Privacy policy / Política de privacidad**
+
+This program will not transfer any information to other networked systems unless specifically requested by the user or the person installing or operating it. What each online feature sends, and how to turn it off, is described in the privacy policy shown during installation: [English](NORMAS_Y_PRIVACIDAD.en.md) · [Español](NORMAS_Y_PRIVACIDAD.md) · [Català](NORMAS_Y_PRIVACIDAD.ca.md) · [Français](NORMAS_Y_PRIVACIDAD.fr.md) · [Deutsch](NORMAS_Y_PRIVACIDAD.de.md).
 
 ## Derechos de terceros
 

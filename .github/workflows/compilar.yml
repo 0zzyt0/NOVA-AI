@@ -1,0 +1,110 @@
+# NOVA AI · compila los ejecutables de Windows en GitHub y (si SignPath está configurado) los firma.
+#
+# Se lanza a mano (Actions › Compilar y firmar › Run workflow) o al subir una etiqueta v* (p. ej. v1.3).
+# Fases: 1) NOVA AI.exe, Desinstalar NOVA AI.exe e instalador ligero → firma
+#        2) instalador todo en uno con esos .exe ya firmados dentro → firma
+# Firma: necesita el secreto SIGNPATH_API_TOKEN y la variable SIGNPATH_ORGANIZATION_ID
+# (Settings › Secrets and variables › Actions). Sin ellos compila igual, sin firmar.
+# Los compilados nunca llevan claves de fábrica (recursos/llave_claves.bin no está en el repositorio).
+name: Compilar y firmar
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  windows:
+    runs-on: ubuntu-latest
+    env:
+      FIRMAR: ${{ vars.SIGNPATH_ORGANIZATION_ID != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          cache-dependency-path: build/goapp/go.mod
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # ---------------------------------------------------------------- fase 1
+      - name: Compilar los ejecutables
+        run: NOVA_STAGE=exes bash build/build_win.sh
+
+      - name: Reunir los ejecutables sin firmar
+        run: |
+          mkdir -p sin_firmar/exes
+          cp "instalador/bin/NOVA AI.exe" "instalador/bin/Desinstalar NOVA AI.exe" "NOVA AI Setup.exe" sin_firmar/exes/
+
+      - name: Subir los ejecutables sin firmar
+        id: exes-sin-firmar
+        uses: actions/upload-artifact@v4
+        with:
+          name: exes-sin-firmar
+          path: sin_firmar/exes/
+
+      - name: Firmar los ejecutables (SignPath)
+        if: env.FIRMAR == 'true'
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+          organization-id: '${{ vars.SIGNPATH_ORGANIZATION_ID }}'
+          project-slug: 'NOVA-AI'
+          signing-policy-slug: 'release-signing'
+          artifact-configuration-slug: 'exes'
+          github-artifact-id: '${{ steps.exes-sin-firmar.outputs.artifact-id }}'
+          wait-for-completion: true
+          output-artifact-directory: 'firmado/exes'
+
+      - name: Poner en su sitio los ejecutables firmados
+        if: env.FIRMAR == 'true'
+        run: |
+          cp "firmado/exes/NOVA AI.exe" "firmado/exes/Desinstalar NOVA AI.exe" instalador/bin/
+          cp "firmado/exes/NOVA AI Setup.exe" "NOVA AI Setup.exe"
+
+      # ---------------------------------------------------------------- fase 2
+      - name: Empaquetar el instalador todo en uno
+        run: NOVA_STAGE=pack bash build/build_win.sh
+
+      - name: Subir el instalador sin firmar
+        id: setup-sin-firmar
+        uses: actions/upload-artifact@v4
+        with:
+          name: setup-sin-firmar
+          path: dist/NOVA AI Setup.exe
+
+      - name: Firmar el instalador (SignPath)
+        if: env.FIRMAR == 'true'
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+          organization-id: '${{ vars.SIGNPATH_ORGANIZATION_ID }}'
+          project-slug: 'NOVA-AI'
+          signing-policy-slug: 'release-signing'
+          artifact-configuration-slug: 'setup'
+          github-artifact-id: '${{ steps.setup-sin-firmar.outputs.artifact-id }}'
+          wait-for-completion: true
+          output-artifact-directory: 'firmado/setup'
+
+      - name: Preparar la versión
+        run: |
+          V=$(python3 -c "import re;print(re.search(r'VERSION = \"([^\"]+)\"', open('core/config.py', encoding='utf-8').read()).group(1))")
+          mkdir -p version
+          if [ -f "firmado/setup/NOVA AI Setup.exe" ]; then S="firmado/setup/NOVA AI Setup.exe"; else S="dist/NOVA AI Setup.exe"; fi
+          cp "$S" "version/NOVA.AI.Setup.$V.exe"
+          (cd dist && zip -qr9 "../version/NOVA_AI_${V}_portable.zip" Nova -x '*.pyc')
+          (cd version && sha256sum * > SHA256SUMS.txt)
+          ls -la version
+
+      - name: Subir la versión
+        uses: actions/upload-artifact@v4
+        with:
+          name: NOVA-AI-version
+          path: version/

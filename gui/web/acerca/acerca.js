@@ -2,7 +2,7 @@
    túnel infinito de 8 bits, una flecha volando dentro, scroller en seno y música en bucle. */
 (() => {
   "use strict";
-  const VERSION = "1.2.1";
+  const VERSION = "1.3";
 
   // ------------------------------------------------------------ fuente de píxeles 5×7
   const F = {
@@ -70,31 +70,46 @@
   const NFO = `
 <div class="kg-h">▓▒░ NOVA AI · ASISTENTE DE VUELO PARA STAR CITIZEN ░▒▓</div>
 <div class="kg-c">Versión oficial <b>${VERSION}</b></div>
+<div class="kg-logos"><img src="/logos/made_by_the_community.png" alt="Made by the Community"><img src="/logos/logo_0zzyt0.png" alt="0zzyt0"></div>
 
 <div class="kg-s">[ DESARROLLO ]</div>
-<p><b>Aaron B. Roldan</b><br>Gametag de Star Citizen: <b class="kg-y">0zzyt0</b><br>Desarrollado con el motor de IA <b>Claude Opus 5.5</b> (Anthropic)</p>
+<p><b>Aaron B. Roldan</b><br>Gametag de Star Citizen: <b class="kg-y">0zzyt0</b> (con ceros: así lo encuentras en sus redes)<br>Desarrollado con el motor de IA <b>Claude Opus 5.5</b> (Anthropic)<br>Proyecto abierto: <b>github.com/0zzyt0/NOVA-AI</b> · tu opinión y tus ideas son bienvenidas</p>
 
 <div class="kg-s">[ AGRADECIMIENTOS ]</div>
 <p>A la <b class="kg-y">Org. Defcorp</b>.<br>Gracias a: <b>Faibo</b> · <b>Galleg0</b> · <b>Sr.Scott</b> · <b>AlpacaInTrouble</b> · <b>Lother</b>… ¡y muchos más!</p>
 
 <div class="kg-s">[ LICENCIA ]</div>
-<p><b>Libre uso y modificación.</b><br>Si usas este proyecto o lo modificas, por favor menciona de dónde has sacado las ideas y cuál es tu base. Texto completo en <b>LICENCIA.txt</b>, en la carpeta del programa.</p>
+<p><b>Licencia MIT: software libre.</b><br>Puedes usarlo, modificarlo y compartirlo; solo conserva el aviso de copyright y la licencia en tus versiones. Texto completo en <b>LICENSE</b> y <b>LICENCIA.txt</b>, en la carpeta del programa.</p>
 
 <div class="kg-s">[ DERECHOS DE TERCEROS ]</div>
 <p>Star Citizen®, Squadron 42®, Roberts Space Industries® y Cloud Imperium® son marcas registradas de Cloud Imperium Rights LLC. Todas las referencias a Star Citizen que aparecen en NOVA AI (logotipos, nombres de naves, personajes, objetos, lugares y demás contenidos del juego) pertenecen a sus legítimos titulares y están sujetas a sus propios derechos de uso.</p>
 <p>NOVA AI es un proyecto de fans, independiente y sin ánimo de lucro. No está afiliado, patrocinado ni respaldado por Cloud Imperium Games.</p>
 
-<div class="kg-s">[ FUENTES DE DATOS ]</div>
-<p>Las páginas de consulta <b>scmdb.net</b> (https://scmdb.net), <b>UEX Corp</b> (https://uexcorp.space) y <b>VerseGuide</b> (https://verseguide.com) son propiedad de sus respectivos autores, tienen sus propias condiciones de uso y sus contenidos están protegidos. Las fichas de jugadores, sus fotos y los logotipos de las organizaciones vienen de las páginas públicas de robertsspaceindustries.com y pertenecen a sus titulares.</p>
-<p>NOVA AI se limita a <b>consultarlas en línea y a leer la información que publican</b>, igual que lo haría cualquier persona desde su navegador:</p>
-<p class="kg-l">» <b>No modifica, altera ni manipula</b> sus datos.<br>» <b>No los redistribuye</b> ni los publica en ningún otro lugar: lo que se descarga se guarda solo en tu equipo, para tu uso personal.<br>» <b>No se atribuye su autoría</b>: todo el mérito de esa información es de quienes la crean y la mantienen.</p>
-<p>Lo mismo se aplica a Star Citizen Wiki (starcitizen.tools) y a la traducción al español de la comunidad.</p>
+<div class="kg-s">[ PÁGINAS DE CONSULTA: GRACIAS ]</div>
+<p><b>NOVA AI no sería posible sin estos proyectos de la comunidad.</b> Todo el mérito de la información es de quienes los crean y los mantienen, a menudo en su tiempo libre:</p>
+<p class="kg-l">» <b>Star Citizen Wiki</b> · starcitizen.tools — la enciclopedia de la comunidad: lore, naves, armas y lugares. Textos bajo licencia CC BY-SA de sus autores.<br>
+» <b>UEX Corp</b> · uexcorp.space — precios de mercancías, rutas de comercio, naves y refinerías, mantenidos día a día por sus usuarios.<br>
+» <b>SCMDB</b> · scmdb.net — misiones, recompensas, planos de fabricación y minería extraídos de cada parche (CC BY-NC-ND 4.0).<br>
+» <b>VerseGuide</b> · verseguide.com — fichas de planetas, lunas y lugares planetarios.<br>
+» <b>StarMap</b> · starmap.space — planetas, estaciones y miles de lugares con coordenadas, servicios y minerales, con su API pública y gratuita.<br>
+» <b>SC Ships Performances Viewer</b> · spviewer.eu — rendimiento de naves: combustible, autonomía, condensadores y componentes.<br>
+» <b>Universal Item Finder</b> de Meepowski · finder.cstone.space (CStone) — dónde comprar cada objeto del verso.<br>
+» <b>SC Haulers</b> · schaulers.com — calculadoras de rutas, carga y misiones de transporte para la industria.<br>
+» <b>Roberts Space Industries</b> · robertsspaceindustries.com — fichas públicas de ciudadanos y organizaciones, y estado de los servidores.<br>
+» <b>Traducción al español</b> de la comunidad (0zzyt0 y colaboradores) y los textos del juego (global.ini).<br>
+» <b>Google Translate</b> (traducciones) y <b>DuckDuckGo</b> (búsquedas en internet).</p>
+<p>Cada página es propiedad de sus autores, tiene sus propias condiciones de uso y sus contenidos están protegidos. NOVA AI se limita a <b>consultarlas en línea</b> como lo haría cualquier persona desde su navegador (o con las API públicas que ofrecen):</p>
+<p class="kg-l">» <b>No modifica, altera ni manipula</b> sus datos.<br>» <b>No los redistribuye</b>: lo que se descarga se guarda solo en tu equipo, para tu uso personal.<br>» <b>No se atribuye su autoría</b>.<br>» Algunas solo se abren en tu navegador para que las visites tú, con sus anuncios y donaciones: <b>apóyalas</b> si te resultan útiles.</p>
+
+<div class="kg-s">[ DISCLAIMER ]</div>
+<p>NOVA AI es un proyecto de fans, gratuito, independiente y sin ánimo de lucro. <b>No es un producto oficial</b> de Cloud Imperium Games ni de ninguna de las páginas citadas, que no lo patrocinan ni lo respaldan. Se ofrece <b>tal cual</b>, sin garantías: los datos del juego cambian con cada parche y las respuestas de la IA pueden equivocarse. Úsalo respetando las condiciones de Star Citizen; tú eres responsable de lo que hagas en el juego. El logotipo <b>Made by the Community</b> se usa según el programa de fans de Cloud Imperium Games.</p>
 
 <div class="kg-c kg-y" style="margin-top:14px">o7 · Nos vemos en el 'verso</div>`;
 
-  const SCROLL = "*** NOVA AI V1.2.1 *** ASISTENTE DE VUELO PARA STAR CITIZEN *** CODIGO: AARON B. ROLDAN - 0ZZYT0 *** " +
+  const SCROLL = "*** NOVA AI V1.3 *** ASISTENTE DE VUELO PARA STAR CITIZEN *** CODIGO: AARON B. ROLDAN - 0ZZYT0 *** " +
     "MOTOR DE IA: CLAUDE OPUS 5.5 *** SALUDOS A LA ORG. DEFCORP *** GRACIAS A FAIBO, GALLEG0, SR.SCOTT, ALPACAINTROUBLE, " +
-    "LOTHER Y MUCHOS MAS *** LIBRE USO Y MODIFICACION: CITA TU BASE *** PULSA ESC PARA SALIR *** O7 ***          ";
+    "LOTHER Y MUCHOS MAS *** GRACIAS A STARCITIZEN.TOOLS, UEX, SCMDB, VERSEGUIDE, STARMAP, SPVIEWER, CSTONE Y SC HAULERS: " +
+    "SIN VOSOTROS NOVA NO SERIA POSIBLE *** LICENCIA MIT: SOFTWARE LIBRE *** PULSA ESC PARA SALIR *** O7 ***          ";
 
   let root, fx, fxc, img, logoC, logoX, sc, scx, raf = 0, t0 = 0, open = false, lastFocus = null;
   function build() {

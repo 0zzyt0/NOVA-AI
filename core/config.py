@@ -14,7 +14,7 @@ import os
 import threading
 from pathlib import Path
 
-VERSION = "1.2.1"
+VERSION = "1.3"
 APP_NAME = "NOVA AI"
 APP_DIR = Path(__file__).resolve().parent.parent
 FACTORY_DIR = APP_DIR / "datos"  # archivos de fábrica que vienen con el programa (solo lectura)
@@ -107,6 +107,13 @@ PROVIDERS = {
 }
 
 DEFAULTS: dict = {
+    # --- v1.3: idioma de toda la app (ventana, voz, lo que entiende, comandos, manual) ---
+    "idioma": "es",  # es | en | ca | fr | de
+    "idioma_elegido": False,  # True = ya lo eligió el piloto (instalador u Opciones)
+    "efectos_nivel": "cine",  # cine (cinematográficos) | ligero | ninguno
+    "globalini_propio": "",  # global.ini que instalaste con «Add your language global.ini [HERE]»
+    "globalini_propio_idioma": "",  # carpeta de Localization donde se instaló
+    "globalini_idioma_antes": "",  # g_language que había antes (para deshacerlo)
     "nombre_asistente": "Nova",  # se puede llamar como quieras: se entrena en la configuración inicial
     "nombre_piloto": "",
     "tratamiento": "señor",
@@ -164,6 +171,7 @@ DEFAULTS: dict = {
     # --- v1.1 -------------------------------------------------------------
     "discord_webhook": "",  # https://discord.com/api/webhooks/… (canal donde mandar las fichas)
     "discord_enviar_jugadores": True,  # mandar a Discord las fichas de jugadores que busques
+    "discord_enviar_recompensas": True,  # y las de los objetivos de recompensa que sean jugadores
     "estado_rsi_al_iniciar": True,  # mirar el estado de los servidores de RSI al arrancar
     "objetivo_bitacora": True,  # anotar en la bitácora cuando fijas un objetivo por voz
     "perfiles_nave": {},  # {"Cutlass Black": {"dinero": False, ...}} avisos distintos según la nave
@@ -181,9 +189,33 @@ DEFAULTS: dict = {
     "holo_planetas": True,  # al pedir información de un planeta, luna o lugar
     "holo_llegadas": True,  # al llegar cerca de un planeta o luna
     "holo_lugares": True,  # al llegar a un lugar planetario (cueva, puesto, base…)
-    "holo_traducir": True,  # traducir al español las descripciones (con la IA)
+    "holo_traducir": True,  # traducir al español las descripciones (Google Translate o la IA)
     "holo_sonidos": True,  # sonido al encenderse y apagarse (y alerta con los objetivos de captura)
     "holo_volumen": 0.7,
+    # v1.2.2: sonido de cada momento (uno de la lista, «archivo» = el tuyo, «ninguno») y su volumen
+    "holo_sonido_on": "proyector", "holo_sonido_on_archivo": "", "holo_sonido_on_nombre": "", "holo_sonido_on_vol": 1.0,
+    "holo_sonido_off": "proyector", "holo_sonido_off_archivo": "", "holo_sonido_off_nombre": "", "holo_sonido_off_vol": 1.0,
+    "holo_sonido_alerta": "sirena", "holo_sonido_alerta_archivo": "", "holo_sonido_alerta_nombre": "", "holo_sonido_alerta_vol": 1.0,
+    # v1.2.2: «envía mensaje al chat» (traducido al inglés y escrito en el chat del juego)
+    "chat_activo": True,
+    "chat_tecla": "f12",  # abre el chat en Star Citizen
+    "chat_espera_ms": 450,  # espera tras abrirlo antes de escribir
+    "chat_metodo": "escribir",  # escribir (teclas de verdad) | unicode | pegar (portapapeles + Ctrl+V)
+    "chat_tecla_ms": 12,  # pausa entre teclas al escribir en el chat
+    "chat_tecla_foco": "enter",  # tras abrir el chat, para poder escribir en él (F12 + Intro)
+    "chat_tecla_cerrar": "f12",  # tras enviar (Intro), para cerrar el chat (Intro + F12)
+    "chat_idioma": "en",  # idioma al que se traduce
+    "chat_confirmar": False,  # leer la traducción y esperar «sí» antes de enviarla
+    # v1.2.2: ahorro de tokens
+    "ahorro_tokens": True,  # historial más corto y resultados de herramientas recortados
+    "ahorro_turnos": 6,
+    "respuestas_guardadas": True,  # repetir sin IA las respuestas de datos fijos (planetas, naves, armas…)
+    "respuestas_locales": True,  # planetas y lugares contestados con VerseGuide, sin IA
+    "traduccion_motor": "google",  # google (gratis) | ia
+    "traduccion_respaldo_ia": True,  # si Google falla, traducir con la IA
+    # v1.2.2: Diccionario de consultas (memoria física que no caduca)
+    "diccionario_activo": True,  # consultar el diccionario antes que la IA o internet
+    "diccionario_aprender": True,  # guardar en él lo que se aprende en internet
     # --- v1.3: actualizaciones de NOVA AI desde GitHub ---------------------
     "actualizar_programa": True,  # comprobar si hay versión nueva al iniciar y al cerrar
     "actualizar_al_iniciar": True,  # comprobar scmdb.net / UEX / wiki al arrancar
@@ -207,6 +239,8 @@ DEFAULTS: dict = {
     "overlay_color_ok": "#39e47a",  # ha entendido
     "overlay_color_busca": "#ffc933",  # buscando en internet
     "overlay_color_error": "#ff3b4e",  # en pausa o no ha entendido
+    "overlay_color_memoria": "#a35cff",  # buscando en memoria física (Diccionario de consultas)
+    "overlay_color_memoriza": "#f4f7ff",  # memorizando (guardando en el diccionario lo aprendido)
     "overlay_intensidad": 1.0,
 }
 

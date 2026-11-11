@@ -31,34 +31,41 @@ function toast(text, kind = "") {
 const safe = (fn) => async (...a) => { try { return await fn(...a); } catch (e) { toast(e.message, "bad"); } };
 
 // ------------------------------------------------------------ navegación
-const TITLES = { cabina: "Cabina", juego: "Juego", voz: "Voz del Asistente", interfaz: "Interfaz de Usuario",
-                 ia: "Inteligencia", datos: "Fuentes de datos", memoria: "Memoria" };
-const OLD_SECTIONS = { oido: ["interfaz", "mic"], overlay: ["interfaz", "overlay"] };  // nombres de versiones anteriores
+const TITLES = { cabina: "Cabina", juego: "Nave y comandos", nova: "Nova", overlay: "Overlay y hologramas",
+                 datos: "Datos y memoria", ajustes: "Ajustes" };
+// Nombres de secciones de versiones anteriores → [sección, pestaña]
+const OLD_SECTIONS = { oido: ["nova", "mic"], voz: ["nova", "voz"], interfaz: ["nova", "mic"], ia: ["nova", "ia"],
+                       memoria: ["datos", "memoria"] };
+// Ganchos de las versiones anteriores: qué nombre antiguo «se abre» con cada sección nueva
+const LEGACY = { cabina: ["cabina"], juego: ["juego"], nova: ["voz", "interfaz", "ia"], overlay: ["interfaz"],
+                 datos: ["datos", "memoria"], ajustes: ["datos"] };
+const secOn = (sec, sub) => { const r = $("#sec-" + sec); if (!r || !r.classList.contains("on")) return false;
+  return !sub || !!$(`.subsec.on[data-sub="${sub}"]`, r); };
 function go(sec, remember = true, sub = "") {
-  if (OLD_SECTIONS[sec]) [sec, sub] = OLD_SECTIONS[sec];
+  if (OLD_SECTIONS[sec]) { const [a, b] = OLD_SECTIONS[sec]; sec = a; sub = sub || b; }
   if (!TITLES[sec]) sec = "cabina";
   if (sub) showSub(sec, sub);
   if (remember) api("ui_state", { seccion: sec }).catch(() => {});
-  $$("#nav button").forEach((b) => b.classList.toggle("on", b.dataset.sec === sec));
+  $$("#nav button[data-sec]").forEach((b) => b.classList.toggle("on", b.dataset.sec === sec));
   $$(".sec").forEach((s) => s.classList.toggle("on", s.id === "sec-" + sec));
-  $("#secTitle").textContent = TITLES[sec];
-  if (sec === "memoria") { loadMemory(); loadDiary(); }
+  $("#secTitle").textContent = T(TITLES[sec]);
+  if (sec === "datos") { loadMemory(); loadDiary(); loadSources(); Trad.load(); }
   if (sec === "juego") loadCommands();
-  if (sec === "datos") { loadSources(); Trad.load(); }
-  if (sec === "voz" || sec === "interfaz") loadDevices();
-  if (sec === "ia") loadIA();
-  if (window.V11) V11.onSection(sec);
-  if (window.V12) V12.onSection(sec);
-  if (window.V13) V13.onSection(sec);
+  if (sec === "nova") { loadDevices(); loadIA(); }
+  if (sec === "ajustes") loadSources();
+  if (sec === "overlay") window.dispatchEvent(new Event("resize"));
+  for (const old of LEGACY[sec] || [sec])
+    for (const v of [window.V11, window.V12, window.V122, window.V13, window.V130]) if (v && v.onSection) { try { v.onSection(old); } catch (e) { console.warn(e); } }
 }
-$$("#nav button").forEach((b) => b.addEventListener("click", () => go(b.dataset.sec)));
+$$("#nav button[data-sec]").forEach((b) => b.addEventListener("click", () => go(b.dataset.sec)));
+$("#btnManual").addEventListener("click", safe(async () => { await api("open_manual"); toast("Manual abierto en tu navegador", "ok"); }));
 // Subapartados (pestañas dentro de una sección)
 function showSub(sec, sub) {
   const root = $("#sec-" + sec);
   if (!root) return;
   $$(".subtabs button", root).forEach((b) => b.classList.toggle("on", b.dataset.sub === sub));
   $$(".subsec", root).forEach((x) => x.classList.toggle("on", x.dataset.sub === sub));
-  if (sec === "interfaz" && sub === "overlay") window.dispatchEvent(new Event("resize"));  // recoloca la vista previa
+  if (sec === "overlay") window.dispatchEvent(new Event("resize"));  // recoloca la vista previa
 }
 $$(".subtabs button").forEach((b) => b.addEventListener("click", () => showSub(b.closest(".sec").id.slice(4), b.dataset.sub)));
 
@@ -132,10 +139,13 @@ function paintMeter(el, v) {
 }
 
 // ------------------------------------------------------------- chat
-const STATE_TXT = { idle: "EN ESPERA", listening: "ESCUCHANDO", thinking: "PROCESANDO", speaking: "TRANSMITIENDO", searching: "BUSCANDO", off: "EN PAUSA" };
-const TINT_KEY = { base: "overlay_color", green: "overlay_color_ok", yellow: "overlay_color_busca", red: "overlay_color_error" };
+const STATE_TXT = { idle: "EN ESPERA", listening: "ESCUCHANDO", thinking: "PROCESANDO", speaking: "TRANSMITIENDO", searching: "BUSCANDO", off: "DETENIDA" };
+const TINT_KEY = { base: "overlay_color", green: "overlay_color_ok", yellow: "overlay_color_busca", red: "overlay_color_error",
+  purple: "overlay_color_memoria", white: "overlay_color_memoriza" };
 const tintColor = (t) => S[TINT_KEY[t] || "overlay_color"] || "#20b8e8";
 function stateText(mode, tint) {
+  if (tint === "purple") return "MEMORIA FÍSICA";
+  if (tint === "white") return "MEMORIZANDO";
   if (mode === "idle" && tint === "green") return "ENTENDIDO";
   if (mode === "idle" && tint === "red") return "NO ENTENDIDO";
   return STATE_TXT[mode] || "EN ESPERA";
@@ -197,7 +207,10 @@ talk.addEventListener("pointerdown", (e) => { talk.setPointerCapture(e.pointerId
 talk.addEventListener("pointerup", () => ptt(false));
 talk.addEventListener("pointercancel", () => ptt(false));
 $("#btnMute").addEventListener("click", safe(() => api("stop_voice")));
-$("#btnPause").addEventListener("click", safe(() => api("pause", { on: !live.paused })));
+$("#swNova").addEventListener("change", safe(async () => {
+  const on = $("#swNova").checked;
+  await api("pause", { on: !on });  // apagado = detener: cancela búsquedas y para a Nova
+}));
 $("#btnPower").addEventListener("click", safe(async () => {
   if (confirm("¿Apagar Nova? Se cerrarán la ventana, el overlay y la escucha.")) { await api("shutdown"); goodbye(null); }
 }));
@@ -218,7 +231,9 @@ function connect() {
     else if (ev.t === "trad") Trad.progress(ev);
     else if (ev.t === "trad_aviso") { STATE.traduccion_aviso = true; Trad.maybeAsk(); }
     else if (ev.t === "reset") afterReset();
-    else if (window.V11) { V11.onEvent(ev); if (window.V12) V12.onEvent(ev); if (window.V13) V13.onEvent(ev); }
+    else if (window.V11) {
+      V11.onEvent(ev); if (window.V12) V12.onEvent(ev); if (window.V13) V13.onEvent(ev); if (window.V122) V122.onEvent(ev);
+    }
   };
 }
 function goodbye(es) {
@@ -231,8 +246,7 @@ function onLevels(ev) {
   live = ev;
   document.body.className = document.body.className.replace(/\bst-\w+/, "st-" + ev.mode);
   document.body.classList.toggle("paused", !!ev.paused);
-  $("#btnPause").classList.toggle("on", !!ev.paused);
-  $("#btnPause").textContent = ev.paused ? "▶" : "⏸";
+  if (window.V122) V122.power(!ev.paused);
   const lvl = ev.mode === "speaking" ? ev.lvl : ev.mode === "listening" ? Math.max(0.25, ev.mic)
     : (ev.mode === "searching" || ev.mode === "off" || ev.tint !== "base") ? 0.45 : 0;
   document.documentElement.style.setProperty("--lvl", lvl.toFixed(3));
@@ -242,7 +256,7 @@ function onLevels(ev) {
   $("#stateText").textContent = stateText(ev.mode, ev.tint);
   paintMeter($("#sideMeter"), ev.mic);
   if (!$("#setup").hidden) paintMeter($("#suMeter"), ev.mic);
-  if ($("#sec-interfaz").classList.contains("on") && $("#sec-interfaz .subsec[data-sub=\"mic\"]").classList.contains("on")) paintMeter($("#bigMeter"), ev.mic);
+  if (secOn("nova", "mic")) paintMeter($("#bigMeter"), ev.mic);
   if (ev.mode !== "idle") removeThinking.idleSince = 0;
   else if (thinkingEl && !removeThinking.idleSince) removeThinking.idleSince = Date.now();
 }
@@ -252,12 +266,13 @@ function updatePttHint() {
   const key = STATE.ptt_text || "—";
   $("#pttKey").textContent = key;
   $("#pttJoy").textContent = S.ptt_joystick ? `· ${S.ptt_joystick.nombre} · botón ${S.ptt_joystick.boton + 1}` : "";
-  $("#pttHint").textContent = `Mantén ${key}` + (S.palabra_clave_activa ? ` o di «${S.nombre_asistente || "Nova"}…»` : "") + " para hablar";
+  $("#pttHint").textContent = S.palabra_clave_activa ? T("Mantén {k} o di «{n}…» para hablar", { k: key, n: S.nombre_asistente || "Nova" })
+    : T("Mantén {k} para hablar", { k: key });
 }
 function paintNames() {
   const n = S.nombre_asistente || "Nova";
   $$(".ai-name").forEach((el) => (el.textContent = n));
-  $("#msgIn").placeholder = `Escribe a ${n}… (o mantén tu tecla para hablar)`;
+  $("#msgIn").placeholder = T("Escribe a {n}… (o mantén tu tecla para hablar)", { n });
   $("#btnMute").title = `Callar a ${n}`;
   $(".brand-sub").textContent = n.toLowerCase() === "nova" ? "ASISTENTE DE VUELO" : `ASISTENTE · ${n.toUpperCase()}`;
   document.title = `NOVA AI · ${n}`;
@@ -297,7 +312,7 @@ async function loadState() {
   });
   $("#piperVoices").innerHTML = STATE.piper_voices.map((v) => `<option>${esc(v)}</option>`).join("");
   $("#ovRes").innerHTML = `<option value="auto">Automática (detectar)</option>` +
-    STATE.resolutions.map((r) => `<option value="${r}">${r.replace("x", " × ")}${{ "640x480": " (mínima)", "1920x1080": " (Full HD)", "2560x1440": " (2K)", "3840x2160": " (4K)" }[r] || ""}</option>`).join("");
+    STATE.resolutions.map((r) => `<option value="${r}">${r.replace("x", " × ")}${{ "640x480": " " + T("(mínima)"), "1920x1080": " (Full HD)", "2560x1440": " (2K)", "3840x2160": " (4K)" }[r] || ""}</option>`).join("");
   showSetting("overlay_resolucion");
   $("#ovMon").innerHTML = STATE.monitors.map((m) => `<option value="${m.id}">${esc(m.label)}</option>`).join("") +
     `<option value="juego">El monitor donde esté el juego</option>`;
@@ -314,6 +329,8 @@ async function loadState() {
   paintNames();
   if (window.V11) V11.afterState();
   if (window.V13) V13.afterState();
+  if (window.V122) V122.afterState();
+  if (window.V130) V130.afterState();
   if (STATE.session && STATE.session.seccion && STATE.session.seccion !== "cabina") go(STATE.session.seccion, false);
   paintSources(STATE.fuentes);
   if (STATE.arranque && STATE.arranque.comprobando) Boot.show(STATE.arranque.informe || {});
@@ -371,7 +388,7 @@ function loadIA() {
   const provs = Object.entries(STATE.providers).filter(([k]) => k !== "ollama");
   $("#provList").innerHTML = provs.map(([k, p]) => `
     <div class="prov"><div class="nm"><span class="dot ${STATE.keys_set[k] ? "on" : ""}" id="dot-${k}"></span>${esc(p.nombre)}</div>
-    <input type="password" data-key="${k}" placeholder="${STATE.keys_set[k] ? "•••••••• configurada (escribe para cambiarla)" : "pega aquí tu clave"}">
+    <input type="password" data-key="${k}" placeholder="${esc(STATE.keys_set[k] ? T("•••••••• configurada (escribe para cambiarla)") : T("pega aquí tu clave"))}">
     <button class="btn sm" data-url="${esc(p.url)}">CONSEGUIR CLAVE</button>
     <span class="hint" id="kst-${k}">${STATE.keys_set[k] ? "lista" : "sin clave"}</span></div>`).join("");
   $$("#provList input").forEach((inp) => inp.addEventListener("change", safe(async () => {
@@ -738,7 +755,7 @@ function placeOverlay() {
 let ovA = 0.35, ovG = 0, nextBlink = 0, blinkUntil = 0;
 function ovFrame(t) {
   requestAnimationFrame(ovFrame);
-  if (!$("#sec-interfaz").classList.contains("on") || !$("#sec-interfaz .subsec[data-sub=\"overlay\"]").classList.contains("on")) return;
+  if (!secOn("overlay", "logo")) return;
   const now = t / 1000;
   const isDemo = demo && performance.now() < demoUntil;
   const mode = isDemo ? demo : live.mode, tint = isDemo ? demoTint : (live.tint || "base");
@@ -759,7 +776,7 @@ function ovFrame(t) {
   logo.style.setProperty("--og", ovG.toFixed(3));
   logo.style.setProperty("--oc", tintColor(tint));
   logo.style.setProperty("--ot", tint === "base" ? "0" : (0.75 * ovA).toFixed(3));
-  $("#ovTag").textContent = `${stateText(mode, tint)} · ${$("#ovTag").dataset.res || ""}`;
+  $("#ovTag").textContent = `${T(stateText(mode, tint))} · ${$("#ovTag").dataset.res || ""}`;
 }
 $$("[data-demo]").forEach((b) => b.addEventListener("click", () => { [demo, demoTint] = b.dataset.demo.split(":"); demoUntil = performance.now() + 6000; }));
 $("#btnOvTest").addEventListener("click", safe(async () => {
@@ -792,9 +809,9 @@ function paintSources(f) {
   const e = f.enciclopedia || {};
   $("#kbChip").textContent = e.estado || "—";
   $("#kbStats").innerHTML = [["entradas", "ENTRADAS"], ["misiones", "MISIONES"], ["planos", "PLANOS"], ["minerales", "MINERALES"]]
-    .map(([k, l]) => `<div><b>${(e[k] || 0).toLocaleString("es-ES")}</b><span>${l}</span></div>`).join("");
+    .map(([k, l]) => `<div><b>${(e[k] || 0).toLocaleString(LOCALE)}</b><span>${l}</span></div>`).join("");
   const g = f.globalini || {};
-  $("#iniInfo").textContent = g.ruta ? `${g.idioma} · ${g.textos.toLocaleString("es-ES")} textos · ${g.reglas} avisos reconocibles` : "No encontrado: avisos en inglés";
+  $("#iniInfo").textContent = g.ruta ? T("{i} · {n} textos · {r} avisos reconocibles", { i: g.idioma, n: g.textos.toLocaleString(LOCALE), r: g.reglas }) : T("No encontrado: avisos en inglés");
   const bad = f.paginas.filter((p) => ["error"].includes(p.estado)).length;
   $("#navData").textContent = bad ? "!" : "";
   $("#btnUpdate").disabled = !!f.comprobando;
@@ -853,7 +870,7 @@ const Boot = (() => {
 // ============================================================ traducción al español
 const Trad = (() => {
   let st = {};
-  const fmtDate = (t) => (t ? new Date(t * 1000).toLocaleDateString("es-ES") : "—");
+  const fmtDate = (t) => (t ? new Date(t * 1000).toLocaleDateString(LOCALE) : "—");
   function bar(el, ev) {
     if (!el) return;
     el.hidden = false;
@@ -997,7 +1014,7 @@ async function loadDiary() {
   $$("#diaryFiles [data-diary]").forEach((b) => b.addEventListener("click", safe(() => api("open_diary", { nombre: b.dataset.diary }))));
 }
 function diaryLater() {
-  if (!$("#sec-memoria").classList.contains("on")) return;
+  if (!secOn("datos")) return;
   clearTimeout(diaryLater.t); diaryLater.t = setTimeout(() => loadDiary().catch(() => {}), 1500);
 }
 $("#btnDiaryOpen").addEventListener("click", safe(() => api("open_diary", {})));

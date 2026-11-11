@@ -61,11 +61,13 @@ ALIASES = {
 
 
 def label(action: str) -> str:
+    from .commands import _lang, lang_overlay
+    acts = lang_overlay(_lang()).get("acciones", {})
     if action in CATALOG:
-        return CATALOG[action][0]
+        return acts.get(action, [CATALOG[action][0]])[0]
     for main, alts in ALIASES.items():
         if action in alts:
-            return CATALOG[main][0]
+            return acts.get(main, [CATALOG[main][0]])[0]
     return humanize(action)
 
 

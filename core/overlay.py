@@ -35,7 +35,8 @@ LOGO = APP_DIR / "recursos" / "nova.png"
 
 RESOLUTIONS = ["640x480", "800x600", "1024x768", "1280x720", "1280x1024", "1366x768", "1440x900", "1600x900",
                "1680x1050", "1920x1080", "1920x1200", "2560x1080", "2560x1440", "3440x1440", "3840x1600", "3840x2160"]
-TINT_KEYS = {"green": "overlay_color_ok", "yellow": "overlay_color_busca", "red": "overlay_color_error"}
+TINT_KEYS = {"green": "overlay_color_ok", "yellow": "overlay_color_busca", "red": "overlay_color_error",
+             "purple": "overlay_color_memoria", "white": "overlay_color_memoriza"}
 
 
 def _hex(color: str) -> tuple[int, int, int]:
@@ -87,15 +88,26 @@ class FrameMaker:
         near = np.asarray(alpha.filter(ImageFilter.GaussianBlur(size * 0.07)), dtype=np.float32) / 255.0
         far = np.asarray(alpha.filter(ImageFilter.GaussianBlur(size * 0.22)), dtype=np.float32) / 255.0
         self.glow_a = np.clip(near * 1.4 + far * 1.1, 0, 1)[..., None]
+        # v1.3 «cinematográfico»: un anillo de luz discontinuo que gira alrededor del logo
+        c = (self.canvas - 1) / 2
+        yy, xx = np.mgrid[0:self.canvas, 0:self.canvas].astype(np.float32)
+        dist = np.sqrt((xx - c) ** 2 + (yy - c) ** 2)
+        self.ring_d = np.exp(-((dist - size * 0.62) / (size * 0.018 + 0.6)) ** 2)
+        self.ring_ang = np.arctan2(yy - c, xx - c)
 
-    def render(self, logo_alpha: float, glow: float, boost: float, color: np.ndarray, tint: float) -> np.ndarray:
+    def ring(self, now: float, strength: float) -> np.ndarray:
+        arcs = (np.cos(self.ring_ang * 3 - now * 2.4) > 0.35).astype(np.float32)
+        return (self.ring_d * arcs * strength)[..., None]
+
+    def render(self, logo_alpha: float, glow: float, boost: float, color: np.ndarray, tint: float,
+               ring: np.ndarray | None = None) -> np.ndarray:
         """Devuelve BGRA premultiplicado (uint8) listo para UpdateLayeredWindow.
         color: RGB 0..1 del brillo · tint: 0 = logo original, 1 = logo teñido de ese color."""
         la = self.logo_a * logo_alpha
         tinted = np.clip(self.logo_lum * color * 1.9, 0, 1)
         lc = self.logo_rgb * (1 - tint) + tinted * tint
         lc = np.clip(lc * (1.0 + boost) + boost * 0.25, 0, 1)
-        ga = np.clip(self.glow_a * glow, 0, 1)
+        ga = np.clip(self.glow_a * glow + (ring if ring is not None else 0), 0, 1)
         out_a = la + ga * (1 - la)
         out_c = lc * la + color * ga * (1 - la)
         bgra = np.empty(out_c.shape[:2] + (4,), dtype=np.uint8)
@@ -119,14 +131,18 @@ class Animator:
         self._next_blink = 0.0
 
     def step(self, mode: str, tint_key: str, level: float, now: float, idle_alpha: float, idle_hidden: bool,
-             intensity: float, color: np.ndarray) -> tuple[float, float, float, np.ndarray, float]:
+             intensity: float, color: np.ndarray, fx: str = "cine") -> tuple[float, float, float, np.ndarray, float]:
         boost = 0.0
         target_t = 0.0 if tint_key == "base" else 0.85
         if mode == "speaking":
             target_a = 1.0
             target_g = 0.45 + 0.9 * min(1.0, level * 1.6)
             boost = 0.15 + 0.35 * min(1.0, level * 1.6)
-            if now >= self._next_blink:  # parpadeos rápidos tipo holograma
+            if fx != "cine":  # «ligero» y «sin efectos»: sin parpadeo, brillo según la voz
+                self._blink_until = 0.0
+                if fx == "ninguno":
+                    target_g, boost = 0.6, 0.15
+            elif now >= self._next_blink:  # parpadeos rápidos tipo holograma
                 self._blink_until = now + random.uniform(0.04, 0.09)
                 self._next_blink = now + random.uniform(0.25, 0.9)
             if now < self._blink_until:
@@ -142,6 +158,10 @@ class Animator:
             target_a, target_g, boost, k = 1.0, 0.65, 0.1, 0.3
         else:
             target_a, target_g, k = (0.0 if idle_hidden else idle_alpha), 0.0, 0.12
+        if fx == "ninguno":
+            k = 1.0  # cambios de estado al instante
+        elif fx == "cine" and mode in ("speaking", "listening", "thinking", "searching"):
+            target_g *= 1.0 + 0.18 * np.sin(now * 3.2)  # el halo «respira»
         self.alpha += (target_a - self.alpha) * k
         self.glow += (target_g * intensity - self.glow) * k
         self.tint += (target_t - self.tint) * 0.25
@@ -203,7 +223,8 @@ def layout(settings, rect: tuple[int, int, int, int]) -> tuple[int, int]:
     return size, int(float(settings.get("overlay_margen")) * k)
 
 
-DEMO = [("listening", "base", 1.3), ("searching", "yellow", 1.6), ("idle", "green", 1.3),
+DEMO = [("listening", "base", 1.3), ("searching", "purple", 1.3), ("searching", "yellow", 1.3),
+        ("searching", "white", 1.0), ("idle", "green", 1.3),
         ("speaking", "green", 1.8), ("idle", "red", 1.3), ("off", "red", 1.0)]
 
 
@@ -284,11 +305,13 @@ class Overlay(threading.Thread):
                 alpha, glow, boost, color, tint_amount = self.anim.step(
                     mode, tint, level, now, float(self.settings.get("overlay_opacidad_reposo")),
                     self.settings.get("overlay_reposo") == "oculto", float(self.settings.get("overlay_intensidad")),
-                    tint_rgb(self.settings, tint))
+                    tint_rgb(self.settings, tint), fx=self.settings.get("efectos_nivel", "cine"))
                 maker = self._frame_maker(size)
+                fx = self.settings.get("efectos_nivel", "cine")
+                ring = maker.ring(now, 0.55 * min(1.0, glow)) if fx == "cine" and glow > 0.05 else None
                 x, y = place(self.settings.get("overlay_posicion"), rect, maker.canvas,
                              margin - (maker.canvas - maker.size) // 2)
-                win.update(maker.render(alpha, glow, boost, color, tint_amount), x, y)
+                win.update(maker.render(alpha, glow, boost, color, tint_amount, ring), x, y)
                 self.status = "activo"
             except Exception as e:  # un fotograma roto no debe matar el overlay
                 if self.status != f"error: {e}":

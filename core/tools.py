@@ -49,6 +49,11 @@ class Tools:
         self.status_check = None  # estado de los servidores de RSI
         self.on_timer_added: Callable[[dict], None] = lambda t: None
         self.on_place: Callable[[str], str] | None = None  # ficha de planeta/lugar (la pone el asistente)
+        self.on_chat: Callable[[str], str] | None = None  # mensaje al chat del juego (lo pone el asistente)
+        self.dictionary = None  # Diccionario de consultas (lo pone el asistente)
+        self.starmap = None  # starmap.space (lo pone el asistente)
+        self.shops = None  # tiendas de UEX (lo pone el asistente)
+        self.allow_open = False  # abrir el navegador solo si el piloto lo ha pedido
 
     # ---------------------------------------------------------------- utilidades
     def _get(self, url: str, params: dict | None = None, ttl: int = 0, timeout: int = 12) -> Any:
@@ -171,6 +176,47 @@ class Tools:
                 "name": "listar_temporizadores",
                 "description": "Temporizadores en marcha y cuánto les queda.",
                 "parameters": {"type": "object", "properties": {}}}},
+            {"type": "function", "function": {
+                "name": "enviar_chat_juego",
+                "description": "Escribe un mensaje en el chat de Star Citizen (traducido al inglés). Úsala cuando el "
+                               "piloto pida decir, mandar o escribir algo en el chat del juego. Pasa SOLO el texto del "
+                               "mensaje, en español, tal como lo diría el piloto.",
+                "parameters": {"type": "object", "properties": {
+                    "mensaje": {"type": "string", "description": "El mensaje, p. ej. '¿alguien necesita escolta?'"}},
+                    "required": ["mensaje"]}}},
+            {"type": "function", "function": {
+                "name": "datos_ubicacion",
+                "description": "Datos de starmap.space de un planeta, luna, estación o punto de Lagrange (radio, "
+                               "gravedad, temperatura, aire respirable, duración del día, zonas de aterrizaje) o, si "
+                               "das el planeta, de un LUGAR de ese planeta (tipo, coordenadas, servicios como "
+                               "enfermería o plataformas, zona de armisticio, minerales). Sin planeta, con un "
+                               "lugar, lista los lugares de ese planeta que coinciden.",
+                "parameters": {"type": "object", "properties": {
+                    "nombre": {"type": "string", "description": "Planeta, luna, estación o lugar, p. ej. 'Daymar', "
+                                                                "'Security Post Kareah', 'CRU-L1'"},
+                    "planeta": {"type": "string", "description": "Planeta o luna donde está el lugar (opcional)"}},
+                    "required": ["nombre"]}}},
+            {"type": "function", "function": {
+                "name": "donde_comprar",
+                "description": "DÓNDE COMPRAR un objeto (arma, armadura, ropa, componente de nave, herramienta…): "
+                               "tiendas, lugar y precio en aUEC, según UEX Corp (datos de la comunidad). Úsala SIEMPRE "
+                               "que pregunten dónde se compra o se consigue algo, antes que cualquier otra cosa.",
+                "parameters": {"type": "object", "properties": {
+                    "objeto": {"type": "string", "description": "p. ej. 'P4-AR', 'FR-76', 'Morozov-SH Core'"}},
+                    "required": ["objeto"]}}},
+            {"type": "function", "function": {
+                "name": "abrir_pagina_consulta",
+                "description": "Abre en el navegador del piloto una página de consulta de la comunidad: "
+                               "'cstone' (Universal Item Finder: DÓNDE COMPRAR objetos, armas, armaduras y "
+                               "componentes), 'spviewer' (rendimiento de naves: combustible, autonomía, "
+                               "componentes), 'schaulers' (calculadoras de rutas y carga de SC Haulers), "
+                               "'starmap' (mapas de planetas), 'uex', 'scmdb', 'wiki', 'verseguide'. Úsala cuando "
+                               "el piloto lo PIDA EXPRESAMENTE («ábremela», «sí, ábrela»). Si crees que le serviría, ofrécesela y espera a que diga que sí.",
+                "parameters": {"type": "object", "properties": {
+                    "pagina": {"type": "string", "enum": ["cstone", "spviewer", "schaulers", "starmap", "uex",
+                                                         "scmdb", "wiki", "verseguide"]},
+                    "busqueda": {"type": "string", "description": "Lo que quiere ver (opcional)"}},
+                    "required": ["pagina"]}}},
             {"type": "function", "function": {
                 "name": "ficha_lugar",
                 "description": "Ficha de un PLANETA, LUNA o LUGAR PLANETARIO (cueva, puesto avanzado, base, ciudad, "
@@ -449,16 +495,40 @@ class Tools:
             raise RuntimeError("La enciclopedia local todavía no está lista (se prepara al arrancar).")
         return self.knowledge
 
+    def _from_dictionary(self, consulta: str) -> str:
+        """Lo que hay en el Diccionario de consultas (lo aprendido en internet y lo que ha escrito el piloto)."""
+        d = self.dictionary
+        if d is None:
+            return ""
+        try:
+            e, fam = d.find(consulta)
+        except Exception:  # noqa: BLE001
+            return ""
+        if e is not None and e.source in ("internet", "ia", "tú", "wiki"):
+            return f"Diccionario de consultas ({e.source}) · {e.name}: {e.text[:900]}"
+        return ""
+
     def t_buscar_datos_juego(self, consulta: str, tipo: str | None = None) -> str:
         from .knowledge import describe_doc
-        kn = self._kn()
+        extra = self._from_dictionary(consulta)
+        try:
+            kn = self._kn()
+        except RuntimeError:
+            if extra:
+                return extra
+            raise
         kinds = None if not tipo or tipo == "todo" else (tipo,)
         docs = kn.search(consulta, kinds, k=6)
         if not docs:
-            return "SIN RESULTADOS en la enciclopedia local."
+            return extra or "SIN RESULTADOS en la enciclopedia local."
+        if extra:
+            return extra + "\n" + self._kn_head(kn) + "\n" + "\n".join("- " + describe_doc(d) for d in docs)
+        return self._kn_head(kn) + "\n" + "\n".join("- " + describe_doc(d) for d in docs)
+
+    @staticmethod
+    def _kn_head(kn) -> str:
         v = kn.versions
-        head = f"Enciclopedia local (juego {v.get('global.ini', 'inglés')}, scmdb {v.get('scmdb', '—')}, UEX {v.get('uex', '—')}):"
-        return head + "\n" + "\n".join("- " + describe_doc(d) for d in docs)
+        return f"Enciclopedia local (juego {v.get('global.ini', 'inglés')}, scmdb {v.get('scmdb', '—')}, UEX {v.get('uex', '—')}):"
 
     def t_buscar_misiones(self, consulta: str = "", sistema: str = "", tipo: str = "", con_planos: bool = False,
                           legal: bool | None = None) -> str:
@@ -569,6 +639,79 @@ class Tools:
 
     def t_listar_temporizadores(self) -> str:
         return self.timers.describe() if self.timers is not None else "No hay temporizadores."
+
+    def t_enviar_chat_juego(self, mensaje: str) -> str:
+        if self.on_chat is None or not self.settings.get("chat_activo", True):
+            return "El envío al chat del juego está desactivado (Juego › Chat del juego)."
+        return self.on_chat(mensaje)
+
+    def t_datos_ubicacion(self, nombre: str, planeta: str = "") -> str:
+        from . import starmap as SM
+        sm = self.starmap
+        if sm is None:
+            return "SIN DATOS: starmap.space no está disponible."
+        try:
+            if planeta:
+                p = sm.poi(nombre, planeta)
+                if p:
+                    return SM.describe(SM.poi_fields(p), p.get("PoiName", nombre))
+                items = sm.pois(planeta)
+                q = SM.norm(nombre)
+                hits = [x for x in items if q and any(w in SM.norm(x.get("PoiName", "") + " " + str(x.get("Type", "")))
+                                                      for w in q.split() if len(w) > 3)][:12]
+                if hits:
+                    return f"Lugares de {planeta} en starmap.space que coinciden:\n" + "\n".join(
+                        "- " + SM.describe(SM.poi_fields(x), x.get("PoiName", "")) for x in hits)
+                return f"SIN RESULTADOS en starmap.space para «{nombre}» en {planeta}."
+            c = sm.container(nombre)
+            if c:
+                return SM.describe(SM.container_fields(c), c.get("ObjectContainer", nombre))
+            return f"SIN RESULTADOS en starmap.space para «{nombre}» (si es un lugar, dime en qué planeta o luna está)."
+        except LookupError as e:
+            return f"SIN DATOS: {e}"
+
+    PAGE_URLS = {"cstone": "https://finder.cstone.space", "spviewer": "https://www.spviewer.eu",
+                 "schaulers": "https://schaulers.com/tools", "starmap": "https://starmap.space",
+                 "uex": "https://uexcorp.space/?set_lang=es_ES", "scmdb": "https://scmdb.net",
+                 "wiki": "https://starcitizen.tools", "verseguide": "https://verseguide.com"}
+
+    def t_donde_comprar(self, objeto: str) -> str:
+        from . import shops as SH
+        if self.shops is None:
+            return "SIN DATOS: el buscador de tiendas no está disponible."
+        try:
+            hit = self.shops.find_item(objeto)
+            if not hit:
+                return f"SIN RESULTADOS en UEX para «{objeto}». Puede que no se venda en tiendas (misiones, botín)."
+            text, _say = SH.summary(hit[1], self.shops.where(hit[0]), self.settings.get("tratamiento"), 3)
+            return text
+        except LookupError as e:
+            return f"SIN DATOS: {e}"
+
+    def t_abrir_pagina_consulta(self, pagina: str, busqueda: str = "") -> str:
+        url = self.PAGE_URLS.get(str(pagina).lower())
+        if not url:
+            return "Página desconocida."
+        if not self.allow_open:
+            return ("NO ABIERTA: el piloto no ha pedido abrir el navegador. Contesta con lo que sepas y, si de verdad "
+                    f"le sirve, ofrécele abrir {url} y hazlo solo si te dice que sí.")
+        if pagina == "wiki" and busqueda:
+            from urllib.parse import quote
+            url = f"https://starcitizen.tools/index.php?search={quote(busqueda)}"
+        elif pagina == "starmap" and busqueda:
+            from urllib.parse import quote
+            url = f"https://starmap.space/maps/index.php?planet={quote(busqueda)}"
+        import sys
+        import webbrowser
+        try:
+            if sys.platform == "win32":
+                import os
+                os.startfile(url)  # noqa: S606
+            else:
+                webbrowser.open(url)
+        except Exception as e:  # noqa: BLE001
+            return f"No pude abrir el navegador ({e}). La dirección es {url}"
+        return f"Abierta en el navegador del piloto: {url}" + (f" (busca «{busqueda}» allí)" if busqueda else "")
 
     def t_ficha_lugar(self, nombre: str) -> str:
         if self.on_place is None:

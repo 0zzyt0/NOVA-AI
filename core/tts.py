@@ -42,20 +42,39 @@ PIPER_VOICES = {
     "es_ES-carlfm-x_low": "es/es_ES/carlfm/x_low",
     "es_MX-ald-medium": "es/es_MX/ald/medium",
     "es_MX-claude-high": "es/es_MX/claude/high",
+    # v1.3: voces sin internet en los otros idiomas
+    "en_GB-alba-medium": "en/en_GB/alba/medium",
+    "en_GB-northern_english_male-medium": "en/en_GB/northern_english_male/medium",
+    "en_US-lessac-medium": "en/en_US/lessac/medium",
+    "ca_ES-upc_ona-medium": "ca/ca_ES/upc_ona/medium",
+    "ca_ES-upc_pau-x_low": "ca/ca_ES/upc_pau/x_low",
+    "fr_FR-siwis-medium": "fr/fr_FR/siwis/medium",
+    "fr_FR-upmc-medium": "fr/fr_FR/upmc/medium",
+    "de_DE-thorsten-medium": "de/de_DE/thorsten/medium",
+    "de_DE-kerstin-low": "de/de_DE/kerstin/low",
 }
 PIPER_URL = "https://huggingface.co/rhasspy/piper-voices/resolve/main/{path}/{name}.onnx"
 
 
-def list_edge_voices() -> list[str]:
+def list_edge_voices(lang: str = "es") -> list[str]:
+    """Voces de Edge del idioma (las recomendadas primero)."""
+    from .i18n import EDGE_VOICES, norm
+
+    lang = norm(lang)
+    base = EDGE_VOICES_ES if lang == "es" else EDGE_VOICES[lang]
     try:
         import edge_tts
 
         voices = asyncio.run(edge_tts.list_voices())
-        names = sorted(v["ShortName"] for v in voices if v["Locale"].startswith("es-"))
-        return names or EDGE_VOICES_ES
+        names = sorted(v["ShortName"] for v in voices if v["Locale"].lower().startswith(lang + "-"))
+        return [v for v in base if v in names] + [v for v in names if v not in base] if names else base
     except Exception as e:
         log.info("Lista de voces Edge no disponible (%s); uso la lista básica", e)
-        return EDGE_VOICES_ES
+        return base
+
+
+def piper_voices(lang: str = "es") -> list[str]:
+    return [v for v in PIPER_VOICES if v.lower().startswith(lang + "_")]
 
 
 def speakable(text: str) -> str:

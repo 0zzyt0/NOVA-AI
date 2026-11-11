@@ -480,7 +480,7 @@ class Body:
     def texto(self) -> str:
         lines = [f"{self.nombre.upper()} ({self.designacion or self.codigo})"]
         lines += [f"• {k}: {v}" for k, v in self.campos()]
-        desc = self.descripcion_es or self.descripcion
+        desc = desc_for(self)
         if desc:
             lines += ["", desc]
         lines.append(f"Fuente: {self.url}")
@@ -707,6 +707,18 @@ def place_text(b: Body, p: Place) -> str:
             t += f" (de {_fmt(p.temp_min)} a {_fmt(p.temp_max)} °C)"
         lines.append(f"• Temperatura: {t}")
     if p.descripcion_es or p.descripcion:
-        lines += ["", p.descripcion_es or p.descripcion]
+        lines += ["", desc_for(p)]
     lines.append(f"Fuente: {b.url}")
     return "\n".join(lines)
+
+
+def desc_for(obj) -> str:
+    """Descripción en el idioma de NOVA AI: español (traducida), inglés (la original) o ca/fr/de (traducida)."""
+    from .i18n import lang
+    lg = lang()
+    if lg == "es":
+        return obj.descripcion_es or obj.descripcion
+    dl = getattr(obj, "desc_l", None)
+    if dl and dl[0] == lg:
+        return dl[1]
+    return obj.descripcion

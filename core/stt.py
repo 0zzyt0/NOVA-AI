@@ -26,9 +26,16 @@ VOCAB = (
 # Frases que Whisper "se inventa" con ruido o silencio.
 _HALLUCINATIONS = re.compile(
     r"(subt[ií]tulos|amara\.org|gracias por ver|suscr[ií]bete|www\.|\.com|m[uú]sica|"
-    r"^\W*(gracias|ok|okay|hmm+|mm+|eh|ah)\W*$)",
+    r"thanks? for watching|subscribe|subtitles by|sous-titres|merci d'avoir regardé|abonnez-vous|"
+    r"untertitel|danke fürs zuschauen|abonniert|subtítols|gràcies per veure|"
+    r"^\W*(gracias|thank you|thanks|merci|danke|gràcies|ok|okay|hmm+|mm+|eh|ah)\W*$)",
     re.IGNORECASE,
 )
+
+
+def _stt_lang(settings) -> str:
+    from .i18n import info
+    return info(settings.get("idioma") or "es")["stt"]
 
 
 def prompt_for(settings) -> str:
@@ -121,7 +128,7 @@ class SpeechToText:
     def _transcribe_local(self, audio: np.ndarray) -> str:
         model = self._get_local()
         segments, _ = model.transcribe(
-            audio, language="es", initial_prompt=prompt_for(self.settings), beam_size=1, temperature=0.0,
+            audio, language=_stt_lang(self.settings), initial_prompt=prompt_for(self.settings), beam_size=1, temperature=0.0,
             vad_filter=True, vad_parameters={"min_silence_duration_ms": 300},
             condition_on_previous_text=False,
         )
@@ -135,7 +142,7 @@ class SpeechToText:
             "https://api.groq.com/openai/v1/audio/transcriptions",
             headers={"Authorization": f"Bearer {self.settings.key_for('groq')}"},
             files={"file": ("voz.wav", to_wav_bytes(audio), "audio/wav")},
-            data={"model": "whisper-large-v3-turbo", "language": "es", "prompt": prompt_for(self.settings),
+            data={"model": "whisper-large-v3-turbo", "language": _stt_lang(self.settings), "prompt": prompt_for(self.settings),
                   "temperature": "0", "response_format": "json"},
             timeout=20,
         )

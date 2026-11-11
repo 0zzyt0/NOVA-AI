@@ -25,7 +25,7 @@ window.V11 = (() => {
     if (!m || !(m[1] || m[2] || m[3])) return NaN;
     return (+(m[1] || 0)) * 1440 + (+(m[2] || 0)) * 60 + (+(m[3] || 0));
   }
-  const n = (v) => Number(v || 0).toLocaleString("es-ES");
+  const n = (v) => Number(v || 0).toLocaleString(LOCALE);
 
   // ------------------------------------------------------------ cabina: limpiar
   $("#btnClearChat").addEventListener("click", safe(async () => {
@@ -60,7 +60,7 @@ window.V11 = (() => {
     box.innerHTML = timers.map((t) => {
       const left = t.fin - now;
       const pct = Math.max(0, Math.min(100, 100 - (left / Math.max(1, t.fin - t.inicio)) * 100));
-      return `<div class="timer ${left < 300 ? "soon" : ""}" title="Termina el ${esc(t.dia)} a las ${esc(t.hora)}">
+      return `<div class="timer ${left < 300 ? "soon" : ""}" title="${esc(T("Termina el {d} a las {h}", { d: t.dia, h: t.hora }))}">
         <span class="ic">${TIPO[t.tipo] || "⏰"}</span>
         <span class="what"><b>${esc(t.motivo)}</b>${t.lugar ? ` <small>${esc(t.lugar)}</small>` : ""}</span>
         <span class="left">${human(left)}</span><span class="at">${esc(t.hora)}</span>
@@ -102,8 +102,8 @@ window.V11 = (() => {
     short.textContent = rsi.ok && !(rsi.avisos || []).length ? "✓ operativos" : (pu ? "PU " + (ES[pu] || pu) : "avisos") + ((rsi.avisos || []).length ? " · " + rsi.avisos.length + " aviso(s)" : "");
     short.className = rsi.ok ? "" : "warn";
     chip.textContent = rsi.ok ? "OPERATIVO" : "INCIDENCIAS"; chip.className = "chip" + (rsi.ok ? "" : " warn");
-    const when = new Date(rsi.comprobado * 1000).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
-    txt.textContent = (rsi.texto || "") + `\n\nComprobado a las ${when}.`;
+    const when = new Date(rsi.comprobado * 1000).toLocaleTimeString(LOCALE, { hour: "2-digit", minute: "2-digit" });
+    txt.textContent = (rsi.texto || "") + "\n\n" + T("Comprobado a las {h}.", { h: when });
   }
   $("#btnRsi").addEventListener("click", safe(async () => {
     $("#rsiText").textContent = "Consultando status.robertsspaceindustries.com…";
@@ -187,11 +187,11 @@ window.V11 = (() => {
     $("#statsTotals").innerHTML = [["horas", "HORAS DE JUEGO"], ["sesiones", "SESIONES"], ["bajas", "BAJAS"], ["muertes", "MUERTES"],
       ["naves_abatidas", "NAVES DERRIBADAS"], ["saltos", "SALTOS CUÁNTICOS"], ["contratos_completados", "CONTRATOS"], ["auec_recibidos", "aUEC RECIBIDOS"]]
       .map(([k, l]) => `<div><b>${k === "horas" ? String(t[k] || 0).replace(".", ",") : n(t[k])}</b><span>${l}</span></div>`).join("");
-    $("#statsHint").textContent = t.desde ? "Desde el " + new Date(t.desde * 1000).toLocaleDateString("es-ES") : "Todas tus sesiones, semana a semana";
+    $("#statsHint").textContent = t.desde ? T("Desde el {d}", { d: new Date(t.desde * 1000).toLocaleDateString(LOCALE) }) : "Todas tus sesiones, semana a semana";
     const rows = d.semanas || [];
     $("#statsTable").innerHTML = rows.length
       ? `<thead><tr>${COLS.map(([, l]) => `<th>${l}</th>`).join("")}</tr></thead><tbody>` +
-        rows.map((w) => `<tr>${COLS.map(([k]) => `<td>${k === "semana" ? new Date(w.semana + "T00:00").toLocaleDateString("es-ES", { day: "2-digit", month: "short" })
+        rows.map((w) => `<tr>${COLS.map(([k]) => `<td>${k === "semana" ? new Date(w.semana + "T00:00").toLocaleDateString(LOCALE, { day: "2-digit", month: "short" })
           : k === "nave_favorita" ? esc(w[k] || "—") : k === "horas" ? String(w[k]).replace(".", ",") : n(w[k])}</td>`).join("")}</tr>`).join("") + "</tbody>"
       : `<tbody><tr><td class="muted">Aún no hay sesiones de juego registradas. Juega un rato o pulsa «Recalcular».</td></tr></tbody>`;
     paintJob(d.recalculando || {});

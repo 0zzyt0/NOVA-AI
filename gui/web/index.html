@@ -5,7 +5,8 @@
 <title>NOVA · Asistente de vuelo</title>
 <link rel="icon" href="/favicon.ico">
 <link rel="stylesheet" href="/style.css">
-<script>window.NOVA_TOKEN = "__TOKEN__";</script>
+<link rel="stylesheet" href="/glass.css">
+<script>window.NOVA_TOKEN = "__TOKEN__"; window.NOVA_LANG = "__LANG__"; window.NOVA_I18N = __I18N__;</script>
 </head>
 <body class="st-idle">
 <div class="bg-grid"></div><div class="bg-scan"></div><div class="bg-sweep"></div>
@@ -19,13 +20,13 @@
   </div>
   <nav id="nav">
     <button data-sec="cabina" class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg><span>Cabina</span></button>
-    <div class="nav-group">OPCIONES</div>
-    <button data-sec="juego"><svg viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="11" rx="2"/><path d="M6 10.5h2M7 9.5v2M11 10.5h2M15.5 10h.01M17.5 12h.01M6 14.5h12"/></svg><span>Juego</span><b class="badge" id="navWarn"></b></button>
-    <button data-sec="voz"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4zM16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><span>Voz del Asistente</span></button>
-    <button data-sec="interfaz"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></svg><span>Interfaz de Usuario</span></button>
-    <button data-sec="ia"><svg viewBox="0 0 24 24"><path d="M9 4.5a3 3 0 0 0-3 3v.5a3 3 0 0 0-2 5.2A3 3 0 0 0 7 18h2V4.5zM15 4.5a3 3 0 0 1 3 3v.5a3 3 0 0 1 2 5.2A3 3 0 0 1 17 18h-2V4.5zM9 18v1.5h6V18"/></svg><span>Inteligencia</span></button>
-    <button data-sec="datos"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3.5 12h17M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9M12 3c-2.6 2.6-3.8 5.6-3.8 9s1.2 6.4 3.8 9"/></svg><span>Fuentes de datos</span><b class="badge" id="navData"></b></button>
-    <button data-sec="memoria"><svg viewBox="0 0 24 24"><path d="M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>Memoria</span></button>
+    <button id="btnManual" class="nav-manual" title="Abre el manual de NOVA AI en tu navegador"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5M8 7h8M8 10.5h6"/></svg><span>Consulta el Manual</span></button>
+    <div class="nav-group">CONFIGURACIÓN</div>
+    <button data-sec="juego"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.2 5.6 6.3.9-4.7 4.3 1.3 6.2L12 16.4l-5.1 3.1 1.3-6.2L3.5 9l6.3-.9z"/></svg><span>Nave y comandos</span><b class="badge" id="navWarn"></b></button>
+    <button data-sec="nova"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3a9 9 0 0 1 9 9M12 21a9 9 0 0 1-9-9M6.3 6.3a8 8 0 0 0 0 11.4M17.7 17.7a8 8 0 0 0 0-11.4"/></svg><span>Nova</span><small class="nav-sub">voz · IA · idioma</small></button>
+    <button data-sec="overlay"><svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg><span>Overlay y hologramas</span></button>
+    <button data-sec="datos"><svg viewBox="0 0 24 24"><path d="M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>Datos y memoria</span><b class="badge" id="navData"></b></button>
+    <button data-sec="ajustes"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg><span>Ajustes</span></button>
   </nav>
   <button class="about-link" id="btnAbout" title="Créditos, licencia y derechos">ⓘ Acerca de</button>
   <div class="side-foot">
@@ -72,8 +73,11 @@
             <div class="row gap" style="width:100%">
               <button class="btn pri talk" id="btnTalk">🎙 MANTÉN PARA HABLAR</button>
               <button class="btn" id="btnMute" title="Callar a Nova">🔇</button>
-              <button class="btn" id="btnPause" title="Pausar Nova (overlay en rojo)">⏸</button>
             </div>
+            <label class="power-line" id="powerLine" title="Apágalo para detener todas las búsquedas y parar a Nova">
+              <span class="pw-txt"><b id="powerTxt">◉ <span class="ai-name up">NOVA</span> ACTIVA</b><small id="powerSub">Apágalo para detener todas las búsquedas y pararla</small></span>
+              <span class="switch"><input type="checkbox" id="swNova" checked><i></i></span>
+            </label>
           </div>
           <div class="panel timers-panel">
             <div class="panel-h"><span>TEMPORIZADORES</span><span class="hint">Persistentes</span></div>
@@ -104,10 +108,29 @@
       </div>
     </section>
 
-    <!-- ============================== JUEGO =============================== -->
+    <!-- ============================== NAVE Y COMANDOS ============================== -->
     <section id="sec-juego" class="sec">
       <p class="sec-intro">Todo lo que tiene que ver con Star Citizen: lo que <span class="ai-name">Nova</span> lee del juego y te comenta en voz, tus teclas y los comandos de voz que pulsan teclas por ti.</p>
-      <div class="grid2">
+      <div class="subtabs" data-group="juego">
+        <button data-sub="comandos" class="on">⌨ Comandos de voz</button>
+        <button data-sub="lectura">📡 Lectura del juego y teclas</button>
+        <button data-sub="perfiles">🚀 Perfiles de nave</button>
+        <button data-sub="chat">💬 Chat del juego</button>
+      </div>
+      <div class="subsec on" data-sub="comandos">
+            <div class="panel">
+        <div class="panel-h"><span>COMANDOS DE VOZ</span><span class="hint" id="cmdCount"></span></div>
+        <div class="toolbar">
+          <input id="cmdSearch" placeholder="Buscar por nombre, frase o tecla…">
+          <select id="cmdCat"><option value="">Todas las categorías</option></select>
+          <button class="btn pri" id="btnNewCmd">＋ NUEVO COMANDO</button>
+        </div>
+        <div id="cmdList" class="cmd-list"></div>
+        <details id="hiddenBox" hidden><summary>Comandos ocultos</summary><div id="hiddenList"></div></details>
+      </div>
+      </div>
+      <div class="subsec" data-sub="lectura">
+            <div class="grid2">
         <div class="panel">
           <div class="panel-h"><span>LECTURA DEL JUEGO (GAME.LOG)</span><span class="hint" id="gameStatus"></span></div>
           <div class="field"><label>Leer el Game.log<small>Ubicación, contratos y avisos</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="gamelog_activo"><i></i></span></div></div>
@@ -136,7 +159,9 @@
           <div class="field"><label>Ruta de actionmaps.xml<small>Vacío = buscarlo solo</small></label><div class="ctl"><input type="text" data-set="actionmaps_ruta" placeholder="…\StarCitizen\LIVE\user\client\0\Profiles\default\actionmaps.xml"></div></div>
         </div>
       </div>
-      <div class="panel" style="margin-top:18px">
+      </div>
+      <div class="subsec" data-sub="perfiles">
+            <div class="panel">
         <div class="panel-h"><span>PERFILES DE NAVE</span><span class="hint">Avisos distintos según la nave en la que vas</span></div>
         <p class="muted">Elige una nave y marca qué quieres que te avise en ella. Lo que no cambies sigue como en «Qué te avisa en voz». En el editor de comandos puedes además limitar un comando a ciertas naves («Solo en estas naves»).</p>
         <div class="toolbar">
@@ -147,22 +172,63 @@
         </div>
         <div id="shipProfiles" class="ship-profiles"></div>
       </div>
-      <div class="panel" style="margin-top:18px">
-        <div class="panel-h"><span>COMANDOS DE VOZ</span><span class="hint" id="cmdCount"></span></div>
-        <div class="toolbar">
-          <input id="cmdSearch" placeholder="Buscar por nombre, frase o tecla…">
-          <select id="cmdCat"><option value="">Todas las categorías</option></select>
-          <button class="btn pri" id="btnNewCmd">＋ NUEVO COMANDO</button>
+      </div>
+      <div class="subsec" data-sub="chat">
+            <div class="panel">
+        <div class="panel-h"><span>CHAT DEL JUEGO</span><span class="hint">«<span class="ai-name">Nova</span>, envía mensaje al chat…» · traducido con Google Translate, sin gastar IA</span></div>
+        <div class="grid2 tight">
+          <div>
+            <p class="muted">Di <b>«<span class="ai-name">Nova</span>, envía mensaje al chat»</b> y luego tu mensaje (o todo seguido: «envía mensaje al chat: ¿alguien necesita escolta?»). <span class="ai-name">Nova</span> lo traduce y hace lo mismo que tú: <kbd>F12</kbd> + <kbd>Intro</kbd>, escribe tecla a tecla, <kbd>Intro</kbd> + <kbd>F12</kbd>. «Cancela» lo anula.</p>
+            <div class="field"><label>Activado</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="chat_activo"><i></i></span></div></div>
+            <div class="field"><label>Tecla que abre el chat<small>En Star Citizen: <code>f12</code></small></label><div class="ctl"><input type="text" data-set="chat_tecla" maxlength="30" style="max-width:140px"></div></div>
+            <div class="field"><label>Tecla para empezar a escribir<small>En Star Citizen: <code>enter</code> (F12 + Intro) · vacío = ninguna</small></label><div class="ctl"><input type="text" data-set="chat_tecla_foco" maxlength="30" style="max-width:140px"></div></div>
+            <div class="field"><label>Traducir al</label><div class="ctl"><select data-set="chat_idioma"><option value="en">Inglés</option><option value="es">Español (sin traducir)</option><option value="fr">Francés</option><option value="de">Alemán</option><option value="it">Italiano</option><option value="pt">Portugués</option></select></div></div>
+            <div class="field"><label>Leer la traducción antes de enviarla<small>Espera a que digas «sí»</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="chat_confirmar"><i></i></span></div></div>
+          </div>
+          <div>
+            <div class="field"><label>Cómo lo escribe<small>«Teclas» pulsa cada letra como si escribieras tú (el que funciona en Star Citizen)</small></label><div class="ctl"><select data-set="chat_metodo"><option value="escribir">Teclas, letra a letra</option><option value="unicode">Unicode (otros juegos)</option><option value="pegar">Pegar con Ctrl+V (otros juegos)</option></select></div></div>
+            <div class="field"><label>Velocidad al escribir<small>Súbelo si se come letras</small></label><div class="ctl"><input type="range" min="4" max="60" step="2" data-set="chat_tecla_ms"><span class="val" data-val="chat_tecla_ms" data-fmt="{} ms"></span></div></div>
+            <div class="field"><label>Espera tras abrir el chat</label><div class="ctl"><input type="range" min="150" max="1500" step="50" data-set="chat_espera_ms"><span class="val" data-val="chat_espera_ms" data-fmt="{} ms"></span></div></div>
+            <div class="field"><label>Tecla para cerrar el chat<small>Después de enviar con Intro · en Star Citizen: <code>f12</code> · vacío = ninguna</small></label><div class="ctl"><input type="text" data-set="chat_tecla_cerrar" maxlength="30" style="max-width:140px"></div></div>
+            <div class="chat-test">
+              <input id="chatTestIn" placeholder="Prueba: ¿alguien necesita escolta en Daymar?" maxlength="240">
+              <button class="btn sm" id="btnChatTr">TRADUCIR</button>
+              <button class="btn sm pri" id="btnChatSend" title="Tienes 5 segundos para volver al juego">ENVIAR AL JUEGO (5 s)</button>
+            </div>
+            <div class="muted small" id="chatTestOut"></div>
+          </div>
         </div>
-        <div id="cmdList" class="cmd-list"></div>
-        <details id="hiddenBox" hidden><summary>Comandos ocultos</summary><div id="hiddenList"></div></details>
+      </div>
       </div>
     </section>
 
-    <!-- ================================ VOZ =============================== -->
-    <section id="sec-voz" class="sec">
-      <p class="sec-intro">Cómo te habla tu asistente: elige el motor y la voz, y ajusta velocidad, tono y volumen. Todas las voces son gratis; las de Edge son las más naturales y las de Piper funcionan sin internet. Pulsa «Probar voz» para escucharla.</p>
+    <!-- ============================== NOVA ============================== -->
+    <section id="sec-nova" class="sec">
+      <p class="sec-intro">Todo sobre <span class="ai-name">Nova</span>: su nombre e idioma, su voz, cómo te oye, su inteligencia y cómo ahorra cuota.</p>
+      <div class="subtabs" data-group="nova">
+        <button data-sub="identidad" class="on">◉ Identidad e idioma</button>
+        <button data-sub="voz">🔊 Voz</button>
+        <button data-sub="mic">🎙 Micrófono</button>
+        <button data-sub="hablar">💬 Cómo hablarle</button>
+        <button data-sub="sonido">🎧 Salida de audio</button>
+        <button data-sub="ia">🧠 Inteligencia</button>
+        <button data-sub="ahorro">♻ Ahorro de tokens</button>
+      </div>
+      <div class="subsec on" data-sub="identidad">
+      <div class="grid2">      <div class="panel">
+        <div class="panel-h"><span>IDENTIDAD</span><span class="hint">Responde a cualquier nombre que le pongas</span></div>
+        <div class="field"><label>Nombre de la IA<small id="nameWarn">Al cambiarlo, entrénala para que reconozca cómo lo dices</small></label><div class="ctl"><input type="text" data-set="nombre_asistente" maxlength="40"></div></div>
+        <div class="field"><label>Tu nombre</label><div class="ctl"><input type="text" data-set="nombre_piloto" maxlength="40"></div></div>
+        <div class="field"><label>Cómo te llama</label><div class="ctl"><input type="text" data-set="tratamiento"></div></div>
+        <div class="row gap" style="margin:6px 0 4px"><button class="btn pri" data-train>◆ REPETIR CONFIGURACIÓN Y ENTRENAMIENTO DE VOZ</button></div>
+      </div>
       <div class="panel">
+        <div class="panel-h"><span>IDIOMA</span><span class="hint">Ventana, voz de <span class="ai-name">Nova</span> y lo que entiende</span></div>
+        <div class="field"><label>Idioma de NOVA AI<small>Se aplica al momento: la ventana se recarga y Nova cambia de voz</small></label><div class="ctl"><select data-set="idioma" class="lang-sel"><option value="es">Español</option><option value="en">English</option><option value="ca">Català</option><option value="fr">Français</option><option value="de">Deutsch</option></select></div></div>
+      </div></div>
+      </div>
+      <div class="subsec" data-sub="voz">
+            <div class="panel">
         <div class="panel-h"><span>VOZ DE <span class="ai-name up">Nova</span></span><span class="hint">Todas gratis</span></div>
         <div class="field"><label>Motor de voz<small>Si falla, <span class="ai-name">Nova</span> cambia sola al siguiente</small></label><div class="ctl"><select data-set="tts_motor"><option value="edge">Edge · neuronal, la más natural (internet)</option><option value="piper">Piper · sin internet</option><option value="windows">Windows · voz del sistema</option></select></div></div>
         <div class="field"><label>Voz Edge<small>Las «Multilingual» son más expresivas</small></label><div class="ctl"><select data-set="tts_voz_edge" id="edgeVoices"></select></div></div>
@@ -173,18 +239,8 @@
         <div class="field"><label>Efecto «IA de cabina»</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="tts_efecto_radio"><i></i></span></div></div>
         <div class="row gap" style="margin-top:14px"><button class="btn pri" id="btnPreview">▶ PROBAR VOZ</button><span class="muted" style="margin:0">Pulsa otra vez para detenerla.</span></div>
       </div>
-    </section>
-
-        <!-- ========================= INTERFAZ DE USUARIO ========================= -->
-    <section id="sec-interfaz" class="sec">
-      <p class="sec-intro">Cómo te comunicas con <span class="ai-name">Nova</span>: el micrófono y el reconocimiento de voz, por dónde suena, cómo llamarla y el logo que aparece encima del juego.</p>
-      <div class="subtabs" data-group="interfaz">
-        <button data-sub="mic" class="on">🎙 Micrófono y reconocimiento</button>
-        <button data-sub="hablar">💬 Cómo hablarle</button>
-        <button data-sub="sonido">🔊 Salida de audio</button>
-        <button data-sub="overlay">◆ Overlay NOVA AI</button>
       </div>
-      <div class="subsec on" data-sub="mic"><div class="grid2">
+      <div class="subsec" data-sub="mic"><div class="grid2">
         <div class="panel">
           <div class="panel-h"><span>RECONOCIMIENTO DE VOZ</span><span class="hint" id="sttStatus"></span></div>
           <div class="big-meter" id="bigMeter"></div>
@@ -224,8 +280,64 @@
           <div class="row gap" style="margin-top:12px"><button class="btn pri" id="btnPreview2">▶ PROBAR EL SONIDO</button></div>
         </div>
       </div></div>
-      <div class="subsec" data-sub="overlay">
-      <div class="ov-wrap">
+      <div class="subsec" data-sub="ia">
+            <div class="panel">
+        <div class="panel-h"><span>CLAVES GRATUITAS</span><span class="hint">Con una basta · recomendado: Gemini + Groq</span></div>
+        <div id="provList"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><span>CADENA DE MOTORES</span><span class="hint">Si uno se queda sin cuota, <span class="ai-name">Nova</span> salta al siguiente</span></div>
+        <div id="chainList"></div>
+        <datalist id="modelsList"></datalist>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><span>PERSONALIDAD</span></div>
+        <div class="field"><label>Humor<small>0 = serio · 10 = cachondo total</small></label><div class="ctl"><input type="range" min="0" max="10" step="1" data-set="humor"><span class="val" data-val="humor" data-fmt="{}/10"></span></div></div>
+        <div class="field"><label>Razonamiento (Gemini)<small>Más alto = más listo pero más lento</small></label><div class="ctl"><select data-set="ia_razonamiento"><option value="low">Rápido</option><option value="medium">Medio</option><option value="high">Profundo</option></select></div></div>
+        <div class="field"><label>Memoria de la conversación<small>Turnos que recuerda en cada respuesta</small></label><div class="ctl"><input type="range" min="2" max="30" step="1" data-set="max_turnos_contexto"><span class="val" data-val="max_turnos_contexto" data-fmt="{}"></span></div></div>
+        <div class="field"><label>Inventar cuando no sabe algo<small>En plan broma, y lo confiesa al final</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="inventar_si_no_sabe"><i></i></span></div></div>
+        <div class="field"><label>Frases de confesión<small>Una por línea; se elige una al azar cada vez. {t} = cómo te llama</small></label><div class="ctl" style="flex-direction:column;align-items:stretch"><textarea rows="4" data-set="frases_inventadas" data-lines="1" id="phrasesBox"></textarea><div class="row gap" style="margin-top:8px"><button class="btn sm" id="btnPhraseDefault">RESTAURAR LA ORIGINAL</button></div></div></div>
+      </div>
+      </div>
+      <div class="subsec" data-sub="ahorro">
+            <div class="panel">
+        <div class="panel-h"><span>AHORRO DE TOKENS</span><span class="chip" id="saveChip">—</span></div>
+        <p class="muted">Lo que <span class="ai-name">Nova</span> puede contestar o traducir sin gastar la cuota de tus motores de IA.</p>
+        <div class="save-stats">
+          <div><b id="svAns">0</b><span>RESPUESTAS REPETIDAS SIN IA</span></div>
+          <div><b id="svLoc">0</b><span>DICCIONARIO Y PLANETAS SIN IA</span></div>
+          <div><b id="svTr">0</b><span>TRADUCCIONES GRATIS</span></div>
+        </div>
+        <div class="field"><label>Guardar respuestas de datos fijos<small>Planetas, lugares, naves, armas, armaduras y ropa, minerales, planos… Caducan a los 14 días o con un parche nuevo</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="respuestas_guardadas"><i></i></span></div></div>
+        <div class="field"><label>Planetas y lugares sin IA<small>«Háblame de Daymar»: la ficha de VerseGuide y un resumen</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="respuestas_locales"><i></i></span></div></div>
+        <div class="field"><label>Traducir con<small>Descripciones de los hologramas y mensajes del chat</small></label><div class="ctl"><select data-set="traduccion_motor"><option value="google">Google Translate (gratis)</option><option value="ia">La IA (gasta cuota)</option></select></div></div>
+        <div class="field"><label>Si Google no responde, traducir con la IA</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="traduccion_respaldo_ia"><i></i></span></div></div>
+        <div class="field"><label>Conversación más corta<small>Manda menos historial y recorta los resultados de búsqueda</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="ahorro_tokens"><i></i></span></div></div>
+        <div class="field"><label>Turnos con el ahorro activado</label><div class="ctl"><input type="range" min="2" max="12" step="1" data-set="ahorro_turnos"><span class="val" data-val="ahorro_turnos" data-fmt="{}"></span></div></div>
+        <details><summary>Respuestas guardadas (<span id="svCount">0</span>) · traducciones guardadas (<span id="svTrCount">0</span>)</summary><div class="list-sm" id="svList"></div></details>
+        <div class="row gap wrap" style="margin-top:10px"><button class="btn sm" id="btnAnsClear">BORRAR RESPUESTAS GUARDADAS</button><button class="btn sm" id="btnTrClear">BORRAR TRADUCCIONES</button></div>
+      </div>
+      </div>
+    </section>
+
+    <!-- ============================== OVERLAY Y HOLOGRAMAS ============================== -->
+    <section id="sec-overlay" class="sec">
+      <p class="sec-intro">Lo que <span class="ai-name">Nova</span> dibuja encima del juego (con Star Citizen en «Ventana sin bordes»): el logo de estado y los hologramas de información.</p>
+      <div class="panel fx-panel">
+        <div class="panel-h"><span>EFECTOS VISUALES</span><span class="hint">Logo, hologramas y la propia ventana</span></div>
+        <div class="fx-levels">
+          <div class="fx-card" data-fx="cine"><b>✦ CINEMATOGRÁFICOS</b><small>Destellos, barrido de escaneo, partículas y aparición en 3D. Lo más espectacular.</small></div>
+          <div class="fx-card" data-fx="ligero"><b>◇ LIGEROS</b><small>Fundidos suaves y brillo, sin partículas. Para PCs justos o si emites en directo.</small></div>
+          <div class="fx-card" data-fx="ninguno"><b>□ SIN EFECTOS</b><small>Aparece y desaparece sin animaciones. Lo más ligero y legible.</small></div>
+        </div>
+        <select data-set="efectos_nivel" id="fxSel" hidden><option value="cine">cine</option><option value="ligero">ligero</option><option value="ninguno">ninguno</option></select>
+      </div>
+      <div class="subtabs" data-group="overlay">
+        <button data-sub="logo" class="on">◆ Logo de estado</button>
+        <button data-sub="hologramas">🛰 Hologramas</button>
+      </div>
+      <div class="subsec on" data-sub="logo">
+            <div class="ov-wrap">
         <div class="panel">
           <div class="panel-h"><span>VISTA PREVIA</span><span class="hint">Pulsa un recuadro para mover el logo</span></div>
           <div class="ov-screen" id="ovScreen">
@@ -238,6 +350,8 @@
             <button class="btn" data-demo="speaking:base">Hablando</button>
             <button class="btn" data-demo="speaking:green">Entendido</button>
             <button class="btn" data-demo="searching:yellow">Buscando</button>
+            <button class="btn" data-demo="searching:purple">Memoria física</button>
+            <button class="btn" data-demo="searching:white">Memorizando</button>
             <button class="btn" data-demo="idle:red">No entiende</button>
             <button class="btn" data-demo="off:red">En pausa</button>
             <button class="btn" data-demo="listening:base">Escuchando</button>
@@ -261,10 +375,13 @@
           <div class="field"><label>Ha entendido tu orden</label><div class="ctl"><input type="color" data-set="overlay_color_ok" class="swatch"><span class="val" data-val="overlay_color_ok" data-fmt="{}"></span></div></div>
           <div class="field"><label>Buscando en internet</label><div class="ctl"><input type="color" data-set="overlay_color_busca" class="swatch"><span class="val" data-val="overlay_color_busca" data-fmt="{}"></span></div></div>
           <div class="field"><label>En pausa o no te ha entendido</label><div class="ctl"><input type="color" data-set="overlay_color_error" class="swatch"><span class="val" data-val="overlay_color_error" data-fmt="{}"></span></div></div>
+          <div class="field"><label>Buscando en memoria física<small>Diccionario de consultas</small></label><div class="ctl"><input type="color" data-set="overlay_color_memoria" class="swatch"><span class="val" data-val="overlay_color_memoria" data-fmt="{}"></span></div></div>
+          <div class="field"><label>Memorizando<small>Guarda lo aprendido en el diccionario</small></label><div class="ctl"><input type="color" data-set="overlay_color_memoriza" class="swatch"><span class="val" data-val="overlay_color_memoriza" data-fmt="{}"></span></div></div>
         </div>
       </div>
-      <div class="panel-h ov-sep"><span>HOLOGRAMAS DE INFORMACIÓN</span><span class="hint">Fichas de jugadores, planetas y lugares sobre el juego</span></div>
-      <div class="ov-wrap">
+      </div>
+      <div class="subsec" data-sub="hologramas">
+            <div class="ov-wrap">
         <div class="panel">
           <div class="panel-h"><span>HOLOGRAMA</span><span class="hint" id="holoStatus"></span></div>
           <div class="holo-prev" id="holoPrev"><div class="muted small">Aquí verás la última ficha que se ha mostrado.</div></div>
@@ -290,50 +407,59 @@
           <div class="field"><label>Al pedir información de un planeta o lugar</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_planetas"><i></i></span></div></div>
           <div class="field"><label>Al llegar cerca de un planeta o luna</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_llegadas"><i></i></span></div></div>
           <div class="field"><label>Al llegar a un lugar planetario<small>Cuevas, puestos avanzados, bases…</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_lugares"><i></i></span></div></div>
-          <div class="field"><label>Traducir las descripciones<small>Vienen en inglés; usa tu IA (una vez por lugar)</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_traducir"><i></i></span></div></div>
+          <div class="field"><label>Traducir las descripciones<small>Vienen en inglés; con Google Translate, gratis (una vez por lugar)</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_traducir"><i></i></span></div></div>
           <div class="field"><label>Buscar el objetivo de cada recompensa<small>Ficha si es un jugador · aviso si es un piloto NPC</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="recompensas_buscar"><i></i></span></div></div>
           <div class="panel-h sub"><span>SONIDO</span><span class="hint">Jugador: azul · Objetivo de captura: rojo y alerta</span></div>
-          <div class="field"><label>Sonido al encender y apagar</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_sonidos"><i></i></span></div></div>
-          <div class="field"><label>Volumen</label><div class="ctl"><input type="range" min="0.1" max="1" step="0.05" data-set="holo_volumen"><span class="val" data-val="holo_volumen" data-fmt="%"></span></div></div>
-          <div class="row gap wrap"><button class="btn sm" data-sfx="holo_on">▶ Encendido</button><button class="btn sm" data-sfx="holo_off">▶ Apagado</button><button class="btn sm" data-sfx="alerta">▶ Alerta de captura</button></div>
+          <div class="field"><label>Sonidos de los hologramas</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_sonidos"><i></i></span></div></div>
+          <div class="field"><label>Volumen general</label><div class="ctl"><input type="range" min="0.1" max="1" step="0.05" data-set="holo_volumen"><span class="val" data-val="holo_volumen" data-fmt="%"></span></div></div>
+          <div class="sfx-row" data-sfx-row="holo_on">
+            <div class="sfx-h"><b>Al encenderse</b><small class="muted" data-sfx-name="holo_on"></small></div>
+            <div class="sfx-ctl">
+              <select data-set="holo_sonido_on"><option value="proyector">Proyector holográfico</option><option value="pulso">Pulso digital</option><option value="escaner">Escáner</option><option value="campanilla">Campanilla</option><option value="zumbido">Arranque de motor</option><option value="archivo">Archivo propio…</option><option value="ninguno">Sin sonido</option></select>
+              <input type="range" min="0" max="1.5" step="0.05" data-set="holo_sonido_on_vol" title="Volumen de este sonido"><span class="val" data-val="holo_sonido_on_vol" data-fmt="%"></span>
+              <button class="btn sm" data-sfx="holo_on" title="Escuchar">▶</button>
+              <button class="btn sm" data-sfx-pick="holo_on" title="Usar un audio tuyo (WAV, MP3, OGG o FLAC)">📁</button>
+              <input type="file" accept=".wav,.mp3,.ogg,.flac,audio/*" data-sfx-file="holo_on" hidden>
+            </div>
+          </div>
+          <div class="sfx-row" data-sfx-row="holo_off">
+            <div class="sfx-h"><b>Al apagarse</b><small class="muted" data-sfx-name="holo_off"></small></div>
+            <div class="sfx-ctl">
+              <select data-set="holo_sonido_off"><option value="proyector">Proyector holográfico</option><option value="pulso">Pulso digital</option><option value="desconexion">Desconexión</option><option value="campanilla">Campanilla</option><option value="zumbido">Apagado de motor</option><option value="archivo">Archivo propio…</option><option value="ninguno">Sin sonido</option></select>
+              <input type="range" min="0" max="1.5" step="0.05" data-set="holo_sonido_off_vol" title="Volumen de este sonido"><span class="val" data-val="holo_sonido_off_vol" data-fmt="%"></span>
+              <button class="btn sm" data-sfx="holo_off" title="Escuchar">▶</button>
+              <button class="btn sm" data-sfx-pick="holo_off" title="Usar un audio tuyo (WAV, MP3, OGG o FLAC)">📁</button>
+              <input type="file" accept=".wav,.mp3,.ogg,.flac,audio/*" data-sfx-file="holo_off" hidden>
+            </div>
+          </div>
+          <div class="sfx-row" data-sfx-row="alerta">
+            <div class="sfx-h"><b>Alerta de objetivo de captura</b><small class="muted" data-sfx-name="alerta"></small></div>
+            <div class="sfx-ctl">
+              <select data-set="holo_sonido_alerta"><option value="sirena">Sirena de dos tonos</option><option value="klaxon">Klaxon</option><option value="pitidos">Pitidos rápidos</option><option value="aullido">Alarma de proximidad</option><option value="campana">Campana de combate</option><option value="archivo">Archivo propio…</option><option value="ninguno">Sin sonido</option></select>
+              <input type="range" min="0" max="1.5" step="0.05" data-set="holo_sonido_alerta_vol" title="Volumen de este sonido"><span class="val" data-val="holo_sonido_alerta_vol" data-fmt="%"></span>
+              <button class="btn sm" data-sfx="alerta" title="Escuchar">▶</button>
+              <button class="btn sm" data-sfx-pick="alerta" title="Usar un audio tuyo (WAV, MP3, OGG o FLAC)">📁</button>
+              <input type="file" accept=".wav,.mp3,.ogg,.flac,audio/*" data-sfx-file="alerta" hidden>
+            </div>
+          </div>
         </div>
       </div>
       </div>
     </section>
 
-<!-- ================================ IA ================================ -->
-    <section id="sec-ia" class="sec">
-      <p class="sec-intro">El cerebro de <span class="ai-name">Nova</span>: su nombre y el tuyo, las claves gratuitas de los motores de IA, el orden en que los usa y su personalidad.</p>
-      <div class="panel">
-        <div class="panel-h"><span>IDENTIDAD</span><span class="hint">Responde a cualquier nombre que le pongas</span></div>
-        <div class="field"><label>Nombre de la IA<small id="nameWarn">Al cambiarlo, entrénala para que reconozca cómo lo dices</small></label><div class="ctl"><input type="text" data-set="nombre_asistente" maxlength="40"></div></div>
-        <div class="field"><label>Tu nombre</label><div class="ctl"><input type="text" data-set="nombre_piloto" maxlength="40"></div></div>
-        <div class="field"><label>Cómo te llama</label><div class="ctl"><input type="text" data-set="tratamiento"></div></div>
-        <div class="row gap" style="margin:6px 0 4px"><button class="btn pri" data-train>◆ REPETIR CONFIGURACIÓN Y ENTRENAMIENTO DE VOZ</button></div>
-      </div>
-      <div class="panel">
-        <div class="panel-h"><span>CLAVES GRATUITAS</span><span class="hint">Con una basta · recomendado: Gemini + Groq</span></div>
-        <div id="provList"></div>
-      </div>
-      <div class="panel">
-        <div class="panel-h"><span>CADENA DE MOTORES</span><span class="hint">Si uno se queda sin cuota, <span class="ai-name">Nova</span> salta al siguiente</span></div>
-        <div id="chainList"></div>
-        <datalist id="modelsList"></datalist>
-      </div>
-      <div class="panel">
-        <div class="panel-h"><span>PERSONALIDAD</span></div>
-        <div class="field"><label>Humor<small>0 = serio · 10 = cachondo total</small></label><div class="ctl"><input type="range" min="0" max="10" step="1" data-set="humor"><span class="val" data-val="humor" data-fmt="{}/10"></span></div></div>
-        <div class="field"><label>Razonamiento (Gemini)<small>Más alto = más listo pero más lento</small></label><div class="ctl"><select data-set="ia_razonamiento"><option value="low">Rápido</option><option value="medium">Medio</option><option value="high">Profundo</option></select></div></div>
-        <div class="field"><label>Memoria de la conversación<small>Turnos que recuerda en cada respuesta</small></label><div class="ctl"><input type="range" min="2" max="30" step="1" data-set="max_turnos_contexto"><span class="val" data-val="max_turnos_contexto" data-fmt="{}"></span></div></div>
-        <div class="field"><label>Inventar cuando no sabe algo<small>En plan broma, y lo confiesa al final</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="inventar_si_no_sabe"><i></i></span></div></div>
-        <div class="field"><label>Frases de confesión<small>Una por línea; se elige una al azar cada vez. {t} = cómo te llama</small></label><div class="ctl" style="flex-direction:column;align-items:stretch"><textarea rows="4" data-set="frases_inventadas" data-lines="1" id="phrasesBox"></textarea><div class="row gap" style="margin-top:8px"><button class="btn sm" id="btnPhraseDefault">RESTAURAR LA ORIGINAL</button></div></div></div>
-      </div>
-    </section>
-
-    <!-- ============================== DATOS =============================== -->
+    <!-- ============================== DATOS Y MEMORIA ============================== -->
     <section id="sec-datos" class="sec">
-      <p class="sec-intro">De dónde saca <span class="ai-name">Nova</span> la información del juego. Al arrancar comprueba si hay datos nuevos de tu parche; aquí ves sus versiones, puedes buscar en la enciclopedia y gestionar la traducción al español.</p>
-      <div class="panel">
+      <p class="sec-intro">De dónde saca <span class="ai-name">Nova</span> la información y lo que recuerda: páginas de consulta, su Diccionario, tu memoria y tus bitácoras.</p>
+      <div class="subtabs" data-group="datos">
+        <button data-sub="fuentes" class="on">🌐 Páginas de consulta</button>
+        <button data-sub="diccionario">📖 Diccionario</button>
+        <button data-sub="memoria">🧠 Lo que sabe de ti</button>
+        <button data-sub="bitacora">📓 Bitácora y estadísticas</button>
+        <button data-sub="discord">📡 Discord y servidores</button>
+        <button data-sub="traduccion">🌍 Traducción del juego</button>
+      </div>
+      <div class="subsec on" data-sub="fuentes">
+            <div class="panel">
         <div class="panel-h"><span>PÁGINAS DE CONSULTA</span><span class="hint" id="srcHint">Se comprueban al arrancar, antes de activar nada</span></div>
         <div class="sources" id="sources"></div>
         <div class="row gap wrap" style="margin-top:14px">
@@ -341,7 +467,7 @@
           <button class="btn" data-open="conocimiento">ABRIR CARPETA DE DATOS</button>
         </div>
       </div>
-      <div class="grid2" style="margin-top:18px">
+      <div class="grid2">
         <div class="panel">
           <div class="panel-h"><span>ENCICLOPEDIA LOCAL</span><span class="chip" id="kbChip">—</span></div>
           <p class="muted">Lo que <span class="ai-name">Nova</span> consulta primero, sin internet y al día con tu parche: textos del juego, misiones, planos y minería de scmdb.net, y precios medios y naves de UEX.</p>
@@ -357,81 +483,40 @@
           <p class="muted small">Con el global.ini <span class="ai-name">Nova</span> entiende los avisos del juego en tu idioma (grupo, canal de la nave, torre, zonas…) y los nombres oficiales de lugares y naves. Los datos de scmdb.net tienen licencia CC BY-NC-ND 4.0: se descargan en tu PC para tu uso y no se redistribuyen.</p>
         </div>
       </div>
-      <div class="grid2" style="margin-top:18px">
-        <div class="panel">
-          <div class="panel-h"><span>ESTADO DE LOS SERVIDORES</span><span class="chip" id="rsiChip">—</span></div>
-          <pre class="rsi-status" id="rsiText">Sin comprobar.</pre>
-          <div class="row gap wrap" style="margin-top:10px"><button class="btn" id="btnRsi">⟳ COMPROBAR AHORA</button></div>
-          <div class="field" style="margin-top:10px"><label>Comprobar al arrancar<small>status.robertsspaceindustries.com · te avisa si hay caídas o mantenimiento</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="estado_rsi_al_iniciar"><i></i></span></div></div>
-          <div class="field"><label>Bodega por defecto (SCU)<small>Para las rutas de comercio si no sé tu nave · 0 = la de la nave en la que vas</small></label><div class="ctl"><input type="number" min="0" max="10000" step="1" data-set="carga_scu"></div></div>
-        </div>
-        <div class="panel">
-          <div class="panel-h"><span>DISCORD</span><span class="chip" id="dcChip">—</span></div>
-          <p class="muted">Cuando le pidas «búscame a un jugador», la ficha se manda también a este canal. En Discord: <b>Editar canal › Integraciones › Webhooks › Nuevo webhook › Copiar URL</b>.</p>
-          <div class="field"><label>Webhook del canal<small>Oculto · vacío = no mandar nada</small></label><div class="ctl"><input type="text" id="dcUrl" class="masked" autocomplete="off" spellcheck="false" placeholder="https://discord.com/api/webhooks/…"></div></div>
-          <div class="field"><label>Mandar las fichas de jugadores</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="discord_enviar_jugadores"><i></i></span></div></div>
-          <div class="row gap wrap"><button class="btn" id="btnDcTest">ENVIAR PRUEBA</button></div>
-        </div>
-      </div>
-      <div class="panel" style="margin-top:18px">
-        <div class="panel-h"><span>ACTUALIZACIONES DE NOVA AI</span><span class="chip" id="updChip">—</span></div>
-        <p class="muted">NOVA mira en GitHub si hay una versión nueva <b>al iniciar y al cerrar</b>. Si la hay, te pregunta: <b>Sí</b> (se descarga el instalador oficial y NOVA se reinicia actualizada), <b>No</b>, o <b>Al cerrar la aplicación</b>. Tus datos se conservan.</p>
-        <div class="field"><label>Comprobar al iniciar y al cerrar<small id="updInfo">—</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="actualizar_programa"><i></i></span></div></div>
-        <div class="row gap wrap"><button class="btn" id="btnUpdCheck">⟳ BUSCAR ACTUALIZACIONES AHORA</button><button class="btn pri" id="btnUpdShow" hidden>⬆ ACTUALIZAR</button></div>
-      </div>
-      <div class="panel" style="margin-top:18px">
-        <div class="panel-h"><span>TRADUCCIÓN AL ESPAÑOL</span><span class="chip" id="trChip">—</span></div>
-        <div class="tr-grid">
-          <div>
-            <p class="muted" id="trText">Comprobando…</p>
-            <div class="tr-bar" id="trBar" hidden><i></i><span></span></div>
-            <div class="row gap wrap" style="margin-top:10px">
-              <button class="btn pri" id="btnTrUpdate">⬇ ACTUALIZAR TRADUCCIÓN</button>
-              <button class="btn" id="btnTrFolder">ELEGIR CARPETA DEL JUEGO</button>
-            </div>
-          </div>
-          <div>
-            <div class="field"><label>Carpeta de Star Citizen<small id="trLive">Vacío = buscarla en todas las unidades</small></label><div class="ctl"><input type="text" data-set="juego_carpeta" placeholder="C:\Program Files\Roberts Space Industries\StarCitizen"></div></div>
-            <div class="field"><label>Enlace de la traducción<small>Oculto. Pega otro enlace de Google Drive para cambiarlo; vacío = el de 0zzyt0</small></label><div class="ctl"><input type="text" id="trUrl" class="masked" autocomplete="off" spellcheck="false" placeholder="vacío = enlace de 0zzyt0"></div></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-        <!-- ============================== MEMORIA ============================= -->
-    <section id="sec-memoria" class="sec">
-      <p class="sec-intro">Lo que <span class="ai-name">Nova</span> guarda de ti: lo que le has contado, tus archivos y las bitácoras de tus sesiones de juego. Desde aquí también puedes borrarlo todo y empezar de cero.</p>
-      <div class="subtabs" data-group="memoria">
-        <button data-sub="sabe" class="on">🧠 Lo que el asistente sabe de ti</button>
-        <button data-sub="archivos">📁 Archivos</button>
-        <button data-sub="bitacora">📓 Archivos de bitácora</button>
-      </div>
-      <div class="subsec on" data-sub="sabe">
       <div class="panel">
+        <div class="panel-h"><span>COMPROBAR LAS PÁGINAS</span><span class="chip" id="chkChip">—</span></div>
+        <p class="muted">Comprueba desde tu PC, sin abrir el navegador, que cada página de consulta responde.</p>
+        <div id="chkList" class="chk-list"></div>
+        <div class="row gap wrap"><button class="btn pri" id="btnCheckSrc">⟳ COMPROBAR AHORA</button></div>
+      </div>
+      </div>
+      <div class="subsec" data-sub="diccionario">
+            <div class="panel">
+        <div class="panel-h"><span>DICCIONARIO DE CONSULTAS</span><span class="chip" id="dicChip">—</span></div>
+        <p class="muted">La memoria física de <span class="ai-name">Nova</span>: <code>Diccionario_de_consultas.txt</code>, por grupos y en orden alfabético. Lo consulta antes de gastar la IA o buscar en internet (overlay en <b style="color:#a35cff">morado</b>) y guarda lo que aprende (en <b>blanco</b>). No caduca nunca y se conserva entre versiones. Puedes editarlo con el Bloc de notas: <span class="ai-name">Nova</span> respeta tus cambios.</p>
+        <div class="save-stats">
+          <div><b id="dicN">0</b><span>ENTRADAS</span></div>
+          <div><b id="dicL">0</b><span>APRENDIDAS EN INTERNET</span></div>
+          <div><b id="dicE">0</b><span>EDITADAS POR TI</span></div>
+        </div>
+        <div class="chat-test"><input id="dicQ" placeholder="Buscar en el diccionario: Attrition, Daymar, Morozov…"><button class="btn sm pri" id="btnDicQ">BUSCAR</button></div>
+        <pre class="list-sm" id="dicOut" hidden></pre>
+        <details><summary>Grupos</summary><div class="list-sm" id="dicGroups"></div></details>
+        <div class="row gap wrap" style="margin-top:10px"><button class="btn" id="btnDicOpen">📖 ABRIR DICCIONARIO</button><button class="btn" id="btnDicRefresh" title="Vuelve a leer los textos del juego (global.ini); lo tuyo y lo aprendido no se toca">⟳ RELEER LOS TEXTOS DEL JUEGO</button></div>
+        <div class="field" style="margin-top:10px"><label>Consultar el diccionario antes que la IA</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="diccionario_activo"><i></i></span></div></div>
+        <div class="field"><label>Memorizar lo que aprende en internet</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="diccionario_aprender"><i></i></span></div></div>
+      </div>
+      </div>
+      <div class="subsec" data-sub="memoria">
+            <div class="panel">
         <div class="panel-h"><span>LO QUE <span class="ai-name up">Nova</span> SABE DE TI</span></div>
         <div class="facts" id="facts"></div>
         <p class="muted">Dile por ejemplo «<span class="ai-name">Nova</span>, recuerda que mi nave es una Cutlass Black» y lo tendrá en cuenta siempre.</p>
         <div class="row gap"><button class="btn" id="btnClearHist">BORRAR CONVERSACIÓN</button><button class="btn danger" id="btnClearFacts">OLVIDAR TODO</button></div>
       </div>
-      <div class="panel danger-zone">
-        <div class="panel-h"><span>EMPEZAR DE CERO</span></div>
-        <p class="muted">Borra todo lo que <span class="ai-name">Nova</span> ha aprendido de ti (tu nombre y el suyo, lo que recuerda, la conversación, las bitácoras, el entrenamiento de voz y tus ajustes) y vuelve a empezar con la configuración inicial: «¿Cómo te llamas?», «¿Cómo quieres que me llame?»…</p>
-        <div class="row gap wrap" style="margin-top:6px">
-          <label class="check"><input type="checkbox" id="rsKeys" checked> Conservar mis claves de IA</label>
-          <label class="check"><input type="checkbox" id="rsCmds" checked> Conservar mis comandos personalizados</label>
-        </div>
-        <div class="row gap" style="margin-top:12px"><button class="btn danger" id="btnResetAll">⚠ BORRAR TODOS MIS DATOS Y EMPEZAR DE CERO</button></div>
-      </div>
-      </div>
-      <div class="subsec" data-sub="archivos">
-      <div class="panel">
-        <div class="panel-h"><span>ARCHIVOS</span></div>
-        <p class="muted">Todo lo tuyo se guarda en tu perfil de Windows (<code id="dataPath">%LOCALAPPDATA%\NOVA AI\datos</code>): ajustes, memoria, sesión, archivos de bitácora, datos descargados y voces.</p>
-        <div class="row gap wrap"><button class="btn" data-open="datos">CARPETA DE DATOS</button><button class="btn" data-open="log">REGISTRO (nova.log)</button><button class="btn" data-open="comandos">COMANDOS DE FÁBRICA</button></div>
-      </div>
       </div>
       <div class="subsec" data-sub="bitacora">
-      <div class="panel">
+            <div class="panel">
         <div class="panel-h"><span>ARCHIVOS DE BITÁCORA</span><span class="hint">Lo importante de cada sesión de juego, en un .log que puedes abrir</span></div>
         <div class="diary">
           <pre class="diary-sum" id="diarySum">Todavía no hay datos de esta sesión de juego.</pre>
@@ -455,6 +540,96 @@
           <button class="btn" id="btnStatsRebuild">⟳ RECALCULAR DESDE LOS GAME.LOG ANTIGUOS</button>
           <span class="muted small" id="statsJob">Lee la carpeta logbackups del juego para sumar sesiones de antes de instalar NOVA.</span>
         </div>
+      </div>
+      </div>
+      <div class="subsec" data-sub="discord">
+            <div class="grid2">
+        <div class="panel">
+          <div class="panel-h"><span>ESTADO DE LOS SERVIDORES</span><span class="chip" id="rsiChip">—</span></div>
+          <pre class="rsi-status" id="rsiText">Sin comprobar.</pre>
+          <div class="row gap wrap" style="margin-top:10px"><button class="btn" id="btnRsi">⟳ COMPROBAR AHORA</button></div>
+          <div class="field" style="margin-top:10px"><label>Comprobar al arrancar<small>status.robertsspaceindustries.com · te avisa si hay caídas o mantenimiento</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="estado_rsi_al_iniciar"><i></i></span></div></div>
+          <div class="field"><label>Bodega por defecto (SCU)<small>Para las rutas de comercio si no sé tu nave · 0 = la de la nave en la que vas</small></label><div class="ctl"><input type="number" min="0" max="10000" step="1" data-set="carga_scu"></div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><span>DISCORD</span><span class="chip" id="dcChip">—</span></div>
+          <p class="muted">Cada ficha de jugador que busques se manda sola a este canal. En Discord: <b>Editar canal › Integraciones › Webhooks › Nuevo webhook › Copiar URL</b>.</p>
+          <div class="field"><label>Webhook del canal<small>Oculto · vacío = no mandar nada</small></label><div class="ctl"><input type="text" id="dcUrl" class="masked" autocomplete="off" spellcheck="false" placeholder="https://discord.com/api/webhooks/…"></div></div>
+          <div class="field"><label>Mandar las fichas de jugadores<small>Cada vez que buscas uno</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="discord_enviar_jugadores"><i></i></span></div></div>
+          <div class="field"><label>Mandar también los objetivos de recompensa<small>Cuando el objetivo es un jugador (en rojo)</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="discord_enviar_recompensas"><i></i></span></div></div>
+          <div class="row gap wrap"><button class="btn" id="btnDcTest">ENVIAR FICHA DE PRUEBA</button><span class="muted small" id="dcLast"></span></div>
+        </div>
+      </div>
+      </div>
+      <div class="subsec" data-sub="traduccion">
+      <div class="panel" id="giniPanel">
+        <div class="panel-h"><span>IDIOMA DEL JUEGO</span><span class="chip" id="giniChip">—</span></div>
+        <p class="muted">¿Tienes los textos de Star Citizen en tu idioma (un archivo <b>global.ini</b> de la comunidad)? Elígelo y <span class="ai-name">Nova</span> lo instala en la carpeta del juego, guarda una copia de lo que hubiera, ajusta <b>user.cfg</b> y lo usa para entender los avisos del juego.</p>
+        <div class="gini-box">
+          <button class="btn pri" id="btnGini">Añade el global.ini de tu idioma de Star Citizen [AQUÍ]</button>
+          <span class="gini-state" id="giniState">—</span>
+          <button class="btn sm ghost" id="btnGiniUndo" hidden>↶ QUITAR Y RESTAURAR LA COPIA</button>
+        </div>
+        <div class="field" style="margin-top:10px"><label>Carpeta de Star Citizen<small>Vacío = buscarla en todas las unidades</small></label><div class="ctl"><input type="text" data-set="juego_carpeta" placeholder="C:\Program Files\Roberts Space Industries\StarCitizen"></div></div>
+      </div>
+            <div class="panel es-only" id="trEsPanel">
+        <div class="panel-h"><span>TRADUCCIÓN AL ESPAÑOL</span><span class="chip" id="trChip">—</span></div>
+        <div class="tr-grid">
+          <div>
+            <p class="muted" id="trText">Comprobando…</p>
+            <div class="tr-bar" id="trBar" hidden><i></i><span></span></div>
+            <div class="row gap wrap" style="margin-top:10px">
+              <button class="btn pri" id="btnTrUpdate">⬇ ACTUALIZAR TRADUCCIÓN</button>
+              <button class="btn" id="btnTrFolder">ELEGIR CARPETA DEL JUEGO</button>
+            </div>
+          </div>
+          <div>
+            <div class="field"><label>Carpeta de Star Citizen<small id="trLive">Vacío = buscarla en todas las unidades</small></label><div class="ctl"><input type="text" data-set="juego_carpeta" placeholder="C:\Program Files\Roberts Space Industries\StarCitizen"></div></div>
+            <div class="field"><label>Enlace de la traducción<small>Oculto. Pega otro enlace de Google Drive para cambiarlo; vacío = el de 0zzyt0</small></label><div class="ctl"><input type="text" id="trUrl" class="masked" autocomplete="off" spellcheck="false" placeholder="vacío = enlace de 0zzyt0"></div></div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <!-- ============================== AJUSTES ============================== -->
+    <section id="sec-ajustes" class="sec">
+      <p class="sec-intro">Idioma, actualizaciones, tus archivos y empezar de cero.</p>
+      <div class="subtabs" data-group="ajustes">
+        <button data-sub="general" class="on">⚙ General</button>
+        <button data-sub="reset">⚠ Empezar de cero</button>
+      </div>
+      <div class="subsec on" data-sub="general">
+      <div class="grid2"><div class="panel">
+        <div class="panel-h"><span>IDIOMA</span><span class="hint">Ventana, voz de <span class="ai-name">Nova</span> y lo que entiende</span></div>
+        <div class="field"><label>Idioma de NOVA AI<small>Se aplica al momento: la ventana se recarga y Nova cambia de voz</small></label><div class="ctl"><select data-set="idioma" class="lang-sel"><option value="es">Español</option><option value="en">English</option><option value="ca">Català</option><option value="fr">Français</option><option value="de">Deutsch</option></select></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><span>NOVA AI</span><span class="hint" id="aboutVer"></span></div>
+        <p class="muted">Un proyecto abierto de <b>0zzyt0</b>. Créditos, licencia, agradecimientos a las páginas de la comunidad y disclaimer.</p>
+        <div class="row gap wrap"><button class="btn pri" id="btnAbout2">ⓘ ACERCA DE NOVA AI</button><button class="btn" id="btnManual2">📖 CONSULTA EL MANUAL</button></div>
+      </div></div>
+            <div class="panel">
+        <div class="panel-h"><span>ACTUALIZACIONES DE NOVA AI</span><span class="chip" id="updChip">—</span></div>
+        <p class="muted">NOVA mira en GitHub si hay una versión nueva <b>al iniciar y al cerrar</b>. Si la hay, te pregunta: <b>Sí</b> (se descarga el instalador oficial y NOVA se reinicia actualizada), <b>No</b>, o <b>Al cerrar la aplicación</b>. Tus datos se conservan.</p>
+        <div class="field"><label>Comprobar al iniciar y al cerrar<small id="updInfo">—</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="actualizar_programa"><i></i></span></div></div>
+        <div class="row gap wrap"><button class="btn" id="btnUpdCheck">⟳ BUSCAR ACTUALIZACIONES AHORA</button><button class="btn pri" id="btnUpdShow" hidden>⬆ ACTUALIZAR</button></div>
+      </div>
+            <div class="panel">
+        <div class="panel-h"><span>ARCHIVOS</span></div>
+        <p class="muted">Todo lo tuyo se guarda en tu perfil de Windows (<code id="dataPath">%LOCALAPPDATA%\NOVA AI\datos</code>): ajustes, memoria, sesión, archivos de bitácora, datos descargados y voces.</p>
+        <div class="row gap wrap"><button class="btn" data-open="datos">CARPETA DE DATOS</button><button class="btn" data-open="log">REGISTRO (nova.log)</button><button class="btn" data-open="comandos">COMANDOS DE FÁBRICA</button></div>
+      </div>
+      </div>
+      <div class="subsec" data-sub="reset">
+            <div class="panel danger-zone">
+        <div class="panel-h"><span>EMPEZAR DE CERO</span></div>
+        <p class="muted">Borra todo lo que <span class="ai-name">Nova</span> ha aprendido de ti (tu nombre y el suyo, lo que recuerda, la conversación, las bitácoras, el entrenamiento de voz y tus ajustes) y vuelve a empezar con la configuración inicial: «¿Cómo te llamas?», «¿Cómo quieres que me llame?»…</p>
+        <div class="row gap wrap" style="margin-top:6px">
+          <label class="check"><input type="checkbox" id="rsKeys" checked> Conservar mis claves de IA</label>
+          <label class="check"><input type="checkbox" id="rsCmds" checked> Conservar mis comandos personalizados</label>
+        </div>
+        <div class="row gap" style="margin-top:12px"><button class="btn danger" id="btnResetAll">⚠ BORRAR TODOS MIS DATOS Y EMPEZAR DE CERO</button></div>
       </div>
       </div>
     </section>
@@ -645,10 +820,13 @@
   </div>
 </div>
 <div class="toasts" id="toasts"></div>
+<script src="/i18n.js"></script>
 <script src="/app.js"></script>
 <script src="/v11.js"></script>
 <script src="/v12.js"></script>
 <script src="/v13.js"></script>
+<script src="/v122.js"></script>
 <script src="/acerca/acerca.js"></script>
+<script src="/v130.js"></script>
 </body>
 </html>
