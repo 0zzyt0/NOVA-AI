@@ -1163,5 +1163,21 @@
  "solo disponible en Windows": "només disponible a Windows",
  "Licencia MIT: software libre.": "Llicència MIT: programari lliure.",
  "Puedes usarlo, modificarlo y compartirlo; solo conserva el aviso de copyright y la licencia en tus versiones. Texto completo en": "Pots fer-lo servir, modificar-lo i compartir-lo; només conserva l'avís de copyright i la llicència a les teves versions. Text complet a",
- "y": "i"
+ "y": "i",
+ "1 activo": "1 actiu",
+ "{n} activos": "{n} actius",
+ "ACERCA DE": "QUANT A",
+ "♪ MÚSICA: SÍ": "♪ MÚSICA: SÍ",
+ "♪ MÚSICA: NO": "♪ MÚSICA: NO",
+ "CERRAR · ESC": "TANCA · ESC",
+ "▓▒░ NOVA AI · ASISTENTE DE VUELO PARA STAR CITIZEN ░▒▓": "▓▒░ NOVA AI · ASSISTENT DE VOL PER A STAR CITIZEN ░▒▓",
+ "[ DESARROLLO ]": "[ DESENVOLUPAMENT ]",
+ "[ AGRADECIMIENTOS ]": "[ AGRAÏMENTS ]",
+ "[ LICENCIA ]": "[ LLICÈNCIA ]",
+ "[ DERECHOS DE TERCEROS ]": "[ DRETS DE TERCERS ]",
+ "[ PÁGINAS DE CONSULTA: GRACIAS ]": "[ PÀGINES DE CONSULTA: GRÀCIES ]",
+ "[ DISCLAIMER ]": "[ AVÍS LEGAL ]",
+ "A la": "A la",
+ "ninguno": "cap",
+ "archivo no encontrado": "fitxer no trobat"
 }

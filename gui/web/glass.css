@@ -127,3 +127,50 @@ body.fx-ninguno .panel,body.fx-ninguno .side,body.fx-ninguno .top,body.fx-ningun
 .lang-card small{color:var(--dim);font-size:10.5px;line-height:1.25}
 .lang-card.on{border-color:var(--cy2);background:linear-gradient(160deg,rgba(32,184,232,.28),rgba(155,140,255,.10));box-shadow:0 0 22px -6px rgba(32,184,232,.8)}
 .lang-card.on b{color:#fff;text-shadow:0 0 10px var(--cy)}
+
+/* ------------------------------------------------- 1.3: columna derecha sin barras de desplazamiento
+   El núcleo se encoge con la altura de la ventana y, si aun así no cabe, Situación y luego
+   Temporizadores se pliegan solos (fold.js). Accesos rápidos vive en el lateral. */
+.hud{overflow:hidden;padding:2px 3px 2px 2px;margin:-2px -3px -2px -2px}
+.hud>.panel{flex:none;margin-bottom:14px}
+.hud>.panel:last-child{margin-bottom:0}
+.core-panel{padding-top:16px}
+.core.big{--core:var(--core-fit,clamp(150px,calc(100vh - 790px),236px));width:var(--core);height:var(--core)}
+.core.big img,.core.big .tintmask{width:calc(var(--core)*.56);height:calc(var(--core)*.56)}
+.core-hint{margin:4px 0 12px}
+.talk{padding:11px 10px}
+.timer-list::-webkit-scrollbar{width:6px}
+.timer-list::-webkit-scrollbar-thumb{background:rgba(32,184,232,.25);border-radius:3px}
+.timer-list{max-height:min(200px,22vh)}
+.kv{padding:5px 0}
+.hud .timer{padding:4px 8px}
+.fold>.panel-h>span:first-child{margin-right:auto}
+
+/* paneles plegables: se pliega o despliega pulsando su cabecera */
+.fold>.panel-h{cursor:pointer;user-select:none}
+.fold>.panel-h .chev{display:block;flex:none;width:7px;height:7px;margin:0 3px 0 8px;border:solid var(--cy2);border-width:0 1.6px 1.6px 0;
+  transform:translateY(-2px) rotate(45deg);transition:transform .2s;opacity:.85}
+.fold>.panel-h:hover{color:var(--cy2)}
+.fold.col>.panel-h{margin-bottom:0}
+.fold.col>.panel-h .chev{transform:translateY(1px) rotate(-135deg)}
+.fold.col>.fold-body{display:none}
+.fold .fold-sum{display:none;margin-left:auto;font-weight:500;letter-spacing:.4px;font-size:11.5px;color:var(--txt);
+  max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fold.col .fold-sum:not(:empty){display:block}
+.fold.col.has-sum .hint{display:none}
+.timers-panel.col .fold-sum:not(:empty){color:#ffd84a}
+
+/* accesos rápidos en el lateral, encima de la señal del micrófono */
+.side{overflow:hidden}
+.side-quick{margin-top:auto;margin-bottom:10px;padding:10px 12px 6px;border-radius:var(--r);background:var(--glass);border:1px solid var(--edge)}
+.side-quick+.side-foot{margin-top:0}
+.side-quick .panel-h{margin:0 0 6px;font-size:10px;letter-spacing:2px}
+.side-quick.col .panel-h{margin-bottom:4px}
+.side-quick .switch-line{justify-content:space-between;padding:5px 0;font-size:12px;line-height:1.3;color:#b9d6e6;gap:10px}
+.side-quick .switch-line+.switch-line{border-top:1px solid rgba(111,216,255,.07)}
+.side-quick .switch{flex:none}
+.side-quick .fold-sum{font-size:10px;letter-spacing:1px;color:var(--cy2)}
+.side-quick .switch-line .sq-t{flex:1;min-width:0}
+.fold>.panel-h>span:first-child{white-space:nowrap;flex:none}
+.fold.col .fold-sum:not(:empty){flex:1 1 auto;min-width:0;max-width:none;text-align:right}
+.side-quick .panel-h{letter-spacing:1.6px}

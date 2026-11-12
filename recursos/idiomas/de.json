@@ -1166,5 +1166,21 @@
  "solo disponible en Windows": "nur unter Windows verfügbar",
  "Licencia MIT: software libre.": "MIT-Lizenz: freie Software.",
  "Puedes usarlo, modificarlo y compartirlo; solo conserva el aviso de copyright y la licencia en tus versiones. Texto completo en": "Sie dürfen es nutzen, verändern und weitergeben; behalten Sie nur den Copyright-Hinweis und die Lizenz in Ihren Versionen. Vollständiger Text in",
- "y": "und"
+ "y": "und",
+ "1 activo": "1 aktiv",
+ "{n} activos": "{n} aktiv",
+ "ACERCA DE": "ÜBER",
+ "♪ MÚSICA: SÍ": "♪ MUSIK: AN",
+ "♪ MÚSICA: NO": "♪ MUSIK: AUS",
+ "CERRAR · ESC": "SCHLIESSEN · ESC",
+ "▓▒░ NOVA AI · ASISTENTE DE VUELO PARA STAR CITIZEN ░▒▓": "▓▒░ NOVA AI · FLUGASSISTENTIN FÜR STAR CITIZEN ░▒▓",
+ "[ DESARROLLO ]": "[ ENTWICKLUNG ]",
+ "[ AGRADECIMIENTOS ]": "[ DANKSAGUNG ]",
+ "[ LICENCIA ]": "[ LIZENZ ]",
+ "[ DERECHOS DE TERCEROS ]": "[ RECHTE DRITTER ]",
+ "[ PÁGINAS DE CONSULTA: GRACIAS ]": "[ ABFRAGESEITEN: DANKE ]",
+ "[ DISCLAIMER ]": "[ HAFTUNGSAUSSCHLUSS ]",
+ "A la": "An die",
+ "ninguno": "keine",
+ "archivo no encontrado": "Datei nicht gefunden"
 }

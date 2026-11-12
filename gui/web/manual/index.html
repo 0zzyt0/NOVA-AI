@@ -275,7 +275,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <tr><td>Conexión a internet</td><td>Para la IA, las voces neuronales y los datos del juego. Los comandos de teclas funcionan sin ella.</td></tr>
     <tr><td>Python</td><td>No hace falta tenerlo: si falta, el instalador descarga Python 3.12 solo para Nova.</td></tr>
     <tr><td>Tarjeta NVIDIA <span class="dim">(opcional)</span></td><td>Acelera el reconocimiento de voz local (Whisper). Sin ella se usa el procesador o la nube.</td></tr>
-    <tr><td>Claves de IA</td><td>Gratis y en 2 minutos (sección 12). Algunas versiones del instalador ya traen claves de prueba.</td></tr>
+    <tr><td>Claves de IA</td><td>Gratis y en 2 minutos (sección 11). Algunas versiones del instalador ya traen claves de prueba.</td></tr>
   </table>
   <div class="pf">NOVA AI · MANUAL DE USUARIO<span class="n"></span></div>
 </section>
@@ -344,7 +344,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   <p class="lead">La primera vez, Nova abre un asistente de 7 pasos. Puedes responder <b>hablando</b> (botón del micrófono) o <b>escribiendo</b>. Cada respuesta se marca con un <span class="ok">✓ verde</span> si te ha entendido; si sale una <span class="bad">✕ roja</span>, repite.</p>
   <div class="row"><figure><img src="img/w_wiz1_micro.jpg"></figure><div>
     <h3><span class="step-n">1</span>Micrófono</h3>
-    <p>Elige tu micrófono y habla: el medidor de la izquierda debe moverse. Pega aquí tu clave de Groq si la tienes (sección 12); es opcional.</p></div></div>
+    <p>Elige tu micrófono y habla: el medidor de la izquierda debe moverse. Pega aquí tu clave de Groq si la tienes (sección 11); es opcional.</p></div></div>
   <div class="row"><figure><img src="img/w_wiz2_juego.jpg"></figure><div>
     <h3><span class="step-n">2</span>Tu juego</h3>
     <p>Nova busca tu carpeta <code>LIVE</code> de Star Citizen y su traducción. Si no tienes el juego en español, te pregunta si quieres descargar la de <b>0zzyt0</b>.</p>
@@ -382,12 +382,13 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   <div class="ph"><img src="/logo.png">NOVA AI · Manual de usuario<span class="s">04 · La ventana de Nova</span></div>
   <h1><span class="num">04</span>La ventana de Nova</h1>
   <p class="lead">Nova se abre en una ventana propia. <b>Si la cierras, Nova se apaga</b>: minimízala mientras juegas. Al volver a abrirla recupera la conversación, la sección y el tamaño de la ventana.</p>
-  <figure class="anno c" style="width:124mm"><img src="img/cabina.jpg">
-    <span class="m" style="left:10%;top:35%">1</span><span class="m" style="left:22%;top:4.5%">2</span>
-    <span class="m" style="left:30%;top:14%">3</span><span class="m" style="left:40%;top:91%">4</span>
-    <span class="m" style="left:85%;top:27%">5</span><span class="m" style="left:98%;top:55%">6</span>
-    <span class="m" style="left:96%;top:68%">7</span><span class="m" style="left:96%;top:96%">8</span>
-    <span class="m" style="left:10%;top:90%">9</span><span class="m" style="left:96%;top:5%">10</span>
+  <figure class="anno c" style="width:112mm"><img src="img/cabina.jpg">
+    <span class="m" style="left:9.4%;top:21%">1</span><span class="m" style="left:34%;top:3.8%">2</span>
+    <span class="m" style="left:36%;top:23.5%">3</span><span class="m" style="left:36%;top:91.2%">4</span>
+    <span class="m" style="left:91%;top:20%">5</span><span class="m" style="left:98%;top:39.5%">6</span>
+    <span class="m" style="left:98.7%;top:52.2%">7</span><span class="m" style="left:98.7%;top:75.4%">8</span>
+    <span class="m" style="left:17.7%;top:75.1%">9</span><span class="m" style="left:17.7%;top:91.8%">10</span>
+    <span class="m" style="left:95.9%;top:6.8%">11</span>
   </figure>
   <div class="legend">
     <div><span class="k">1</span><span><b>Menú:</b> Cabina, el Manual y la Configuración por tareas.</span></div>
@@ -397,10 +398,12 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <div><span class="k">5</span><span><b>Holograma:</b> en espera, escuchando, pensando, hablando…</span></div>
     <div><span class="k">6</span><span><b>Mantén para hablar</b>, silenciar y el interruptor <b>NOVA ACTIVA</b> (detenerla).</span></div>
     <div><span class="k">7</span><span><b>Temporizadores</b> de refinados y contratos.</span></div>
-    <div><span class="k">8</span><span><b>Situación</b> (ubicación, contratos, servidores…) y, más abajo, <b>accesos rápidos</b>.</span></div>
-    <div><span class="k">9</span><span><b>Estado</b> y medidor del micrófono.</span></div>
-    <div><span class="k">10</span><span><b>Apagar</b> Nova del todo (ventana, overlay y escucha).</span></div>
+    <div><span class="k">8</span><span><b>Situación:</b> ubicación, contratos, servidores…</span></div>
+    <div><span class="k">9</span><span><b>Accesos rápidos:</b> escuchar su nombre sin tecla, el overlay y los comentarios del juego.</span></div>
+    <div><span class="k">10</span><span><b>Estado</b> y medidor del micrófono.</span></div>
+    <div><span class="k">11</span><span><b>Apagar</b> Nova del todo (ventana, overlay y escucha).</span></div>
   </div>
+  <p class="small" style="margin-top:2.5mm">Todo cabe sin barras de desplazamiento: si la ventana es baja, el holograma se encoge y <b>Situación</b>, <b>Temporizadores</b> y <b>Accesos rápidos</b> se pliegan solos (plegados muestran un resumen, como «2 activos»). Pulsa su cabecera para abrirlos o plegarlos; Nova lo recuerda.</p>
   <h2>El menú</h2>
   <table class="small">
     <tr><th style="width:40mm">Apartado</th><th>Qué encontrarás</th></tr>
@@ -637,7 +640,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <h3>Identidad</h3>
     <p><b>Nombre de la IA</b>, <b>tu nombre</b> y <b>cómo te llama</b>. Si le cambias el nombre, repite el entrenamiento con <b>◆ Repetir configuración</b> para que lo reconozca en tu voz.</p>
     <h3>Claves gratuitas</h3>
-    <p>Pega aquí tus claves (sección 12). Si tu instalador trae claves de prueba, ya estarán puestas. Un punto <span class="ok">verde</span> indica que hay clave. Para poner la tuya, haz clic en el campo y pégala encima (sección 12).</p></div></div>
+    <p>Pega aquí tus claves (sección 11). Si tu instalador trae claves de prueba, ya estarán puestas. Un punto <span class="ok">verde</span> indica que hay clave. Para poner la tuya, haz clic en el campo y pégala encima (sección 11).</p></div></div>
   <h2>Cadena de motores</h2>
   <figure class="c" style="width:140mm"><img src="img/c_ia_claves.jpg"><figcaption><b>Claves y cadena de motores.</b> PROBAR comprueba la clave; MODELOS descarga la lista actual de modelos.</figcaption></figure>
 
@@ -1072,7 +1075,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <tr><td>No reacciona a su nombre</td><td>Repite el entrenamiento en <b>Nova › Identidad e idioma</b>. Elige un nombre de 2 o 3 sílabas que no sea una palabra común.</td></tr>
     <tr><td>El juego no recibe las teclas</td><td>Si ejecutas Star Citizen como administrador, ejecuta Nova también como administrador. Activa «Pulsar teclas solo con el juego delante».</td></tr>
     <tr><td>Una tecla no funciona</td><td><b>⟳ Sincronizar ahora</b> y revisa «Ver detalles». Si la acción solo está en tu HOTAS, dale también una tecla de teclado.</td></tr>
-    <tr><td>«Todos mis motores están sin cuota»</td><td>Pon tus propias claves (sección 12) o espera al día siguiente.</td></tr>
+    <tr><td>«Todos mis motores están sin cuota»</td><td>Pon tus propias claves (sección 11) o espera al día siguiente.</td></tr>
     <tr><td>Nova se oye a sí misma</td><td>Usa auriculares. El micrófono ya se queda sordo mientras Nova habla.</td></tr>
     <tr><td>El overlay no se ve</td><td>Pon el juego en «Ventana sin bordes». Prueba con «◆ Probar en pantalla» y revisa el monitor elegido.</td></tr>
     <tr><td>El holograma no se ve o no suena</td><td>Igual que el overlay: «Ventana sin bordes». Comprueba <b>Hologramas activados</b> y pulsa <b>Probar</b>. Para el sonido: <b>Sonidos de los hologramas</b>, su volumen y la <b>Salida de audio</b>.</td></tr>

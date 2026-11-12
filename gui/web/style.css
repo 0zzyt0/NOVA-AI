@@ -419,16 +419,16 @@ input.masked { font-family: var(--mono, Consolas, monospace); letter-spacing: 2p
   opacity:0;transition:opacity .18s}
 .kg-back.on{opacity:1}
 .kg-win{position:relative;width:min(760px,94vw);height:min(620px,92vh);display:flex;flex-direction:column;overflow:hidden;
-  border:2px solid #9cf;box-shadow:0 0 0 2px #000,0 0 0 4px #3a6cff,0 0 40px rgba(80,140,255,.55);background:#000;
+  border:2px solid #9cf;box-shadow:0 0 0 2px #000,0 0 0 4px var(--kg-edge,#3a6cff),0 0 40px var(--kg-edge,rgba(80,140,255,.55));background:#000;
   font-family:"Consolas","Lucida Console","Courier New",monospace;image-rendering:pixelated;transform:scale(.96);transition:transform .18s}
 .kg-back.on .kg-win{transform:none}
-.kg-fx{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;z-index:0}
+.kg-fx{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;z-index:0;will-change:transform}
 .kg-bar{position:relative;z-index:2;display:flex;align-items:center;height:26px;padding:0 4px 0 10px;
   background:linear-gradient(90deg,#000080,#1084d0);color:#fff;font-size:12px;font-weight:700;letter-spacing:1px}
 .kg-x{all:unset;margin-left:auto;width:20px;height:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;
   background:#c0c0c0;color:#000;font:700 14px/1 Arial,sans-serif;box-shadow:inset -1px -1px #404040,inset 1px 1px #fff}
 .kg-x:active{box-shadow:inset 1px 1px #404040,inset -1px -1px #fff}
-.kg-logo{position:relative;z-index:2;width:100%;height:auto;aspect-ratio:240/40;image-rendering:pixelated;margin-top:4px;flex:none}
+.kg-logo{position:relative;z-index:2;width:100%;height:auto;aspect-ratio:240/44;image-rendering:pixelated;margin-top:4px;flex:none}
 .kg-nfo{position:relative;z-index:2;flex:1;margin:4px 22px 8px;padding:12px 16px;overflow:auto;background:rgba(0,0,0,.78);
   border:1px solid rgba(150,200,255,.55);box-shadow:0 0 0 1px #000,inset 0 0 18px rgba(60,120,255,.25);color:#cfe3ff;font-size:12.5px;line-height:1.55}
 .kg-nfo p{margin:0 0 8px}
@@ -440,7 +440,7 @@ input.masked { font-family: var(--mono, Consolas, monospace); letter-spacing: 2p
 .kg-nfo .kg-l{padding-left:10px;color:#bfe6ff}
 .kg-nfo::-webkit-scrollbar{width:10px}.kg-nfo::-webkit-scrollbar-thumb{background:#3a6cff;border:2px solid #000}
 .kg-nfo::-webkit-scrollbar-track{background:#000}
-.kg-scroll{position:relative;z-index:2;width:100%;height:auto;aspect-ratio:380/22;image-rendering:pixelated;flex:none;border-top:2px solid #3a6cff;border-bottom:2px solid #3a6cff}
+.kg-scroll{position:relative;z-index:2;width:100%;height:auto;aspect-ratio:380/26;image-rendering:pixelated;flex:none;border-top:2px solid #3a6cff;border-bottom:2px solid #3a6cff}
 .kg-btns{position:relative;z-index:2;display:flex;gap:14px;justify-content:center;padding:10px 0 12px;background:#000;flex:none}
 .kg-btn{all:unset;cursor:pointer;padding:5px 16px;background:#c0c0c0;color:#000;font:700 12px "Consolas",monospace;letter-spacing:1px;
   box-shadow:inset -2px -2px #404040,inset 2px 2px #fff,0 0 0 1px #000}

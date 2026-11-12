@@ -29,6 +29,14 @@
     <button data-sec="ajustes"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg><span>Ajustes</span></button>
   </nav>
   <button class="about-link" id="btnAbout" title="Créditos, licencia y derechos">ⓘ Acerca de</button>
+  <div class="side-quick fold" id="sideQuick" data-fold="quick">
+    <div class="sq-h panel-h"><span>ACCESOS RÁPIDOS</span><span class="fold-sum"></span><i class="chev"></i></div>
+    <div class="fold-body">
+      <label class="switch-line"><span class="sq-t">Escuchar «<span class="ai-name">Nova</span>…» sin tecla</span> <span class="switch"><input type="checkbox" data-set="palabra_clave_activa"><i></i></span></label>
+      <label class="switch-line"><span class="sq-t">Overlay en el juego</span> <span class="switch"><input type="checkbox" data-set="overlay_activo"><i></i></span></label>
+      <label class="switch-line"><span class="sq-t">Comentar lo que pasa en el juego</span> <span class="switch"><input type="checkbox" data-set="gamelog_comentarios"><i></i></span></label>
+    </div>
+  </div>
   <div class="side-foot">
     <div class="state-pill"><b></b><span id="stateText">EN LÍNEA</span></div>
     <div class="meter" id="sideMeter"></div>
@@ -79,8 +87,9 @@
               <span class="switch"><input type="checkbox" id="swNova" checked><i></i></span>
             </label>
           </div>
-          <div class="panel timers-panel">
-            <div class="panel-h"><span>TEMPORIZADORES</span><span class="hint">Persistentes</span></div>
+          <div class="panel timers-panel fold" data-fold="timers">
+            <div class="panel-h"><span>TEMPORIZADORES</span><span class="hint">Persistentes</span><span class="fold-sum" id="timersSum"></span><i class="chev"></i></div>
+            <div class="fold-body">
             <div id="timerList" class="timer-list"><div class="muted small">Sin temporizadores. Dile «avísame cuando termine el refinado, en 3 horas».</div></div>
             <div class="timer-add">
               <input id="tmMotivo" placeholder="Qué (p. ej. Refinado CRU-L1)" maxlength="120">
@@ -88,21 +97,18 @@
               <select id="tmTipo"><option value="general">⏰</option><option value="refinado">⚗</option><option value="contrato">📜</option></select>
               <button class="btn sm pri" id="btnTimerAdd">＋</button>
             </div>
+            </div>
           </div>
-          <div class="panel">
-            <div class="panel-h"><span>SITUACIÓN</span></div>
+          <div class="panel sit-panel fold" data-fold="sit">
+            <div class="panel-h"><span>SITUACIÓN</span><span class="fold-sum" id="sitSum"></span><i class="chev"></i></div>
+            <div class="fold-body">
             <div class="kv"><span>Ubicación</span><b id="locText">—</b></div>
             <div class="kv"><span>Contratos activos</span><b id="contractsText">—</b></div>
             <div class="kv"><span>Teclas del juego</span><b id="syncShort">—</b></div>
             <div class="kv"><span>Reconocimiento de voz</span><b id="sttShort">—</b></div>
             <div class="kv"><span>Overlay</span><b id="ovShort">—</b></div>
             <div class="kv"><span>Servidores RSI</span><b id="rsiShort" title="status.robertsspaceindustries.com">—</b></div>
-          </div>
-          <div class="panel quick">
-            <div class="panel-h"><span>ACCESOS RÁPIDOS</span></div>
-            <label class="switch-line">Escuchar «<span class="ai-name">Nova</span>…» sin tecla <span class="switch"><input type="checkbox" data-set="palabra_clave_activa"><i></i></span></label>
-            <label class="switch-line">Overlay en el juego <span class="switch"><input type="checkbox" data-set="overlay_activo"><i></i></span></label>
-            <label class="switch-line">Comentar lo que pasa en el juego <span class="switch"><input type="checkbox" data-set="gamelog_comentarios"><i></i></span></label>
+            </div>
           </div>
         </div>
       </div>
@@ -828,5 +834,6 @@
 <script src="/v122.js"></script>
 <script src="/acerca/acerca.js"></script>
 <script src="/v130.js"></script>
+<script src="/fold.js"></script>
 </body>
 </html>

@@ -302,10 +302,16 @@ Desde la 1.2, **al iniciar y al cerrar** NOVA mira en GitHub ([github.com/0zzyt0
 
 También puedes contestar por voz («sí», «no», «al cerrar»). Si no contestas y cierras, te lo pregunta en una ventana al salir. Tus datos, ajustes y comandos se conservan. Se desactiva y se busca a mano en **Ajustes › Actualizaciones de NOVA AI**.
 
+## 7 terdecies. Novedades de la versión 1.3.1
+
+- **Cabina sin barras de desplazamiento:** la columna derecha se ajusta a tu pantalla. El holograma se encoge y, si aun así no cabe, **Situación** y luego **Temporizadores** se pliegan solos y muestran un resumen en la cabecera (la ubicación, «2 activos»…). Pulsa la cabecera de un panel para abrirlo o plegarlo; Nova lo recuerda.
+- **Accesos rápidos en el lateral izquierdo**, encima de la señal del micrófono: escuchar «Nova…» sin tecla, el overlay en el juego y los comentarios del juego.
+- **«Acerca de» renovado:** música nueva y una animación más rápida y alocada que va al ritmo de la canción (el túnel acelera y cambia de dibujo, la flecha hace toneles y el logo salta letra a letra). Con **Sin efectos** la ventana no tiembla. Ahora también se traduce a tu idioma.
+
 ## 7 duodecies. Novedades de la versión 1.3
 
 - **Cinco idiomas: español, inglés, catalán, francés y alemán.** Se elige en la primera pantalla del instalador (preseleccionado con el de Windows) o en **Ajustes › General** / **Nova › Identidad e idioma**. Cambia todo: la ventana, la voz de Nova, lo que entiende, sus comandos de voz, los hologramas y el manual. Nova te trata de forma formal en cada idioma (sir, senyor, monsieur, Herr…).
-- **«Add your Language global.ini of Star Citizen [HERE]»** (en **Datos y memoria › Idioma del juego**): eliges un global.ini de la comunidad en tu idioma y Nova lo instala en la carpeta del juego, guarda una copia del que hubiera, ajusta user.cfg y lo usa para entender los avisos. Se puede deshacer con un botón. En idiomas distintos del español no se ofrece la traducción de 0zzyt0 ni su Google Drive.
+- **«Add your Language global.ini of Star Citizen [HERE]»** (en **Datos y memoria › Traducción del juego**): eliges un global.ini de la comunidad en tu idioma y Nova lo instala en la carpeta del juego, guarda una copia del que hubiera, ajusta user.cfg y lo usa para entender los avisos. Se puede deshacer con un botón. En idiomas distintos del español no se ofrece la traducción de 0zzyt0 ni su Google Drive.
 - **Ventana nueva «Cristal holográfico»**, ordenada por tareas: Cabina · Nave y comandos · Nova (voz, IA, idioma) · Overlay y hologramas · Datos y memoria · Ajustes.
 - **Efectos en tres niveles** (Overlay y hologramas): Cinematográficos (destellos, aberración cromática, motas de luz, anillo giratorio en el logo), Ligeros (fundidos suaves, para PCs justos o directos) y Sin efectos (estático).
 - **«¿Dónde compro un P4-AR?»** se contesta por voz con los datos de UEX; Nova ya no abre el navegador por su cuenta (solo si se lo pides o le dices que sí).
@@ -424,7 +430,7 @@ Además, Nova tiene un control propio: si buscó en la wiki o en internet, no en
 
 Debajo de **Memoria**, en pequeño, está **ⓘ Acerca de**: una ventana al estilo de los keygens de los 90 y 2000, con su túnel de colores de 8 bits, una flecha volando dentro, el texto que se desplaza abajo y la música de NOVA AI en bucle. Ahí están los créditos, la licencia y los derechos de terceros. Se cierra con **Esc** o con el botón **Cerrar**; el botón **♪ Música** la silencia.
 
-**NOVA AI · Versión oficial 1.3**, de **Aaron B. Roldan** (gametag de Star Citizen: **0zzyt0**), desarrollada con el motor de IA Claude Opus 5.5 (Anthropic). Agradecimientos a la Org. Defcorp y a Faibo, Galleg0, Sr.Scott, AlpacaInTrouble, Lother y muchos más.
+**NOVA AI · Versión oficial 1.3.1**, de **Aaron B. Roldan** (gametag de Star Citizen: **0zzyt0**), desarrollada con el motor de IA Claude Opus 5.5 (Anthropic). Agradecimientos a la Org. Defcorp y a Faibo, Galleg0, Sr.Scott, AlpacaInTrouble, Lother y muchos más.
 
 **Licencia:** libre uso y modificación. Si usas este proyecto o lo modificas, por favor menciona de dónde has sacado las ideas y cuál es tu base. Texto completo, con los derechos de terceros, en `LICENCIA.txt`.
 
