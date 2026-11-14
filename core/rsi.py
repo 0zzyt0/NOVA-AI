@@ -10,6 +10,7 @@ from __future__ import annotations
 import html
 import logging
 import re
+import threading
 import time
 import urllib.parse
 import xml.etree.ElementTree as ET
@@ -283,11 +284,29 @@ def parse_org(page: str, sid: str) -> Org:
 
 
 # ------------------------------------------------------------------ consultas en línea
+# 1.3.2 · Términos de RSI: pocas consultas y espaciadas. Las fichas se guardan 10 min (buscar dos
+# veces al mismo jugador no vuelve a la web) y entre dos peticiones a RSI pasan al menos 2 s.
+CACHE_S = 600
+MIN_GAP_S = 2.0
+_cache: dict[str, tuple[float, "Citizen"]] = {}
+_gate = threading.Lock()
+_last = [0.0]
+
+
+def _throttle() -> None:
+    with _gate:
+        wait = _last[0] + MIN_GAP_S - time.monotonic()
+        if wait > 0:
+            time.sleep(wait)
+        _last[0] = time.monotonic()
+
+
 class RSI:
     def __init__(self, http=None) -> None:
         self.http = http or requests.Session()
 
     def _page(self, url: str) -> str:
+        _throttle()
         r = self.http.get(url, headers=UA, timeout=15)
         if r.status_code == 404:
             raise NotFound(url)
@@ -299,6 +318,9 @@ class RSI:
         handle = (handle or "").strip().strip("@").strip()
         if not HANDLE_RE.match(handle):
             raise NotFound(handle)
+        hit = _cache.get(handle.lower())
+        if hit and time.time() - hit[0] < CACHE_S:
+            return hit[1]
         try:
             c = parse_citizen(self._page(f"{BASE}/en/citizens/{urllib.parse.quote(handle)}"), handle)
         except NotFound:
@@ -315,6 +337,7 @@ class RSI:
                 c.org = full
             except Exception as e:  # la ficha del jugador vale aunque falle la de la organización
                 log.warning("Organización %s: %s", c.org.sid, e)
+        _cache[handle.lower()] = (time.time(), c)
         return c
 
     def status(self) -> dict:

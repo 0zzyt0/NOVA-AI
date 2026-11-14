@@ -158,6 +158,28 @@ def _pick_for_ship(cands: list[Command], ship: str) -> Command | None:
     return cands[0] if not ship else None
 
 
+PRUDENT_MAX_HOLD = 3.0  # s: lo justo para las teclas del juego que piden «mantener» (salto cuántico…)
+
+
+def prudent_steps(steps: list[dict]) -> list[dict]:
+    """Modo prudente (Términos de RSI): una orden pulsa las teclas del jugador y nada más.
+    - sin pausas temporizadas («esperar»);
+    - sin clics ni rueda del ratón dentro de secuencias (un clic suelto que ES la tecla del juego, sí);
+    - teclas mantenidas como mucho PRUDENT_MAX_HOLD segundos;
+    - nunca bucles: cada paso se ejecuta una vez (o dos si es «doble pulsación»)."""
+    inputs = [a for a in steps if "tecla" in a or "raton" in a or "rueda" in a]
+    out = []
+    for a in steps:
+        if "esperar" in a:
+            continue
+        if ("raton" in a or "rueda" in a) and len(inputs) > 1:
+            continue
+        if a.get("mantener"):
+            a["mantener"] = min(float(a["mantener"]), PRUDENT_MAX_HOLD)
+        out.append(a)
+    return out
+
+
 class CommandBook:
     def __init__(self, settings, gamelog_path_fn=lambda: None) -> None:
         self.settings = settings
@@ -431,7 +453,10 @@ class CommandBook:
         if self.settings.get("solo_si_juego_activo") and not keys.game_in_foreground():
             return "No ejecutado: Star Citizen no está en primer plano."
         delay = self.settings.get("teclas_retardo_ms", 60) / 1000
-        steps = copy.deepcopy(cmd.acciones)
+        steps = prudent_steps(copy.deepcopy(cmd.acciones)) if self.settings.get("teclas_prudentes", True) \
+            else copy.deepcopy(cmd.acciones)
+        if not steps:
+            return "No ejecutado: en modo prudente este comando no tiene teclas que pulsar."
         with self._lock:
             for a in steps:
                 try:

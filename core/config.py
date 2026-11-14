@@ -14,7 +14,7 @@ import os
 import threading
 from pathlib import Path
 
-VERSION = "1.3.1"
+VERSION = "1.4.0"
 APP_NAME = "NOVA AI"
 APP_DIR = Path(__file__).resolve().parent.parent
 FACTORY_DIR = APP_DIR / "datos"  # archivos de fábrica que vienen con el programa (solo lectura)
@@ -92,11 +92,18 @@ PROVIDERS = {
         "modelos": ["openrouter/free", "meta-llama/llama-3.3-70b-instruct:free"],
         "clave_url": "https://openrouter.ai/keys",
     },
-    "deepseek": {
-        "nombre": "DeepSeek (5M tokens de prueba, luego muy barato)",
+    "mistral": {  # 1.3.2: sustituye a DeepSeek (que ya no es gratis); plan Experiment sin tarjeta
+        "nombre": "Mistral (gratis, sin tarjeta)",
+        "base_url": "https://api.mistral.ai/v1",
+        "modelos": ["mistral-small-latest", "mistral-medium-latest", "mistral-large-latest"],
+        "clave_url": "https://console.mistral.ai/api-keys",
+    },
+    "deepseek": {  # de pago: oculto salvo para quien ya tenía su clave puesta
+        "nombre": "DeepSeek (de pago)",
         "base_url": "https://api.deepseek.com",
         "modelos": ["deepseek-v4-flash", "deepseek-v4-pro"],
         "clave_url": "https://platform.deepseek.com/api_keys",
+        "oculto": True,
     },
     "ollama": {
         "nombre": "Ollama (en tu PC, sin internet)",
@@ -126,8 +133,9 @@ DEFAULTS: dict = {
         {"proveedor": "gemini", "modelo": "gemini-3.5-flash-lite"},
         {"proveedor": "groq", "modelo": "openai/gpt-oss-120b"},
         {"proveedor": "openrouter", "modelo": "openrouter/free"},
+        {"proveedor": "mistral", "modelo": "mistral-small-latest"},
     ],
-    "claves": {"gemini": "", "groq": "", "openrouter": "", "deepseek": "", "ollama": "ollama"},
+    "claves": {"gemini": "", "groq": "", "openrouter": "", "mistral": "", "deepseek": "", "ollama": "ollama"},
     "humor": 7,  # 0 = serio, 10 = cachondo
     "inventar_si_no_sabe": True,  # si no encuentra algo, se lo inventa en broma y lo confiesa al final
     "frases_inventadas": [FINAL_PHRASE],  # una se elige al azar; {t} = tratamiento
@@ -153,6 +161,15 @@ DEFAULTS: dict = {
     "palabras_clave": [],  # formas EXTRA de llamarla, además de su nombre y lo aprendido
     "sensibilidad_vad": 0.5,  # 0 = solo voz fuerte, 1 = oye susurros
     "silencio_fin_ms": 700,
+    "ganancia_mic": 1.0,  # amplificación por software (micrófonos de nivel bajo); x1 a x8
+    "microfono_silenciado": False,  # botón MUTE del medidor del lateral
+    "reposo_minutos": 0,  # 1.4: modo reposo tras X minutos sin hablarle (0 = nunca)
+    "reposo_despertar": "tecla",  # tecla: micrófono cerrado, despierta con la tecla o el botón | nombre: también por su nombre
+    "bandeja_al_cerrar": True,  # 1.4: al cerrar la ventana Nova sigue en la bandeja de Windows con el overlay
+    "cuestionario_estado": "pendiente",  # 1.4: pendiente | enviado | no_recordar
+    "cuestionario_recordar_en": 0.0,  # cuándo preguntar al iniciar (3 días después de estrenar la versión)
+    "cuestionario_version": "",
+    "tutorial_visto": False,  # 1.4: recorrido guiado tras la configuración inicial
     # --- Juego ------------------------------------------------------------
     "gamelog_activo": True,
     "gamelog_ruta": "",  # vacío = autodetectar
@@ -170,6 +187,7 @@ DEFAULTS: dict = {
     "diario_activo": True,  # diario de sesión en datos\\diario
     # --- v1.1 -------------------------------------------------------------
     "discord_webhook": "",  # https://discord.com/api/webhooks/… (canal donde mandar las fichas)
+    "rsi_consulta_automatica": False,  # 1.3.2: la ficha de un objetivo solo se busca si dices «sí»
     "discord_enviar_jugadores": True,  # mandar a Discord las fichas de jugadores que busques
     "discord_enviar_recompensas": True,  # y las de los objetivos de recompensa que sean jugadores
     "estado_rsi_al_iniciar": True,  # mirar el estado de los servidores de RSI al arrancar
@@ -221,6 +239,9 @@ DEFAULTS: dict = {
     "actualizar_al_iniciar": True,  # comprobar scmdb.net / UEX / wiki al arrancar
     "datos_canal": "live",  # live o ptu (versión de datos de scmdb)
     "teclas_retardo_ms": 60,
+    # 1.3.2 · Términos de RSI: secuencias sin pausas temporizadas ni clics de ratón y teclas
+    # mantenidas como mucho 3 s (una orden = las teclas del jugador, nada más)
+    "teclas_prudentes": True,
     "solo_si_juego_activo": False,  # solo pulsar teclas si Star Citizen está en primer plano
     "teclas_juego_sync": True,  # leer actionmaps.xml al arrancar
     "actionmaps_ruta": "",  # vacío = autodetectar

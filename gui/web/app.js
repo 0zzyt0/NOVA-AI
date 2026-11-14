@@ -139,7 +139,7 @@ function paintMeter(el, v) {
 }
 
 // ------------------------------------------------------------- chat
-const STATE_TXT = { idle: "EN ESPERA", listening: "ESCUCHANDO", thinking: "PROCESANDO", speaking: "TRANSMITIENDO", searching: "BUSCANDO", off: "DETENIDA" };
+const STATE_TXT = { idle: "EN ESPERA", listening: "ESCUCHANDO", thinking: "PROCESANDO", speaking: "TRANSMITIENDO", searching: "BUSCANDO", off: "DETENIDA", sleep: "MODO REPOSO" };
 const TINT_KEY = { base: "overlay_color", green: "overlay_color_ok", yellow: "overlay_color_busca", red: "overlay_color_error",
   purple: "overlay_color_memoria", white: "overlay_color_memoriza" };
 const tintColor = (t) => S[TINT_KEY[t] || "overlay_color"] || "#20b8e8";
@@ -172,7 +172,7 @@ function addMsg(ev) {
     }).join("")}</div>`;
   } else if (ev.who === "tú") {
     el.className = "msg user";
-    el.innerHTML = `<div class="meta">TÚ · ${esc(ev.ts || "")}</div><div class="body">${esc(ev.text)}</div>`;
+    el.innerHTML = `<div class="meta">${esc(T("TÚ"))} · ${esc(ev.ts || "")}</div><div class="body">${esc(ev.text)}</div>`;
     showThinking();
   } else {
     el.className = "msg sys" + (ev.who === "juego" ? " game" : "") + (ev.text.startsWith("── ") ? " sep" : "");
@@ -225,7 +225,7 @@ function connect() {
     if (ev.t === "msg") { addMsg(ev); if (ev.who === "juego") diaryLater(); }
     else if (ev.t === "status") $("#statusLine").textContent = ev.text || "Sistemas nominales";
     else if (ev.t === "lv") onLevels(ev);
-    else if (ev.t === "bye") goodbye(es);
+    else if (ev.t === "bye") goodbye(es, ev.bandeja);
     else if (ev.t === "setup") Setup.phase(ev.phase);
     else if (ev.t === "upd") Boot.on(ev);
     else if (ev.t === "trad") Trad.progress(ev);
@@ -233,11 +233,16 @@ function connect() {
     else if (ev.t === "reset") afterReset();
     else if (window.V11) {
       V11.onEvent(ev); if (window.V12) V12.onEvent(ev); if (window.V13) V13.onEvent(ev); if (window.V122) V122.onEvent(ev);
+      if (window.V14) V14.onEvent(ev);
     }
   };
 }
-function goodbye(es) {
+function goodbye(es, tray) {
   if (es) es.close();
+  if (tray) {  // 1.4: Nova sigue en la bandeja; esta ventana se cierra
+    $("#bye h2").textContent = T("NOVA SIGUE EN LA BANDEJA");
+    $("#bye p").textContent = T("Ábrela con el icono de NOVA junto al reloj de Windows. Ya puedes cerrar esta ventana.");
+  }
   $("#bye").hidden = false;
   document.body.classList.remove("offline");
   setTimeout(() => window.close(), 300);  // en la ventana de Nova se cierra sola
@@ -257,6 +262,8 @@ function onLevels(ev) {
   paintMeter($("#sideMeter"), ev.mic);
   if (!$("#setup").hidden) paintMeter($("#suMeter"), ev.mic);
   if (secOn("nova", "mic")) paintMeter($("#bigMeter"), ev.mic);
+  if (window.MicInfo) MicInfo.lv(ev);
+  if (window.V14) V14.lv(ev);
   if (ev.mode !== "idle") removeThinking.idleSince = 0;
   else if (thinkingEl && !removeThinking.idleSince) removeThinking.idleSince = Date.now();
 }
@@ -306,6 +313,7 @@ async function loadState() {
   Object.keys(S).forEach(showSetting);
   updatePttHint();
   showStatus(STATE);
+  if (window.V14) V14.state(STATE);
   $("#btnPhraseDefault").onclick = safe(async () => {
     S.frases_inventadas = await api("set", { key: "frases_inventadas", value: [STATE.final_phrase] });
     showSetting("frases_inventadas"); toast("Frase original restaurada", "ok");
@@ -385,10 +393,11 @@ let iaLoaded = false;
 function loadIA() {
   if (iaLoaded) return;
   iaLoaded = true;
-  const provs = Object.entries(STATE.providers).filter(([k]) => k !== "ollama");
+  // 1.3.2: los proveedores de pago (DeepSeek) solo se ven si ya tenías su clave puesta
+  const provs = Object.entries(STATE.providers).filter(([k, p]) => k !== "ollama" && (!p.oculto || STATE.keys_set[k]));
   $("#provList").innerHTML = provs.map(([k, p]) => `
     <div class="prov"><div class="nm"><span class="dot ${STATE.keys_set[k] ? "on" : ""}" id="dot-${k}"></span>${esc(p.nombre)}</div>
-    <input type="password" data-key="${k}" placeholder="${esc(STATE.keys_set[k] ? T("•••••••• configurada (escribe para cambiarla)") : T("pega aquí tu clave"))}">
+    <input type="text" class="secret" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-key="${k}" placeholder="${esc(STATE.keys_set[k] ? T("•••••••• configurada (escribe para cambiarla)") : T("pega aquí tu clave"))}">
     <button class="btn sm" data-url="${esc(p.url)}">CONSEGUIR CLAVE</button>
     <span class="hint" id="kst-${k}">${STATE.keys_set[k] ? "lista" : "sin clave"}</span></div>`).join("");
   $$("#provList input").forEach((inp) => inp.addEventListener("change", safe(async () => {
@@ -398,6 +407,7 @@ function loadIA() {
     $("#kst-" + inp.dataset.key).textContent = ok ? "lista" : "sin clave";
     inp.value = ""; inp.placeholder = ok ? "•••••••• configurada" : "pega aquí tu clave";
     toast(ok ? "Clave guardada" : "Clave borrada", "ok");
+    try { const st = await api("state"); S.ia_cadena = st.settings.ia_cadena; renderChain(); } catch { /* sin cambios */ }
   })));
   $$("#provList [data-url]").forEach((b) => b.addEventListener("click", () => window.open(b.dataset.url, "_blank")));
   renderChain();
@@ -405,7 +415,9 @@ function loadIA() {
 function renderChain() {
   const chain = [...(S.ia_cadena || [])];
   while (chain.length < 5) chain.push({ proveedor: "", modelo: "" });
-  const provOpts = (sel) => `<option value="">—</option>` + Object.keys(STATE.providers).map((k) => `<option ${k === sel ? "selected" : ""}>${k}</option>`).join("");
+  const provOpts = (sel) => `<option value="">—</option>` + Object.keys(STATE.providers)
+    .filter((k) => !STATE.providers[k].oculto || k === sel || STATE.keys_set[k])
+    .map((k) => `<option ${k === sel ? "selected" : ""}>${k}</option>`).join("");
   $("#chainList").innerHTML = chain.slice(0, 5).map((c, i) => `
     <div class="chain" data-i="${i}"><span class="i">${String(i + 1).padStart(2, "0")}</span>
     <select class="cp">${provOpts(c.proveedor)}</select>
@@ -766,6 +778,7 @@ function ovFrame(t) {
     if (now >= nextBlink) { blinkUntil = now + 0.04 + Math.random() * 0.05; nextBlink = now + 0.25 + Math.random() * 0.65; }
     if (now < blinkUntil) { ta = 0.55; tg = 0.25; }
   } else if (mode === "off") { ta = 0.85; tg = 0.5; k = 0.2; }
+  else if (mode === "sleep") { ta = S.overlay_reposo === "oculto" ? 0.05 : Math.max(0.18, (S.overlay_opacidad_reposo || 0.35) * (0.55 + 0.35 * (0.5 + 0.5 * Math.sin(now * 1.1)))); tg = 0; k = 0.06; }
   else if (mode === "searching") { ta = 1; tg = 0.7; k = 0.25; }
   else if (mode === "listening" || mode === "thinking") { ta = 1; tg = 0.55; k = 0.3; }
   else if (tint !== "base") { ta = 1; tg = 0.65; k = 0.3; }
@@ -781,7 +794,7 @@ function ovFrame(t) {
 $$("[data-demo]").forEach((b) => b.addEventListener("click", () => { [demo, demoTint] = b.dataset.demo.split(":"); demoUntil = performance.now() + 6000; }));
 $("#btnOvTest").addEventListener("click", safe(async () => {
   const st = await api("overlay_test");
-  toast(st === "activo" ? "Mira la pantalla: el overlay recorre sus estados durante 8 s" : "Overlay: " + st, st === "activo" ? "ok" : "bad");
+  toast(st === "activo" ? T("Mira la pantalla: el overlay recorre sus estados durante 8 s") : T("Overlay: {s}", { s: T(st) }), st === "activo" ? "ok" : "bad");
 }));
 new ResizeObserver(() => placeOverlay()).observe($("#ovScreen"));
 
@@ -1213,6 +1226,7 @@ const Setup = (() => {
     const r = await api("setup_finish");
     S.asistente_completado = true; S.nombre_variantes = r.variantes;
     if (r.sensibilidad != null) { S.sensibilidad_vad = r.sensibilidad; showSetting("sensibilidad_vad"); }
+    if (r.ganancia != null) { S.ganancia_mic = r.ganancia; showSetting("ganancia_mic"); }
     paintNames(); box.hidden = true;
     toast(`Configuración guardada · ${r.nombre} ya reconoce su nombre en tu voz`, "ok");
   }));

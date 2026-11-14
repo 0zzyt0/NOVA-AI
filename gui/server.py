@@ -21,7 +21,7 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from core import i18n, sc_actions, triggers, wake
+from core import i18n, sc_actions, survey, triggers, wake
 from core.audio import list_devices
 from core.config import (APP_DIR, COMMANDS_FILE, DATA_DIR, DEFAULTS, FINAL_PHRASE, LOG_FILE, PROVIDERS, VERSION,
                          is_installed)
@@ -60,6 +60,12 @@ class UIServer:
         self._history: list[dict] = session.previous_chat() if session else []
         self._voices: list[str] | None = None
         self.on_shutdown = lambda: None
+        self.on_hide = lambda: False  # 1.4: cerrar la ventana y seguir en la bandeja (lo pone nova.py)
+        try:
+            survey.ensure_clock(nova.settings)  # el aviso del cuestionario, 3 días después de estrenar versión
+        except Exception:  # noqa: BLE001
+            log.exception("Cuestionario")
+        self.tray_ok = lambda: False
         self.httpd: ThreadingHTTPServer | None = None
         nova.on_message = self._on_message
         nova.on_ui = self._on_ui
@@ -100,9 +106,11 @@ class UIServer:
             if self.clients:
                 self.last_client_seen = time.time()
                 mode, level, tint = self.nova.state()
-                mic = self.nova.listener.level if self.nova.listener else 0.0
+                li = self.nova.listener
+                mic = li.level if li else 0.0
+                md = "reposo" if self.nova.asleep and not li else (li.health() if li else "cerrado")
                 self.broadcast({"t": "lv", "mode": mode, "lvl": round(level, 3), "mic": round(mic, 3),
-                                "tint": tint, "paused": self.nova.paused})
+                                "md": md, "tint": tint, "paused": self.nova.paused, "sleep": self.nova.asleep})
             time.sleep(0.08)
 
     # ------------------------------------------------------------- arranque
@@ -226,8 +234,8 @@ class UIServer:
         return {
             "settings": {k: s.get(k) for k in DEFAULTS if k != "claves"},
             "keys_set": {p: bool(s.key_for(p)) for p in PROVIDERS},
-            "providers": {k: {"nombre": v["nombre"], "modelos": v["modelos"], "url": v["clave_url"]}
-                          for k, v in PROVIDERS.items()},
+            "providers": {k: {"nombre": v["nombre"], "modelos": v["modelos"], "url": v["clave_url"],
+                              "oculto": bool(v.get("oculto"))} for k, v in PROVIDERS.items()},
             "piper_voices": piper_voices(i18n.norm(s.get("idioma"))),
             "ptt_text": triggers.pretty(s.get("ptt_tecla")),
             "stt": {"mode": n.stt.mode(), "status": n.stt.status},
@@ -255,6 +263,9 @@ class UIServer:
             "ahorro": self.api_savings(),
             "discord_last": self.nova.discord_last,
             "sfx_presets": self._sfx_presets(),
+            "reposo": self.nova.asleep,
+            "bandeja": bool(self.tray_ok()),
+            "cuestionario": self.api_survey(),
         }
 
     # --- cabina
@@ -301,8 +312,17 @@ class UIServer:
         s.set(key, value)
         if key == "sensibilidad_vad" and n.listener:
             n.listener.vad.set_sensitivity(value)
-        elif key == "dispositivo_entrada" and n.listener:
-            n.listener.restart()
+        elif key == "dispositivo_entrada":
+            if n.listener:
+                try:
+                    n.listener.restart()
+                except Exception as e:
+                    n.listener = None
+                    raise ValueError(str(e))
+            elif not n.asleep:  # en reposo se abrirá el elegido al despertar
+                err = n.start_audio()
+                if err:
+                    raise ValueError(err)
         elif key in ("stt_modelo_local", "stt_motor"):
             n.stt.warm_up()
         elif key == "ia_cadena":
@@ -317,6 +337,12 @@ class UIServer:
         claves = dict(self.nova.settings.get("claves"))
         claves[provider] = value.strip()
         self.nova.settings.set("claves", claves)
+        # 1.3.2: si pones la clave de un proveedor que no está en tu cadena de motores, se añade al final
+        chain = list(self.nova.settings.get("ia_cadena") or [])
+        if (value.strip() and provider != "ollama" and len(chain) < 5
+                and not any(e.get("proveedor") == provider for e in chain)):
+            chain.append({"proveedor": provider, "modelo": PROVIDERS[provider]["modelos"][0]})
+            self.nova.settings.set("ia_cadena", chain)
         self.nova.brain._cooldown.clear()
         return bool(value.strip())
 
@@ -561,7 +587,7 @@ class UIServer:
         except Exception:
             b = Body(sistema="STANTON", codigo="2B", nombre="Daymar", designacion="Stanton 2b", tipo="Planetary Moon",
                      subtipo="Planetary Moon", radio_km=295, gravedad_g=0.36, dia_h=2.5, peligro=4, economia=2, poblacion=1,
-                     descripcion="Ejemplo sin conexión: la ficha real se descarga de verseguide.com.",
+                     descripcion=i18n.tr("Ejemplo sin conexión: la ficha real se descarga de verseguide.com."),
                      color=[0.9, 0.8, 0.6], lugares=[Place("Security Post Prashad", "underground", "security-post",
                                                            temp_media=41, temp_min=22, temp_max=60)])
             if tipo == "lugar":
@@ -740,7 +766,7 @@ class UIServer:
         return {"done": bool(s.get("asistente_completado")), "nombre": s.get("nombre_asistente"),
                 "piloto": s.get("nombre_piloto"), "tratamiento": s.get("tratamiento"),
                 "variantes": s.get("nombre_variantes"), "frases": self._phrases(),
-                "mic": n.listener is not None, "stt": {"mode": n.stt.mode(), "status": n.stt.status},
+                "mic": bool(n.listener and n.listener.ok), "stt": {"mode": n.stt.mode(), "status": n.stt.status},
                 "keys": {p: bool(s.key_for(p)) for p in ("groq", "gemini")},
                 "aviso": wake.name_warning(s.get("nombre_asistente"))}
 
@@ -772,7 +798,8 @@ class UIServer:
         """Graba una respuesta y la califica: ✓ (ok) o ✗. kind: piloto | ia | ejercicio | frase"""
         n, s = self.nova, self.nova.settings
         if not n.listener:
-            return {"ok": False, "heard": "", "note": "No tengo micrófono. Escribe la respuesta y revisa el micrófono en la sección Oído."}
+            return {"ok": False, "heard": "", "diag": "cerrado",
+                    "note": "No puedo abrir el micrófono. Elige otro en la lista del paso 1 o revisa que esté conectado y activado en Windows. También puedes escribir la respuesta."}
         if not self._listen_lock.acquire(blocking=False):
             return {"ok": False, "heard": "", "note": "Ya te estoy escuchando."}
         try:
@@ -783,7 +810,7 @@ class UIServer:
             self.broadcast({"t": "setup", "phase": "listening"})
             audio, stats = n.listener.capture()
             if audio is None:
-                return {"ok": False, "heard": "", "note": "No he oído nada. Comprueba que el medidor se mueve al hablar y habla un poco más alto."}
+                return {"ok": False, "heard": "", "note": self._mic_note(stats), "diag": stats.get("diag", "")}
             self._setup_samples.append(stats)
             self.broadcast({"t": "setup", "phase": "processing"})
             heard = n.stt.transcribe(audio)
@@ -811,9 +838,55 @@ class UIServer:
         r["variantes"] = s.get("nombre_variantes")
         return r
 
+    def _mic_note(self, stats: dict) -> str:
+        """Explica por qué no se oyó nada y, si la voz llega muy floja, sube la ganancia sola."""
+        s = self.nova.settings
+        d = stats.get("diag", "")
+        if d == "silenciado":
+            return "Tienes el micrófono silenciado con el botón MUTE del medidor (lateral izquierdo). Quítalo y repite."
+        if d == "sin_audio":
+            return "Este micrófono no me envía sonido. Elige otro en la lista del paso 1 o revisa que esté conectado."
+        if d == "silencio":
+            return ("Tu micrófono me llega en silencio total. Suele ser el botón de silencio de los auriculares "
+                    "(muchos encienden una luz roja) o que Windows no deja usar el micrófono a las aplicaciones de "
+                    "escritorio: Configuración › Privacidad y seguridad › Micrófono.")
+        if d == "bajo":
+            g = float(s.get("ganancia_mic") or 1.0)
+            if g < 8.0:
+                pico = max(float(stats.get("pico") or 0.0), 1e-4)
+                s.set("ganancia_mic", round(min(8.0, max(g * 2.0, g * 0.03 / pico)), 1))
+                log.info("Voz muy floja en el entrenamiento: ganancia %.1f → %.1f", g, s.get("ganancia_mic"))
+                return ("Te oigo muy bajo, así que he subido la ganancia del micrófono. Repite, por favor. Si sigue "
+                        "igual, sube su volumen en Windows: Sonido › Grabación › Propiedades › Niveles.")
+            return ("Te oigo muy bajo incluso con la ganancia al máximo. Sube el volumen del micrófono en Windows "
+                    "(Sonido › Grabación › Propiedades › Niveles) o acércatelo a la boca.")
+        return "No he oído nada. Comprueba que el medidor se mueve al hablar y habla un poco más alto."
+
+    def api_mic_status(self) -> dict:
+        li = self.nova.listener
+        asleep = self.nova.asleep and not li
+        return {"ok": bool(li and li.ok) or asleep, "dispositivo": li.device_text if li else "",
+                "reserva": bool(li and li.fallback),
+                "estado": "reposo" if asleep else (li.health() if li else "cerrado"),
+                "ganancia": self.nova.settings.get("ganancia_mic"),
+                "silenciado": bool(self.nova.settings.get("microfono_silenciado")),
+                "elegido": self.nova.settings.get("dispositivo_entrada") or ""}
+
     def api_setup_finish(self) -> dict:
         self._random_phrases = None  # la próxima configuración tendrá frases nuevas al azar
         n, s = self.nova, self.nova.settings
+        # voz muy floja (auriculares inalámbricos, micrófonos lejos de la boca): sube la ganancia
+        # para que la voz quede hacia -28 dBFS, y recalcula las medidas con esa ganancia
+        voice = sorted(x["voz"] for x in self._setup_samples if x.get("voz"))
+        if len(voice) >= 2 and voice[len(voice) // 2] < 0.02:
+            g0 = float(s.get("ganancia_mic") or 1.0)
+            g = round(min(8.0, g0 * 0.04 / max(voice[len(voice) // 2], 1e-4)), 1)
+            if g > g0:
+                s.set("ganancia_mic", g, save=False)
+                k = g / g0
+                self._setup_samples = [{**x, "voz": x.get("voz", 0) * k, "ruido": x.get("ruido", 0) * k}
+                                       for x in self._setup_samples]
+                log.info("Ganancia del micrófono ajustada a x%.1f", g)
         sens = calibrate(self._setup_samples)
         if sens is not None:
             s.set("sensibilidad_vad", sens, save=False)
@@ -826,7 +899,7 @@ class UIServer:
         key = triggers.pretty(s.get("ptt_tecla"))
         n._say(f"Configuración completada. Un placer, {pilot}. A partir de ahora respondo al nombre de {n.name}. "
                f"Mantenga {key} para hablarme, o diga «{n.name}» y su orden.")
-        return {"sensibilidad": sens, **self._setup_info()}
+        return {"sensibilidad": sens, "ganancia": s.get("ganancia_mic"), **self._setup_info()}
 
     def api_setup_close(self) -> bool:
         """Cerrar la ventana de configuración sin terminar (solo si ya se había hecho antes)."""
@@ -1106,6 +1179,35 @@ class UIServer:
             import webbrowser
             webbrowser.open(url)
         return url
+
+    # --- 1.4: modo reposo y bandeja
+    def api_sleep(self, on: bool) -> bool:
+        """Botón «Modo reposo» / «Despertar» (cabina y bandeja). Devuelve si queda en reposo."""
+        if on:
+            self.nova.sleep()
+        else:
+            self.nova.wake()
+        return self.nova.asleep
+
+    def api_to_tray(self) -> bool:
+        """Cierra la ventana y Nova sigue en la bandeja. False si no hay icono en la bandeja."""
+        return bool(self.on_hide())
+
+    # --- 1.4: cuestionario anónimo
+    def api_survey(self) -> dict:
+        s = self.nova.settings
+        return {"disponible": survey.available(), "aviso": survey.due(s), "estado": s.get("cuestionario_estado"),
+                "preguntas": list(survey.QUESTIONS), "max": survey.IDEA_MAX}
+
+    def api_survey_send(self, respuestas: dict, idea: str = "") -> str:
+        msg = survey.send(respuestas, idea, i18n.norm(self.nova.settings.get("idioma")))
+        survey.sent(self.nova.settings)
+        log.info("Cuestionario enviado")
+        return msg
+
+    def api_survey_later(self, recordar: bool) -> dict:
+        survey.later(self.nova.settings, bool(recordar))
+        return self.api_survey()
 
     def api_shutdown(self) -> bool:
         threading.Thread(target=self.on_shutdown, daemon=True, name="apagado").start()

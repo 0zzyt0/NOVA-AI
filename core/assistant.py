@@ -26,7 +26,9 @@ from .wake import strip_wake, wake_names
 log = logging.getLogger("nova")
 
 STOP_WORDS = {"silencio", "callate", "calla", "para", "basta", "stop", "cancela", "cancelar", "cierra el pico"}
-PAUSE_WORDS = {"desactivate", "pausa", "modo pausa", "a dormir", "apagate", "descansa"}
+PAUSE_WORDS = {"desactivate", "pausa", "modo pausa", "apagate"}
+SLEEP_WORDS = {"modo reposo", "reposo", "entra en reposo", "a reposo", "a dormir", "descansa", "vete a dormir",
+               "duermete", "a descansar"}
 HALT_WORDS = {"detente", "para todo", "detenlo todo", "deten todo", "cancela todo", "para las busquedas",
               "deten las busquedas", "cancela las busquedas"}
 RESUME_WORDS = {"activate", "despierta", "vuelve", "reactivate", "enciendete", "en linea"}
@@ -124,6 +126,9 @@ class Nova:
         self._await_chat_until = 0.0  # esperando el texto del mensaje para el chat del juego
         self._chat_pending: tuple[str, str] | None = None  # (original, traducido) esperando confirmación
         self._chat_confirm_until = 0.0
+        # 1.3.2 · Términos de RSI: nada de consultas ni envíos automáticos; Nova pregunta antes
+        self._offer: tuple | None = None  # ("ficha", apodo) o ("discord", ficha, motivo)
+        self._offer_until = 0.0
         self.discord_last: dict = {}  # último envío a Discord (para la ventana)
         # v1.2.2: Diccionario de consultas, la «memoria física» que no caduca (en la carpeta de datos)
         from .dictionary import FILE_NAME, Dictionary
@@ -174,6 +179,9 @@ class Nova:
         self._tint_until = 0.0
         self._tint_hold = False
         self.paused = False
+        self.asleep = False  # 1.4: modo reposo (micrófono cerrado o solo atento a su nombre)
+        self._last_activity = time.time()
+        self._sleep_lock = threading.Lock()
         self.training = False  # ventana de configuración inicial abierta: no se atienden órdenes
         self.busy = False
         threading.Thread(target=self._worker, daemon=True, name="nova-worker").start()
@@ -184,15 +192,20 @@ class Nova:
         from .audio import Listener
         from .triggers import PushToTalk
 
+        err = None
         try:
             self.listener = Listener(self.settings, self._on_utterance)
             self.listener.is_suppressed = self._mic_should_be_deaf
             self.listener.start()
         except Exception as e:
             log.exception("Micrófono")
-            return f"No pude abrir el micrófono: {e}"
-        self.ptt = PushToTalk(self.settings, self._ptt_down, self._ptt_up)
-        self.ptt.start()
+            self.listener = None  # sin micrófono abierto: la ventana lo avisa en vez de «no oigo nada»
+            err = str(e) if isinstance(e, RuntimeError) else f"No pude abrir el micrófono: {e}"
+        if self.ptt is None:
+            self.ptt = PushToTalk(self.settings, self._ptt_down, self._ptt_up)
+            self.ptt.start()
+        if err:
+            return err
         self.stt.warm_up()
         return None
 
@@ -224,6 +237,8 @@ class Nova:
         color: base | green (entendido) | yellow (buscando) | red (en pausa / no entendido)"""
         if self.paused:
             return "off", 0.0, "red"
+        if self.asleep and not self.tts.speaking:
+            return "sleep", 0.0, "base"
         tint = self._current_tint()
         if self._dict_phase and time.time() < self._dict_phase_until:
             return "searching", 0.0, "purple" if self._dict_phase == "memoria" else "white"
@@ -231,7 +246,9 @@ class Nova:
             return "speaking", self.tts.out.level, tint
         if self._searching > 0:
             return "searching", 0.0, "yellow"
-        if self._ptt_held or (self.listener and self.listener.capturing) or time.time() < self._follow_up_until:
+        muted = bool(self.settings.get("microfono_silenciado"))
+        if not muted and (self._ptt_held or (self.listener and self.listener.capturing)
+                          or time.time() < self._follow_up_until):
             return "listening", self.listener.level if self.listener else 0.0, "base"
         if self.busy or self.tts.busy():
             return "thinking", 0.0, tint
@@ -292,10 +309,97 @@ class Nova:
         self.flash("green")
         self.on_message("ficha", "FICHA DE JUGADOR\n" + c.text())
         self._log_player(c)
-        self._send_discord(c, "consulta")
         self._say(extras.spoken(c, t))
         if self.settings.get("holo_jugadores", True):
             self._holo_player(c, "consulta")
+        self._offer_discord(c, "consulta")
+
+    # ------------------------------------------- 1.3.2: confirmaciones (Términos de RSI)
+    OFFER_S = 30
+
+    def _set_offer(self, offer: tuple) -> None:
+        self._offer, self._offer_until = offer, time.time() + self.OFFER_S
+        self._follow_up_until = max(self._follow_up_until, self._offer_until)  # oye el «sí» sin su nombre
+
+    def _offer_discord(self, c, motivo: str) -> None:
+        """La ficha se manda a Discord solo si lo confirmas («sí» en 30 s)."""
+        s = self.settings
+        if not (s.get("discord_webhook") or "").strip() or not s.get("discord_enviar_jugadores", True):
+            return
+        if motivo == "recompensa" and not s.get("discord_enviar_recompensas", True):
+            return
+        self._set_offer(("discord", c, motivo))
+        self.on_message("sistema", "📨 ¿La mando a Discord? Diga «sí» (o escríbalo) en 30 s.")
+
+    @staticmethod
+    def _plain(text: str) -> str:
+        """minúsculas, sin acentos ni signos (sin quitar «vale», «ok»… como hace normalize)."""
+        import unicodedata
+        t = unicodedata.normalize("NFKD", text.lower())
+        t = "".join(ch for ch in t if not unicodedata.combining(ch))
+        return " ".join(re.sub(r"[^a-z0-9 ]", " ", t).split())
+
+    def _is_yes(self, text: str) -> bool:
+        yes = YES_WORDS | lang_data.words(lang_data.YES, i18n.lang())
+        raw = self._strip_wake(text) or text
+        return self._plain(raw) in yes or re.sub(r"[^a-z ]", "", normalize(text, tuple(self._wake_names()))).strip() in yes
+
+    def _offer_followup(self, text: str) -> bool:
+        """Respuesta a «¿busco su ficha?» o «¿la mando a Discord?». True si la ha gestionado."""
+        if not self._offer:
+            return False
+        expired = time.time() > self._offer_until
+        offer = self._offer
+        self._offer, self._offer_until = None, 0.0
+        if expired:
+            return False
+        tr = self.settings.get("tratamiento")
+        if self._is_yes(text):
+            if offer[0] == "ficha":
+                self._bounty_lookup(offer[1])
+            else:
+                self._send_discord(offer[1], offer[2])
+                self._say(f"Enviada, {tr}.")
+            return True
+        norm = self._plain(self._strip_wake(text) or text)
+        if norm in ({"no", "no gracias", "cancela", "dejalo", "nada", "mejor no"} | lang_data.words(lang_data.CANCEL, i18n.lang())):
+            self._say(f"De acuerdo, {tr}.")
+            return True
+        return False  # otra orden: se atiende con normalidad
+
+    def _bounty_lookup(self, name: str) -> None:
+        """Ficha de RSI del objetivo de una recompensa, porque el piloto la ha pedido."""
+        tr = self.settings.get("tratamiento")
+        gen = self._gen
+        self.on_message("sistema", f"🔎 Buscando «{name}» en robertsspaceindustries.com…")
+        self._searching += 1
+        try:
+            c = extras.lookup(name)
+        except Exception as e:  # noqa: BLE001
+            self._searching = max(0, self._searching - 1)
+            if gen != self._gen:
+                return
+            if _network_error(e):
+                self.flash("red")
+                self.on_message("sistema", f"⚠ No pude consultar RSI para «{name}» (sin conexión).")
+                self._say(f"No he podido consultar RSI para {name}, {tr}.")
+                return
+            self.on_message("sistema", f"🎯 Objetivo «{name}» · Piloto NPC (no tiene ficha en RSI)")
+            self._log_player(name=name, org="piloto NPC", nota="objetivo de recompensa", kind="objetivo_recompensa")
+            self._say(f"{tr}, el objetivo {name} es un piloto NPC.")
+            return
+        self._searching = max(0, self._searching - 1)
+        if gen != self._gen:
+            return
+        self.flash("green")
+        self.on_message("ficha", "OBJETIVO DE RECOMPENSA\n" + c.text())
+        self._log_player(c, "objetivo de recompensa", "objetivo_recompensa")
+        if self.settings.get("holo_recompensas", True):
+            self._holo_player(c, "recompensa")
+        org = c.org.nombre or c.org.sid
+        self._say(f"El objetivo es {c.handle}" + (f", de la organización {org}" if org and not c.org.oculta else "")
+                  + f". Ficha en el overlay, {tr}.")
+        self._offer_discord(c, "recompensa")
 
     def _send_discord(self, c, motivo: str = "consulta", wait: bool = False) -> None:
         """Manda la ficha al canal de Discord (en segundo plano) y cuenta en la cabina cómo fue."""
@@ -403,6 +507,15 @@ class Nova:
             if " " in name.strip() or not HANDLE_RE.match(name.strip()):
                 npc()  # los apodos de RSI no llevan espacios: es un personaje del juego
                 return
+            # Términos de RSI: no se consulta la web de RSI sobre otro jugador sin que lo pidas
+            if not self.settings.get("rsi_consulta_automatica", False):
+                self.on_message("sistema", f"🎯 Objetivo nuevo: Neutralizar «{name}». Diga «sí» (o escríbalo) "
+                                           f"en 30 s para ver su ficha de RSI.")
+                self._log_player(name=name, nota="objetivo de recompensa", kind="objetivo_recompensa")
+                self._set_offer(("ficha", name))
+                if not self.paused:
+                    self._say(f"Atención, {tr}: nuevo objetivo de recompensa, {name}. ¿Busco su ficha en RSI?")
+                return
             self.on_message("sistema", f"🎯 Objetivo nuevo: Neutralizar «{name}» · buscando su ficha en RSI…")
             try:
                 c = extras.lookup(name)
@@ -418,7 +531,7 @@ class Nova:
                 return  # se detuvo a Nova mientras buscaba
             self.on_message("ficha", "OBJETIVO DE RECOMPENSA\n" + c.text())
             self._log_player(c, "objetivo de recompensa", "objetivo_recompensa")
-            self._send_discord(c, "recompensa")
+            self._offer_discord(c, "recompensa")
             if self.settings.get("holo_recompensas", True):
                 self._holo_player(c, "recompensa")
             if not self.paused:
@@ -653,6 +766,8 @@ class Nova:
         threading.Thread(target=self._dictionary_boot, daemon=True, name="diccionario").start()
         if self.settings.get("estado_rsi_al_iniciar", True):
             threading.Thread(target=self._boot_status, daemon=True, name="estado-rsi").start()
+        self.touch()
+        threading.Thread(target=self._sleep_watch, daemon=True, name="reposo").start()
 
     def _boot_status(self) -> None:
         st = self.status_check.run()
@@ -690,6 +805,7 @@ class Nova:
             self._drain_jobs()
             self._searching = 0
             self._await_handle_until = self._await_chat_until = self._chat_confirm_until = 0.0
+            self._offer, self._offer_until = None, 0.0
             self._chat_pending = None
             self._follow_up_until = 0.0
             try:
@@ -710,10 +826,96 @@ class Nova:
             except queue.Empty:
                 return
 
+    # ---------------------------------------------------------- modo reposo (1.4)
+    def touch(self) -> None:
+        """Le has hablado o escrito: el reloj del modo reposo vuelve a empezar."""
+        self._last_activity = time.time()
+
+    def _ptt_name(self) -> str:
+        from .triggers import pretty
+
+        try:
+            return pretty(self.settings.get("ptt_tecla")) or "Insert"
+        except Exception:  # noqa: BLE001
+            return str(self.settings.get("ptt_tecla") or "Insert")
+
+    def sleep(self, announce: bool = True) -> bool:
+        """Entra en reposo: con «tecla» cierra el micrófono del todo; con «nombre» solo atiende a su nombre."""
+        with self._sleep_lock:
+            if self.asleep or self.training:
+                return False
+            by_name = self.settings.get("reposo_despertar") == "nombre"
+            self.asleep = True
+            self._follow_up_until = 0.0
+            self._offer, self._offer_until = None, 0.0
+            if self.listener:
+                if by_name:
+                    self.listener.force_wake = True
+                else:
+                    try:
+                        self.listener.shutdown()
+                    except Exception:  # noqa: BLE001
+                        log.debug("Cerrar el micrófono", exc_info=True)
+                    self.listener = None
+        log.info("Modo reposo (%s)", "por su nombre" if by_name else "tecla")
+        self.on_ui({"t": "reposo", "on": True})
+        if by_name:
+            self.on_message("sistema", f"💤 En reposo: solo escucho si me llama por mi nombre («{self.name}»). "
+                                       f"También puede pulsar {self._ptt_name()} o el botón ☀ de la Cabina.")
+        else:
+            self.on_message("sistema", f"💤 En reposo: micrófono apagado. Pulse {self._ptt_name()} o el botón ☀ "
+                                       f"de la Cabina para volver.")
+        if announce:
+            self._say(f"Entro en reposo, {self.settings.get('tratamiento')}.")
+        return True
+
+    def wake(self, announce: bool = True) -> bool:
+        with self._sleep_lock:
+            if not self.asleep:
+                return False
+            self.touch()
+            err = None
+            if self.listener is None:
+                err = self.start_audio()  # vuelve a abrir el micrófono (la tecla sigue igual)
+            else:
+                self.listener.force_wake = False
+            self.asleep = False
+        log.info("Fin del reposo")
+        self.on_ui({"t": "reposo", "on": False})
+        self.on_message("sistema", f"☀ {self.name} despierta." if not err else f"⚠ {err}")
+        if announce:
+            self._say(f"Aquí estoy, {self.settings.get('tratamiento')}.")
+        return True
+
+    def _sleep_watch(self) -> None:
+        """Entra en reposo tras los minutos elegidos sin que le hables ni le escribas."""
+        while True:
+            time.sleep(5)
+            try:
+                mins = float(self.settings.get("reposo_minutos") or 0)
+                if mins <= 0 or self.asleep or self.paused or self.training:
+                    continue
+                if (self.busy or self.tts.speaking or self.tts.busy() or self._ptt_held or self._searching
+                        or (self.listener and self.listener.capturing)):
+                    self.touch()
+                    continue
+                if time.time() - self._last_activity >= mins * 60:
+                    self.sleep()
+            except Exception:  # noqa: BLE001
+                log.exception("Modo reposo")
+
     # -------------------------------------------------------------- eventos
     def _ptt_down(self) -> None:
+        self.touch()
+        if self.asleep:  # la tecla despierta a Nova; la siguiente pulsación ya es para hablar
+            # en otro hilo: abrir el micrófono tarda y el gancho del teclado no debe esperar
+            threading.Thread(target=self.wake, daemon=True, name="despertar").start()
+            return
         self.tts.stop()  # pulsar para hablar interrumpe a Nova
         self._ptt_held = True
+        if self.settings.get("microfono_silenciado"):
+            self.on_status("🔇 Micrófono silenciado (MUTE)")
+            return
         if self.listener:
             self.listener.ptt_down()
         self.on_status("🎙 Escuchando…")
@@ -734,6 +936,9 @@ class Nova:
     def submit_text(self, text: str) -> None:
         """Texto escrito en la ventana: igual que si lo hubiera dicho por voz."""
         self._last_input_at = time.time()
+        self.touch()
+        if self.asleep:
+            self.wake(announce=False)
         self._jobs.put(("text", text, "texto", time.time()))
 
     def _on_game_event(self, ev: GameEvent) -> None:
@@ -810,6 +1015,17 @@ class Nova:
         return False
 
     def _handle(self, text: str, source: str) -> None:
+        if self.asleep:  # en reposo «por su nombre»: solo cuenta lo que empieza por su nombre
+            if source == "vad" and (self.is_own_echo(text) or self._strip_wake(text) is None):
+                log.debug("En reposo, ignorado: %s", text)
+                return
+            rest = self._strip_wake(text) if source == "vad" else text
+            rnorm = normalize(rest or "", tuple(self._wake_names()))
+            if not rnorm or rnorm in RESUME_WORDS or rnorm in lang_data.words(lang_data.RESUME, i18n.lang()):
+                self.on_message("tú", text)
+                self.wake()
+                return
+            self.wake(announce=False)
         if source == "vad":  # escucha continua: hace falta decir "Nova"
             if self.is_own_echo(text):
                 log.info("Ignorado (es mi propia voz): %s", text)
@@ -827,6 +1043,7 @@ class Nova:
                 return
             text = rest
         self._follow_up_until = 0
+        self.touch()
         norm = normalize(text, tuple(self._wake_names()))
 
         if self.paused:  # en pausa solo se escucha la orden de volver
@@ -842,6 +1059,9 @@ class Nova:
             canon = lang_data.canonical(norm, lang)
             if canon:
                 text, norm = canon, canon
+        if norm in SLEEP_WORDS or norm in lang_data.words(lang_data.SLEEP, lang):
+            self.sleep()
+            return
         if (norm in PAUSE_WORDS or norm in HALT_WORDS or norm in lang_data.words(lang_data.PAUSE, lang)
                 or norm in lang_data.words(lang_data.HALT, lang)):
             self.set_paused(True)
@@ -849,6 +1069,9 @@ class Nova:
             return
         # Mensaje para el chat del juego (esperando el texto o la confirmación)
         if self._chat_followup(text):
+            return
+        # ¿Busco la ficha del objetivo? ¿La mando a Discord? (sí / no)
+        if self._offer_followup(text):
             return
         if norm in STOP_WORDS or norm in lang_data.words(lang_data.STOP, lang):
             self.tts.stop()
@@ -1459,6 +1682,8 @@ class Nova:
                  else f"{self.name} en línea, {t}.")
         if last_place and last_place != "desconocida":
             hello += f" La última vez nos quedamos en {last_place}."
+        if self.settings.get("microfono_silenciado"):
+            how = "Tiene el micrófono silenciado: pulse MUTE en el medidor para que pueda oírle"
         self._say(f"{hello} {how}.")
 
 

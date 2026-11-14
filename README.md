@@ -5,7 +5,7 @@
 <h1 align="center">NOVA AI</h1>
 <p align="center"><b>Voice flight assistant for Star Citizen</b> · English · <a href="README.es.md">Español</a><br>
 She listens, answers with a natural voice, presses your game keys for you and knows what's happening in your game.<br>
-<i>Official version 1.3.1 · Windows 10/11 · English, español, català, français, Deutsch · completely free and open source</i></p>
+<i>Official version 1.4 · Windows 10/11 · English, español, català, français, Deutsch · completely free and open source</i></p>
 
 <p align="center">
   <a href="../../releases/latest"><b>⬇ Download NOVA AI Setup.exe</b></a> ·
@@ -45,6 +45,24 @@ Star Citizen asks for a lot of hands: stick, throttle, mouse, keyboard shortcuts
 - **She adapts to the way you speak:** the setup wizard trains her name with your voice, and you can tune the microphone sensitivity and how long she waits in silence before your sentence is over.
 
 For example, with one hand on the stick: *"Nova, flight ready"*, *"request takeoff"*, *"raise landing gear"* and, in combat, *"flares"* or *"next attacker"*, without ever letting go. Flying and aiming still need a stick, mouse or controller; Nova takes care of almost everything else. If you use NOVA AI for accessibility and something is missing, please tell us in [Issues](../../issues): it's a priority.
+
+## What's new in 1.4
+
+- **Keeps running in the Windows tray:** close the window and Nova stays next to the clock, still listening, with the overlay in the game and timers running. Click the icon to open her; right-click for MUTE, sleep mode or *Exit NOVA AI*. You can turn this off in *Settings › General › Window & tray*.
+- **Sleep mode** (*Nova › Microphone*): after the minutes you choose without talking to her (or never, the default), Nova rests and the overlay dims. Wake her with your talk key, the ☀ button or by typing, or choose to wake her by name. You can also say *"Nova, sleep mode"* or use the 💤 button in the Cockpit.
+- **Guided tour:** after the setup wizard (or the first time you open 1.4), Nova shows you where every option is in one minute. Repeat it from *Settings › General*.
+- **Anonymous questionnaire:** rate NOVA AI from 1 to 10 and share your ideas. It is published as a public issue here, without your name, gametag or computer data. Nova reminds you once after 3 days and never insists.
+
+**Microphone, fair play and AI engines:**
+
+- **A sturdier microphone:** Nova tries your microphone through several Windows audio paths (MME, DirectSound, WASAPI) and at its native rate (e.g. 48 kHz). If it can't open it, she falls back to the Windows default microphone and tells you. *Nova › Microphone* shows which device is really open and warns you when it only hears total silence (a headset muted with its own button, or blocked in Windows privacy) or a very weak signal.
+- **Microphone gain** (×1 to ×8) in *Nova › Microphone*; the setup wizard raises it for you if your voice comes in too quiet.
+- **MUTE button** on the microphone meter (left sidebar): **MUTE ON** (green) and Nova hears nothing, neither the push-to-talk key nor her name.
+- **Cautious key mode** (*Ship & commands › Game reading & keys*, on by default): a voice command never does more than you could do with one press: no long chained waits, no mouse clicks inside sequences, keys held for 3 s at most and never looped, in line with the RSI Terms of Service on macros.
+- **RSI lookups and Discord posts only when you say "yes":** bounty targets are no longer looked up automatically, and player cards are no longer posted to Discord on their own. Player cards are cached for 10 minutes and RSI requests are spaced at least 2 s apart.
+- **Mistral replaces DeepSeek** as a free AI engine (Experiment plan, no credit card). DeepSeek still works if you already had its key.
+- **Edge no longer offers to save your API keys** as passwords.
+- Translation fixes (overlay status, sample holograms, the "YOU" chat label) and GitHub Actions updated.
 
 ## What's new in 1.3.1
 
@@ -123,7 +141,7 @@ For example, with one hand on the stick: *"Nova, flight ready"*, *"request takeo
 The installer downloads Python 3.12 if you don't have it (for Nova only), creates the shortcuts and registers the uninstaller. The in-app manual (*Read the Manual*) is shown in your language (translated automatically the first time you open it); the detailed guide ([LEEME](LEEME.md)) and the PDF manual in *Releases* are in Spanish.
 
 > [!IMPORTANT]
-> **The 1.3.1 executables are not code-signed yet.** A free code signing certificate has been requested from SignPath Foundation (see [Code signing policy](#code-signing-policy)).
+> **The 1.4 executables are not code-signed yet.** A free code signing certificate has been requested from SignPath Foundation (see [Code signing policy](#code-signing-policy)).
 >
 > - **"Windows protected your PC" (SmartScreen):** click *More info → Run anyway*.
 > - **Smart App Control** (Windows 11, *Windows Security › App & browser control*): when it is **On**, it blocks any unsigned program and allows no exceptions. To install NOVA AI you have to set it to **Off** (the portable `.zip` is blocked too) or wait for the signed version. Since the April 2026 Windows update it can be turned back on later without reinstalling Windows. In **Evaluation** mode Windows decides by itself and may let it through.
@@ -142,10 +160,13 @@ NOVA AI uses free services in an **engine chain**: if one runs out of quota, she
 | 2 | Google Gemini | `gemini-3.5-flash-lite` |
 | 3 | Groq | `openai/gpt-oss-120b` |
 | 4 | OpenRouter | `openrouter/free` |
+| 5 | Mistral | `mistral-small-latest` |
 
 The installer in *Releases* **comes without AI keys**: Nova obeys voice commands from the first minute, and to talk and search she needs at least one free key. You get one in 2 minutes with no credit card (Gemini and Groq are recommended): chapter 11 of the manual, *Your own API keys*, explains it step by step. Then paste them in ***Nova › Intelligence › Free keys***. Nova always answers in the language you chose.
 
 **About keys in this repository:** the program supports **encrypted** factory keys (`recursos/claves_iniciales.enc`, see [`core/keyvault.py`](core/keyvault.py)), but the master key is **not in the repository or in the public release**, so those keys can't be used or read. If you build your own version, use your own keys with [`build/cifrar_claves.py`](build/cifrar_claves.py), or leave them out and each user will add theirs.
+
+**Anonymous questionnaire service:** the questionnaire is sent to a small Cloudflare Worker that holds the GitHub token and creates the issue, so the program carries no token. Its code and deployment steps are in [`servicios/cuestionario`](servicios/cuestionario). If you build your own version, set your own service address in `core/survey.py` or leave it empty to hide the questionnaire.
 
 ## Feedback, bugs and ideas
 
@@ -190,6 +211,7 @@ Signing only runs once SignPath is configured for the project; without it, the w
 | `instalador/` | Graphical installer and uninstaller in five languages (PowerShell + WPF) |
 | `build/` | Sources of the .exe files (Go), Windows resource generator and icons |
 | `.github/workflows/` | Build and signing with GitHub Actions |
+| `servicios/cuestionario/` | Cloudflare Worker for the anonymous questionnaire (creates the issue without putting a token in the program) |
 | `recursos/idiomas/` | Window and Nova texts in English, Catalan, French and German |
 | `datos/comandos.json` | Factory voice commands (Spanish), plus `datos/comandos.<language>.json` with their phrases in each language |
 | `NORMAS_Y_PRIVACIDAD*.md` | Terms of use and Privacy policy in the five languages |
@@ -202,7 +224,7 @@ Your data stays on your PC (`%LOCALAPPDATA%\NOVA AI\datos`). There are no server
 
 <p align="center"><img src="docs/img/acerca.gif" width="520" alt="About"></p>
 
-**NOVA AI · Official version 1.3.1**, by **Aaron B. Roldan** (Star Citizen gametag: **0zzyt0**). Built with the **Claude Opus 5.5** AI engine (Anthropic).
+**NOVA AI · Official version 1.4**, by **Aaron B. Roldan** (Star Citizen gametag: **0zzyt0**). Built with the **Claude Opus 5.5** AI engine (Anthropic).
 
 **Thanks** to the **Defcorp org**, and to Faibo, Galleg0, Sr.Scott, AlpacaInTrouble, Lother… and many more!
 

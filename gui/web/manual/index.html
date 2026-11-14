@@ -153,7 +153,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   <div class="t2">ASISTENTE DE VUELO PARA STAR CITIZEN</div>
   <div class="t3">MANUAL DE USUARIO</div>
   <div class="t4">Todo lo que necesitas para instalarla, configurarla y sacarle partido.<br>¿Prisa? Empieza por la <b>Guía rápida</b> (página 3).</div>
-  <div class="meta">VERSIÓN OFICIAL 1.2.2 · NOVIEMBRE 2026 · UEE · STANTON</div>
+  <div class="meta">VERSIÓN OFICIAL 1.4 · NOVIEMBRE 2026 · UEE · STANTON</div>
 </section>
 
 <!-- ======================================================= ÍNDICE -->
@@ -172,11 +172,11 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <div class="tl" data-cap="07"><span class="n">07</span>Nova: voz, oído e inteligencia<span class="p">19</span></div>
     <div class="tl" data-cap="08"><span class="n">08</span>Overlay y hologramas<span class="p">24</span></div>
     <div class="tl" data-cap="09"><span class="n">09</span>Datos y memoria<span class="p">28</span></div>
-    <div class="tl" data-cap="10"><span class="n">10</span>Ajustes e idiomas<span class="p">35</span></div>
-    <div class="tl" data-cap="11"><span class="n">11</span>Guía: tus propias API Keys<span class="p">37</span></div>
-    <div class="tl" data-cap="12"><span class="n">12</span>Problemas frecuentes<span class="p">40</span></div>
-    <div class="tl" data-cap="13"><span class="n">13</span>Privacidad y créditos<span class="p">41</span></div>
-    <div class="tl" data-cap="14"><span class="n">14</span>Gracias a la comunidad<span class="p">42</span></div>
+    <div class="tl" data-cap="10"><span class="n">10</span>Ajustes, bandeja y modo reposo<span class="p">35</span></div>
+    <div class="tl" data-cap="11"><span class="n">11</span>Guía: tus propias API Keys<span class="p">39</span></div>
+    <div class="tl" data-cap="12"><span class="n">12</span>Problemas frecuentes<span class="p">42</span></div>
+    <div class="tl" data-cap="13"><span class="n">13</span>Privacidad y créditos<span class="p">43</span></div>
+    <div class="tl" data-cap="14"><span class="n">14</span>Gracias a la comunidad<span class="p">44</span></div>
   </div>
   <h2>Cómo leer este manual</h2>
   <div class="g3">
@@ -207,7 +207,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <tr><td><span class="say">«Nova, baja el tren»</span></td><td>Pulsa tus teclas del juego (tren, escudos, cuántico, luces…).</td></tr>
     <tr><td><span class="say">«¿Qué es la Laranite?»</span></td><td>Te lo cuenta al momento desde su Diccionario de consultas.</td></tr>
     <tr><td><span class="say">«Háblame de Daymar»</span></td><td>Ficha del planeta, con holograma encima del juego.</td></tr>
-    <tr><td><span class="say">«Búscame a un jugador»</span></td><td>Te pide el apodo y enseña su ficha de RSI (y la manda a tu Discord).</td></tr>
+    <tr><td><span class="say">«Búscame a un jugador»</span></td><td>Te pide el apodo y enseña su ficha de RSI (y, si dices «sí», la manda a tu Discord).</td></tr>
     <tr><td><span class="say">«¿Qué ruta me da más con 100.000 aUEC?»</span></td><td>Calcula la mejor ruta de comercio con tu bodega.</td></tr>
     <tr><td><span class="say">«Avísame en 3 horas, el refinado»</span></td><td>Pone un temporizador que te avisa aunque cierres NOVA.</td></tr>
     <tr><td><span class="say">«Envía mensaje al chat: ¿alguien necesita escolta?»</span></td><td>Lo traduce al inglés y lo escribe en el chat del juego.</td></tr>
@@ -400,7 +400,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <div><span class="k">7</span><span><b>Temporizadores</b> de refinados y contratos.</span></div>
     <div><span class="k">8</span><span><b>Situación:</b> ubicación, contratos, servidores…</span></div>
     <div><span class="k">9</span><span><b>Accesos rápidos:</b> escuchar su nombre sin tecla, el overlay y los comentarios del juego.</span></div>
-    <div><span class="k">10</span><span><b>Estado</b> y medidor del micrófono.</span></div>
+    <div><span class="k">10</span><span><b>Estado</b> y medidor del micrófono, con el botón <b>MUTE</b> en la esquina (verde = Nova no escucha).</span></div>
     <div><span class="k">11</span><span><b>Apagar</b> Nova del todo (ventana, overlay y escucha).</span></div>
   </div>
   <p class="small" style="margin-top:2.5mm">Todo cabe sin barras de desplazamiento: si la ventana es baja, el holograma se encoge y <b>Situación</b>, <b>Temporizadores</b> y <b>Accesos rápidos</b> se pliegan solos (plegados muestran un resumen, como «2 activos»). Pulsa su cabecera para abrirlos o plegarlos; Nova lo recuerda.</p>
@@ -492,10 +492,10 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   <div class="warnb"><span class="t">SI NO LO ENCUENTRA</span>Ante cualquier error, o si la ficha no da los datos, Nova dice: <b>«Usuario no encontrado, ¿Está bien escrito el apodo?»</b>.</div>
   <div class="g2">
     <div class="card"><h3>En la bitácora</h3><p class="small">Cada búsqueda queda en <b>Datos y memoria › Bitácora y estadísticas</b>, archivo <code>Busquedas_de_jugadores.log</code>: <i>fecha · hora · jugador · organización</i>.</p></div>
-    <div class="card"><h3>En Discord</h3><p class="small">Con un webhook en <b>Datos y memoria › Discord y servidores</b>, cada ficha se manda sola a ese canal (los objetivos de recompensa, en rojo). La Cabina te dice si llegó.</p></div>
+    <div class="card"><h3>En Discord</h3><p class="small">Con un webhook en <b>Datos y memoria › Discord y servidores</b>, Nova pregunta «¿La mando a Discord?» y, si dices o escribes <b>«sí»</b> en 30 segundos, la manda a ese canal (los objetivos de recompensa, en rojo). La Cabina te dice si llegó.</p></div>
   </div>
   <h3>Objetivos de recompensa</h3>
-  <p class="small">Al aceptar una misión de cazarrecompensas o JcJ (o cuando sale <i>«Objetivo nuevo: Neutralizar XX»</i>), Nova busca a XX en RSI automáticamente. Si tiene ficha es un <b>jugador</b>: suena una alerta y su ficha sale <b>en rojo</b> con el sello «OBJETIVO DE CAZA». Si no la tiene, te dice que es un <b>piloto NPC</b>. Ambos casos quedan en la bitácora de búsquedas.</p>
+  <p class="small">Al aceptar una misión de cazarrecompensas o JcJ (o cuando sale <i>«Objetivo nuevo: Neutralizar XX»</i>), Nova te pregunta «¿Busco su ficha en RSI?» y la busca solo si dices <b>«sí»</b>. Si tiene ficha es un <b>jugador</b>: suena una alerta y su ficha sale <b>en rojo</b> con el sello «OBJETIVO DE CAZA». Si no la tiene, te dice que es un <b>piloto NPC</b>. Ambos casos quedan en la bitácora de búsquedas.</p>
   <div class="pf">NOVA AI · MANUAL DE USUARIO<span class="n"></span></div>
 </section>
 
@@ -512,7 +512,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
       <li><b>Comentarios con IA:</b> más graciosos y variados, pero gastan cuota.</li>
       <li><b>Qué te avisa en voz:</b> marca solo los tipos de aviso que quieras oír.</li>
       <li>Detecta los <b>objetivos de recompensa</b> y cuándo te acercas a un <b>planeta, luna o lugar</b> (para sus hologramas).</li>
-      <li><b>Pulsar teclas solo con el juego delante</b> y <b>pausa entre teclas</b>.</li></ul></div>
+      <li><b>Pulsar teclas solo con el juego delante</b>, <b>pausa entre teclas</b> y <b>modo prudente</b> (activado por defecto: sin esperas ni ratón dentro de las secuencias y teclas mantenidas 3 s como máximo, para respetar los Términos de RSI sobre macros).</li></ul></div>
     <div class="card"><h3>Teclas de Star Citizen</h3><ul class="d small">
       <li>Nova lee tu <code>actionmaps.xml</code> al arrancar y <b>usa tus propias teclas</b>.</li>
       <li>Crea comandos para las acciones nuevas a las que diste tecla.</li>
@@ -618,6 +618,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <div class="card"><h3>Micrófono y reconocimiento</h3><ul class="d small">
       <li><b>Micrófono</b> y su medidor en directo.</li>
       <li><b>Sensibilidad:</b> súbela si hablas bajo, bájala si se activa sola.</li>
+      <li><b>Ganancia</b> (×1 a ×8): amplifica la señal si tu micrófono llega muy bajo. Encima ves qué micrófono está abierto y si llega silencio (por ejemplo, auriculares silenciados).</li>
       <li><b>Silencio para terminar la frase:</b> cuánto espera antes de dar la frase por acabada.</li>
       <li><b>Motor:</b> <i>Automático</i> usa Groq (nube, rapidísimo) si hay clave; si no, Whisper en tu PC.</li>
       <li><b>Modelo local:</b> <code>small</code> sin NVIDIA; <code>large-v3-turbo</code> con NVIDIA.</li></ul></div>
@@ -668,7 +669,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <tr><td>Inventar cuando no sabe algo</td><td>Activado: se inventa la respuesta con gracia y lo confiesa al final. Desactivado: te dice con humor que no lo sabe.</td></tr>
     <tr><td>Frases de confesión</td><td>Una por línea; elige una al azar. <code>{t}</code> se cambia por cómo te llama. <b>Restaurar la original</b> vuelve a la de fábrica.</td></tr>
   </table>
-  <div class="tip"><span class="t">AÑADIR UN MOTOR A LA CADENA</span>En la fila vacía elige el proveedor (por ejemplo <b>deepseek</b>), escribe el modelo o pulsa <b>MODELOS</b> para elegirlo de la lista, y comprueba con <b>PROBAR</b>. Para quitar uno, deja el proveedor en «—».</div>
+  <div class="tip"><span class="t">AÑADIR UN MOTOR A LA CADENA</span>En la fila vacía elige el proveedor (por ejemplo <b>mistral</b>), escribe el modelo o pulsa <b>MODELOS</b> para elegirlo de la lista, y comprueba con <b>PROBAR</b>. Para quitar uno, deja el proveedor en «—».</div>
   <div class="pf">NOVA AI · MANUAL DE USUARIO<span class="n"></span></div>
 </section>
 
@@ -726,7 +727,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   </div>
   <div class="g2">
     <div class="card"><h3>Ficha policial UEE (azul)</h3><p class="small">Al buscar un jugador: <b>foto de perfil</b>, apodo, handle, expediente, fecha de alta, idiomas y la <b>organización con su logotipo</b>. Lo que el jugador oculta sale como <b>REDACTED</b>.</p></div>
-    <div class="card"><h3>Objetivo de captura (rojo)</h3><p class="small">Si el objetivo de una recompensa o misión JcJ es un <b>jugador</b>, suena una <b>alerta</b> de dos tonos antes de que se abra la ficha, en <b>rojo</b> y con el sello <b>OBJETIVO DE CAZA</b>. Si es un piloto NPC, solo te lo dice.</p></div>
+    <div class="card"><h3>Objetivo de captura (rojo)</h3><p class="small">Si el objetivo de una recompensa o misión JcJ es un <b>jugador</b> y dices «sí» a buscarlo, suena una <b>alerta</b> de dos tonos antes de que se abra la ficha, en <b>rojo</b> y con el sello <b>OBJETIVO DE CAZA</b>. Si es un piloto NPC, solo te lo dice.</p></div>
   </div>
   <div class="row" style="grid-template-columns:1fr 1fr;gap:5mm">
     <figure><img src="img/v12_planeta.jpg"><figcaption><b>Planeta o luna</b>: el cuerpo gira en 3D.</figcaption></figure>
@@ -749,7 +750,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
       <li><b>Opacidad</b> (menos = más transparente), <b>tiempo en pantalla</b>, <b>tamaño</b> y <b>posición</b>.</li>
       <li><b>Cuándo aparece:</b> al buscar un jugador, en recompensas, al pedir un planeta o lugar, al llegar.</li>
       <li><b>Traducir las descripciones:</b> VerseGuide está en inglés; tu IA las traduce una vez por lugar y se guardan.</li>
-      <li><b>Buscar el objetivo de cada recompensa:</b> ficha si es jugador, aviso si es piloto NPC.</li>
+      <li><b>Buscar el objetivo de cada recompensa:</b> te pregunta antes; ficha si es jugador, aviso si es piloto NPC.</li>
       <li><b>Sonido:</b> el de cada momento y su volumen (página siguiente).</li>
       <li>Los botones <b>Probar</b> enseñan cada ficha en la vista previa y en pantalla; <b>Ocultar</b> la quita.</li></ul>
     <div class="tip"><span class="t">LETRA CLARA</span>Los textos van en negrita con un contorno oscuro para leerse bien sobre cualquier fondo del juego.</div>
@@ -831,7 +832,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   <figure class="c" style="width:150mm"><img src="img/n_datos_servidores.jpg"><figcaption><b>Estado de los servidores de RSI</b> y <b>Discord</b>.</figcaption></figure>
   <div class="g3">
     <div class="card"><h3>Servidores RSI</h3><p class="small">Al arrancar NOVA mira <b>status.robertsspaceindustries.com</b> y te avisa si hay caídas o mantenimiento. <b>Comprobar ahora</b> lo vuelve a mirar. Pregúntale <span class="say">«¿cómo están los servidores?»</span>.</p></div>
-    <div class="card"><h3>Discord</h3><p class="small">Pega el webhook de un canal (Discord: <b>Editar canal › Integraciones › Webhooks</b>): cada ficha que busques se manda sola, con foto y logotipo, y también los objetivos de recompensa (en rojo). <b>Enviar ficha de prueba</b> manda una de ejemplo y abajo ves el resultado del último envío.</p></div>
+    <div class="card"><h3>Discord</h3><p class="small">Pega el webhook de un canal (Discord: <b>Editar canal › Integraciones › Webhooks</b>): tras cada ficha Nova pregunta si la manda; con <b>«sí»</b> se envía con foto y logotipo, también los objetivos de recompensa (en rojo). <b>Enviar ficha de prueba</b> manda una de ejemplo y abajo ves el resultado del último envío.</p></div>
     <div class="card"><h3>Bodega por defecto</h3><p class="small">Las SCU que usa Nova para calcular rutas de comercio cuando no sabe en qué nave vas.</p></div>
   </div>
   <h2>Actualizaciones de NOVA AI</h2>
@@ -977,6 +978,57 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   <div class="pf">NOVA AI · MANUAL DE USUARIO<span class="n"></span></div>
 </section>
 
+<!-- ======================================================= 10 NOVEDADES 1.4 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual de usuario<span class="s">10 · Bandeja y modo reposo (1.4)</span></div>
+  <h2>Nova en la bandeja de Windows</h2>
+  <figure class="c" style="width:150mm"><img src="img/v14_bandeja.jpg"><figcaption><b>Ajustes › General › Ventana y bandeja.</b></figcaption></figure>
+  <p class="small">Desde la versión 1.4, al <b>cerrar la ventana</b> Nova no se apaga: se queda en la <b>bandeja de Windows</b>, junto al reloj (a veces dentro de la flechita <b>^</b>). Te sigue escuchando, el overlay sigue en el juego y los temporizadores avisan. La primera vez, Windows muestra un aviso para que sepas dónde está.</p>
+  <div class="g3">
+    <div class="card"><h3>Clic en el icono</h3><p class="small">Abre la ventana (o la trae al frente si ya estaba abierta).</p></div>
+    <div class="card"><h3>Clic derecho</h3><p class="small"><b>Abrir NOVA AI</b>, <b>Silenciar el micrófono (MUTE)</b>, <b>Modo reposo</b> y <b>Salir de NOVA AI</b>, que la cierra del todo.</p></div>
+    <div class="card"><h3>⤓ en la cabecera</h3><p class="small">Manda la ventana a la bandeja al momento. ⏻ sigue apagando Nova.</p></div>
+  </div>
+  <div class="tip"><span class="t">¿PREFIERES LO DE ANTES?</span>Desactiva <b>«Al cerrar la ventana, seguir en la bandeja»</b> y cerrar la ventana cerrará NOVA AI, como en la 1.3.</div>
+  <h2>Modo reposo</h2>
+  <div class="row"><figure><img src="img/v14_reposo_cabina.jpg"><figcaption>En reposo: el núcleo dice <b>MODO REPOSO</b> y el botón <b>☀</b> la despierta.</figcaption></figure><div>
+    <p class="small" style="margin-top:0">Si pasas un rato sin hablarle, Nova <b>descansa</b>: deja de escucharte y el overlay queda tenue, respirando despacio. Los temporizadores y los avisos del juego siguen funcionando.</p>
+    <ul class="small">
+      <li><b>Dormirla:</b> el botón <b>💤</b> de la Cabina, <b>Modo reposo</b> en la bandeja, o di <span class="say">«Nova, modo reposo»</span> (también «a dormir» o «descansa»).</li>
+      <li><b>Despertarla:</b> tu tecla de hablar, el botón <b>☀</b> o escribirle. La primera pulsación solo la despierta («Aquí estoy, señor»); la siguiente ya es para hablar.</li>
+      <li><span class="say">«Nova, desactívate»</span> sigue siendo la <b>pausa</b> de siempre: no apaga el micrófono y vuelve con «Nova, actívate».</li>
+    </ul>
+  </div></div>
+  <div class="pf">NOVA AI · MANUAL DE USUARIO<span class="n"></span></div>
+</section>
+
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual de usuario<span class="s">10 · Modo reposo, recorrido y cuestionario (1.4)</span></div>
+  <div class="row"><figure><img src="img/v14_reposo_ajustes.jpg"><figcaption><b>Nova › Micrófono › Modo reposo.</b></figcaption></figure><div>
+    <h3 style="margin-top:0">Cuándo y cómo</h3>
+    <ul class="small">
+      <li><b>Entrar en reposo:</b> nunca (lo que viene de serie) o tras 5, 10, 15, 30 o 60 minutos sin hablarle ni escribirle.</li>
+      <li><b>Con la tecla o el botón:</b> el micrófono se cierra del todo; Windows deja de mostrarlo en uso.</li>
+      <li><b>También por su nombre:</b> el micrófono sigue abierto y solo atiende a lo que empieza por su nombre: <span class="say">«Nova, ¿qué hora es en Lorville?»</span> la despierta y contesta. Con Groq gasta algo de cuota.</li>
+    </ul>
+  </div></div>
+  <h2>Recorrido guiado</h2>
+  <div class="row"><figure><img src="img/v14_tour.jpg"><figcaption>Cada paso ilumina una parte de la ventana.</figcaption></figure><div>
+    <p class="small" style="margin-top:0">Al terminar la configuración inicial (o la primera vez que abres la 1.4), Nova te enseña en un minuto dónde está cada opción: la Cabina, el botón para hablar, el modo reposo, el MUTE y cada sección.</p>
+    <p class="small">Avanza con <b>SIGUIENTE</b> o con las flechas, y sal con <b>SALIR</b> o <kbd>Esc</kbd>. Para repetirlo: <b>Ajustes › General › Recorrido guiado</b>.</p>
+  </div></div>
+  <h2>Cuestionario anónimo</h2>
+  <div class="row"><figure><img src="img/v14_cuestionario.jpg"></figure><div>
+    <p class="small" style="margin-top:0">El botón <b>Cuestionario</b>, debajo de «Consulta el Manual», abre ocho preguntas del 1 al 10 (o <b>N/S</b> si no usas esa parte) y un cuadro para tus ideas.</p>
+    <ul class="small">
+      <li><b>Anónimo:</b> solo se envían tus notas, lo que escribas, la versión de NOVA AI y el idioma. Ni tu nombre, ni tu gametag, ni datos de tu equipo.</li>
+      <li>Se publica como <b>issue público</b> en GitHub: no escribas datos personales.</li>
+      <li>A los 3 días Nova te lo recuerda <b>una vez</b>. «Ahora no» te deja elegir otro aviso en 3 días o no volver a preguntar.</li>
+    </ul>
+  </div></div>
+  <div class="pf">NOVA AI · MANUAL DE USUARIO<span class="n"></span></div>
+</section>
+
 <section id="cap-11" class="page">
   <div class="ph"><img src="/logo.png">NOVA AI · Manual de usuario<span class="s">11 · Tus propias API Keys</span></div>
   <h1><span class="num">11</span>Tus propias API Keys</h1>
@@ -986,7 +1038,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <tr><td>Gemini</td><td>El cerebro principal de Nova.</td><td class="ok">Gratis, sin tarjeta</td><td><code>AIza…</code> o <code>AQ.…</code></td></tr>
     <tr><td>Groq</td><td>Respaldo ultrarrápido y reconocimiento de voz en la nube.</td><td class="ok">Gratis, sin tarjeta</td><td><code>gsk_…</code></td></tr>
     <tr><td>OpenRouter</td><td>Muchos modelos gratuitos como respaldo.</td><td class="ok">Gratis (50 peticiones/día)</td><td><code>sk-or-v1-…</code></td></tr>
-    <tr><td>DeepSeek</td><td>Muy listo y muy barato.</td><td class="warn">De pago (saldo previo)</td><td><code>sk-…</code></td></tr>
+    <tr><td>Mistral</td><td>IA europea, muy buen respaldo para charlar.</td><td class="ok">Gratis, sin tarjeta (pide teléfono)</td><td>sin prefijo fijo</td></tr>
   </table>
   <div class="okb"><span class="t">RECOMENDADO</span><b>Gemini + Groq</b>: con esas dos tienes de sobra para el día a día. OpenRouter es un buen tercer respaldo.</div>
   <h2>Cómo poner una clave en Nova</h2>
@@ -1050,15 +1102,16 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <p class="small dim" style="margin:2mm 0 0">Usa los modelos acabados en <code>:free</code> o <code>openrouter/free</code>, que elige uno gratuito disponible.</p>
   </div>
   <div class="key">
-    <div class="hd"><span class="logo">DeepSeek</span><span class="tag pay">DE PAGO</span><span class="url">platform.deepseek.com/api_keys</span></div>
+    <div class="hd"><span class="logo">Mistral</span><span class="tag">GRATIS</span><span class="url">console.mistral.ai/api-keys</span></div>
     <ol class="small">
-      <li>Entra en <b>platform.deepseek.com</b> (no es la web del chat) y regístrate con tu correo.</li>
-      <li>Ve a <b>Top up</b> y añade saldo: la clave no funciona sin saldo. Es muy barato: unos pocos euros duran meses.</li>
-      <li>Ve a <b>API keys</b> y pulsa <b>Create new API key</b>.</li>
-      <li><b>Copia la clave</b> (<code>sk-…</code>): no se vuelve a mostrar.</li>
-      <li>Pégala en Nova: <b>Nova › Inteligencia › Claves gratuitas › DeepSeek</b> y añádelo a la cadena de motores (proveedor <b>deepseek</b>, modelo <code>deepseek-v4-flash</code>).</li>
+      <li>Entra en <b>console.mistral.ai</b> y crea una cuenta (correo, Google o Microsoft).</li>
+      <li>Elige el plan gratuito <b>Experiment</b> y verifica tu <b>número de teléfono</b> con el SMS que te mandan. No pide tarjeta.</li>
+      <li>Ve a <b>API Keys</b> y pulsa <b>Create new key</b>; ponle un nombre («Nova»).</li>
+      <li><b>Copia la clave</b>: no se vuelve a mostrar.</li>
+      <li>Pégala en Nova: <b>Nova › Inteligencia › Claves gratuitas › Mistral</b>. Nova la añade sola a la cadena de motores (modelo <code>mistral-small-latest</code>).</li>
     </ol>
-    <div class="foot"><span><b>Tarjeta:</b> sí (saldo prepago)</span><span><b>Coste:</b> por uso; a veces regalan un saldo inicial</span></div>
+    <div class="foot"><span><b>Tarjeta:</b> no hace falta</span><span><b>Límite:</b> 1 petición por segundo, de sobra para Nova</span></div>
+    <p class="small dim" style="margin:2mm 0 0">En el plan gratuito Mistral puede usar tus peticiones para entrenar sus modelos. Si no quieres, desactívalo en la consola: menú <b>Privacy</b>. Si ya tenías una clave de <b>DeepSeek</b> (de pago), Nova la sigue usando.</p>
   </div>
   <div class="tip"><span class="t">¿Y SI UNA CLAVE DEJA DE FUNCIONAR?</span>Pulsa <b>PROBAR</b> en la cadena de motores. Los errores más comunes: clave mal copiada (con un espacio de más), clave borrada en la web del servicio, o cupo del día agotado (espera a mañana; Nova usa mientras tanto el siguiente motor).</div>
   <div class="pf">NOVA AI · MANUAL DE USUARIO<span class="n"></span></div>
@@ -1070,7 +1123,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   <h1><span class="num">12</span>Problemas frecuentes</h1>
   <table class="small tight">
     <tr><th style="width:52mm">Si…</th><th>Prueba esto</th></tr>
-    <tr><td>No me oye</td><td>Elige tu micrófono en <b>Nova › Micrófono</b> y mira el medidor. Sube la sensibilidad si hablas bajo.</td></tr>
+    <tr><td>No me oye</td><td>Si el núcleo dice <b>MODO REPOSO</b>, pulsa tu tecla o ☀. Mira que el botón <b>MUTE</b> del medidor esté en <b>OFF</b> y que tus auriculares no estén silenciados. Elige tu micrófono en <b>Nova › Micrófono</b>: allí dice si llega silencio. Sube la sensibilidad o la ganancia si hablas bajo.</td></tr>
     <tr><td>Se activa sola</td><td>Baja la sensibilidad o desactiva «Escuchar sin tecla». Si es una forma aprendida del nombre, quítala con <b>Olvidar</b>.</td></tr>
     <tr><td>No reacciona a su nombre</td><td>Repite el entrenamiento en <b>Nova › Identidad e idioma</b>. Elige un nombre de 2 o 3 sílabas que no sea una palabra común.</td></tr>
     <tr><td>El juego no recibe las teclas</td><td>Si ejecutas Star Citizen como administrador, ejecuta Nova también como administrador. Activa «Pulsar teclas solo con el juego delante».</td></tr>
@@ -1113,7 +1166,8 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <li><b>Fichas de jugadores y estado de servidores:</b> lectura de las páginas públicas de robertsspaceindustries.com (la ficha que pides y su organización) y de status.robertsspaceindustries.com.</li>
     <li><b>Actualizaciones:</b> al iniciar y al cerrar, consulta a GitHub cuál es la última versión de NOVA AI (se puede desactivar).</li>
     <li><b>Hologramas:</b> fichas de planetas, lunas y lugares de verseguide.com (se guardan 3 días en tu equipo); fotos y logotipos de robertsspaceindustries.com.</li>
-    <li><b>Discord:</b> solo si pegas un webhook, la ficha del jugador que buscas se manda a ese canal.</li>
+    <li><b>Discord:</b> solo si pegas un webhook, la ficha del jugador que buscas se manda a ese canal, y solo si dices «sí».</li>
+    <li><b>Cuestionario:</b> solo si lo envías: tus notas, tu texto, la versión y el idioma, como issue público en GitHub, sin nombre ni gametag.</li>
     <li><b>Google Translate:</b> los mensajes para el chat del juego y las descripciones de VerseGuide, para traducirlos.</li>
     <li><b>StarMap:</b> datos de planetas y lugares de su API pública (solo el planeta que hace falta; se guardan una semana).</li>
   </ul>
@@ -1128,7 +1182,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <tr><td>Traducción al español</td><td>0zzyt0 y la comunidad</td></tr>
     <tr><td>Datos del juego</td><td>Páginas de la comunidad: ver «Gracias a la comunidad» (sección 15)</td></tr>
     <tr><td>Formatos del Game.log</td><td>Proyectos de la comunidad all-slain y sc-assistant (licencia MIT)</td></tr>
-    <tr><td>Motores de IA y voz</td><td>Google Gemini, Groq, OpenRouter, DeepSeek, Microsoft Edge, Piper, Whisper</td></tr>
+    <tr><td>Motores de IA y voz</td><td>Google Gemini, Groq, OpenRouter, Mistral, Microsoft Edge, Piper, Whisper</td></tr>
   </table>
   <div class="pf">NOVA AI · MANUAL DE USUARIO<span class="n"></span></div>
 </section>

@@ -5,7 +5,7 @@ window.V12 = (() => {
     try {
       const r = await api("holo_preview");
       if (r && r.png) $("#holoPrev").innerHTML = `<img src="${r.png}" alt="Holograma">`;
-      $("#holoStatus").textContent = r && r.status ? "Overlay: " + r.status : "";
+      $("#holoStatus").textContent = r && r.status ? T("Overlay: {s}", { s: T(r.status) }) : "";
     } catch (e) { /* sin ficha todavía */ }
   }
   $$("[data-holo-test]").forEach((b) => b.addEventListener("click", safe(async () => {

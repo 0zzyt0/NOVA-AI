@@ -106,11 +106,12 @@ def main() -> None:
     server = UIServer(nova, overlay, session)
     url = server.start()
     stopping = threading.Event()
-    window: dict = {"proc": None}
+    window: dict = {"proc": None, "started": time.time(), "hidden": False, "avisado": False}
+    tray = None
 
-    def close_window() -> None:
+    def close_window(to_tray: bool = False) -> None:
         """Cierra la ventana de Nova (es un proceso de Edge aparte)."""
-        server.broadcast({"t": "bye"})  # la propia página se cierra
+        server.broadcast({"t": "bye", "bandeja": to_tray})  # la propia página se cierra
         time.sleep(0.8)
         proc = window["proc"]
         if proc is not None and proc.poll() is None:
@@ -153,6 +154,8 @@ def main() -> None:
                 nova.update_on_close()  # ¿versión nueva? (o la que dejaste «para al cerrar»)
             except Exception:
                 log.exception("Actualización al cerrar")
+            if tray is not None:
+                tray.stop()  # sin icono fantasma en la bandeja
             overlay.stop()
             nova.holo.stop()
             nova.tts.stop()
@@ -163,6 +166,96 @@ def main() -> None:
             os._exit(0)
 
     server.on_shutdown = shutdown
+
+    # ------------------------------------------------ 1.4: bandeja de Windows
+    def in_tray() -> bool:
+        return tray is not None and tray.ok and bool(settings.get("bandeja_al_cerrar", True))
+
+    def show_window() -> None:
+        """Abre la ventana (o la trae al frente si ya está abierta)."""
+        from core.tray import focus_window
+
+        if server.clients > 0 and focus_window("NOVA AI · "):
+            return
+        window["proc"] = open_window(url, session.window_bounds())
+        window["started"] = time.time()
+
+    def window_gone() -> None:
+        """Se cerró la ventana: a la bandeja (Nova sigue escuchando y el overlay sigue) o se apaga."""
+        if not in_tray():
+            shutdown()
+            return
+        if window["hidden"]:
+            return
+        window["hidden"] = True
+        log.info("Ventana cerrada: Nova sigue en la bandeja")
+        try:
+            save_all()
+        except Exception:
+            log.exception("Guardando la sesión")
+        if not window["avisado"]:
+            window["avisado"] = True
+            from core import i18n
+
+            tray.notify(i18n.tr("NOVA AI sigue en marcha"),
+                        i18n.tr("Está aquí, en la bandeja, con el overlay activo. Clic en el icono para abrirla; "
+                                "clic derecho › Salir para cerrarla del todo."))
+
+    def hide_to_tray() -> bool:
+        if not in_tray():
+            return False
+        window_gone()
+        threading.Thread(target=close_window, args=(True,), daemon=True, name="a-la-bandeja").start()
+        return True
+
+    def tray_tip() -> str:
+        from core import i18n
+
+        if nova.paused:
+            st = "detenida"
+        elif nova.asleep:
+            st = "en reposo"
+        elif settings.get("microfono_silenciado"):
+            st = "micrófono silenciado (MUTE)"
+        else:
+            st = "en espera"
+        return f"NOVA AI · {i18n.tr(st)}"
+
+    def toggle_mute() -> None:
+        server.api_set("microfono_silenciado", not settings.get("microfono_silenciado"))
+
+    def toggle_sleep() -> None:
+        server.api_sleep(not nova.asleep)
+
+    def start_tray() -> None:
+        nonlocal tray
+        from core import i18n
+        from core.config import APP_DIR
+        from core.tray import SEPARATOR, MenuItem, Tray
+
+        t = Tray(APP_DIR / "recursos" / "nova.ico", tray_tip, [
+            MenuItem(lambda: i18n.tr("Abrir NOVA AI"), show_window, default=True),
+            SEPARATOR,
+            MenuItem(lambda: i18n.tr("Silenciar el micrófono (MUTE)"), toggle_mute,
+                     checked=lambda: bool(settings.get("microfono_silenciado"))),
+            MenuItem(lambda: i18n.tr("Modo reposo"), toggle_sleep, checked=lambda: nova.asleep),
+            SEPARATOR,
+            MenuItem(lambda: i18n.tr("Salir de NOVA AI"),
+                     lambda: threading.Thread(target=shutdown, daemon=True, name="apagado").start()),
+        ])
+        t.start()
+        if t.wait_ready(3.0):
+            tray = t
+            log.info("Icono en la bandeja listo")
+        else:
+            log.warning("Sin icono en la bandeja (%s): cerrar la ventana cerrará Nova", t.error or "no responde")
+
+    try:
+        start_tray()
+    except Exception:
+        log.exception("Bandeja")
+    server.on_hide = hide_to_tray
+    server.tray_ok = lambda: tray is not None and tray.ok
     nova.request_quit = lambda: threading.Thread(target=shutdown, daemon=True, name="apagado").start()
 
     def check_sources() -> None:
@@ -225,7 +318,7 @@ def main() -> None:
             nova.training = True
             log.info("Configuración inicial pendiente")
             return
-        if not any(settings.key_for(p) for p in ("gemini", "groq", "openrouter", "deepseek")):
+        if not any(settings.key_for(p) for p in ("gemini", "groq", "openrouter", "mistral", "deepseek")):
             nova.on_message("sistema",
                             "👋 Falta una clave de IA: ve a la sección Inteligencia y pega una clave GRATIS de "
                             "Gemini y/o Groq. Sin clave funcionan los comandos de la nave por frase directa, "
@@ -241,8 +334,8 @@ def main() -> None:
 
     threading.Thread(target=boot, daemon=True).start()
 
-    started = time.time()
-    proc = window["proc"] = open_window(url, session.window_bounds())
+    window["started"] = time.time()
+    window["proc"] = open_window(url, session.window_bounds())
     last_save = time.time()
     # Si la ventana es un proceso propio, Nova se cierra cuando la cierras.
     # Si no (navegador normal o Edge ya abierto), se cierra cuando ninguna ventana la está mirando.
@@ -254,16 +347,20 @@ def main() -> None:
                 save_all()
             except Exception:
                 log.exception("Guardando la sesión")
+        proc = window["proc"]
         if proc is not None and proc.poll() is not None:
-            if time.time() - started > 4:
-                shutdown()
-            proc = window["proc"] = None  # se fue al instante: el navegador reutilizó otra instancia
+            window["proc"] = None  # si se fue al instante, el navegador reutilizó otra instancia
+            if time.time() - window["started"] > 4:
+                window_gone()
+        if server.clients > 0:
+            window["hidden"] = False
         # Ventana cerrada (aunque Edge siga en segundo plano): nadie conectado durante 25 s.
-        if server.ever_connected and server.clients == 0 and time.time() - server.last_client_seen > 25:
-            shutdown()
-        if not server.ever_connected and time.time() - started > 45:
+        elif (server.ever_connected and not window["hidden"]
+              and time.time() - server.last_client_seen > 25):
+            window_gone()
+        if not server.ever_connected and time.time() - window["started"] > 45:
             webbrowser.open(url)
-            started = time.time()
+            window["started"] = time.time()
 
 
 if __name__ == "__main__":

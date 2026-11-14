@@ -150,6 +150,10 @@ class Animator:
             k = 0.6
         elif mode == "off":
             target_a, target_g, k = 0.85, 0.5, 0.2
+        elif mode == "sleep":  # 1.4: en reposo, tenue y respirando despacio
+            breath = 0.5 + 0.5 * np.sin(now * 1.1)
+            target_a = 0.0 if idle_hidden else max(0.18, idle_alpha * (0.55 + 0.35 * breath))
+            target_g, k = 0.0, 0.06
         elif mode == "searching":
             target_a, target_g, boost, k = 1.0, 0.7, 0.08, 0.25
         elif mode in ("listening", "thinking"):

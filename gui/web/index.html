@@ -21,6 +21,7 @@
   <nav id="nav">
     <button data-sec="cabina" class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg><span>Cabina</span></button>
     <button id="btnManual" class="nav-manual" title="Abre el manual de NOVA AI en tu navegador"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5M8 7h8M8 10.5h6"/></svg><span>Consulta el Manual</span></button>
+    <button id="btnSurvey" class="nav-manual nav-survey" title="Cuestionario anónimo: valora NOVA AI y cuéntanos tus ideas" hidden><svg viewBox="0 0 24 24"><path d="M6 3h12v18H6z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg><span>Cuestionario</span></button>
     <div class="nav-group">CONFIGURACIÓN</div>
     <button data-sec="juego"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.2 5.6 6.3.9-4.7 4.3 1.3 6.2L12 16.4l-5.1 3.1 1.3-6.2L3.5 9l6.3-.9z"/></svg><span>Nave y comandos</span><b class="badge" id="navWarn"></b></button>
     <button data-sec="nova"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3a9 9 0 0 1 9 9M12 21a9 9 0 0 1-9-9M6.3 6.3a8 8 0 0 0 0 11.4M17.7 17.7a8 8 0 0 0 0-11.4"/></svg><span>Nova</span><small class="nav-sub">voz · IA · idioma</small></button>
@@ -38,6 +39,7 @@
     </div>
   </div>
   <div class="side-foot">
+    <button class="mute-btn" id="btnMicMute" type="button" aria-pressed="false" title="Silenciar el micrófono: Nova no te oirá ni con la tecla ni por su nombre">MUTE OFF</button>
     <div class="state-pill"><b></b><span id="stateText">EN LÍNEA</span></div>
     <div class="meter" id="sideMeter"></div>
     <div class="tiny">MICRÓFONO</div>
@@ -48,6 +50,7 @@
   <header class="top">
     <div><h1 id="secTitle">Cabina</h1><div class="crumb" id="statusLine">Inicializando sistemas…</div></div>
     <div class="clock" id="clock"></div>
+    <button class="icon-btn" id="btnTray" title="Minimizar a la bandeja: Nova sigue funcionando con el overlay" hidden>⤓</button>
     <button class="icon-btn" id="btnPower" title="Apagar Nova">⏻</button>
   </header>
 
@@ -81,6 +84,7 @@
             <div class="row gap" style="width:100%">
               <button class="btn pri talk" id="btnTalk">🎙 MANTÉN PARA HABLAR</button>
               <button class="btn" id="btnMute" title="Callar a Nova">🔇</button>
+              <button class="btn sleep-btn" id="btnSleep" type="button" title="Modo reposo: deja de escuchar hasta que pulses tu tecla">💤</button>
             </div>
             <label class="power-line" id="powerLine" title="Apágalo para detener todas las búsquedas y parar a Nova">
               <span class="pw-txt"><b id="powerTxt">◉ <span class="ai-name up">NOVA</span> ACTIVA</b><small id="powerSub">Apágalo para detener todas las búsquedas y pararla</small></span>
@@ -145,6 +149,7 @@
           <div class="aviso-block"><div class="aviso-h">Qué te avisa en voz <small>lo que pasa en el juego según el Game.log</small></div><div class="avisos" id="avisos"></div></div>
           <div class="field"><label>Pulsar teclas solo con el juego delante</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="solo_si_juego_activo"><i></i></span></div></div>
           <div class="field"><label>Pausa entre teclas</label><div class="ctl"><input type="range" min="20" max="200" step="10" data-set="teclas_retardo_ms"><span class="val" data-val="teclas_retardo_ms" data-fmt="{} ms"></span></div></div>
+          <div class="field"><label>Modo prudente con las teclas<small>Secuencias sin pausas ni clics de ratón y teclas mantenidas 3 s como máximo. Recomendado por los Términos de RSI</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="teclas_prudentes"><i></i></span></div></div>
           <div class="field"><label>Ruta del Game.log<small>Vacío = buscarlo solo</small></label><div class="ctl"><input type="text" data-set="gamelog_ruta"></div></div>
         </div>
         <div class="panel">
@@ -252,10 +257,20 @@
           <div class="big-meter" id="bigMeter"></div>
           <p class="muted">Habla y comprueba que el medidor se mueve.</p>
           <div class="field"><label>Micrófono</label><div class="ctl"><select data-set="dispositivo_entrada" id="inDevs"></select></div></div>
+          <p class="mic-info" id="micInfo"></p>
+          <div class="field"><label>Ganancia del micrófono<small>Súbela si el medidor apenas se mueve al hablar (algunos auriculares inalámbricos)</small></label><div class="ctl"><input type="range" min="1" max="8" step="0.5" data-set="ganancia_mic"><span class="val" data-val="ganancia_mic" data-fmt="×{}"></span></div></div>
           <div class="field"><label>Sensibilidad del micrófono</label><div class="ctl"><input type="range" min="0" max="1" step="0.1" data-set="sensibilidad_vad"><span class="val" data-val="sensibilidad_vad" data-fmt="%"></span></div></div>
           <div class="field"><label>Silencio para terminar la frase</label><div class="ctl"><input type="range" min="300" max="1500" step="100" data-set="silencio_fin_ms"><span class="val" data-val="silencio_fin_ms" data-fmt="{} ms"></span></div></div>
           <div class="field"><label>Motor<small>Auto = Groq si tienes clave; si no, en tu PC</small></label><div class="ctl"><select data-set="stt_motor"><option value="auto">Automático</option><option value="local">Whisper en mi PC</option><option value="groq">Groq (nube, gratis)</option></select></div></div>
           <div class="field"><label>Modelo local<small>large-v3-turbo necesita gráfica NVIDIA</small></label><div class="ctl"><select data-set="stt_modelo_local"><option>tiny</option><option>base</option><option>small</option><option>medium</option><option>large-v3-turbo</option></select></div></div>
+        </div>
+        <div class="panel" id="sleepPanel">
+          <div class="panel-h"><span>MODO REPOSO</span><span class="hint" id="sleepState"></span></div>
+          <p class="muted">Si pasas un rato sin hablarle, <span class="ai-name">Nova</span> descansa: deja de escucharte y el overlay se queda tenue. Los temporizadores y los avisos del juego siguen.</p>
+          <div class="field"><label>Entrar en reposo<small>Tiempo sin hablarle ni escribirle</small></label><div class="ctl"><select data-set="reposo_minutos"><option value="0">Nunca</option><option value="5">Tras 5 minutos</option><option value="10">Tras 10 minutos</option><option value="15">Tras 15 minutos</option><option value="30">Tras 30 minutos</option><option value="60">Tras 1 hora</option></select></div></div>
+          <div class="field"><label>Cómo despertarla<small id="sleepWakeNote">Con la tecla: el micrófono se apaga del todo</small></label><div class="ctl"><select data-set="reposo_despertar"><option value="tecla">Con la tecla o el botón</option><option value="nombre">También por su nombre</option></select></div></div>
+          <p class="muted small">También puedes dormirla con el botón 💤 de la Cabina, desde el icono de la bandeja o diciendo «<span class="ai-name">Nova</span>, modo reposo». Para despertarla: tu tecla de hablar, el botón ☀ o escribirle.</p>
+          <div class="row gap"><button class="btn" id="btnSleepNow">💤 PROBAR EL MODO REPOSO</button></div>
         </div>
       </div></div>
       <div class="subsec" data-sub="hablar"><div class="grid2">
@@ -274,6 +289,7 @@
             <li>O di su <b>nombre</b> y la orden seguida: «<span class="ai-name">Nova</span>, baja el tren».</li>
             <li>Si solo dices su nombre, te responde y puedes dar la orden sin repetirlo.</li>
             <li>«<span class="ai-name">Nova</span>, desactívate» la pone en pausa; «<span class="ai-name">Nova</span>, actívate» la despierta.</li>
+            <li>«<span class="ai-name">Nova</span>, modo reposo» apaga el micrófono hasta que pulses tu tecla (Nova › Micrófono › Modo reposo).</li>
             <li>«Silencio» o «para» la callan al momento.</li>
           </ul>
         </div>
@@ -613,8 +629,14 @@
       <div class="panel">
         <div class="panel-h"><span>NOVA AI</span><span class="hint" id="aboutVer"></span></div>
         <p class="muted">Un proyecto abierto de <b>0zzyt0</b>. Créditos, licencia, agradecimientos a las páginas de la comunidad y disclaimer.</p>
-        <div class="row gap wrap"><button class="btn pri" id="btnAbout2">ⓘ ACERCA DE NOVA AI</button><button class="btn" id="btnManual2">📖 CONSULTA EL MANUAL</button></div>
+        <div class="row gap wrap"><button class="btn pri" id="btnAbout2">ⓘ ACERCA DE NOVA AI</button><button class="btn" id="btnManual2">📖 CONSULTA EL MANUAL</button><button class="btn" id="btnTour">🧭 RECORRIDO GUIADO</button></div>
       </div></div>
+            <div class="panel">
+        <div class="panel-h"><span>VENTANA Y BANDEJA</span><span class="hint" id="trayHint"></span></div>
+        <p class="muted">Con la ventana cerrada, <span class="ai-name">Nova</span> puede seguir en la <b>bandeja de Windows</b> (junto al reloj): te escucha, el overlay sigue en el juego y los temporizadores avisan. Clic en su icono para abrirla; clic derecho para MUTE, modo reposo o <b>Salir</b>.</p>
+        <div class="field"><label>Al cerrar la ventana, seguir en la bandeja<small>Apagado: cerrar la ventana cierra NOVA AI, como antes</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="bandeja_al_cerrar"><i></i></span></div></div>
+        <div class="row gap wrap"><button class="btn" id="btnTray2">⤓ MINIMIZAR A LA BANDEJA AHORA</button></div>
+      </div>
             <div class="panel">
         <div class="panel-h"><span>ACTUALIZACIONES DE NOVA AI</span><span class="chip" id="updChip">—</span></div>
         <p class="muted">NOVA mira en GitHub si hay una versión nueva <b>al iniciar y al cerrar</b>. Si la hay, te pregunta: <b>Sí</b> (se descarga el instalador oficial y NOVA se reinicia actualizada), <b>No</b>, o <b>Al cerrar la aplicación</b>. Tus datos se conservan.</p>
@@ -643,6 +665,33 @@
 </main>
 
 <!-- ============================== EDITOR ============================== -->
+<div class="modal" id="surveyModal" hidden>
+  <div class="modal-box panel qn-box">
+    <div class="panel-h"><span>📝 CUESTIONARIO ANÓNIMO</span><span class="hint">1 minuto · del 1 (mal) al 10 (genial)</span></div>
+    <div id="qnForm">
+      <p class="muted">Tu opinión nos ayuda a decidir qué mejorar. Es <b>anónimo</b>: no se envía tu nombre, tu gametag ni nada de tu equipo, solo tus notas, lo que escribas, la versión de NOVA AI y el idioma. Se publica como <b>issue público en GitHub</b>, así que no escribas datos personales.</p>
+      <div class="qn-q" data-q="reconocimiento"><div class="qn-t">¿Te entiende bien cuando le hablas?</div><div class="qn-scale"><button type="button" data-v="1">1</button><button type="button" data-v="2">2</button><button type="button" data-v="3">3</button><button type="button" data-v="4">4</button><button type="button" data-v="5">5</button><button type="button" data-v="6">6</button><button type="button" data-v="7">7</button><button type="button" data-v="8">8</button><button type="button" data-v="9">9</button><button type="button" data-v="10">10</button><button type="button" class="qn-ns" data-v="ns" title="No lo uso o no lo sé">N/S</button></div></div>
+      <div class="qn-q" data-q="comandos"><div class="qn-t">¿Obedece bien los comandos de la nave?</div><div class="qn-scale"><button type="button" data-v="1">1</button><button type="button" data-v="2">2</button><button type="button" data-v="3">3</button><button type="button" data-v="4">4</button><button type="button" data-v="5">5</button><button type="button" data-v="6">6</button><button type="button" data-v="7">7</button><button type="button" data-v="8">8</button><button type="button" data-v="9">9</button><button type="button" data-v="10">10</button><button type="button" class="qn-ns" data-v="ns" title="No lo uso o no lo sé">N/S</button></div></div>
+      <div class="qn-q" data-q="respuestas"><div class="qn-t">¿Son útiles sus respuestas y búsquedas?</div><div class="qn-scale"><button type="button" data-v="1">1</button><button type="button" data-v="2">2</button><button type="button" data-v="3">3</button><button type="button" data-v="4">4</button><button type="button" data-v="5">5</button><button type="button" data-v="6">6</button><button type="button" data-v="7">7</button><button type="button" data-v="8">8</button><button type="button" data-v="9">9</button><button type="button" data-v="10">10</button><button type="button" class="qn-ns" data-v="ns" title="No lo uso o no lo sé">N/S</button></div></div>
+      <div class="qn-q" data-q="voz"><div class="qn-t">¿Te gusta su voz y su forma de hablar?</div><div class="qn-scale"><button type="button" data-v="1">1</button><button type="button" data-v="2">2</button><button type="button" data-v="3">3</button><button type="button" data-v="4">4</button><button type="button" data-v="5">5</button><button type="button" data-v="6">6</button><button type="button" data-v="7">7</button><button type="button" data-v="8">8</button><button type="button" data-v="9">9</button><button type="button" data-v="10">10</button><button type="button" class="qn-ns" data-v="ns" title="No lo uso o no lo sé">N/S</button></div></div>
+      <div class="qn-q" data-q="configuracion"><div class="qn-t">¿Fue fácil instalarla y configurarla?</div><div class="qn-scale"><button type="button" data-v="1">1</button><button type="button" data-v="2">2</button><button type="button" data-v="3">3</button><button type="button" data-v="4">4</button><button type="button" data-v="5">5</button><button type="button" data-v="6">6</button><button type="button" data-v="7">7</button><button type="button" data-v="8">8</button><button type="button" data-v="9">9</button><button type="button" data-v="10">10</button><button type="button" class="qn-ns" data-v="ns" title="No lo uso o no lo sé">N/S</button></div></div>
+      <div class="qn-q" data-q="overlay"><div class="qn-t">¿Qué te parecen el overlay y los hologramas?</div><div class="qn-scale"><button type="button" data-v="1">1</button><button type="button" data-v="2">2</button><button type="button" data-v="3">3</button><button type="button" data-v="4">4</button><button type="button" data-v="5">5</button><button type="button" data-v="6">6</button><button type="button" data-v="7">7</button><button type="button" data-v="8">8</button><button type="button" data-v="9">9</button><button type="button" data-v="10">10</button><button type="button" class="qn-ns" data-v="ns" title="No lo uso o no lo sé">N/S</button></div></div>
+      <div class="qn-q" data-q="ventana"><div class="qn-t">¿Encuentras fácilmente las opciones en la ventana?</div><div class="qn-scale"><button type="button" data-v="1">1</button><button type="button" data-v="2">2</button><button type="button" data-v="3">3</button><button type="button" data-v="4">4</button><button type="button" data-v="5">5</button><button type="button" data-v="6">6</button><button type="button" data-v="7">7</button><button type="button" data-v="8">8</button><button type="button" data-v="9">9</button><button type="button" data-v="10">10</button><button type="button" class="qn-ns" data-v="ns" title="No lo uso o no lo sé">N/S</button></div></div>
+      <div class="qn-q" data-q="recomendarias"><div class="qn-t">¿Recomendarías NOVA AI a otro jugador?</div><div class="qn-scale"><button type="button" data-v="1">1</button><button type="button" data-v="2">2</button><button type="button" data-v="3">3</button><button type="button" data-v="4">4</button><button type="button" data-v="5">5</button><button type="button" data-v="6">6</button><button type="button" data-v="7">7</button><button type="button" data-v="8">8</button><button type="button" data-v="9">9</button><button type="button" data-v="10">10</button><button type="button" class="qn-ns" data-v="ns" title="No lo uso o no lo sé">N/S</button></div></div>
+      <label class="qn-idea"><span>¿Tienes alguna idea? ¿Algo que podamos mejorar? Escríbelo aquí</span><textarea id="qnIdea" rows="4" maxlength="2000" placeholder="Opcional"></textarea><small class="muted" id="qnCount">0 / 2000</small></label>
+      <div class="modal-foot"><button class="btn pri" id="qnSend" disabled>ENVIAR</button><button class="btn" id="qnCancel">AHORA NO</button><span class="muted small" id="qnMsg"></span></div>
+    </div>
+    <div id="qnDone" hidden><p class="qn-thanks">¡Gracias! Cuestionario enviado de forma anónima.</p><div class="modal-foot"><button class="btn pri" id="qnClose">CERRAR</button></div></div>
+  </div>
+</div>
+<div class="modal" id="surveyAsk" hidden>
+  <div class="modal-box panel qn-ask">
+    <div class="panel-h"><span>📝 ¿NOS AYUDAS?</span></div>
+    <p id="qnAskText">Hola, piloto. Llevas unos días con NOVA AI: ¿nos ayudas con un cuestionario anónimo de un minuto? Tu opinión decide las próximas mejoras.</p>
+    <div class="modal-foot" id="qnAsk1"><button class="btn pri" id="qnAskYes">RELLENAR AHORA</button><button class="btn" id="qnAskNo">AHORA NO</button></div>
+    <div class="modal-foot" id="qnAsk2" hidden><span>¿Te lo recuerdo dentro de 3 días?</span><button class="btn pri" id="qnRemind">SÍ, EN 3 DÍAS</button><button class="btn" id="qnNever">NO, GRACIAS</button></div>
+  </div>
+</div>
 <div class="modal" id="updModal" hidden>
   <div class="modal-box panel upd-box">
     <div class="panel-h"><span>⬆ ACTUALIZACIÓN DISPONIBLE</span><span class="hint">github.com/0zzyt0/NOVA-AI</span></div>
@@ -743,7 +792,8 @@
         <h2>Vamos a conocernos</h2>
         <p class="su-lead">Te haré dos preguntas y después entrenaré mi oído con tu voz para reconocer mi nombre cuando me llames. Puedes responder <b>hablando</b> o <b>escribiendo</b>.</p>
         <div class="field"><label>Micrófono<small>Habla y comprueba que el medidor de la izquierda se mueve</small></label><div class="ctl"><select id="suMic"></select></div></div>
-        <div class="field"><label>Reconocimiento de voz<small id="suSttInfo">—</small></label><div class="ctl"><input type="password" id="suGroq" placeholder="Opcional: clave gratis de Groq (reconocimiento instantáneo)"><button class="btn sm" data-url="https://console.groq.com/keys">CONSEGUIR</button></div></div>
+        <div class="su-note mic-note" id="suMicInfo"></div>
+        <div class="field"><label>Reconocimiento de voz<small id="suSttInfo">—</small></label><div class="ctl"><input type="text" class="secret" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore id="suGroq" placeholder="Opcional: clave gratis de Groq (reconocimiento instantáneo)"><button class="btn sm" data-url="https://console.groq.com/keys">CONSEGUIR</button></div></div>
         <div class="su-warn" id="suNoMic" hidden>⚠ No encuentro ningún micrófono. Puedes escribir las respuestas; los ejercicios de voz se podrán saltar.</div>
         <div class="su-foot"><span class="grow"></span><button class="btn pri" data-next>EMPEZAR ▸</button></div>
       </div>
@@ -819,7 +869,7 @@
         <div class="su-kicker">PASO 7 · TODO LISTO</div>
         <h2>Sistemas en línea</h2>
         <div class="su-summary" id="suSum"></div>
-        <div class="field" id="suKeyRow"><label>Inteligencia artificial<small>Para conversar y buscar información necesito una clave gratis</small></label><div class="ctl"><input type="password" id="suGemini" placeholder="Opcional: clave gratis de Google Gemini"><button class="btn sm" data-url="https://aistudio.google.com/apikey">CONSEGUIR</button></div></div>
+        <div class="field" id="suKeyRow"><label>Inteligencia artificial<small>Para conversar y buscar información necesito una clave gratis</small></label><div class="ctl"><input type="text" class="secret" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore id="suGemini" placeholder="Opcional: clave gratis de Google Gemini"><button class="btn sm" data-url="https://aistudio.google.com/apikey">CONSEGUIR</button></div></div>
         <div class="su-foot"><button class="btn" data-prev>◂ ATRÁS</button><span class="grow"></span><button class="btn pri" id="suFinish">◆ TERMINAR Y DESPEGAR</button></div>
       </div>
     </section>
@@ -835,5 +885,8 @@
 <script src="/acerca/acerca.js"></script>
 <script src="/v130.js"></script>
 <script src="/fold.js"></script>
+<script src="/mic.js"></script>
+<script src="/v14.js"></script>
+<script src="/tour.js"></script>
 </body>
 </html>

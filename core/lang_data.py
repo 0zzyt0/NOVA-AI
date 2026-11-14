@@ -16,11 +16,17 @@ STOP = {
     "de": {"ruhe", "still", "sei still", "stopp", "stop", "genug", "schweig", "halt die klappe"},
 }
 PAUSE = {
-    "en": {"deactivate", "pause", "pause mode", "go to sleep", "sleep", "standby", "stand by", "power down"},
-    "ca": {"desactiva t", "desactivat", "pausa", "mode pausa", "a dormir", "descansa", "apaga t"},
-    "fr": {"desactive toi", "pause", "mode pause", "dors", "va dormir", "mets toi en pause", "eteins toi"},
-    "de": {"deaktivieren", "deaktiviere dich", "pause", "pausenmodus", "schlaf", "schlafen", "ruhemodus",
-           "schalte dich aus"},
+    "en": {"deactivate", "pause", "pause mode", "power down"},
+    "ca": {"desactiva t", "desactivat", "pausa", "mode pausa", "apaga t"},
+    "fr": {"desactive toi", "pause", "mode pause", "mets toi en pause", "eteins toi"},
+    "de": {"deaktivieren", "deaktiviere dich", "pause", "pausenmodus", "schalte dich aus"},
+}
+# 1.4: modo reposo (micrófono apagado hasta que la despiertes)
+SLEEP = {
+    "en": {"sleep mode", "go to sleep", "sleep", "standby", "stand by", "rest", "take a rest"},
+    "ca": {"mode repos", "repos", "a dormir", "descansa", "fes repos", "entra en repos"},
+    "fr": {"mode veille", "veille", "dors", "va dormir", "mets toi en veille", "repose toi"},
+    "de": {"ruhemodus", "schlafmodus", "schlaf", "schlafen", "geh schlafen", "ruh dich aus", "standby"},
 }
 HALT = {
     "en": {"halt", "stop everything", "stop it all", "cancel everything", "cancel all", "stop all searches",

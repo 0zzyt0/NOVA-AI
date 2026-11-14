@@ -19,18 +19,18 @@ permissions:
 
 jobs:
   windows:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # fijo: ubuntu-latest pasa a Ubuntu 26
     env:
       FIRMAR: ${{ vars.SIGNPATH_ORGANIZATION_ID != '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version: '1.24'
           cache-dependency-path: build/goapp/go.mod
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
@@ -45,7 +45,7 @@ jobs:
 
       - name: Subir los ejecutables sin firmar
         id: exes-sin-firmar
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: exes-sin-firmar
           path: sin_firmar/exes/
@@ -75,7 +75,7 @@ jobs:
 
       - name: Subir el instalador sin firmar
         id: setup-sin-firmar
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: setup-sin-firmar
           path: dist/NOVA AI Setup.exe
@@ -104,7 +104,7 @@ jobs:
           ls -la version
 
       - name: Subir la versión
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: NOVA-AI-version
           path: version/
