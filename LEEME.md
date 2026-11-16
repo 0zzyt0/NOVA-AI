@@ -14,6 +14,7 @@ Nova es tu IA de a bordo (y puedes ponerle el nombre que quieras):
 - **Usa tus teclas:** lee tu configuración de controles de Star Citizen cada vez que arranca.
 - **Brilla en el juego:** su logo aparece en una esquina y parpadea mientras te habla (overlay).
 - **Pone Star Citizen en español:** instala y mantiene al día la traducción de 0zzyt0.
+- **Novedades 1.5:** apunta tus compras, lo que te equipas y los atraques en la bitácora, y el manual llega en los cinco idiomas con sus propias capturas.
 - **Novedades 1.4:** sigue en la bandeja de Windows con la ventana cerrada, modo reposo, recorrido guiado y cuestionario anónimo.
 - **Novedades 1.2:** fichas en holograma sobre el juego: ficha policial de jugadores y de objetivos de recompensa, y fichas de planetas, lunas y lugares de verseguide.com.
 - **Novedades 1.1:** busca jugadores en la web de RSI (y los manda a Discord), temporizadores de refinado y contratos, rutas con el beneficio real de tu bodega, perfiles por nave, estado de los servidores y estadísticas de todas tus sesiones.
@@ -303,6 +304,24 @@ Desde la 1.2, **al iniciar y al cerrar** NOVA mira en GitHub ([github.com/0zzyt0
 - **Al cerrar la aplicación:** lo descarga ya y lo instala cuando cierres NOVA, sin volver a abrirla.
 
 También puedes contestar por voz («sí», «no», «al cerrar»). Si no contestas y cierras, te lo pregunta en una ventana al salir. Tus datos, ajustes y comandos se conservan. Se desactiva y se busca a mano en **Ajustes › Actualizaciones de NOVA AI**.
+
+## 7 septendecies. Novedades de la versión 1.5
+
+- **Compras en tiendas.** Nova lee del Game.log lo que compras (con su nombre en tu idioma, sacado del global.ini) y lo apunta en la bitácora y en el resumen de la sesión («Compras: N · X aUEC»). Las **Estadísticas de piloto** suman los aUEC gastados en tiendas. Si una compra falla, te avisa (categoría «Avisos»).
+- **Lo que te equipas.** Cuando te pones armadura, armas o MedPens, la bitácora lo agrupa en una sola línea por tanda, sin avisos en voz.
+- **Atraques.** Cuando el tubo de atraque de **tu** nave está listo, Nova te lo dice (categoría «Nave»).
+- **Saltos en grupo.** El salto cuántico siguiendo al marcador de un compañero de grupo se apunta como salto y conserva el destino.
+- **Game.log más fino:** un fallo de salto solo se anuncia si es tuyo, y se entienden las invitaciones y las entradas a tu grupo.
+- **Manual en cinco idiomas.** El PDF y el manual dentro de NOVA AI (botón «Consulta el Manual») vienen en español, inglés, catalán, francés y alemán, con las capturas de la ventana en cada idioma. Ya no hace falta traducirlo con Google al abrirlo.
+- **Arreglos:**
+  - El **desinstalador de la 1.4** no se abría en ningún idioma (unas comillas alemanas rompían el script). Si tienes la 1.4 y no puedes desinstalarla, instala la 1.5 encima: trae el desinstalador corregido.
+  - El instalador muestra su subtítulo en el idioma elegido.
+  - En inglés, catalán, francés y alemán: la ficha de jugador del chat, los datos de los hologramas (atmósfera, lugares, temperatura) y varios textos de la ventana que salían en español; y Nova entiende «Vull que et diguis…», «Je veux que tu t'appelles…» o «Ich möchte, dass du … heißt» al ponerle nombre.
+  - Los avisos del interruptor NOVA ACTIVA salen en tu idioma.
+
+## 7 sexdecies. Novedades de la versión 1.4.1
+
+- **El cuestionario anónimo ya funciona.** El botón **Cuestionario** aparece en el lateral, debajo de «Consulta el Manual» (detalles en la sección siguiente).
 
 ## 7 quindecies. Novedades de la versión 1.4
 

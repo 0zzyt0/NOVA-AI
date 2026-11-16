@@ -5,7 +5,7 @@
 <h1 align="center">NOVA AI</h1>
 <p align="center"><b>Asistente de vuelo por voz para Star Citizen</b> · <a href="README.md">English</a> · Español<br>
 Te escucha, te responde con voz natural, pulsa las teclas del juego por ti y sabe qué está pasando en tu partida.<br>
-<i>Versión oficial 1.4 · Windows 10/11 · español, English, català, français, Deutsch · todo gratis y de código abierto</i></p>
+<i>Versión oficial 1.5 · Windows 10/11 · español, English, català, français, Deutsch · todo gratis y de código abierto</i></p>
 
 <p align="center">
   <a href="../../releases/latest"><b>⬇ Descargar NOVA AI Setup.exe</b></a> ·
@@ -28,7 +28,7 @@ Te escucha, te responde con voz natural, pulsa las teclas del juego por ti y sab
 - **Te dice dónde comprar:** *«¿Dónde compro un P4-AR?»* y te contesta por voz con las tiendas y los precios, sin abrir el navegador.
 - **Sigue tu partida:** lee el `Game.log` en directo: dónde estás, quién entra en tu nave, la torre, contratos, combate, curas en camilla médica, cargas…
 - **Hologramas sobre el juego:** fichas de jugadores (con su organización), objetivos de recompensa, planetas, lunas y lugares, con efectos cinematográficos, ligeros o ninguno.
-- **Chat del juego y Discord:** *«Nova, envía mensaje al chat…»* lo traduce y lo escribe por ti; las fichas pueden llegar solas a tu canal de Discord.
+- **Chat del juego y Discord:** *«Nova, envía mensaje al chat…»* lo traduce y lo escribe por ti; las fichas pueden llegar a tu canal de Discord si dices «sí».
 - **Recuerda:** un Diccionario de consultas con unas 7.000 entradas que contesta sin gastar IA, lo que le cuentas y un cuaderno de bitácora de cada sesión.
 - **Star Citizen en tu idioma:** en español instala y mantiene al día la traducción de la comunidad (0zzyt0); en los demás idiomas instala el `global.ini` que elijas.
 - **Brilla en el juego:** un overlay con su logo que cambia de color según lo que hace: escuchando, entendido, buscando o hablando.
@@ -39,13 +39,25 @@ Star Citizen pide muchas manos: palanca, acelerador, ratón, atajos de teclado, 
 
 - **Sin pulsar nada:** di su nombre (*«Nova, …»*) y te escucha, sin tecla. O usa para hablar cualquier tecla, botón del ratón o botón del HOTAS, también un pedal USB que envíe una tecla.
 - **Tus controles, por voz:** tren de aterrizaje, pedir permiso de aterrizaje, VTOL, escudos, energía, armas, luces, cuántico, crucero, desacoplado, bengalas y chaff, siguiente objetivo… Nova lee tus propias teclas del juego (`actionmaps.xml`), así que no hay que memorizar ni pulsar combinaciones.
-- **Adiós a las combinaciones difíciles:** en el editor de comandos una frase puede mantener una tecla pulsada (hasta 30 s), pulsar varias seguidas con pausas o hacer clic con el ratón. Ya trae *«secuencia de despegue»* y *«secuencia de aterrizaje»*, y puedes crear las tuyas.
+- **Adiós a las combinaciones difíciles:** en el editor de comandos una frase puede mantener una tecla pulsada o pulsar varias seguidas. Ya trae *«secuencia de despegue»* y *«secuencia de aterrizaje»*, y puedes crear las tuyas. Para respetar los Términos de RSI sobre macros, el modo prudente con las teclas (activado de serie) limita cada comando a lo que harías con una pulsación: teclas mantenidas 3 s como máximo, sin esperas encadenadas y sin clics de ratón dentro de las secuencias.
 - **Escribir sin teclado:** *«Nova, envía mensaje al chat: necesito un médico en Lorville»* y lo escribe ella en el chat del juego, traducido si quieres.
 - **Información sin soltar los mandos:** pregúntale por naves, armas, minería, misiones o dónde comprar algo y te lo dice en voz alta, sin salir del juego ni abrir el navegador. Los avisos importantes del juego también te los cuenta por voz y en holograma.
 - **Temporizadores por voz:** *«avísame en 3 horas del refinado»*.
 - **Se adapta a tu forma de hablar:** el asistente inicial entrena su nombre con tu voz, y puedes ajustar la sensibilidad del micrófono y el silencio que espera antes de dar la frase por terminada.
 
 Un ejemplo: con una sola mano en la palanca, *«Nova, listo para volar»*, *«pide permiso para despegar»*, *«sube el tren»* y, en combate, *«bengalas»* o *«siguiente atacante»*, sin soltarla nunca. Pilotar y apuntar siguen necesitando palanca, ratón o mando; Nova se encarga de casi todo lo demás. Si usas NOVA AI por accesibilidad y echas algo en falta, cuéntalo en [Issues](../../issues): es una prioridad.
+
+## Novedades de la 1.5
+
+- **Compras en la bitácora:** Nova lee del `Game.log` lo que compras (con el nombre del objeto en tu idioma) y lo apunta en la bitácora y en el resumen de la sesión; las *Estadísticas de piloto* suman los aUEC gastados en tiendas. Si una compra falla, te avisa.
+- **Lo que te equipas** (armadura, armas, MedPens) se agrupa en una línea de la bitácora, y Nova te avisa cuando el tubo de atraque de **tu** nave está listo.
+- **Game.log más fino:** saltos cuánticos siguiendo el marcador de un compañero de grupo, invitaciones y entradas al grupo, y errores de salto solo cuando son tuyos.
+- **El manual en cinco idiomas:** el PDF y el manual de dentro de NOVA AI vienen en español, inglés, catalán, francés y alemán, cada uno con sus capturas.
+- **Arreglos:** el desinstalador de la 1.4 no se abría (instala la 1.5 encima y tendrás el corregido); el subtítulo del instalador sale en tu idioma; en inglés, catalán, francés y alemán la ficha de jugador del chat, los datos de los hologramas y varios textos de la ventana ya no salen en español, y ponerle nombre a la IA funciona con frases naturales.
+
+## Novedades de la 1.4.1
+
+- **El cuestionario anónimo ya funciona:** el botón *Cuestionario* aparece en el lateral, debajo de *Consulta el Manual*.
 
 ## Novedades de la 1.4
 
@@ -137,10 +149,10 @@ Un ejemplo: con una sola mano en la palanca, *«Nova, listo para volar»*, *«pi
 4. Acepta las Normas de uso y la Política de privacidad, en tu idioma ([ES](NORMAS_Y_PRIVACIDAD.md) · [EN](NORMAS_Y_PRIVACIDAD.en.md) · [CA](NORMAS_Y_PRIVACIDAD.ca.md) · [FR](NORMAS_Y_PRIVACIDAD.fr.md) · [DE](NORMAS_Y_PRIVACIDAD.de.md)), y pulsa **Iniciar**.
 5. Al terminar, abre **NOVA AI** desde el escritorio: un asistente de 7 pasos la deja lista para tu voz.
 
-El instalador descarga Python 3.12 si no lo tienes (solo para Nova), crea los accesos directos y registra el desinstalador. Todos los detalles están en el [LEEME](LEEME.md) y en el manual en PDF de *Releases*.
+El instalador descarga Python 3.12 si no lo tienes (solo para Nova), crea los accesos directos y registra el desinstalador. Todos los detalles están en el [LEEME](LEEME.md) y en el manual en PDF de *Releases*, disponible en los cinco idiomas.
 
 > [!IMPORTANT]
-> **Los ejecutables de la 1.4 todavía no están firmados.** La firma digital gratuita está solicitada a SignPath Foundation (ver [Code signing policy](#code-signing-policy)).
+> **Los ejecutables de la 1.5 todavía no están firmados.** La firma digital gratuita está solicitada a SignPath Foundation (ver [Code signing policy](#code-signing-policy)).
 >
 > - **«Windows protegió su PC» (SmartScreen):** pulsa *Más información → Ejecutar de todas formas*.
 > - **Control inteligente de aplicaciones** (Windows 11, *Seguridad de Windows › Control de aplicaciones y navegador*): si está en **Activado**, bloquea cualquier programa sin firmar y no permite excepciones. Para instalar NOVA AI hay que ponerlo en **Desactivado** (el `.zip` portátil también se bloquea) o esperar a la versión firmada. Desde la actualización de Windows de abril de 2026 se puede volver a activar después sin reinstalar Windows. Si está en **Evaluación**, Windows decide solo y puede dejarlo pasar.
@@ -217,7 +229,7 @@ Tus datos se quedan en tu PC (`%LOCALAPPDATA%\NOVA AI\datos`): sin servidores pr
 
 <p align="center"><img src="docs/img/acerca.gif" width="520" alt="Acerca de"></p>
 
-**NOVA AI · Versión oficial 1.4**, de **Aaron B. Roldan** (gametag de Star Citizen: **0zzyt0**). Desarrollado con el motor de IA **Claude Opus 5.5** (Anthropic).
+**NOVA AI · Versión oficial 1.5**, de **Aaron B. Roldan** (gametag de Star Citizen: **0zzyt0**). Desarrollado con el motor de IA **Claude Opus 5.5** (Anthropic).
 
 **Agradecimientos** a la **Org. Defcorp**, y gracias a: Faibo, Galleg0, Sr.Scott, AlpacaInTrouble, Lother… ¡y muchos más!
 

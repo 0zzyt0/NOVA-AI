@@ -501,7 +501,7 @@ function comboHtml(combo) {
 }
 function stepHtml(a) {
   if ("esperar" in a) return `<span class="hint" style="margin:0">⏱ ${a.esperar} s</span>`;
-  let h = a.tecla ? comboHtml(a.tecla) : a.raton ? `<kbd>🖱 ${esc(MOUSELBL[a.raton] || a.raton)}</kbd>` : `<span class="chip bad">sin tecla</span>`;
+  let h = a.tecla ? comboHtml(a.tecla) : a.raton ? `<kbd>🖱 ${esc(T(MOUSELBL[a.raton] || a.raton))}</kbd>` : `<span class="chip bad">sin tecla</span>`;
   if (a.mantener) h += `<span class="hint" style="margin:0 0 0 4px">${a.mantener}s</span>`;
   if (a.doble) h += `<span class="hint" style="margin:0 0 0 4px">×2</span>`;
   if (a.juego) h += `<span class="sync-mark" title="Se sincroniza con tu tecla del juego (${esc(a.juego)})">⟳</span>`;
@@ -627,7 +627,7 @@ function renderSteps() {
     } else {
       const rec = REC && REC.i === i;
       body = `<span class="step-t">TECLA</span>
-        <span class="combo ${a.tecla || rec ? "" : "empty"}" data-manual title="Clic para escribirla a mano">${rec ? recDisplay() : comboHtml(a.tecla)}</span>
+        <span class="combo ${a.tecla || rec ? "" : "empty"}" data-empty="${esc(T("sin tecla"))}" data-manual title="Clic para escribirla a mano">${rec ? recDisplay() : comboHtml(a.tecla)}</span>
         <button class="btn sm ${rec ? "rec-on" : ""}" data-rec>${rec ? "■ PULSA AHORA…" : "● GRABAR"}</button>
         <span class="lbl">Mantener <input type="number" min="0" max="30" step="0.1" value="${a.mantener || 0}" data-f="mantener"> s</span>
         <label class="lbl"><input type="checkbox" data-f="doble" ${a.doble ? "checked" : ""}> Doble pulsación</label>
@@ -742,7 +742,7 @@ function buildSpots() {
   const scr = $("#ovScreen");
   Object.entries(SPOTS).forEach(([k, [x, y]]) => {
     const s = document.createElement("div");
-    s.className = "ov-spot"; s.dataset.pos = k; s.title = k.replace("-", " ");
+    s.className = "ov-spot"; s.dataset.pos = k; s.title = T(k.charAt(0).toUpperCase() + k.slice(1).replace("-", " "));
     s.style.left = `calc(${x * 100}% - ${x * 26}px + ${x === 0 ? 6 : x === 1 ? -6 : 0}px)`;
     s.style.top = `calc(${y * 100}% - ${y * 26}px + ${y === 0 ? 6 : y === 1 ? -6 : 0}px)`;
     s.addEventListener("click", safe(async () => { S.overlay_posicion = await api("set", { key: "overlay_posicion", value: k }); placeOverlay(); }));
@@ -805,9 +805,10 @@ function dotClass(st) {
            comprobando: "run", descargando: "run" }[st] || "";
 }
 const ago = (t) => {
-  if (!t) return "nunca";
+  if (!t) return T("nunca");
   const m = Math.round((Date.now() / 1000 - t) / 60);
-  return m < 1 ? "ahora mismo" : m < 60 ? `hace ${m} min` : m < 1440 ? `hace ${Math.round(m / 60)} h` : `hace ${Math.round(m / 1440)} d`;
+  const h = (k, n) => T(k).replace("{}", n);
+  return m < 1 ? T("ahora mismo") : m < 60 ? h("hace {} min", m) : m < 1440 ? h("hace {} h", Math.round(m / 60)) : h("hace {} d", Math.round(m / 1440));
 };
 function paintSources(f) {
   if (!f) return;
@@ -896,13 +897,14 @@ const Trad = (() => {
     let txt, chip;
     if (!st.live) { txt = "No encuentro la carpeta de Star Citizen en ninguna unidad. Elígela con «Elegir carpeta del juego»."; chip = "SIN JUEGO"; }
     else if (st.encontrado) {
-      txt = `Instalada en ${st.live}\\data\\Localization\\${st.idioma} · archivo del ${fmtDate(st.fecha)}` +
-            (st.instalada_por_nova ? ` · instalada por Nova el ${fmtDate(st.instalada_por_nova)}` : "") +
-            ` · próximo aviso de actualización: ${fmtDate(st.aviso)}` + (st.activo === false ? " · ⚠ user.cfg no la tiene activada" : "");
+      const F = (k, ...a) => { let i = 0; return T(k).replace(/\{\}/g, () => a[i++] ?? ""); };
+      txt = F("Instalada en {}\\data\\Localization\\{} · archivo del {}", st.live, st.idioma, fmtDate(st.fecha)) +
+            (st.instalada_por_nova ? F(" · instalada por Nova el {}", fmtDate(st.instalada_por_nova)) : "") +
+            F(" · próximo aviso de actualización: {}", fmtDate(st.aviso)) + (st.activo === false ? T(" · ⚠ user.cfg no la tiene activada") : "");
       chip = st.espanol ? "ESPAÑOL ✓" : st.idioma.toUpperCase();
     } else { txt = `Veo que no dispones de una traducción al español de Star Citizen (${st.live}). Pulsa «Actualizar traducción» para descargar la versión más actual de 0zzyt0.`; chip = "SIN TRADUCCIÓN"; }
     $("#trText").textContent = txt; $("#trChip").textContent = chip;
-    $("#trLive").textContent = st.carpetas && st.carpetas.length ? "Encontrada: " + st.carpetas.join(" · ") : "Vacío = buscarla en todas las unidades";
+    $("#trLive").textContent = st.carpetas && st.carpetas.length ? T("Encontrada:") + " " + st.carpetas.join(" · ") : "Vacío = buscarla en todas las unidades";
     $("#btnTrUpdate").disabled = !!st.instalando || !st.live;
   }
   async function load() { st = await api("translation_status"); paint(); paintUrl(); return st; }
@@ -1174,7 +1176,7 @@ const Setup = (() => {
     markNext();
   }
   function buildExercises() {
-    const hl = `Di «<span class="hl">${esc(name())}</span>»`;
+    const hl = `${esc(T("Di"))} «<span class="hl">${esc(name())}</span>»`;
     $("#suEx").innerHTML = [0, 1, 2].map((i) => rowHTML(i, hl, "ejercicio")).join("");
     wireRows($("#suEx"), "ejercicio", results.ex);
   }

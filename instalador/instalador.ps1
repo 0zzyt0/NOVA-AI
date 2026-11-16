@@ -12,7 +12,7 @@ param([string]$Destino = '', [string]$Origen = '', [switch]$Actualizar, [switch]
 #  las normas si ya estaban aceptadas). -SinIniciar: no volver a abrir NOVA al terminar (actualizar «al cerrar»).
 $ErrorActionPreference = 'Continue'
 $AppName = 'NOVA AI'
-$AppVersion = '1.4.0'
+$AppVersion = '1.5.0'
 # Origen: carpeta con el programa a instalar. «NOVA AI Setup.exe» la pasa (la descomprime en TEMP);
 # con INSTALAR.bat es la carpeta padre de este script.
 $Src = if ($Origen) { $Origen } elseif ($PSScriptRoot) { Split-Path -Parent $PSScriptRoot } else { (Get-Location).Path }
@@ -172,6 +172,7 @@ $h['▸ IDIOMA · LANGUAGE · LANGUE · SPRACHE'] = '▸ IDIOMA · LANGUAGE · L
 $h['Elige el idioma de NOVA AI: la ventana, la voz de Nova, lo que entiende, sus comandos y el manual. Podrás cambiarlo después en Ajustes.'] = 'Choose NOVA AI''s language: the window, Nova''s voice, what she understands, her commands and the manual. You can change it later in Settings.'
 $h['◆  CONTINUAR'] = '◆  CONTINUE'
 $h['Detectado en Windows: '] = 'Detected in Windows: '
+$h['PROTOCOLO DE INSTALACIÓN  //  ASISTENTE DE VUELO PARA STAR CITIZEN'] = 'INSTALLATION PROTOCOL  //  FLIGHT ASSISTANT FOR STAR CITIZEN'
 $TX['en'] = $h
 $h = New-Object Collections.Hashtable ([StringComparer]::Ordinal)
 $h['NOVA · Instalación'] = 'NOVA · Instal·lació'
@@ -282,6 +283,7 @@ $h['▸ IDIOMA · LANGUAGE · LANGUE · SPRACHE'] = '▸ IDIOMA · LANGUAGE · L
 $h['Elige el idioma de NOVA AI: la ventana, la voz de Nova, lo que entiende, sus comandos y el manual. Podrás cambiarlo después en Ajustes.'] = 'Tria l''idioma de NOVA AI: la finestra, la veu de la Nova, el que entén, les seves ordres i el manual. El podràs canviar després a Ajustos.'
 $h['◆  CONTINUAR'] = '◆  CONTINUAR'
 $h['Detectado en Windows: '] = 'Detectat a Windows: '
+$h['PROTOCOLO DE INSTALACIÓN  //  ASISTENTE DE VUELO PARA STAR CITIZEN'] = 'PROTOCOL D''INSTAL·LACIÓ  //  ASSISTENT DE VOL PER A STAR CITIZEN'
 $TX['ca'] = $h
 $h = New-Object Collections.Hashtable ([StringComparer]::Ordinal)
 $h['NOVA · Instalación'] = 'NOVA · Installation'
@@ -392,6 +394,7 @@ $h['▸ IDIOMA · LANGUAGE · LANGUE · SPRACHE'] = '▸ IDIOMA · LANGUAGE · L
 $h['Elige el idioma de NOVA AI: la ventana, la voz de Nova, lo que entiende, sus comandos y el manual. Podrás cambiarlo después en Ajustes.'] = 'Choisissez la langue de NOVA AI : la fenêtre, la voix de Nova, ce qu''elle comprend, ses commandes et le manuel. Vous pourrez la changer plus tard dans Réglages.'
 $h['◆  CONTINUAR'] = '◆  CONTINUER'
 $h['Detectado en Windows: '] = 'Détecté dans Windows : '
+$h['PROTOCOLO DE INSTALACIÓN  //  ASISTENTE DE VUELO PARA STAR CITIZEN'] = 'PROTOCOLE D''INSTALLATION  //  ASSISTANT DE VOL POUR STAR CITIZEN'
 $TX['fr'] = $h
 $h = New-Object Collections.Hashtable ([StringComparer]::Ordinal)
 $h['NOVA · Instalación'] = 'NOVA · Installation'
@@ -468,11 +471,11 @@ $h['SISTEMAS EN LÍNEA'] = 'SYSTEME ONLINE'
 $h['completado'] = 'abgeschlossen'
 $h['NOVA AI está lista para el despegue. Tiempo total: {0}.'] = 'NOVA AI ist startklar. Gesamtzeit: {0}.'
 $h['Instalada en:'] = 'Installiert in:'
-$h['Acceso directo «NOVA AI» en el escritorio y en el menú Inicio.'] = 'Verknüpfung „NOVA AI“ auf dem Desktop und im Startmenü.'
+$h['Acceso directo «NOVA AI» en el escritorio y en el menú Inicio.'] = 'Verknüpfung »NOVA AI« auf dem Desktop und im Startmenü.'
 $h['Para desinstalarla: menú Inicio › NOVA AI › Desinstalar, o Configuración › Aplicaciones.'] = 'Zum Deinstallieren: Startmenü › NOVA AI › Deinstallieren, oder Einstellungen › Apps.'
 $h['Al abrirla por primera vez te guiará para ponerle nombre y entrenar su oído con tu voz.'] = 'Beim ersten Öffnen führt sie Sie durch die Namenswahl und das Training ihres Gehörs mit Ihrer Stimme.'
 $h['No se pudieron cargar las normas: '] = 'Die Bedingungen konnten nicht geladen werden: '
-$h['Elige dónde instalar NOVA AI (se creará la carpeta «NOVA AI» dentro)'] = 'Wählen Sie, wo NOVA AI installiert wird (darin wird der Ordner „NOVA AI“ erstellt)'
+$h['Elige dónde instalar NOVA AI (se creará la carpeta «NOVA AI» dentro)'] = 'Wählen Sie, wo NOVA AI installiert wird (darin wird der Ordner »NOVA AI« erstellt)'
 $h['La instalación está en curso. ¿Seguro que quieres cancelarla?'] = 'Die Installation läuft. Wirklich abbrechen?'
 $h['Instalación cancelada'] = 'Installation abgebrochen'
 $h['Analizando '] = 'Analysiere '
@@ -502,6 +505,7 @@ $h['▸ IDIOMA · LANGUAGE · LANGUE · SPRACHE'] = '▸ IDIOMA · LANGUAGE · L
 $h['Elige el idioma de NOVA AI: la ventana, la voz de Nova, lo que entiende, sus comandos y el manual. Podrás cambiarlo después en Ajustes.'] = 'Wählen Sie die Sprache von NOVA AI: Fenster, Novas Stimme, was sie versteht, ihre Befehle und das Handbuch. Sie können sie später in den Einstellungen ändern.'
 $h['◆  CONTINUAR'] = '◆  WEITER'
 $h['Detectado en Windows: '] = 'In Windows erkannt: '
+$h['PROTOCOLO DE INSTALACIÓN  //  ASISTENTE DE VUELO PARA STAR CITIZEN'] = 'INSTALLATIONSPROTOKOLL  //  FLUGASSISTENT FÜR STAR CITIZEN'
 $TX['de'] = $h
 $DoneSpeech = @{
     es = 'Instalación completada. Nova lista para el despegue, señor.'
@@ -1753,10 +1757,11 @@ function On-Tick {
     $now = Get-Date
     $ui.Clock.Text = 'UEE · STANTON · {0}-{1:MM-dd HH:mm:ss}' -f ($now.Year + 930), $now
 
-    if ($script:typed -lt $script:subtitleFull.Length) {
-        $script:typed = [Math]::Min($script:subtitleFull.Length, $script:typed + 2)
-        $ui.Subtitle.Text = $script:subtitleFull.Substring(0, $script:typed) + $(if ($script:typed -lt $script:subtitleFull.Length) { '▌' } else { '' })
-    }
+    $full = T $script:subtitleFull  # v1.5: en el idioma elegido (antes salía siempre en español)
+    if ($script:typed -lt $full.Length) {
+        $script:typed = [Math]::Min($full.Length, $script:typed + 2)
+        $ui.Subtitle.Text = $full.Substring(0, $script:typed) + $(if ($script:typed -lt $full.Length) { '▌' } else { '' })
+    } elseif ($ui.Subtitle.Text -ne $full) { $ui.Subtitle.Text = $full }
 
     # Registro técnico
     $line = $null

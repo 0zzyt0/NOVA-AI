@@ -149,9 +149,15 @@ class UIServer:
                     f = APP_DIR / "recursos" / ("nova.png" if path == "/logo.png" else "nova.ico")
                 elif path in ("/logos/made_by_the_community.png", "/logos/logo_0zzyt0.png"):
                     f = APP_DIR / "recursos" / path.rsplit("/", 1)[-1]
+                elif re.fullmatch(r"/manual/(en|ca|fr|de)/?", path):  # v1.5: manual traducido con sus capturas
+                    f = WEB / "manual" / path.strip("/").split("/")[1] / "index.html"
+                    if not path.endswith("/"):
+                        return self._send(302, b"", "text/plain", {"Location": path + "/"})
                 elif path in ("/manual", "/manual/"):
                     f = WEB / "manual" / "index.html"
                     lang = i18n.norm(server.nova.settings.get("idioma"))
+                    if lang != "es" and (WEB / "manual" / lang / "index.html").is_file():
+                        return self._send(302, b"", "text/plain", {"Location": f"/manual/{lang}/"})
                     if lang != "es" and f.is_file():  # v1.3: el manual en tu idioma (traducido y guardado)
                         from core import manual_tr
                         cache = DATA_DIR / "cache"

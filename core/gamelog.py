@@ -102,6 +102,21 @@ def actor_name(name: str) -> str:
 
 NOTIF_END = re.compile(r'"\s*\[\d+\]')
 TIMESTAMP_PREFIX = re.compile(r"^<[^>]+>\s?")
+# 1.5: tiendas, objetos equipados y tubos de atraque
+SHOP_BUY = re.compile(r"SendShopBuyRequest>.*?client_price\[(?P<price>[\d.]+)\].*?itemName\[(?P<item>[^\]]+)\]"
+                      r"\s*quantity\[(?P<qty>\d+)\]")
+SHOP_RESULT = re.compile(r"RmShopFlowResponse>.*?result\[(?P<res>\w+)\]\s*type\[(?P<type>\w+)\]")
+EQUIP = re.compile(r"<EquipItem> Request\[\d+\] equip from .*?Class\[(?P<cls>[^\]]+)\]")
+DOCK_TUBE = re.compile(r"<CSCItemDockingTube::OnSetTubeState> .*?Station_DockingTube\S* \[(?P<id>\d+)\] - Tube opened: "
+                       r"broadcasting OnShipCanDock")
+EQUIP_GAP = 4.0  # segundos sin equiparse nada más para dar el resumen
+# Nombres de reserva (juego en inglés sin global.ini) de lo que más se equipa
+ITEM_EN = {
+    "crlf_consumable_healing_01": "MedPen (Hemozal)",
+    "crlf_consumable_adrenaline_01": "AdrenaPen (Demexatrine)",
+    "crlf_consumable_detox_01": "DetoxPen (Resurgera)",
+    "crlf_consumable_oxygen_01": "OxyPen",
+}
 QT_ARRIVE = ("Quantum Drive Arrived - Arrived at Final Destination", "Quantum Drive has arrived at final destination")
 
 # ------------------------------------------------------------ nombres de sitios
@@ -277,14 +292,14 @@ RULES_RX = [(k, c, re.compile(p, re.I), f) for k, c, p, f in RULES]
 CATEGORIES = {
     "ubicacion": "Llegadas y cambios de ubicación",
     "grupo": "Grupo: invitaciones, quién entra y sale",
-    "dinero": "Dinero recibido y enviado",
+    "dinero": "Dinero recibido y enviado, y compras en tiendas",
     "amistad": "Peticiones de amistad y llamadas",
     "atc": "Torre de control y hangar",
     "contratos": "Contratos y recompensas",
     "salud": "Heridas y emergencias",
     "ley": "CrimeStat, multas y zonas restringidas",
-    "avisos": "Combustible, refinería, planos y llamaradas solares",
-    "nave": "Tu nave: quién sube y baja, daños",
+    "avisos": "Combustible, refinería, planos, llamaradas solares y compras fallidas",
+    "nave": "Tu nave: quién sube y baja, daños y tubo de atraque listo",
 }
 
 # Comentarios (se elige uno al azar). {t} = tratamiento; {nombre}, {cantidad}, {lugar}, {x}, {puesto}, {parte}
@@ -292,6 +307,10 @@ COMMENTS = {
     "ubicacion": ["Hemos llegado a {lugar}, {t}.", "Bienvenido a {lugar}, {t}.", "{lugar}. Recuerde dónde ha aparcado esta vez."],
     "llegada_cuantica": ["Salto completado. Llegamos a {lugar}.", "Destino alcanzado: {lugar}, {t}.", "Hemos llegado a {lugar}. Ni un rasguño… esta vez."],
     "llegada_cuantica_sin_destino": ["Salto completado, {t}."],
+    "compra": ["Compra hecha: {x}, {cantidad} aUEC.", "Anotado: {x} por {cantidad} aUEC, {t}."],
+    "compra_fallida": ["La compra no se ha completado, {t}. Revise su saldo o el inventario."],
+    "atraque_listo": ["Tubo de atraque listo, {t}. Puede acoplar.", "Atraque autorizado: el tubo está abierto, {t}."],
+    "llegada_cuantica_grupo": ["Salto completado. Estamos junto a su compañero, {t}.", "Llegamos a la posición del grupo, {t}."],
     "zona_armisticio_entra": ["Entramos en zona de armisticio. Armas bloqueadas, {t}.", "Zona de armisticio: aquí toca portarse bien."],
     "zona_armisticio_sale": ["Salimos de la zona de armisticio. Ojos abiertos, {t}."],
     "jurisdiccion": ["Entramos en la jurisdicción de {x}.", "Ahora mandan los de {x}, {t}."],
@@ -441,6 +460,11 @@ class GameLog(threading.Thread):
         self._text_check = 0.0
         self._slow: dict[str, float] = {}
         self._last_incap = -1e9  # tareas de carga lentas ya anotadas
+        self.ship_owner = ""  # dueño del canal de la nave en la que vas (1.5)
+        self._shop: dict | None = None  # compra enviada, esperando la respuesta de la tienda
+        self._equip: list[str] = []  # objetos equipados seguidos (se resumen juntos)
+        self._equip_last = 0.0
+        self._tubes: dict[str, float] = {}
 
     # -------------------------------------------------------------- consultas
     def summary(self) -> str:
@@ -490,8 +514,9 @@ class GameLog(threading.Thread):
             self.party.clear()
         elif kind == "nave_subes":
             self.ship = data.get("nave", "")
+            self.ship_owner = data.get("dueno", "")
         elif kind == "nave_bajas" and data.get("nave") == self.ship:
-            self.ship = ""
+            self.ship = self.ship_owner = ""
         for sink in list(self.sinks):
             try:
                 sink(ev)
@@ -523,10 +548,72 @@ class GameLog(threading.Thread):
     def _pretty(self, raw: str) -> str:
         return pretty_loc(raw, self.text)
 
+    # ------------------------------------------------- 1.5: tiendas, equipo y atraque
+    def item_name(self, cls: str) -> str:
+        """Clase interna del objeto -> nombre como lo ves en el juego (de tu global.ini si lo hay)."""
+        name = self.text.local(f"item_Name{cls}") if self.text else None
+        if not name:
+            name = ITEM_EN.get(cls.lower())
+        if not name:
+            name = re.sub(r"[_\s]+", " ", re.sub(r"_\d+$", "", cls)).strip()
+        return name.strip()
+
+    def _flush_equip(self, force: bool = False) -> None:
+        if not self._equip or (not force and (self._now or time.time()) - self._equip_last < EQUIP_GAP):
+            return
+        counts = collections.Counter(self._equip)
+        self._equip = []
+        parts = [f"{n} × {name}" if n > 1 else name for name, n in counts.items()]
+        self._emit("equipo", "", {"x": ", ".join(parts), "unidades": sum(counts.values())}, detail=", ".join(parts))
+
+    def _shop_record(self, rec: str) -> bool:
+        m = SHOP_BUY.search(rec)
+        if m:
+            qty = int(m.group("qty") or 1)
+            self._shop = {"item": self.item_name(m.group("item")), "qty": qty, "price": float(m.group("price"))}
+            return True
+        m = SHOP_RESULT.search(rec)
+        if m:
+            pend, self._shop = self._shop, None
+            if m.group("type").lower() != "buying" or not pend:
+                return True  # ventas: aún no sabemos cómo las escribe el juego
+            what = f"{pend['qty']} × {pend['item']}" if pend["qty"] > 1 else pend["item"]
+            if m.group("res").lower() == "success":
+                amount = f"{pend['price']:,.0f}".replace(",", ".")
+                self._emit("compra", "dinero", {"x": what, "cantidad": amount, "unidades": pend["qty"],
+                                                "precio": pend["price"]}, detail=f"{what} · {amount} aUEC")
+            else:
+                self._emit("compra_fallida", "avisos", {"x": what, "motivo": m.group("res")},
+                           detail=f"{what} · no completada")
+            return True
+        return False
+
     def parse_record(self, rec: str) -> None:
         t = log_time(rec)
         if t:
             self._now = t
+        if self._equip:
+            self._flush_equip()
+        if "<EquipItem>" in rec:
+            m = EQUIP.search(rec)
+            if m:
+                self._equip.append(self.item_name(m.group("cls")))
+                self._equip_last = self._now or time.time()
+            return
+        if "ShopBuyRequest" in rec or "RmShopFlowResponse" in rec:
+            if self._shop_record(rec):
+                return
+        if "OnSetTubeState" in rec:
+            m = DOCK_TUBE.search(rec)
+            if m:
+                now = self._now or time.time()
+                if now - self._tubes.get(m.group("id"), -1e9) > 120:
+                    self._tubes[m.group("id")] = now
+                    own = bool(self.player and self.ship_owner and self.ship_owner.lower() == self.player.lower())
+                    # Solo se comenta en voz alta si vas en TU nave; si no, queda en la lista de eventos.
+                    self._emit("atraque_listo", "nave" if own else "", {"nave": self.ship},
+                               detail="tubo de atraque abierto" + (f" · {self.ship}" if self.ship else ""))
+            return
         if "Added notification" in rec:
             self._notification(rec)
             return
@@ -579,13 +666,21 @@ class GameLog(threading.Thread):
             self._remember_vehicles(rec)
             dest, self._qt_target = self._qt_target, ""
             raw, self._qt_raw = self._qt_raw, ""
-            if dest:
+            if dest and raw.lower().startswith("partymembermarker"):
+                # 1.5: hacia la posición de un compañero: no es un lugar, se mantiene el último conocido
+                self._emit("llegada_cuantica_grupo", "ubicacion", {"combustible": self._qt_fuel, "raw": raw},
+                           detail="junto a un miembro del grupo")
+            elif dest:
                 self.location = self._last_announced = dest
                 self._emit("llegada_cuantica", "ubicacion", {"lugar": dest, "combustible": self._qt_fuel, "raw": raw})
             else:
                 self._emit("llegada_cuantica_sin_destino", "ubicacion", {}, detail="salto completado")
             return
         if "<Trying to QT when not in Idle>" in rec:
+            # 1.5: «User:» es quien pidió el salto. Si es otro (vas de tripulante en su nave), no es cosa tuya.
+            m = re.search(r"\bUser:\s*([\w.\-]+)", rec)
+            if m and self.player and m.group(1).lower() != self.player.lower():
+                return
             self._emit("salto_error", "", {}, detail="el motor cuántico no estaba listo")
             return
         if "<Vehicle Control Flow>" in rec:
@@ -818,6 +913,8 @@ class GameLog(threading.Thread):
         if self._record:
             self.parse_record(self._record)
             self._record = ""
+        if self._equip and time.time() - self._equip_last >= EQUIP_GAP:
+            self._flush_equip(force=True)
 
     # ---------------------------------------------------------------- bucle
     def _resolve_path(self) -> Path | None:

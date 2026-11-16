@@ -53,6 +53,7 @@ window.V13 = (() => {
   }));
   $("#btnUpdShow").addEventListener("click", () => { dismissed = false; modal.hidden = false; });
   return {
+    paint,  // v1.5: el arnés del manual pinta el aviso
     onEvent(ev) {
       if (ev.t !== "actualizacion") return;
       api("update_info").then((i) => { paint(i); if (ev.preguntar) { dismissed = false; ask(); } }).catch(() => {});

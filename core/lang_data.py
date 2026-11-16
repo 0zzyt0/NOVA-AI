@@ -186,10 +186,10 @@ PILOT_INTRO = {
 AI_INTRO = {
     "en": r"call yourself|your name will be|your name is|i'll call you|i will call you|you will be called|"
           r"you're called|be called|i name you",
-    "ca": r"et diràs|et diras|el teu nom serà|el teu nom sera|et diré|et dire|dis-te|digues-te|et posaré|et posare",
-    "fr": r"tu t'appelleras|tu t appelleras|appelle-toi|appelle toi|ton nom sera|je t'appellerai|je t appellerai|"
+    "ca": r"vull que et diguis|vull que et diguin|m'agradaria que et diguessis|t'has de dir|et diràs|et diras|el teu nom serà|el teu nom sera|et diré|et dire|dis-te|digues-te|et posaré|et posare",
+    "fr": r"je veux que tu t'appelles|je veux que tu t appelles|j'aimerais que tu t'appelles|tu t'appelleras|tu t appelleras|appelle-toi|appelle toi|ton nom sera|je t'appellerai|je t appellerai|"
           r"tu vas t'appeler",
-    "de": r"du heißt|du heisst|dein name ist|dein name wird|ich nenne dich|nenn dich|du wirst .{0,10}heißen",
+    "de": r"ich möchte,? dass du|ich mochte,? dass du|ich will,? dass du|du heißt|du heisst|dein name ist|dein name wird|ich nenne dich|nenn dich|du wirst .{0,10}heißen",
 }
 
 TRAINING = {

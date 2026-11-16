@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>NOVA AI · User manual</title>
+<style>
+@page { size: A4; margin: 0 }
+:root{
+  --bg0:#02060c; --bg1:#061222; --panel:rgba(9,22,38,.78); --panel2:rgba(14,34,56,.62);
+  --line:rgba(32,184,232,.22); --line2:rgba(111,216,255,.45);
+  --cy:#20b8e8; --cy2:#6fd8ff; --cy3:#bff1ff; --txt:#d4f1ff; --dim:#7fa3b8; --dim2:#45657a;
+  --ok:#3fd8a8; --warn:#e8c15a; --bad:#ff6b7a;
+  --mono:"DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg0)}
+body{font-family:Inter,"DejaVu Sans",sans-serif;color:var(--txt);font-size:10pt;line-height:1.5;counter-reset:pg}
+.page{width:210mm;height:297mm;position:relative;overflow:hidden;page-break-after:always;break-after:page;
+  padding:21mm 16mm 17mm;counter-increment:pg;
+  background:
+    linear-gradient(rgba(32,184,232,.035) 1px,transparent 1px) 0 0/9mm 9mm,
+    linear-gradient(90deg,rgba(32,184,232,.035) 1px,transparent 1px) 0 0/9mm 9mm,
+    radial-gradient(160mm 120mm at 15% 8%,#0e2742 0%,var(--bg1) 48%,var(--bg0) 100%)}
+.page:last-child{page-break-after:auto;break-after:auto}
+.ph{position:absolute;left:16mm;right:16mm;top:8mm;display:flex;align-items:center;gap:3mm;
+  font:600 7pt Inter;letter-spacing:.25em;color:var(--cy);text-transform:uppercase}
+.ph img{width:6mm;height:6mm}
+.ph .s{margin-left:auto;color:var(--dim)}
+.ph:after{content:"";position:absolute;left:0;right:0;bottom:-2.5mm;height:1px;background:linear-gradient(90deg,var(--cy),rgba(32,184,232,.15) 60%,transparent)}
+.pf{position:absolute;left:16mm;right:16mm;bottom:7mm;display:flex;font:7pt var(--mono);color:var(--dim2);letter-spacing:.1em}
+.pf .n{margin-left:auto;color:var(--cy)}
+.pf .n:before{content:"PÁG. " counter(pg)}
+
+h1{font:800 22pt Inter;margin:0 0 1mm;color:#fff;letter-spacing:.02em;display:flex;align-items:center;gap:4mm}
+h1 .num{font:700 11pt var(--mono);color:var(--bg0);background:var(--cy);padding:1.2mm 2.6mm;box-shadow:0 0 5mm rgba(32,184,232,.6)}
+h2{font:700 12pt Inter;color:var(--cy2);margin:5mm 0 2mm;letter-spacing:.04em}
+h2:before{content:"▸ ";color:var(--cy)}
+h3{font:700 10.5pt Inter;color:#fff;margin:3mm 0 1mm}
+p{margin:0 0 2.2mm}
+.lead{font-size:11pt;color:#bfe6f7;margin:2mm 0 4mm;border-left:2px solid var(--cy);padding-left:4mm}
+b,strong{color:#fff}
+.cy{color:var(--cy2)} .ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)} .dim{color:var(--dim)}
+ul{margin:0 0 2.5mm;padding-left:5mm} li{margin:.6mm 0}
+ul.d{list-style:none;padding-left:0} ul.d li{padding-left:5mm;position:relative}
+ul.d li:before{content:"◆";position:absolute;left:0;color:var(--cy);font-size:7pt;top:.5mm}
+kbd{font:600 8pt var(--mono);color:#fff;background:rgba(32,184,232,.18);border:1px solid var(--line2);padding:.2mm 1.6mm;border-radius:1mm}
+code{font:8.5pt var(--mono);color:var(--cy3);background:rgba(32,184,232,.10);padding:.2mm 1.2mm;border-radius:.8mm}
+.say{color:var(--cy3);font-style:italic}
+
+.card{position:relative;background:var(--panel);border:1px solid var(--line);padding:4mm 5mm;margin:0 0 4mm}
+.card:before,.card:after{content:"";position:absolute;width:4mm;height:4mm;border:2px solid var(--cy2)}
+.card:before{left:-1.2mm;top:-1.2mm;border-right:0;border-bottom:0}
+.card:after{right:-1.2mm;bottom:-1.2mm;border-left:0;border-top:0}
+.card h3:first-child{margin-top:0}
+.tip,.warnb,.okb{padding:3mm 4mm;margin:0 0 3.5mm;font-size:9.3pt;border-left:3px solid var(--cy);background:rgba(32,184,232,.08)}
+.warnb{border-color:var(--warn);background:rgba(232,193,90,.08)} .warnb b{color:#ffe7a6}
+.okb{border-color:var(--ok);background:rgba(63,216,168,.08)}
+.tip .t,.warnb .t,.okb .t{font:700 7.5pt Inter;letter-spacing:.2em;display:block;margin-bottom:.8mm;color:var(--cy)}
+.warnb .t{color:var(--warn)} .okb .t{color:var(--ok)}
+
+figure{margin:0 0 4mm}
+figure.c{margin-left:auto;margin-right:auto}
+figure img{display:block;width:100%;border:1px solid var(--line2);box-shadow:0 0 6mm rgba(32,184,232,.18)}
+figcaption{font-size:8pt;color:var(--dim);margin-top:1.5mm}
+figcaption b{color:var(--cy2)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:5mm}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4mm}
+.row{display:grid;grid-template-columns:82mm 1fr;gap:5mm;align-items:start;margin-bottom:4.5mm}
+.row figure{margin:0}
+.step-n{display:inline-block;font:700 8pt var(--mono);color:var(--bg0);background:var(--cy2);padding:.4mm 1.8mm;margin-right:2mm}
+
+table{width:100%;border-collapse:collapse;margin:0 0 4mm;font-size:8.8pt}
+th{font:700 7.5pt Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--cy);text-align:left;padding:2mm 2.5mm;border-bottom:1px solid var(--line2);background:rgba(32,184,232,.06)}
+td{padding:1.8mm 2.5mm;border-bottom:1px solid var(--line);vertical-align:top}
+td:first-child{color:#fff;font-weight:600}
+.steps5{display:grid;gap:2.6mm;margin:2mm 0 4mm}.steps5 .st{display:grid;grid-template-columns:10mm 1fr;gap:3.5mm;align-items:start;background:var(--panel2);border:1px solid var(--line);padding:2.6mm 3.5mm}
+.steps5 .st>b{display:flex;align-items:center;justify-content:center;width:9mm;height:9mm;border:1px solid var(--cy);color:var(--cy2);font-size:14pt;box-shadow:0 0 3mm rgba(32,184,232,.35)}
+.logos{display:flex;align-items:center;justify-content:center;gap:9mm;margin-top:3mm;text-align:center;font-size:9pt;line-height:1.5}.logos img{width:30mm;height:30mm;object-fit:contain}
+.steps5 h3{margin:0 0 .6mm;font-size:10.5pt}.steps5 p{margin:0;font-size:9pt}.steps5 .dim{color:var(--dim)}
+table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
+
+.feat{background:var(--panel2);border:1px solid var(--line);padding:3.5mm 4mm}
+.feat .i{font-size:15pt;color:var(--cy2);line-height:1;margin-bottom:1.5mm;text-shadow:0 0 4mm var(--cy)}
+.feat h3{margin:0 0 1mm;font-size:10pt}
+.feats{gap:3mm}.feats .feat{padding:2.6mm 3.2mm}.feats .feat p{font-size:8.2pt;line-height:1.35;margin:0}.feats .feat .i{margin-bottom:1mm}
+.feat p{font-size:8.8pt;color:#b7d9ea;margin:0}
+
+.anno{position:relative}
+.anno .m{position:absolute;width:6.2mm;height:6.2mm;margin:-3.1mm 0 0 -3.1mm;border-radius:50%;background:var(--warn);color:#1b1300;
+  font:800 8pt Inter;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 1mm rgba(232,193,90,.25),0 0 4mm rgba(232,193,90,.8)}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:1.5mm 6mm;font-size:9pt}
+.legend div{display:flex;gap:2.5mm;align-items:baseline}
+.legend .k{flex:0 0 5.5mm;height:5.5mm;border-radius:50%;background:var(--warn);color:#1b1300;font:800 7.5pt Inter;display:flex;align-items:center;justify-content:center}
+
+.sw{display:inline-block;width:3.5mm;height:3.5mm;border-radius:50%;vertical-align:-.5mm;margin-right:1.5mm;box-shadow:0 0 2mm currentColor}
+.key{border:1px solid var(--line2);background:linear-gradient(135deg,rgba(32,184,232,.12),rgba(9,22,38,.85));padding:6mm 7mm;margin-bottom:7mm;position:relative}
+.key ol.small{font-size:10.2pt}.key ol li{margin:2mm 0 !important}.key .foot{font-size:9.2pt !important;padding-top:3mm !important}.key .logo{font-size:16pt !important}
+.key .hd{display:flex;align-items:center;gap:3mm;margin-bottom:2mm}
+.key .logo{font:800 13pt Inter;color:#fff}
+.key .tag{font:700 7pt Inter;letter-spacing:.16em;padding:.6mm 2mm;border:1px solid var(--ok);color:var(--ok)}
+.key .tag.pay{border-color:var(--warn);color:var(--warn)}
+.key .url{margin-left:auto;font:700 9pt var(--mono);color:var(--cy3);background:rgba(32,184,232,.14);padding:1mm 2.5mm;border:1px solid var(--line2)}
+.key ol{margin:1mm 0 2mm;padding-left:6mm} .key ol li{margin:.9mm 0}
+.key .foot{font-size:8.5pt;color:var(--dim);border-top:1px dashed var(--line);padding-top:2mm;display:flex;gap:6mm}
+.key .foot b{color:var(--cy2)}
+
+/* portada */
+.cover{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0}
+.cover .halo{width:92mm;height:92mm;border-radius:50%;position:relative;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 30mm rgba(32,184,232,.35),inset 0 0 18mm rgba(32,184,232,.25);border:1px solid var(--line2)}
+.cover .halo:before{content:"";position:absolute;inset:-7mm;border-radius:50%;border:1px dashed rgba(111,216,255,.35)}
+.cover .halo img{width:76mm;height:76mm}
+.cover .t1{font:900 46pt Inter;letter-spacing:.18em;color:var(--cy2);margin-top:14mm;text-shadow:0 0 8mm var(--cy)}
+.cover .t2{font:600 11pt Inter;letter-spacing:.42em;color:var(--cy);margin-top:1mm}
+.cover .t3{font:800 22pt Inter;color:#fff;margin-top:14mm;letter-spacing:.06em}
+.cover .t4{font:400 11pt Inter;color:#9fd0e6;margin-top:2mm}
+.cover .meta{position:absolute;bottom:18mm;left:0;right:0;font:8pt var(--mono);color:var(--dim);letter-spacing:.2em}
+.cover .beam{position:absolute;left:0;right:0;top:118mm;height:1px;background:linear-gradient(90deg,transparent,var(--cy),transparent);opacity:.6}
+
+.toc{columns:2;column-gap:10mm;font-size:10pt}
+.toc div{display:flex;break-inside:avoid;padding:1.6mm 0;border-bottom:1px solid var(--line)}
+.toc .n{font:700 9pt var(--mono);color:var(--cy);width:9mm}
+.toc .p{margin-left:auto;font:9pt var(--mono);color:var(--dim)}
+.small{font-size:8.6pt}
+.mono{font-family:var(--mono);font-size:8pt}
+.log{font:7.6pt var(--mono);background:#030a14;border:1px solid var(--line);padding:3mm 4mm;color:#a9d6ea;white-space:pre;line-height:1.55}
+.log .c{color:var(--warn)} .log .r{color:var(--bad)} .log .g{color:var(--ok)} .log .b{color:var(--cy2)}
+</style>
+<style>
+@media screen{
+  html,body{background:#01040a}
+  body{padding:64px 0 40px}
+  .page{margin:0 auto 26px;box-shadow:0 0 0 1px rgba(32,184,232,.25),0 18px 50px rgba(0,0,0,.6)}
+  .mbar{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;gap:14px;align-items:center;padding:10px 18px;
+    background:rgba(2,8,16,.92);backdrop-filter:blur(6px);border-bottom:1px solid rgba(32,184,232,.35);
+    font:600 13px Inter,"Segoe UI",sans-serif;letter-spacing:.06em;color:#bfe9ff}
+  .mbar img{width:26px;height:26px}
+  .mbar .sp{flex:1}
+  .mbar a,.mbar button{all:unset;cursor:pointer;color:#6fd8ff;padding:6px 10px;border:1px solid rgba(111,216,255,.4);border-radius:4px}
+  .mbar a:hover,.mbar button:hover{background:rgba(32,184,232,.15)}
+  .tl{cursor:pointer}.tl:hover{color:#fff;text-shadow:0 0 8px rgba(111,216,255,.7)}
+}
+@media screen and (max-width:900px){.page{zoom:.62}}
+@media print{.mbar{display:none}}
+</style>
+</head><body><div class="mbar"><img src="/logo.png" alt=""><span>NOVA AI · USER MANUAL</span><span class="sp"></span><a href="#cap-00">Quick guide</a><a href="#indice">Contents</a><button onclick="window.print()">Print / save as PDF</button></div><a id="top"></a>
+
+<!-- ======================================================= PORTADA -->
+<section class="page cover">
+  <div class="beam"></div>
+  <div class="halo"><img src="/logo.png"></div>
+  <div class="t1">NOVA AI</div>
+  <div class="t2">FLIGHT ASSISTANT FOR STAR CITIZEN</div>
+  <div class="t3">USER MANUAL</div>
+  <div class="t4">Everything you need to install her, set her up and get the most out of her.<br>In a hurry? Start with the <b>Quick guide</b> (page 3).</div>
+  <div class="meta">OFFICIAL VERSION 1.5 · NOVEMBER 2026 · UEE · STANTON</div>
+</section>
+
+<!-- ======================================================= ÍNDICE -->
+<section id="indice" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">Contents</span></div>
+  <h1>Contents</h1>
+  <p class="lead">If this is your first time, read the <b>Quick guide</b> and the <b>Glossary</b>: in 5 minutes you'll be flying with Nova. After that, the manual goes through the program section by section, in the same order as its menu, with real screenshots. You also have it inside NOVA AI: the <b>📖 Read the Manual</b> button.</p>
+  <div class="toc">
+    <div class="tl" data-cap="00"><span class="n">00</span>Quick guide and glossary<span class="p">3</span></div>
+    <div class="tl" data-cap="01"><span class="n">01</span>What is NOVA AI<span class="p">5</span></div>
+    <div class="tl" data-cap="02"><span class="n">02</span>Installation<span class="p">6</span></div>
+    <div class="tl" data-cap="03"><span class="n">03</span>First-time setup<span class="p">9</span></div>
+    <div class="tl" data-cap="04"><span class="n">04</span>The Nova window<span class="p">11</span></div>
+    <div class="tl" data-cap="05"><span class="n">05</span>Cockpit and how to talk to her<span class="p">12</span></div>
+    <div class="tl" data-cap="06"><span class="n">06</span>Ship &amp; commands<span class="p">15</span></div>
+    <div class="tl" data-cap="07"><span class="n">07</span>Nova: voice, hearing and intelligence<span class="p">19</span></div>
+    <div class="tl" data-cap="08"><span class="n">08</span>Overlay &amp; holograms<span class="p">24</span></div>
+    <div class="tl" data-cap="09"><span class="n">09</span>Data &amp; memory<span class="p">28</span></div>
+    <div class="tl" data-cap="10"><span class="n">10</span>Settings, tray and sleep mode<span class="p">35</span></div>
+    <div class="tl" data-cap="11"><span class="n">11</span>Guide: your own API keys<span class="p">39</span></div>
+    <div class="tl" data-cap="12"><span class="n">12</span>Troubleshooting<span class="p">42</span></div>
+    <div class="tl" data-cap="13"><span class="n">13</span>Privacy and credits<span class="p">43</span></div>
+    <div class="tl" data-cap="14"><span class="n">14</span>Thanks to the community<span class="p">44</span></div>
+  </div>
+  <h2>How to read this manual</h2>
+  <div class="g3">
+    <div class="tip"><span class="t">TIP</span>Tricks to go faster or get more out of Nova.</div>
+    <div class="warnb"><span class="t">WARNING</span>Things worth knowing to avoid problems.</div>
+    <div class="okb"><span class="t">ALL SET</span>Signs that everything is working as it should.</div>
+  </div>
+  <p>The phrases you can say to Nova look like this: <span class="say">"Nova, lower the landing gear"</span>. Keys look like this: <kbd>Insert</kbd>. Buttons and sections of the program are in <b>bold</b>, and folder paths in <code>code format</code>.</p>
+  <div class="okb"><span class="t">CUSTOM NAME</span>In this manual the assistant is called "Nova", but you can give her any name you like during the first-time setup (in the setup wizard screenshots, for example, she's called "Athena").</div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 00 GUÍA RÁPIDA -->
+<section id="cap-00" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">Quick guide</span></div>
+  <h1><span class="num">00</span>Quick guide</h1>
+  <p class="lead">Five steps and you can talk to Nova in Star Citizen. You'll discover the rest as you go.</p>
+  <div class="steps5">
+    <div class="st"><b>1</b><div><h3>Install</h3><p>Open <code>NOVA AI Setup.exe</code> and press <b>INSTALL</b>. It takes a few minutes and creates the <b>NOVA AI</b> shortcut on the desktop. <span class="dim">(Section 02)</span></p></div></div>
+    <div class="st"><b>2</b><div><h3>Introduce yourself</h3><p>The first time, she asks your name, what you want to call her and how she hears you through the microphone. Just answer. <span class="dim">(Section 03)</span></p></div></div>
+    <div class="st"><b>3</b><div><h3>Add a free AI key</h3><p>So she can hold a conversation, paste a free Gemini or Groq key in <b>Nova › Intelligence</b>. It takes 2 minutes. <span class="dim">(Section 11)</span></p></div></div>
+    <div class="st"><b>4</b><div><h3>Play in "Borderless window"</h3><p>In Star Citizen: <b>Options › Graphics › Window mode › Borderless</b>. That way Nova's logo and holograms show on top of the game.</p></div></div>
+    <div class="st"><b>5</b><div><h3>Talk to her</h3><p>Hold your key (<kbd>Insert</kbd> by default) and speak, or say her name: <span class="say">"Nova, lower the landing gear"</span>. Minimise the NOVA window while you play, or close it: she stays in the Windows tray.</p></div></div>
+  </div>
+  <h2>The phrases you'll use most</h2>
+  <table class="small tight">
+    <tr><th style="width:62mm">Say…</th><th>And Nova…</th></tr>
+    <tr><td><span class="say">"Nova, lower the landing gear"</span></td><td>Presses your game keys (landing gear, shields, quantum, lights…).</td></tr>
+    <tr><td><span class="say">"What is Laranite?"</span></td><td>Tells you right away from her Lookup dictionary.</td></tr>
+    <tr><td><span class="say">"Tell me about Daymar"</span></td><td>Planet card, with a hologram on top of the game.</td></tr>
+    <tr><td><span class="say">"Look up a player"</span></td><td>Asks for the handle and shows their RSI record (and, if you say "yes", posts it to your Discord).</td></tr>
+    <tr><td><span class="say">"Which route pays most with 100,000 aUEC?"</span></td><td>Works out the best trade route for your cargo hold.</td></tr>
+    <tr><td><span class="say">"Remind me in 3 hours, the refinery"</span></td><td>Sets a timer that reminds you even if you close NOVA.</td></tr>
+    <tr><td><span class="say">"Send a message to chat: anyone need an escort?"</span></td><td>Translates it if needed and types it in the game chat.</td></tr>
+    <tr><td><span class="say">"Where can I buy a P4-AR?"</span></td><td>Tells you, or opens the community item finder.</td></tr>
+    <tr><td><span class="say">"Nova, stop"</span> · <span class="say">"Nova, activate"</span></td><td>Stops her (cancelling whatever she's looking up) and activates her again.</td></tr>
+    <tr><td><span class="say">"Who are you?"</span> · <span class="say">"What can you do?"</span></td><td>She introduces herself (with an anecdote about her creator) and tells you everything she can do.</td></tr>
+    <tr><td><span class="say">"Open the manual"</span></td><td>Opens this manual in your browser.</td></tr>
+  </table>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 00 GLOSARIO -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">Glossary</span></div>
+  <h2>Glossary: words you'll see in the manual</h2>
+  <table class="small">
+    <tr><th style="width:44mm">Word</th><th>What it means</th></tr>
+    <tr><td>Cockpit</td><td>NOVA's main screen: what you say, what she answers and the game alerts.</td></tr>
+    <tr><td>Overlay</td><td>Nova's logo, drawn <b>on top of the game</b>, which changes colour depending on what she's doing.</td></tr>
+    <tr><td>Hologram</td><td>A card (player, planet, place) that appears for a few seconds on top of the game.</td></tr>
+    <tr><td>Borderless window</td><td>"Borderless": a Star Citizen display mode that lets you see the overlay and the holograms.</td></tr>
+    <tr><td>Talk key</td><td>The key you hold down while you talk to her (like a radio). <kbd>Insert</kbd> by default.</td></tr>
+    <tr><td>Game.log</td><td>A file the game itself writes with what happens in your session. Nova reads it to keep you informed.</td></tr>
+    <tr><td>global.ini</td><td>The file with all the game's texts (in your language if you have a translation). Nova uses it to understand alerts and fill her dictionary.</td></tr>
+    <tr><td>Logbook</td><td>The diary Nova writes for each game session: where you were, fights, contracts…</td></tr>
+    <tr><td>Lookup dictionary</td><td>Nova's "physical memory": a text file with thousands of game definitions. She answers from it without spending AI.</td></tr>
+    <tr><td>AI key (API key)</td><td>A free code from Google, Groq and others so Nova can talk with her artificial intelligence.</td></tr>
+    <tr><td>Quota or tokens</td><td>What each question to the AI "spends". Free keys have a daily limit; Nova tries to save.</td></tr>
+    <tr><td>Handle</td><td>A player's nickname on the RSI website (robertsspaceindustries.com).</td></tr>
+    <tr><td>Discord webhook</td><td>An address of your Discord channel where Nova can post cards.</td></tr>
+  </table>
+  <h2>Nova's colours</h2>
+  <ul class="d small" style="list-style:none">
+    <li><span class="sw" style="background:#20b8e8;color:#20b8e8"></span><b>Blue:</b> listening, thinking or speaking · <span class="sw" style="background:#39e47a;color:#39e47a"></span><b>Green:</b> she understood you · <span class="sw" style="background:#ffc933;color:#ffc933"></span><b>Yellow:</b> searching online</li>
+    <li><span class="sw" style="background:#a35cff;color:#a35cff"></span><b>Purple:</b> searching her physical memory · <span class="sw" style="background:#f4f7ff;color:#f4f7ff"></span><b>White:</b> memorising · <span class="sw" style="background:#ff3b4e;color:#ff3b4e"></span><b>Red:</b> stopped or didn't understand you</li>
+  </ul>
+  <div class="okb"><span class="t">ASK HER</span>Say <span class="say">"Nova, who are you?"</span> or <span class="say">"introduce yourself"</span>: she'll tell you her version, who created her (the Spanish player <b>0zzyt0</b>, with zeros instead of Os) and some made-up anecdote. With <span class="say">"what can you do?"</span> she tells you everything she can do… and what's coming next.</div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 01 QUÉ ES -->
+<section id="cap-01" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">01 · What is NOVA AI</span></div>
+  <h1><span class="num">01</span>What is NOVA AI</h1>
+  <p class="lead">NOVA AI is your onboard artificial intelligence: you call her by name or with a key, she answers with a natural voice, presses the game keys for you and always knows what's going on in your session. Everything she uses is free.</p>
+  <div class="g3 feats">
+    <div class="feat"><div class="i">🎙</div><h3>She listens</h3><p>Hold a key, a mouse button or a HOTAS button, or just say her name: "Nova, …".</p></div>
+    <div class="feat"><div class="i">⌨</div><h3>She flies the ship with you</h3><p>Lowers the landing gear, requests a landing pad, raises shields or jumps to quantum by pressing your game keys.</p></div>
+    <div class="feat"><div class="i">🧠</div><h3>She talks and looks things up</h3><p>Lore, ships, mining, crafting blueprints, missions and prices, with data from the current patch.</p></div>
+    <div class="feat"><div class="i">📡</div><h3>She follows your session</h3><p>She reads Game.log: she knows where you are, who boards your ship, contracts, ATC and combat.</p></div>
+    <div class="feat"><div class="i">📓</div><h3>Logbook and memory</h3><p>She records every session (place, ship, deaths, kills, healing…) and remembers what you tell her.</p></div>
+    <div class="feat"><div class="i">🌐</div><h3>Star Citizen in your language</h3><p>She installs the community translation of the game in your language with a single click.</p></div>
+    <div class="feat"><div class="i">🛰</div><h3>Overlay &amp; holograms</h3><p>Her logo changes colour in a corner, and cards appear for players, targets, planets and places.</p></div>
+    <div class="feat"><div class="i">🔎</div><h3>She looks up players</h3><p>Their public RSI record and their organisation's, on screen, in the logbook and in your Discord channel.</p></div>
+    <div class="feat"><div class="i">💬</div><h3>She talks in the chat</h3><p>"Send a message to chat…": she translates it if needed and types it in the game chat for you.</p></div>
+    <div class="feat"><div class="i">📖</div><h3>Lookup dictionary</h3><p>Her physical memory: thousands of definitions without spending AI, and she learns by herself what she doesn't know.</p></div>
+    <div class="feat"><div class="i">⏰</div><h3>Timers and routes</h3><p>Refining and contracts with a voice reminder; trade routes with the real profit for your cargo hold.</p></div>
+    <div class="feat"><div class="i">⬆</div><h3>She updates herself</h3><p>On start and on exit she checks GitHub for a new version and asks whether you want to install it.</p></div>
+  </div>
+  <h2>What you need</h2>
+  <table>
+    <tr><th style="width:44mm">Requirement</th><th>Details</th></tr>
+    <tr><td>Windows 10 or 11</td><td>64-bit. The installer uses components Windows already has.</td></tr>
+    <tr><td>Microphone</td><td>Any will do. With headphones, Nova doesn't hear herself through the speakers.</td></tr>
+    <tr><td>Internet connection</td><td>For the AI, the neural voices and the game data. Key commands work without it.</td></tr>
+    <tr><td>Python</td><td>You don't need it: if it's missing, the installer downloads Python 3.12 just for Nova.</td></tr>
+    <tr><td>NVIDIA card <span class="dim">(optional)</span></td><td>Speeds up local speech recognition (Whisper). Without one, the processor or the cloud is used.</td></tr>
+    <tr><td>AI keys</td><td>Free and in 2 minutes (section 11). Some installer versions already include trial keys.</td></tr>
+  </table>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 02 INSTALACIÓN 1 -->
+<section id="cap-02" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">02 · Installation</span></div>
+  <h1><span class="num">02</span>Installation</h1>
+  <p class="lead">A single file, <b>NOVA AI Setup.exe</b>, installs everything in a few minutes: the program, Python if needed, the voices and the shortcuts.</p>
+  <div class="row">
+    <div>
+      <h3><span class="step-n">1</span>Open the installer</h3>
+      <p>Double-click <b>NOVA AI Setup.exe</b> (the icon with the arrow). Windows will ask for administrator permission because it installs into <code>C:\Program Files\NOVA AI</code>: click <b>Yes</b>.</p>
+      <h3><span class="step-n">2</span>Choose the language and accept the terms</h3>
+      <p>First comes the <b>language</b> (español, English, català, français or Deutsch; your Windows language is preselected). Then the <b>Terms of use and Privacy policy</b> in that language. Read them, tick <b>"I have read and accept"</b> and click <b>ACCEPT AND CONTINUE</b>. Nothing is installed unless you accept them.</p>
+    </div>
+    <div class="warnb"><span class="t">"WINDOWS PROTECTED YOUR PC"</span>The installer isn't signed with a paid certificate, so the first time SmartScreen may warn you. Click <b>More info → Run anyway</b>.</div>
+  </div>
+  <figure><img src="img/inst_normas.jpg"><figcaption><b>The terms of use</b> (after choosing the language). Recreation of the design; the full text is in <code>NORMAS_Y_PRIVACIDAD.en.md</code>.</figcaption></figure>
+  <h3><span class="step-n">3</span>Check the diagnosis and press START</h3>
+  <p>The installer checks Python, your graphics card, free space and the connection. You can change the folder with <b>CHANGE…</b> and choose options: NVIDIA acceleration, offline voice (Piper), desktop shortcut and starting Nova when it finishes. Then press <b>◆ START INSTALLATION SEQUENCE</b>.</p>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 02 INSTALACIÓN 2 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">02 · Installation</span></div>
+  <h3><span class="step-n">4</span>Wait for it to finish</h3>
+  <p>You'll see each step with its status, the percentage, the download speed and the <b>time remaining</b>. If something fails, the <b>Retry</b> and <b>View log</b> buttons appear.</p>
+  <figure class="c" style="width:140mm"><img src="img/inst_secuencia.jpg"><figcaption><b>Installation sequence</b> in progress (recreation of the design).</figcaption></figure>
+  <h3><span class="step-n">5</span>Ready for take-off!</h3>
+  <p>When it finishes you'll have the <b>NOVA AI</b> shortcut on the desktop and in the Start menu. The first time you open it, the first-time setup begins (section 03).</p>
+  <figure class="c" style="width:95mm"><img src="../img/iconos.jpg"><figcaption><b>The three icons:</b> NOVA AI (the program), the installer (arrow) and the uninstaller (red cross).</figcaption></figure>
+  <div class="g2">
+    <div class="card"><h3>Where everything goes</h3><ul class="d small">
+      <li><b>Program:</b> <code>C:\Program Files\NOVA AI</code></li>
+      <li><b>Your data</b> (settings, memory, logbooks, keys): <code>%LOCALAPPDATA%\NOVA AI\datos</code></li>
+      <li>Updating or uninstalling <b>doesn't delete your data</b> unless you tick that option.</li></ul></div>
+    <div class="card"><h3>Updating or uninstalling</h3><ul class="d small">
+      <li><b>Update:</b> NOVA lets you know by herself when there's a new version (next page). You can also open the new version's <b>NOVA AI Setup.exe</b>. Everything of yours is kept.</li>
+      <li><b>Uninstall:</b> Start menu › NOVA AI › <b>Uninstall NOVA AI</b>, or Settings › Apps.</li></ul></div>
+  </div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 02 INSTALACIÓN 3: ACTUALIZACIONES -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">02 · Automatic updates</span></div>
+  <h2>Automatic updates</h2>
+  <p>On <b>start</b> and on <b>exit</b>, NOVA checks GitHub (github.com/0zzyt0/NOVA-AI) for a new version. If there is one, she tells you on screen and out loud:</p>
+  <figure class="c" style="width:150mm"><img src="img/v12_actualizacion.jpg"><figcaption>The notice, with what's new in that version.</figcaption></figure>
+  <ul class="small">
+    <li><b>YES:</b> downloads the official installer for that version, checks that it's complete and that it's the published one (size and SHA-256 fingerprint) and opens it in update mode. Windows asks for permission, the installation starts by itself and NOVA reopens already updated.</li>
+    <li><b>NO:</b> you keep your version; she won't ask again in that session.</li>
+    <li><b>ON EXIT:</b> downloads it now and installs it when you close NOVA, without reopening it.</li>
+  </ul>
+  <p class="small">You can also answer by voice: <span class="say">"yes"</span>, <span class="say">"no"</span> or <span class="say">"on exit"</span>. If you don't answer and close NOVA, she asks you in a window as you leave. Your data, settings and commands are always kept. If you already accepted that version's terms, the installer doesn't ask for them again.</p>
+  <figure class="c" style="width:150mm"><img src="img/n_datos_actualizaciones.jpg"><figcaption><b>Settings › NOVA AI updates:</b> turn the check on or off and look for updates by hand.</figcaption></figure>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 03 CONFIG 1 -->
+<section id="cap-03" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">03 · First-time setup</span></div>
+  <h1><span class="num">03</span>First-time setup</h1>
+  <p class="lead">The first time, Nova opens a 7-step wizard. You can answer by <b>speaking</b> (microphone button) or by <b>typing</b>. Each answer is marked with a <span class="ok">green ✓</span> if she understood you; if a <span class="bad">red ✕</span> appears, say it again.</p>
+  <div class="row"><figure><img src="img/w_wiz1_micro.jpg"></figure><div>
+    <h3><span class="step-n">1</span>Microphone</h3>
+    <p>Choose your microphone and speak: the meter on the left should move. Paste your Groq key here if you have one (section 11); it's optional.</p></div></div>
+  <div class="row"><figure><img src="img/w_wiz2_juego.jpg"></figure><div>
+    <h3><span class="step-n">2</span>Your game</h3>
+    <p>Nova looks for your Star Citizen <code>LIVE</code> folder and its language. If the game isn't in your language, you can install the community translation later from <b>Data &amp; memory › Game language</b> (section 09).</p>
+    <p class="small dim">Can't find the game? Click <b>Choose folder</b> and point to your StarCitizen folder.</p></div></div>
+  <div class="row"><figure><img src="../img/w_wiz2_ok.jpg"></figure><div>
+    <h3><span class="step-n">2</span>Translation installed</h3>
+    <p>In Spanish, with <b>Yes, download and install it</b> she downloads the 0zzyt0 translation, copies it into <code>LIVE</code> and sets your <code>user.cfg</code> to Spanish (the game's voices stay in English). Before that she saves a copy: <code>user.cfg.nova_copia</code>.</p></div></div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 03 CONFIG 2 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">03 · First-time setup</span></div>
+  <div class="row" style="grid-template-columns:68mm 1fr;margin-bottom:3.5mm"><figure><img src="img/w_wiz3_piloto.jpg"></figure><div>
+    <h3><span class="step-n">3</span>What's your name?</h3>
+    <p>Say <span class="say">"My name is Anthony"</span> or type it, and choose how you want her to address you: sir, captain, by your name…</p></div></div>
+  <div class="row" style="grid-template-columns:68mm 1fr;margin-bottom:3.5mm"><figure><img src="img/w_wiz4_nombre.jpg"></figure><div>
+    <h3><span class="step-n">4</span>What do you want to call me?</h3>
+    <p>Any name you like: Nova, Athena, Jarvis… She warns you if it's too short or a common word, because she'd wake up by accident. Two or three syllables work best.</p></div></div>
+  <div class="row" style="grid-template-columns:68mm 1fr;margin-bottom:3.5mm"><figure><img src="img/w_wiz5_ejercicios.jpg"></figure><div>
+    <h3><span class="step-n">5</span>Sound exercises</h3>
+    <p>Click <b>Hear how it sounds</b> and then <b>say only her name</b> three times. If speech recognition writes it differently ("A Tina" instead of "Athena"), Nova learns it.</p></div></div>
+  <div class="row" style="grid-template-columns:68mm 1fr;margin-bottom:3.5mm"><figure><img src="img/w_wiz6_frases.jpg"></figure><div>
+    <h3><span class="step-n">6</span>Training phrases</h3>
+    <p>Read aloud 3 Star Citizen phrases that start with her name. They come up <b>at random</b>: one with many vowels in a row (to catch your vocalisation), another with tricky consonants and another that mixes both. That's how she adjusts the sensitivity to your voice and your room's noise.</p></div></div>
+  <div class="row" style="grid-template-columns:68mm 1fr;margin-bottom:0"><figure><img src="img/w_wiz7_listo.jpg"></figure><div>
+    <h3><span class="step-n">7</span>Systems online</h3>
+    <p>A summary of everything. Click <b>◆ Finish and take off</b>.</p>
+    <div class="tip"><span class="t">DO IT AGAIN</span>You can repeat it whenever you like from <b>Nova › Identity &amp; language › Repeat setup</b>.</div></div></div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 04 VENTANA -->
+<section id="cap-04" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">04 · The Nova window</span></div>
+  <h1><span class="num">04</span>The Nova window</h1>
+  <p class="lead">Nova opens in a window of her own. <b>If you close it, Nova stays in the Windows tray</b>, next to the clock (section 10). When you open it again it restores the conversation, the section and the window size.</p>
+  <figure class="anno c" style="width:112mm"><img src="img/cabina.jpg">
+    <span class="m" style="left:9.4%;top:21%">1</span><span class="m" style="left:34%;top:3.8%">2</span>
+    <span class="m" style="left:36%;top:23.5%">3</span><span class="m" style="left:36%;top:91.2%">4</span>
+    <span class="m" style="left:91%;top:20%">5</span><span class="m" style="left:98%;top:39.5%">6</span>
+    <span class="m" style="left:98.7%;top:52.2%">7</span><span class="m" style="left:98.7%;top:75.4%">8</span>
+    <span class="m" style="left:17.7%;top:75.1%">9</span><span class="m" style="left:17.7%;top:91.8%">10</span>
+    <span class="m" style="left:95.9%;top:6.8%">11</span>
+  </figure>
+  <div class="legend">
+    <div><span class="k">1</span><span><b>Menu:</b> Cockpit, the Manual and the Settings, organised by task.</span></div>
+    <div><span class="k">2</span><span>Open <b>section</b> and systems status.</span></div>
+    <div><span class="k">3</span><span><b>Transmissions:</b> what you say, what she answers and the game alerts.</span></div>
+    <div><span class="k">4</span><span><b>Type to Nova</b> instead of speaking.</span></div>
+    <div><span class="k">5</span><span><b>Hologram:</b> standing by, listening, thinking, speaking…</span></div>
+    <div><span class="k">6</span><span><b>Hold to talk</b>, mute and the <b>NOVA ACTIVE</b> switch (stop her).</span></div>
+    <div><span class="k">7</span><span><b>Timers</b> for refining and contracts.</span></div>
+    <div><span class="k">8</span><span><b>Status:</b> location, contracts, servers…</span></div>
+    <div><span class="k">9</span><span><b>Quick access:</b> listen for her name without a key, the overlay and game comments.</span></div>
+    <div><span class="k">10</span><span><b>Status</b> and microphone meter, with the <b>MUTE</b> button in the corner (green = Nova isn't listening).</span></div>
+    <div><span class="k">11</span><span><b>Shut down</b> Nova completely (window, overlay and listening).</span></div>
+  </div>
+  <p class="small" style="margin-top:2.5mm">Everything fits without scrollbars: if the window is short, the hologram shrinks and <b>Status</b>, <b>Timers</b> and <b>Quick access</b> fold away by themselves (folded, they show a summary such as "2 active"). Click their header to open or fold them; Nova remembers it.</p>
+  <h2>The menu</h2>
+  <table class="small">
+    <tr><th style="width:40mm">Section</th><th>What you'll find</th></tr>
+    <tr><td>📖 Read the Manual</td><td>Below Cockpit: opens this manual in your browser (in your language).</td></tr>
+    <tr><td>Ship &amp; commands</td><td>Voice commands, game reading (Game.log) and keys, ship profiles and game chat.</td></tr>
+    <tr><td>Nova</td><td>Identity &amp; language, voice, microphone, how to talk to her, audio output, intelligence and token saving.</td></tr>
+    <tr><td>Overlay &amp; holograms</td><td>The status logo and the holograms over the game, their sounds and the effects level.</td></tr>
+    <tr><td>Data &amp; memory</td><td>Lookup pages, Dictionary, what she knows about you, logbooks, Discord and the game language.</td></tr>
+    <tr><td>Settings</td><td>Language, updates, the Windows tray, your files, About and starting from scratch.</td></tr>
+  </table>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 05 CABINA -->
+<section id="cap-05" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">05 · Cockpit and how to talk to her</span></div>
+  <h1><span class="num">05</span>Cockpit and how to talk to her</h1>
+  <p class="lead">The Cockpit is the record of everything you say to Nova and her answers. Under each answer you'll see which AI engine produced it (for example, <i>via gemini-flash-lite-latest</i>).</p>
+  <h2>Three ways to talk to her</h2>
+  <div class="g3">
+    <div class="feat"><div class="i">⌨</div><h3>With a key</h3><p>Hold <kbd>Insert</kbd> while you speak and let go. You can change it to any key, mouse button or HOTAS button.</p></div>
+    <div class="feat"><div class="i">🗣</div><h3>By her name</h3><p><span class="say">"Nova, lower the landing gear"</span>. If you only say "Nova", she answers "Yes, sir?" and waits for the order.</p></div>
+    <div class="feat"><div class="i">✎</div><h3>By typing</h3><p>Use the Cockpit text box and click <b>SEND</b>. Ideal when you're in a Discord voice call.</p></div>
+  </div>
+  <h2>Examples of what you can ask her</h2>
+  <table class="small">
+    <tr><th style="width:52mm">Type</th><th>Phrases</th></tr>
+    <tr><td>Manoeuvres</td><td><span class="say">"lower the landing gear"</span> · <span class="say">"request landing"</span> · <span class="say">"VTOL mode"</span> · <span class="say">"quantum jump"</span></td></tr>
+    <tr><td>Systems</td><td><span class="say">"shields on"</span> · <span class="say">"main power"</span> · <span class="say">"open the doors"</span> · <span class="say">"lights"</span></td></tr>
+    <tr><td>Game information</td><td><span class="say">"where can I mine quantainium?"</span> · <span class="say">"how much does laranite sell for?"</span> · <span class="say">"blueprints for a pistol in Pyro"</span></td></tr>
+    <tr><td>Your session</td><td><span class="say">"where am I?"</span> · <span class="say">"where did I leave my character?"</span> · <span class="say">"who boarded the ship?"</span></td></tr>
+    <tr><td>Memory</td><td><span class="say">"remember that my favourite ship is the Cutlass"</span> · <span class="say">"forget about the Cutlass"</span></td></tr>
+    <tr><td>Players and planets</td><td><span class="say">"look up a player"</span> · <span class="say">"tell me about Daymar"</span> · <span class="say">"what is Security Post Kareah?"</span></td></tr>
+    <tr><td>Timers</td><td><span class="say">"remind me in 3 hours and 20 minutes, the ARC-L1 refinery"</span> · <span class="say">"what timers do I have?"</span></td></tr>
+    <tr><td>Trade and servers</td><td><span class="say">"which route pays most with 100,000 aUEC?"</span> · <span class="say">"how are the servers?"</span></td></tr>
+    <tr><td>Combat and statistics</td><td><span class="say">"pin the target"</span> (goes into the logbook) · <span class="say">"how many kills this month?"</span></td></tr>
+    <tr><td>Controlling Nova</td><td><span class="say">"Nova, stop"</span> or <span class="say">"deactivate"</span> (stops her) · <span class="say">"Nova, activate"</span> · <span class="say">"silence"</span> or <span class="say">"quiet"</span> (she stops talking)</td></tr>
+    <tr><td>About Nova</td><td><span class="say">"Who are you?"</span> · <span class="say">"Introduce yourself"</span> · <span class="say">"What can you do?"</span> · <span class="say">"Open the manual"</span></td></tr>
+    <tr><td>Game chat</td><td><span class="say">"Nova, send a message to chat: anyone need an escort?"</span> (she translates it if needed and types it)</td></tr>
+  </table>
+  <div class="warnb"><span class="t">SYSTEMS ARE TOGGLES</span>"Shields on" and "shields off" press the same key: Nova can't see the real state of the ship. If they were already on, "shields on" switches them off.</div>
+  <div class="tip"><span class="t">INTERRUPT HER</span>If you press your talk key while Nova is speaking, she stops at once. The 🔇 button in the Cockpit does the same.</div>
+  <div class="tip"><span class="t">THE GOLDEN RULE OF HUMOUR</span>If Nova doesn't know something, she sometimes makes it up with a bit of wit… and owns up to it at the end. You can turn this off in <b>Nova › Intelligence › Personality</b>.</div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 05 CABINA 2 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">05 · Cockpit</span></div>
+  <h2>Inside the Cockpit</h2>
+  <figure class="c" style="width:150mm"><img src="img/c_cabina.jpg"><figcaption><b>Cockpit:</b> transmissions (left), Nova's status, timers and status (right).</figcaption></figure>
+  <div class="g2">
+    <div class="card"><h3>Transmissions</h3><ul class="d small">
+      <li>Everything you say and everything Nova answers, with the game (📡) and system alerts.</li>
+      <li>Player and planet <b>cards</b> appear in a golden frame.</li>
+      <li><b>🧹 CLEAR</b> empties the Cockpit whenever you like (memory and the logbook aren't touched).</li></ul></div>
+    <div class="card"><h3>Timers</h3><ul class="d small">
+      <li>For refining (⚗), contracts (📜) or anything else (⏰). Create them by voice or type the reason and the duration (<code>90</code>, <code>1:30</code> or <code>2h30</code>) and click <b>＋</b>.</li>
+      <li><b>They keep running even if you close NOVA</b>: if they finish while she's closed, she tells you when you come back. ✕ cancels.</li></ul></div>
+  </div>
+  <div class="row" style="grid-template-columns:52mm 1fr;gap:6mm">
+    <figure><img src="img/n_cabina_power_off.jpg"><figcaption>Nova <b>stopped</b>.</figcaption></figure>
+    <div><div class="card"><h3>NOVA ACTIVE switch</h3><ul class="d small">
+      <li><b>Switch it off</b> to stop her at once: it cancels searches in progress (players, AI, bounties), she stops talking, removes the hologram and ignores orders. The overlay turns red.</li>
+      <li><b>Switch it on</b> (or say <span class="say">"Nova, activate"</span>) to bring her back. By voice too: <span class="say">"Nova, stop"</span>.</li>
+      <li>While she's stopped she keeps writing the logbook and timers keep counting.</li></ul></div>
+    <div class="card"><h3>Status</h3><p class="small">Where you are, your active contracts, the overlay and <b>RSI servers</b>: when NOVA starts she checks <b>status.robertsspaceindustries.com</b> and warns you about outages or maintenance.</p></div></div>
+  </div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 05 CABINA 3: JUGADORES -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">05 · Looking up players</span></div>
+  <h2>Looking up a player</h2>
+  <ol class="small" style="padding-left:6mm">
+    <li>Say <span class="say">"Nova, find me a player"</span> or <span class="say">"look up a player"</span>.</li>
+    <li>Nova asks you to <b>type the handle</b> in the Cockpit text box (it turns yellow): that way there are no pronunciation mistakes. You have 3 minutes.</li>
+    <li>Type the handle (for example <code>Nebula_Rider</code>) and press <kbd>Enter</kbd>. If you say it all at once (<span class="say">"look up the player Nebula_Rider"</span>), step 2 is skipped.</li>
+  </ol>
+  <div class="row" style="grid-template-columns:1fr 70mm">
+    <figure><img src="img/n_cabina_ficha.jpg"><figcaption>The card in the Cockpit.</figcaption></figure>
+    <div><p class="small">Nova reads their public record on robertsspaceindustries.com: <b>in-game name</b>, <b>handle</b>, <b>UEE Citizen Record</b>, <b>enlistment date</b>, <b>languages</b> and <b>main organisation</b>, and then that organisation's page (members, type, activity). Their <b>police record also appears as a hologram</b> on top of the game (section 08).</p>
+    <p class="small">If some data is hidden (RSI shows it as <b>[REDACTED]</b>), Nova tells you that information is hidden.</p></div>
+  </div>
+  <div class="warnb"><span class="t">IF SHE CAN'T FIND THEM</span>On any error, or if the record doesn't give the data, Nova says: <b>"User not found. Is the handle spelled correctly?"</b>.</div>
+  <div class="g2">
+    <div class="card"><h3>In the logbook</h3><p class="small">Every search is saved in <b>Data &amp; memory › Logbook &amp; statistics</b>, in the file <code>Busquedas_de_jugadores.log</code>: <i>date · time · player · organisation</i>.</p></div>
+    <div class="card"><h3>On Discord</h3><p class="small">With a webhook in <b>Data &amp; memory › Discord &amp; servers</b>, Nova asks "Shall I send it to Discord?" and, if you say or type <b>"yes"</b> within 30 seconds, she posts it to that channel (bounty targets in red). The Cockpit tells you whether it arrived.</p></div>
+  </div>
+  <h3>Bounty targets</h3>
+  <p class="small">When you accept a bounty hunter or PvP mission (or when <i>"New objective: Neutralise XX"</i> appears), Nova asks "Shall I look up their RSI record?" and only looks it up if you say <b>"yes"</b>. If they have a record they're a <b>player</b>: an alert sounds and their card appears <b>in red</b> with the "BOUNTY TARGET" stamp. If not, she tells you it's an <b>NPC pilot</b>. Both cases go into the player search log.</p>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 06 JUEGO 1 -->
+<section id="cap-06" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">06 · Ship &amp; commands</span></div>
+  <h1><span class="num">06</span>Ship &amp; commands</h1>
+  <p class="lead">Everything to do with Star Citizen: what Nova reads from the game and tells you out loud, your keys and the voice commands that press keys for you.</p>
+  <figure class="c" style="width:148mm"><img src="img/c_juego.jpg"><figcaption><b>Game:</b> Game.log reading (left) and Star Citizen keys (right).</figcaption></figure>
+  <div class="g2">
+    <div class="card"><h3>Game reading (Game.log)</h3><ul class="d small">
+      <li><b>Read the Game.log:</b> Nova follows your session (she only reads the file; she doesn't touch the game).</li>
+      <li><b>Comment on events out loud:</b> arrivals, ATC, money, contracts, injuries…</li>
+      <li><b>AI comments:</b> funnier and more varied, but they spend quota.</li>
+      <li><b>What she tells you out loud:</b> tick only the kinds of alert you want to hear.</li>
+      <li>She detects <b>bounty targets</b> and when you get close to a <b>planet, moon or place</b> (for their holograms).</li>
+      <li><b>Press keys only with the game in front</b>, <b>delay between keys</b> and <b>cautious mode</b> (on by default: no waits or mouse inside sequences and keys held for 3 s at most, to respect the RSI Terms of Service on macros).</li></ul></div>
+    <div class="card"><h3>Star Citizen keys</h3><ul class="d small">
+      <li>Nova reads your <code>actionmaps.xml</code> on start and <b>uses your own keys</b>.</li>
+      <li>Create commands for the new actions you gave a key to.</li>
+      <li>She warns you about actions you only have on the joystick: Nova can't press HOTAS buttons, so give them a key too.</li>
+      <li><b>⟳ Sync now</b> if you change controls while Nova is open.</li></ul></div>
+  </div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 06 JUEGO 2 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">06 · Ship &amp; commands</span></div>
+  <h2>Voice commands</h2>
+  <p>The list of commands grouped by category (takeoff and landing, power and systems, weapons, mining…). Each one shows its phrases and keys. You can search them by name, phrase or key.</p>
+  <div class="g2">
+    <figure><img src="img/c_juego_comandos.jpg"><figcaption><b>Command list:</b> ▶ test, ✎ edit, 🗑 hide.</figcaption></figure>
+    <figure><img src="img/c_editor.jpg"><figcaption><b>Command editor:</b> ＋ NEW COMMAND.</figcaption></figure>
+  </div>
+  <h2>Creating your own command</h2>
+  <ol class="small" style="padding-left:6mm">
+    <li>Click <b>＋ NEW COMMAND</b> (or ✎ on an existing one).</li>
+    <li>Give it a <b>name</b> and the <b>voice phrases</b> you want, one per line. Those phrases run instantly, without AI.</li>
+    <li>Click <b>● RECORD</b> and <b>press the combination on your keyboard</b> (for example <kbd>Right Ctrl</kbd> + <kbd>Num 8</kbd>). Even AltGr, the numeric keypad and keys specific to your keyboard are recorded.</li>
+    <li>For a sequence, add steps: <b>＋ Key</b>, <b>＋ Mouse click</b> or <b>＋ Wait</b>. Each key can be held for a few seconds or be a double press. With the cautious key mode on, waits and mouse clicks inside sequences are skipped and keys are held for 3 s at most.</li>
+    <li><b>＋ Game action</b> links the step to a Star Citizen action: if you change that key in the game, Nova updates it by herself (⟳).</li>
+    <li><b>▶ Test in 3 s</b> gives you time to switch to the game. Then click <b>Save</b>.</li>
+  </ol>
+  <p class="small"><b>Only in these ships</b> limits a command to certain ships (and allows the same phrase with different keys in each one). <b>Note it in the logbook</b> records it with the ship and the place, like <span class="say">"pin the target"</span>.</p>
+  <div class="g2">
+    <div class="tip"><span class="t">EXACT PHRASE ONLY</span>Turn it on for sensitive commands: the AI will never run them on its own. That's how "eject cargo" is protected.</div>
+    <div class="tip"><span class="t">YOUR COMMANDS ARE SAFE</span>They're saved separately (<code>comandos_personales.json</code>): updates don't delete them. ↺ restores a built-in command.</div>
+  </div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 06 JUEGO 3 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">06 · Ship &amp; commands</span></div>
+  <h2>Ship profiles</h2>
+  <p>Each ship can have <b>its own spoken alerts</b>: for example, no party or money alerts in the MOLE. Nova knows which ship you're in from the Game.log. Type or choose the ship, click <b>＋ CREATE PROFILE</b> and tick what you want to hear in it; what differs from the general alerts is shown in yellow. The profile of the ship you're in is marked <b>IN USE</b>.</p>
+  <figure class="c" style="width:150mm"><img src="img/n_juego_perfiles.jpg"><figcaption><b>Ship &amp; commands › Ship profiles.</b></figcaption></figure>
+  <h2>Pinning the target</h2>
+  <p>The Game.log doesn't record when you pin a target ("tagging" an enemy). If you ask her by voice (<span class="say">"Nova, pin the target"</span>, <span class="say">"mark the target"</span>), Nova presses the key and notes it in the logbook (label <b>TARGET</b>) with the ship and the place.</p>
+  <h2>Trade routes</h2>
+  <p><span class="say">"Nova, which route pays most with 100,000 aUEC?"</span>: with UEX prices she works out how many SCU to buy for the cargo hold of the ship you're in (or the one you name), the stock at the origin, the demand at the destination and your money, and sorts by <b>real profit</b>. If she doesn't know your ship she uses the <b>Default cargo hold</b> in Data &amp; memory.</p>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 06 JUEGO 4: CHAT -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">06 · Ship &amp; commands</span></div>
+  <h2>Messages to the game chat</h2>
+  <p>Type in the Star Citizen chat without letting go of the controls, and in English even if you speak to her in another language:</p>
+  <ol class="small" style="padding-left:6mm">
+    <li>Say <span class="say">"Nova, send a message to chat"</span>. Nova asks what message to send.</li>
+    <li>Say the message (no need to repeat her name): <span class="say">"anyone need an escort to Daymar?"</span>. Or say it all in one go: <span class="say">"Nova, send a message to chat: anyone need an escort to Daymar?"</span>.</li>
+    <li>Nova translates it with <b>Google Translate</b> (free, no AI quota) and does what you would do: <kbd>F12</kbd> + <kbd>Enter</kbd> to open the chat and type, the letters key by key, and <kbd>Enter</kbd> + <kbd>F12</kbd> to send it and close the chat.</li>
+  </ol>
+  <figure class="c" style="width:112mm"><img src="img/n_cabina_chat.jpg"><figcaption>The Cockpit keeps what was sent and the original.</figcaption></figure>
+  <figure class="c" style="width:150mm"><img src="img/n_juego_chat.jpg"><figcaption><b>Ship &amp; commands › Game chat.</b></figcaption></figure>
+  <div class="g2">
+    <div class="card"><h3>Settings</h3><ul class="d small">
+      <li><b>Keys</b> to open the chat (F12), start typing (Enter) and close it (F12), and the <b>wait</b>.</li>
+      <li><b>Translate into</b> English (or French, German, Italian, Portuguese; or no translation).</li>
+      <li><b>Read the translation before sending it</b>: Nova reads it to you and waits for your <span class="say">"yes"</span>.</li>
+      <li><b>How she types it:</b> "Keys, letter by letter" (the one that works in Star Citizen: the chat doesn't accept pasting) and its <b>speed</b>.</li></ul></div>
+    <div class="card"><h3>Test</h3><p class="small">Type a message and click <b>TRANSLATE</b> to see the translation, or <b>SEND TO GAME (5 s)</b> and go back to Star Citizen: it's typed after 5 seconds. <span class="say">"Cancel"</span> cancels a pending message. Every message goes into the logbook (label <b>CHAT</b>).</p></div>
+  </div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 07 VOZ -->
+<section id="cap-07" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">07 · Nova › Voice</span></div>
+  <h1><span class="num">07</span>Nova: voice, hearing and intelligence</h1>
+  <p class="lead"><b>Nova</b> has everything about her, in tabs: <b>Identity &amp; language</b>, <b>Voice</b>, <b>Microphone</b>, <b>How to talk to her</b>, <b>Audio output</b>, <b>Intelligence</b> and <b>Token saving</b>. We start with how she sounds. All the voices are free: Edge voices are the most natural and Piper voices work offline.</p>
+  <figure><img src="img/c_voz.jpg"><figcaption><b>Nova › Voice:</b> engine, voice and fine settings. <b>▶ Test voice</b> plays it (click again to stop it).</figcaption></figure>
+  <table>
+    <tr><th style="width:38mm">Engine</th><th>What it's like</th><th style="width:30mm">Internet</th></tr>
+    <tr><td>Edge</td><td>Microsoft neural voices, very natural. The list only shows the ones for your language; the <i>Multilingual</i> ones are more expressive.</td><td>Yes</td></tr>
+    <tr><td>Piper</td><td>Good quality and offline. The voice downloads by itself the first time.</td><td>No</td></tr>
+    <tr><td>Windows</td><td>The system voice, as a last resort.</td><td>No</td></tr>
+  </table>
+  <div class="g2">
+    <div class="card"><h3>Settings</h3><ul class="d small">
+      <li><b>Speed, pitch and volume</b> with their sliders.</li>
+      <li><b>"Cockpit AI" effect:</b> gives her that ship-radio touch.</li></ul></div>
+    <div class="okb"><span class="t">SHE ALWAYS SPEAKS</span>If the chosen engine fails (for example, without internet), Nova switches to the next one by herself.</div>
+  </div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 08 INTERFAZ 1 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">07 · Nova</span></div>
+  <h2>Microphone and How to talk to her</h2>
+  <p class="lead">How you communicate with Nova: the <b>Microphone</b> and <b>How to talk to her</b> tabs.</p>
+  <div class="g2">
+    <figure><img src="img/c_interfaz_mic.jpg"><figcaption><b>Microphone and recognition.</b></figcaption></figure>
+    <figure><img src="img/c_interfaz_hablar.jpg"><figcaption><b>How to talk to her.</b></figcaption></figure>
+  </div>
+  <div class="g2">
+    <div class="card"><h3>Microphone and recognition</h3><ul class="d small">
+      <li><b>Microphone</b> and its live meter.</li>
+      <li><b>Sensitivity:</b> raise it if you speak softly, lower it if she triggers by herself.</li>
+      <li><b>Gain</b> (×1 to ×8): amplifies the signal if your microphone comes in very low. Above it you can see which microphone is open and whether only silence arrives (for example, a muted headset).</li>
+      <li><b>Silence to end the sentence:</b> how long she waits before considering the sentence finished.</li>
+      <li><b>Engine:</b> <i>Automatic</i> uses Groq (cloud, super fast) if there's a key; otherwise Whisper on your PC.</li>
+      <li><b>Local model:</b> <code>small</code> without NVIDIA; <code>large-v3-turbo</code> with NVIDIA.</li></ul></div>
+    <div class="card"><h3>How to talk to her</h3><ul class="d small">
+      <li><b>Key or button to talk:</b> click <b>Assign</b> and press the key, mouse button or HOTAS button.</li>
+      <li><b>Listen for "Nova…" without a key:</b> turn it on to call her by her name.</li>
+      <li><b>Other ways to call her</b>, such as "computer".</li>
+      <li><b>How she hears her name in your voice:</b> the learned forms; <b>Forget</b> removes the ones that trigger her by accident.</li></ul></div>
+  </div>
+  <div class="warnb"><span class="t">GROQ QUOTA</span>With "Listen without a key", every sentence you say is transcribed to look for her name. With Groq that spends quota; if you play talking a lot on Discord, use only the key.</div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 08 INTERFAZ 2 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">07 · Nova</span></div>
+  <h2>Intelligence</h2>
+  <p class="lead">Nova's brain: her name and yours, the AI engine keys, the order she uses them in and her personality.</p>
+  <div class="row"><figure><img src="img/c_ia.jpg"></figure><div>
+    <h3>Identity</h3>
+    <p><b>AI name</b>, <b>your name</b> and <b>what she calls you</b>. If you change her name, repeat the training with <b>◆ Repeat setup</b> so she recognises it in your voice.</p>
+    <h3>Free keys</h3>
+    <p>Paste your keys here (section 11). If your installer includes trial keys, they'll already be there. A <span class="ok">green</span> dot means there's a key. To use your own, click the field and paste it over (section 11).</p></div></div>
+  <h2>Engine chain</h2>
+  <figure class="c" style="width:140mm"><img src="img/c_ia_claves.jpg"><figcaption><b>Keys and engine chain.</b> TEST checks the key; MODELS downloads the current list of models.</figcaption></figure>
+
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 09 INTELIGENCIA 2 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">07 · Nova</span></div>
+  <p>Nova tries the engines <b>in order</b>: if one runs out of quota or fails, she jumps to the next without you noticing. The built-in order is:</p>
+  <table class="small">
+    <tr><th style="width:10mm">#</th><th style="width:34mm">Provider</th><th>Model</th></tr>
+    <tr><td>01</td><td>Gemini</td><td><code>gemini-flash-lite-latest</code> · fast, lots of free requests</td></tr>
+    <tr><td>02</td><td>Gemini</td><td><code>gemini-3.5-flash-lite</code></td></tr>
+    <tr><td>03</td><td>Groq</td><td><code>openai/gpt-oss-120b</code> · ultra-fast backup</td></tr>
+    <tr><td>04</td><td>OpenRouter</td><td><code>openrouter/free</code> · a variety of free models</td></tr>
+    <tr><td>05</td><td>Mistral</td><td><code>mistral-small-latest</code> · European backup, no credit card</td></tr>
+  </table>
+  <h2>Personality</h2>
+  <figure class="c" style="width:122mm"><img src="img/c_ia_personalidad.jpg"><figcaption><b>Personality:</b> humour, reasoning, conversation memory and confession phrases.</figcaption></figure>
+  <table class="small">
+    <tr><th style="width:52mm">Setting</th><th>What it's for</th></tr>
+    <tr><td>Humour</td><td>From 0 (serious) to 10 (total joker).</td></tr>
+    <tr><td>Reasoning (Gemini)</td><td>Higher = smarter but slower. "Fast" is ideal while flying.</td></tr>
+    <tr><td>Conversation memory</td><td>How many previous turns she remembers in each answer.</td></tr>
+    <tr><td>Make things up when she doesn't know</td><td>On: she makes up the answer with some wit and owns up at the end. Off: she tells you with humour that she doesn't know.</td></tr>
+    <tr><td>Confession phrases</td><td>One per line; she picks one at random. <code>{t}</code> is replaced by what she calls you. <b>Restore the original</b> goes back to the built-in one.</td></tr>
+  </table>
+  <div class="tip"><span class="t">ADDING AN ENGINE TO THE CHAIN</span>In the empty row choose the provider (for example <b>deepseek</b>, if you have its key), type the model or click <b>MODELS</b> to pick it from the list, and check it with <b>TEST</b>. To remove one, set the provider to "—".</div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 09 INTELIGENCIA 3: AHORRO -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">07 · Nova</span></div>
+  <h2>Token saving</h2>
+  <p class="small">Free keys have a daily limit. Nova answers everything she can without the AI:</p>
+  <figure class="c" style="width:132mm"><img src="img/n_ia_ahorro.jpg"><figcaption><b>Nova › Token saving.</b></figcaption></figure>
+  <div class="g2">
+    <div class="card"><h3>Saved answers</h3><p class="small">If the AI answers using only data that doesn't change (ships, weapons, armour and clothing, components, minerals, blueprints, planets…), the answer is saved. The next time you ask the same thing (<span class="say">"what is the Cutlass Black?"</span> or <span class="say">"tell me about the Cutlass Black"</span>) Nova repeats it without spending anything. They expire after 14 days or when the patch changes. Prices, routes, your session and questions that depend on the conversation are never saved.</p></div>
+    <div class="card"><h3>Planets and places without AI</h3><p class="small"><span class="say">"Tell me about Daymar"</span>, <span class="say">"what is Security Post Kareah?"</span>: Nova gets the VerseGuide card, shows it as a hologram and gives you a spoken summary.</p></div>
+    <div class="card"><h3>Free translations</h3><p class="small">Hologram descriptions and chat messages are translated with <b>Google Translate</b>. Only if Google doesn't respond is the AI used (you can turn that off). Translations are saved and never requested again.</p></div>
+    <div class="card"><h3>Shorter conversation</h3><p class="small">Sends less history to the AI (6 turns by default) and trims long answers and search results. Counters, a list of saved answers and buttons to delete them.</p></div>
+  </div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 10 DATOS 1 -->
+<section id="cap-08" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">07 · Nova  ·  08 · Overlay &amp; holograms</span></div>
+  <h2>Audio output</h2>
+  <div class="row"><figure><img src="img/c_interfaz_sonido.jpg"></figure><div>
+    <p>If you have several outputs (speakers, headphones, USB audio interface…), choose where you want to hear Nova. <b>Default</b> uses the Windows one.</p>
+    <p><b>▶ Test the sound</b> to check it.</p>
+    <div class="tip"><span class="t">TIP</span>With headphones, Nova doesn't hear herself through the microphone.</div></div></div>
+  <h1><span class="num">08</span>Overlay &amp; holograms</h1>
+  <p class="small">Everything NOVA draws on top of the game: the <b>status logo</b> and the <b>information holograms</b>, each in its own tab. At the top you choose the <b>effects level</b> (chapter 10).</p>
+  <figure class="c" style="width:74mm"><img src="img/c_interfaz_overlay.jpg"><figcaption><b>Status logo:</b> preview (click a box to move the logo), settings and colours.</figcaption></figure>
+  <div class="g2">
+    <div class="card"><h3>What each colour means</h3><ul class="d small" style="list-style:none">
+      <li><span class="sw" style="background:#20b8e8;color:#20b8e8"></span><b>Blue:</b> listening, thinking or speaking (it only flickers while speaking).</li>
+      <li><span class="sw" style="background:#39e47a;color:#39e47a"></span><b>Green:</b> she understood your order.</li>
+      <li><span class="sw" style="background:#ffc933;color:#ffc933"></span><b>Yellow:</b> searching online.</li>
+      <li><span class="sw" style="background:#ff3b4e;color:#ff3b4e"></span><b>Red:</b> stopped or didn't understand you.</li>
+      <li><span class="sw" style="background:#a35cff;color:#a35cff"></span><b>Purple:</b> searching her physical memory (Lookup dictionary).</li>
+      <li><span class="sw" style="background:#f4f7ff;color:#f4f7ff"></span><b>White:</b> memorising what she has learned.</li></ul></div>
+    <div class="card"><h3>Logo settings</h3><ul class="d small">
+      <li>Position, <b>monitor</b>, resolution, size, idle opacity, brightness and distance from the edge.</li>
+      <li><b>◆ Test on screen</b> goes through every state in 9 s.</li>
+      <li>All six colours can be changed.</li></ul></div>
+  </div>
+  <div class="warnb"><span class="t">BORDERLESS WINDOW</span>The overlay is drawn on top of the game with Star Citizen in <b>"Borderless window"</b>. In exclusive full screen, Windows doesn't allow drawing on top. It doesn't steal focus or clicks.</div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 08 INTERFAZ 4: HOLOGRAMAS -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">08 · Overlay &amp; holograms</span></div>
+  <h2>Information holograms</h2>
+  <p class="small">Hologram cards on top of the game. They appear like a projection (a line of light that opens with a <b>power-on sound</b>), have scan lines while on screen and fold away with a <b>power-off sound</b>.</p>
+  <div class="row" style="grid-template-columns:1fr 1fr;gap:5mm">
+    <figure><img src="img/v12_jugador.jpg"><figcaption>Looked-up <b>player</b>: <b>blue</b> hologram.</figcaption></figure>
+    <figure><img src="img/v12_recompensa.jpg"><figcaption><b>Bounty target</b>: <b>red</b> hologram and an alert.</figcaption></figure>
+  </div>
+  <div class="g2">
+    <div class="card"><h3>UEE police record (blue)</h3><p class="small">When you look up a player: <b>profile picture</b>, in-game name, handle, record number, enlistment date, languages and the <b>organisation with its logo</b>. Whatever the player hides shows as <b>REDACTED</b>.</p></div>
+    <div class="card"><h3>Bounty target (red)</h3><p class="small">If the target of a bounty or PvP mission is a <b>player</b> and you say "yes" to looking them up, a two-tone <b>alert</b> sounds before the card opens, in <b>red</b> and with the <b>BOUNTY TARGET</b> stamp. If it's an NPC pilot, she just tells you.</p></div>
+  </div>
+  <div class="row" style="grid-template-columns:1fr 1fr;gap:5mm">
+    <figure><img src="img/v12_planeta.jpg"><figcaption><b>Planet or moon</b>: the body rotates in 3D.</figcaption></figure>
+    <figure><img src="img/v12_lugar.jpg"><figcaption><b>Planetary location</b>: the beacon marks the spot.</figcaption></figure>
+  </div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 08 INTERFAZ 5: HOLOGRAMAS 2 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">08 · Overlay &amp; holograms</span></div>
+  <div class="g2">
+    <div class="card"><h3>Planets and moons</h3><p class="small"><span class="say">"Nova, tell me about Daymar"</span>. Data from <b>verseguide.com</b>: type, radius, gravity, day length, atmosphere, danger, economy, population, its locations and a description <b>in your language</b>.</p></div>
+    <div class="card"><h3>Planetary locations</h3><p class="small">Caves, outposts, bases, bunkers: <span class="say">"what is Security Post Kareah?"</span> → type, where it is, temperature and description in your language.</p></div>
+  </div>
+  <p class="small"><b>On arrival:</b> when the Game.log shows that you're approaching a planet or moon, or arriving at one of its locations, the card appears by itself (at most once every half hour for the same place).</p>
+  <div class="row" style="grid-template-columns:96mm 1fr;gap:6mm">
+    <figure><img src="img/c_interfaz_holo.jpg"><figcaption><b>Overlay &amp; holograms › Holograms.</b></figcaption></figure>
+    <div><h3>Settings</h3><ul class="d small">
+      <li><b>Opacity</b> (less = more transparent), <b>time on screen</b>, <b>size</b> and <b>position</b>.</li>
+      <li><b>When it appears:</b> when looking up a player, on bounties, when you ask for a planet or place, on arrival.</li>
+      <li><b>Translate the descriptions:</b> VerseGuide is in English; they're translated once per place and saved.</li>
+      <li><b>Look up the target of every bounty:</b> she asks you first; a card if it's a player, a notice if it's an NPC pilot.</li>
+      <li><b>Sound:</b> the one for each moment and its volume (next page).</li>
+      <li>The <b>Test</b> buttons show each card in the preview and on screen; <b>Hide</b> removes it.</li></ul>
+    <div class="tip"><span class="t">CLEAR TEXT</span>Texts are bold with a dark outline so they're easy to read over any game background.</div>
+    <div class="tip"><span class="t">OFFLINE</span>VerseGuide pages are kept for 3 days on your computer; without internet, Nova uses the last copy.</div></div>
+  </div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 08 INTERFAZ 6: SONIDOS -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">08 · Overlay &amp; holograms</span></div>
+  <h2>Hologram sounds</h2>
+  <div class="row" style="grid-template-columns:82mm 1fr;gap:7mm">
+    <figure><img src="img/n_interfaz_sonidos.jpg"><figcaption><b>Overlay &amp; holograms › Holograms › Sound.</b></figcaption></figure>
+    <div>
+      <p class="small">Each hologram makes a sound when it <b>turns on</b> and <b>turns off</b>, and bounty targets have an <b>alert</b> before opening. For each of the three moments you choose:</p>
+      <table class="small">
+        <tr><th style="width:30mm">Moment</th><th>Sounds in the list</th></tr>
+        <tr><td>On power-on</td><td>Holographic projector · Digital pulse · Scanner · Chime · Engine start</td></tr>
+        <tr><td>On power-off</td><td>Holographic projector · Digital pulse · Disconnect · Chime · Engine shutdown</td></tr>
+        <tr><td>Bounty alert</td><td>Two-tone siren · Klaxon · Fast beeps · Proximity alarm · Combat bell</td></tr>
+      </table>
+      <ul class="d small">
+        <li><b>Your own file…</b> or the 📁 button: uses your own audio (WAV, MP3, OGG or FLAC, 4 MB max; cut to 6 seconds). A copy is saved in your data folder.</li>
+        <li><b>No sound</b> to mute just that moment.</li>
+        <li>Each one has its own <b>volume</b> (up to 150 %), plus the <b>master volume</b>. <b>▶</b> plays it.</li>
+      </ul>
+      <div class="tip"><span class="t">WHERE IT PLAYS</span>Through the same output as Nova's voice (<b>Nova › Audio output</b>).</div>
+    </div>
+  </div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 09 INTELIGENCIA 1 -->
+<section id="cap-09" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">09 · Data &amp; memory</span></div>
+  <h1><span class="num">09</span>Data &amp; memory</h1>
+  <p class="lead">Where Nova gets her game information from. On start she checks for new data for your patch before turning anything on.</p>
+  <figure class="c" style="width:128mm"><img src="img/c_datos.jpg"><figcaption><b>Lookup pages</b> with their version and last check, the local encyclopedia and the settings.</figcaption></figure>
+  <table class="small">
+    <tr><th style="width:38mm">Source</th><th>What it provides</th></tr>
+    <tr><td>SCMDB</td><td>Missions, rewards, blueprints, crafting and mining for the LIVE patch.</td></tr>
+    <tr><td>UEX Corp</td><td>Commodity prices, trade routes, ships, items and refineries.</td></tr>
+    <tr><td>Star Citizen Wiki</td><td>Lore, ships, weapons, places and mechanics.</td></tr>
+    <tr><td>Your game's texts</td><td>The <code>global.ini</code>: official names and HUD alerts in your language.</td></tr>
+    <tr><td>RSI</td><td>Public player and organisation records, and server status.</td></tr>
+    <tr><td>VerseGuide</td><td>Planets, moons and planetary locations for the holograms.</td></tr>
+    <tr><td>StarMap</td><td>Planets, stations and places: gravity, temperature, coordinates, services (clinic, landing pads) and minerals.</td></tr>
+  </table>
+  <p class="small"><b>Pages Nova opens in your browser</b> when they're the best source (tell her: <span class="say">"open the item finder"</span>): <b>Universal Item Finder</b> (finder.cstone.space, where to buy each item), <b>SC Ships Performances Viewer</b> (spviewer.eu, ship performance) and <b>SC Haulers</b> (schaulers.com, cargo and route calculators).</p>
+  <div class="tip"><span class="t">LOCAL ENCYCLOPEDIA</span>What Nova checks first, offline and up to date with your patch. Type something in the search box (for example "quantainium") to see what she knows.</div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 10 DATOS 2 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">09 · Data &amp; memory</span></div>
+  <h2>Game language</h2>
+  <figure class="c" style="width:136mm"><img src="img/c_datos_enciclopedia.jpg"><figcaption><b>Encyclopedia</b> searching for "quantainium" and the <b>Game language</b> panel.</figcaption></figure>
+  <div class="g2">
+    <div class="card"><h3>What you can do</h3><ul class="d small">
+      <li><b>Install or update the translation:</b> in Spanish it downloads the latest 0zzyt0 version; in other languages, the community <code>global.ini</code> you choose. It overwrites the files in <code>LIVE</code> after making a backup.</li>
+      <li><b>Choose game folder</b> if Nova can't find it.</li>
+      <li><b>Translation link</b> (Spanish only): shown hidden with asterisks. Paste another Google Drive link to change it; empty = the 0zzyt0 one.</li></ul></div>
+    <div class="card"><h3>Every 3 months</h3><p class="small">Nova asks you <b>"Check and reinstall?"</b>:</p><ul class="d small">
+      <li><b>Yes:</b> downloads it again and overwrites.</li>
+      <li><b>No:</b> does nothing for another 3 months.</li>
+      <li><b>Remind me next session:</b> asks you again when you reopen it.</li></ul></div>
+  </div>
+  <div class="row" style="grid-template-columns:90mm 1fr"><figure><img src="../img/aviso.jpg"><figcaption><b>The 3-month reminder.</b></figcaption></figure>
+    <div class="warnb"><span class="t">RESTART THE GAME</span>If Star Citizen is open while the translation is being installed, restart it to see the new texts. Nova reloads the texts by herself to understand the Game.log in your language.</div></div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 10 DATOS 3 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">09 · Data &amp; memory</span></div>
+  <h2>Servers, Discord and cargo hold</h2>
+  <figure class="c" style="width:150mm"><img src="img/n_datos_servidores.jpg"><figcaption><b>RSI server status</b> and <b>Discord</b>.</figcaption></figure>
+  <div class="g3">
+    <div class="card"><h3>RSI servers</h3><p class="small">When NOVA starts she checks <b>status.robertsspaceindustries.com</b> and warns you about outages or maintenance. <b>Check now</b> looks again. Ask her <span class="say">"how are the servers?"</span>.</p></div>
+    <div class="card"><h3>Discord</h3><p class="small">Paste a channel's webhook (Discord: <b>Edit channel › Integrations › Webhooks</b>): after each card Nova asks whether to send it; with <b>"yes"</b> it's posted with photo and logo, bounty targets too (in red). <b>Send test card</b> posts a sample one and below you see the result of the last post.</p></div>
+    <div class="card"><h3>Default cargo hold</h3><p class="small">The SCU Nova uses to work out trade routes when she doesn't know which ship you're in.</p></div>
+  </div>
+  <h2>NOVA AI updates</h2>
+  <figure class="c" style="width:150mm"><img src="img/n_datos_actualizaciones.jpg"><figcaption>The <b>NOVA AI updates</b> panel.</figcaption></figure>
+  <p class="small">Here you turn the check for new versions on start and on exit on or off, and you can look for one by hand with <b>Check for updates now</b>. How updating works: section 02.</p>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 11 MEMORIA 1 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">09 · Data &amp; memory</span></div>
+  <h2>What she knows about you, and logbooks</h2>
+  <p class="lead">What Nova keeps about you, in three tabs: <b>What the assistant knows about you</b>, <b>Files</b> and <b>Logbook files</b>.</p>
+  <figure class="c" style="width:120mm"><img src="img/c_memoria_sabe.jpg"><figcaption><b>What the assistant knows about you</b> and the <b>Start from scratch</b> area.</figcaption></figure>
+  <div class="g2">
+    <div class="card"><h3>What she knows about you</h3><ul class="d small">
+      <li>Tell her <span class="say">"Nova, remember that…"</span> and she'll always keep it in mind.</li>
+      <li>✕ deletes a memory; <b>Forget everything</b> deletes them all.</li>
+      <li><b>Clear conversation</b> empties the Cockpit history.</li></ul></div>
+    <div class="card"><h3>Start from scratch</h3><ul class="d small">
+      <li>Deletes your name and hers, memories, conversation, logbooks, voice training and settings.</li>
+      <li>Opens the first-time setup again.</li>
+      <li>By default it <b>keeps your AI keys and your commands</b> (untick it if you want).</li></ul></div>
+  </div>
+  <div class="row" style="grid-template-columns:100mm 1fr"><figure><img src="img/c_memoria_archivos.jpg"><figcaption><b>Files.</b></figcaption></figure>
+    <div><h3>Files</h3><p class="small">Everything of yours lives in <code>%LOCALAPPDATA%\NOVA AI\datos</code>. Three buttons:</p><ul class="d small"><li><b>Data folder:</b> opens it in File Explorer.</li><li><b>Log (nova.log):</b> the technical messages, useful if something fails.</li><li><b>Built-in commands:</b> the original list of commands.</li></ul></div></div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 11 MEMORIA 2 BITÁCORA -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">09 · Data &amp; memory</span></div>
+  <h2>Logbook files</h2>
+  <p>Every game session is written to a <code>.log</code> file you can open with Notepad (the last 60 are kept). It comes from the Game.log itself: if you open Nova with the session already started or after playing, she rebuilds the full logbook.</p>
+  <figure class="c" style="width:112mm"><img src="img/c_memoria_bitacora.jpg"><figcaption><b>Session summary</b> and saved logbooks. <b>Open the latest logbook</b> opens it in Notepad.</figcaption></figure>
+  <div class="log">  NOVA AI · LOGBOOK · session of 07/11/2026 21:47
+<span class="b">22:16:51  LOAD</span>         Loading complete: persistent universe in 45 s
+<span class="b">22:21:10  SHIP</span>         You board the Argo MOLE
+<span class="c">22:30:00  COMBAT</span>       You kill an NPC (NineTails, Grunt) with a GATS Ballistic Gatling (gunfire)
+<span class="c">22:30:09  COMBAT</span>       Cutlass Black destroyed by you (pilot: NPC)
+<span class="r">22:30:18  HEALTH</span>       Incapacitated (gunfire)
+<span class="g">22:30:27  HEALTH</span>       Medical bed on the Constellation Taurus: torso and left arm healed</div>
+  <table class="small" style="margin-top:3mm">
+    <tr><th style="width:36mm">Label</th><th>What it records</th></tr>
+    <tr><td>COMBAT</td><td>NPC and player kills (weapon and cause) and ships you destroy or disable.</td></tr>
+    <tr><td>DEATH · DEATHS</td><td>Your deaths (who, with what, cause), other people's and the respawn point.</td></tr>
+    <tr><td>HEALTH</td><td>Injuries, incapacitations with their cause and medical bed healing.</td></tr>
+    <tr><td>LOAD · NETWORK</td><td>Connection, spawning, loading time, stuck loads and network stalls.</td></tr>
+    <tr><td>SHIP · PARTY · TOWER…</td><td>Boarding and leaving ships, who boards yours, party, hangar, contracts, money, purchases, blueprints.</td></tr>
+  </table>
+  <div class="warnb"><span class="t">WHAT THE GAME DOESN'T WRITE</span>Since version 4.0.2 the Game.log only records combat you take part in. And <b>pinning a target</b> ("tagging" an enemy) is never written. That's why, if you ask her by voice (<span class="say">"Nova, pin the target"</span>), Nova presses the key and notes it herself with the ship and the place.</div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 11 MEMORIA 3 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">09 · Data &amp; memory</span></div>
+  <h2>Player searches</h2>
+  <p>Every player you look up (or that Nova looks up for a bounty) is written to <code>Busquedas_de_jugadores.log</code>, in the same logbook folder. It's a single file that isn't deleted with old sessions:</p>
+  <div class="log">  NOVA AI · PLAYER SEARCHES
+  Date · Time · Player · Organisation
+<span class="b">10/11/2026 · 21:04 · Nebula_Rider · Orión Vanguard</span>
+<span class="b">10/11/2026 · 21:37 · Kestrel_77 · no organisation</span>
+<span class="r">10/11/2026 · 22:12 · Ghost_Mako · Black Talon · bounty target</span>
+<span class="g">10/11/2026 · 22:40 · Varek Holt · NPC pilot</span></div>
+  <p class="small">If a session is running, the search also goes into that session's logbook (label <b>PLAYER</b> or <b>TARGET</b>).</p>
+  <h2>Pilot statistics</h2>
+  <figure class="c" style="width:150mm"><img src="img/n_memoria_stats.jpg"><figcaption><b>Data &amp; memory › Logbook &amp; statistics › Pilot statistics.</b></figcaption></figure>
+  <p class="small">Hours, kills, deaths, jumps, contracts and money spent in shops across <b>all</b> your sessions, week by week. <b>Recalculate</b> reads the game's old Game.log files (<code>logbackups</code>) to add what you played before installing Nova. Ask her <span class="say">"how many kills this month?"</span>.</p>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 11 MEMORIA 4: DICCIONARIO -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">09 · Data &amp; memory</span></div>
+  <h2>Lookup dictionary</h2>
+  <p class="small">Nova's <b>physical memory</b>: <code>Diccionario_de_consultas.txt</code>, in your data folder. Sorted by <b>groups</b> (planets and moons, stations, cities, places, ships and vehicles, armour, personal and ship weapons, components, resources and minerals, commodities, clothing, paints, manufacturers…) and within each one in <b>alphabetical order</b>. <b>Variants</b> go together under their family, because they're not the same: Attrition-1 is size 1 and Attrition-5 is size 5.</p>
+  <div class="row" style="grid-template-columns:1fr 1fr;gap:5mm">
+    <div><h3>How she uses it</h3><ol class="small" style="padding-left:6mm;margin:0">
+      <li>You ask her: <span class="say">"tell me about the Attrition"</span>, <span class="say">"what is Laranite?"</span>, <span class="say">"information on CRU-L1"</span>.</li>
+      <li>The overlay turns <b style="color:#a35cff">purple</b>: she's searching the dictionary. If it's there, she answers at once <b>without spending AI</b>.</li>
+      <li>If it isn't, it turns <b style="color:#ffc933">yellow</b> and she looks it up online (starcitizen.tools, translated with Google Translate).</li>
+      <li>What she learns is saved in the dictionary with the overlay in <b>white</b> ("memorising"). Next time she already knows it.</li></ol></div>
+    <figure><img src="img/n_cabina_diccionario.jpg"><figcaption>From the dictionary (Attrition) and learned online (Jalanite).</figcaption></figure>
+  </div>
+  <div class="log" style="font-size:7.4pt">==================== SHIP WEAPONS ====================
+* Attrition (6 variants):
+    - Attrition-1 Repeater: Manufacturer: Hurston Dynamics · … · Size: 1 · …  ‹4.10.2 · 10/11/2026 · game›
+    - Attrition-5 Repeater: Manufacturer: Hurston Dynamics · … · Size: 5 · …  ‹4.10.2 · 10/11/2026 · game›
+==================== RESOURCES AND MINERALS ====================
+* Jalanite: Rare mineral found in some caves… (starcitizen.tools)  ‹4.10.2 · 10/11/2026 · internet›</div>
+  <div class="g2">
+    <div class="card"><h3>It creates itself</h3><p class="small">If it doesn't exist (first installation), Nova creates it, tells you and fills it with the <b>official game texts</b> in your language (the game's global.ini): about 7,000 entries, without spending anything. Each entry carries the <b>patch</b>, the <b>date</b> and its <b>origin</b> (game, internet or AI).</p></div>
+    <div class="card"><h3>It never expires</h3><p class="small">It's kept across versions, when updating and when you "start from scratch", and the uninstaller doesn't delete it. With a new patch or translation, what comes from the game updates by itself. <span class="say">"Nova, update the entry for X"</span> looks it up again.</p></div>
+  </div>
+  <div class="row" style="grid-template-columns:96mm 1fr;gap:5mm">
+    <figure><img src="img/n_memoria_diccionario.jpg"><figcaption><b>Data &amp; memory › Dictionary.</b></figcaption></figure>
+    <div class="tip"><span class="t">YOU'RE IN CHARGE</span>Open it with <b>📖 Open dictionary</b> and change whatever you like with Notepad (keep the format <code>* Name: definition</code>). Nova uses your text and never overwrites it again. <b>Search</b> shows you what she knows about something without asking her.</div>
+  </div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 12 API KEYS 1 -->
+<section id="cap-10" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">10 · Settings &amp; languages</span></div>
+  <h1><span class="num">10</span>Settings &amp; languages</h1>
+  <p class="lead">In <b>Settings</b> you have the language, updates, the Windows tray, your files, <b>About</b> and starting from scratch. Since version 1.3, NOVA AI speaks <b>five languages</b>: Spanish, English, Catalan, French and German.</p>
+  <div class="row"><figure style="width:78mm"><img src="img/n_idioma.jpg"><figcaption><b>Settings › Language</b> (also in <b>Nova › Identity &amp; language</b>).</figcaption></figure><div>
+    <p class="small">Click the card for your language. The window reloads and <b>everything</b> changes: the texts, Nova's voice, what she understands, her voice commands, the holograms and this manual. You can also choose it on the installer's first screen, which suggests the Windows one.</p>
+    <p class="small">Nova always addresses you formally: <i>señor</i>, <i>sir</i>, <i>senyor</i>, <i>monsieur</i>, <i>Herr</i>… (you change it in <b>Nova › Identity &amp; language › What she calls you</b>).</p></div></div>
+  <table class="small">
+    <tr><th style="width:26mm">Language</th><th>"Where can I buy a P4-AR?"</th><th>"Lower the landing gear"</th></tr>
+    <tr><td>English</td><td><span class="say">"Where can I buy a P4-AR?"</span></td><td><span class="say">"Lower the landing gear"</span></td></tr>
+    <tr><td>Català</td><td><span class="say">«On puc comprar un P4-AR?»</span></td><td><span class="say">«Baixa el tren»</span></td></tr>
+    <tr><td>Français</td><td><span class="say">«Où puis-je acheter un P4-AR ?»</span></td><td><span class="say">«Sors le train»</span></td></tr>
+    <tr><td>Deutsch</td><td><span class="say">«Wo kann ich ein P4-AR kaufen?»</span></td><td><span class="say">«Fahrwerk ausfahren»</span></td></tr>
+  </table>
+  <h2>The global.ini for your language</h2>
+  <figure><img src="img/n_datos_gini.jpg"><figcaption><b>Data &amp; memory › Game language.</b></figcaption></figure>
+  <ul class="d small">
+    <li><b>"Add your Language global.ini of Star Citizen [HERE]"</b>: you choose the community file and Nova copies it to <code>LIVE\data\Localization\&lt;language&gt;\global.ini</code>.</li>
+    <li>First she saves whatever was there (<code>global.ini.antes_de_nova</code>), sets <code>g_language</code> in <code>user.cfg</code> and uses it to understand the game's alerts in your language.</li>
+    <li><b>↶ Remove and restore the backup</b> leaves everything as it was.</li></ul>
+  <div class="warnb"><span class="t">SPANISH ONLY</span>The 0zzyt0 translation and its Google Drive download are only offered with NOVA AI in Spanish. Star Citizen only accepts its own language codes: Catalan uses the <code>spanish_(latin_america)</code> slot.</div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">10 · Settings &amp; languages</span></div>
+  <h2>Visual effects</h2>
+  <figure><img src="img/n_efectos.jpg"><figcaption><b>Overlay &amp; holograms › Visual effects.</b> Affects the logo, the holograms and the window itself.</figcaption></figure>
+  <div class="g3">
+    <div class="card"><h3>✦ Cinematic</h3><p class="small">Sparks, scan sweep, chromatic aberration when projected, specks of light and a ring that spins around the logo.</p></div>
+    <div class="card"><h3>◇ Light</h3><p class="small">Soft fades and glow, no particles or flicker. For modest PCs or if you stream.</p></div>
+    <div class="card"><h3>□ No effects</h3><p class="small">Appears and disappears instantly, without animations. The lightest and most readable.</p></div>
+  </div>
+  <h2>Check the pages</h2>
+  <figure><img src="img/n_datos_comprobar.jpg"><figcaption><b>Data &amp; memory › Lookup pages › Check the pages.</b></figcaption></figure>
+  <p class="small">Checks from your PC, <b>without opening the browser</b>, that every page Nova uses responds (UEX, wiki, scmdb, VerseGuide, StarMap, spviewer, CStone, SC Haulers, RSI…). Green: responds · yellow: slow · red: no response.</p>
+  <div class="okb"><span class="t">WITHOUT OPENING THE BROWSER</span>Ask <span class="say">"Where can I buy a P4-AR?"</span> and Nova tells you out loud with UEX data (shops and prices). She only opens a page if you ask her to or answer yes when she offers it.</div>
+  <h2>Files and starting from scratch</h2>
+  <p class="small"><b>Settings › General › Files</b> opens your data folder, the log (<code>nova.log</code>) and the built-in commands. <b>Settings › Start over</b> deletes what Nova has learned about you and goes back to the first-time setup.</p>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 10 NOVEDADES 1.4 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">10 · Tray and sleep mode (1.4)</span></div>
+  <h2>Nova in the Windows tray</h2>
+  <figure class="c" style="width:150mm"><img src="img/v14_bandeja.jpg"><figcaption><b>Settings › General › Window &amp; tray.</b></figcaption></figure>
+  <p class="small">Since version 1.4, when you <b>close the window</b> Nova doesn't shut down: she stays in the <b>Windows tray</b>, next to the clock (sometimes inside the little <b>^</b> arrow). She keeps listening, the overlay stays in the game and timers keep alerting you. The first time, Windows shows a notice so you know where she is.</p>
+  <div class="g3">
+    <div class="card"><h3>Click the icon</h3><p class="small">Opens the window (or brings it to the front if it was already open).</p></div>
+    <div class="card"><h3>Right-click</h3><p class="small"><b>Open NOVA AI</b>, <b>Mute the microphone (MUTE)</b>, <b>Sleep mode</b> and <b>Exit NOVA AI</b>, which closes her completely.</p></div>
+    <div class="card"><h3>⤓ in the header</h3><p class="small">Sends the window to the tray at once. ⏻ still shuts Nova down.</p></div>
+  </div>
+  <div class="tip"><span class="t">PREFER THE OLD WAY?</span>Turn off <b>"Keep running in the tray when the window is closed"</b> and closing the window will close NOVA AI, as in 1.3.</div>
+  <h2>Sleep mode</h2>
+  <div class="row"><figure><img src="img/v14_reposo_cabina.jpg"><figcaption>In sleep mode the core says <b>SLEEP MODE</b> and the <b>☀</b> button wakes her.</figcaption></figure><div>
+    <p class="small" style="margin-top:0">If you go a while without talking to her, Nova <b>rests</b>: she stops listening and the overlay dims, breathing slowly. Timers and game alerts keep working.</p>
+    <ul class="small">
+      <li><b>Put her to sleep:</b> the <b>💤</b> button in the Cockpit, <b>Sleep mode</b> in the tray, or say <span class="say">"Nova, sleep mode"</span> (also "go to sleep" or "rest").</li>
+      <li><b>Wake her:</b> your talk key, the <b>☀</b> button or typing to her. The first press only wakes her ("I'm here, sir"); the next one is for talking.</li>
+      <li><span class="say">"Nova, deactivate"</span> is still the usual <b>pause</b>: it doesn't turn off the microphone and she comes back with "Nova, activate".</li>
+    </ul>
+  </div></div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">10 · Sleep mode, tour and questionnaire (1.4)</span></div>
+  <div class="row"><figure><img src="img/v14_reposo_ajustes.jpg"><figcaption><b>Nova › Microphone › Sleep mode.</b></figcaption></figure><div>
+    <h3 style="margin-top:0">When and how</h3>
+    <ul class="small">
+      <li><b>Go to sleep:</b> never (the default) or after 5, 10, 15, 30 or 60 minutes without talking or typing to her.</li>
+      <li><b>With the key or the button:</b> the microphone closes completely; Windows stops showing it in use.</li>
+      <li><b>Also by her name:</b> the microphone stays open and only reacts to what starts with her name: <span class="say">"Nova, what time is it in Lorville?"</span> wakes her and she answers. With Groq it spends some quota.</li>
+    </ul>
+  </div></div>
+  <h2>Guided tour</h2>
+  <div class="row"><figure><img src="img/v14_tour.jpg"><figcaption>Each step lights up a part of the window.</figcaption></figure><div>
+    <p class="small" style="margin-top:0">After the first-time setup (or the first time you open 1.4), Nova shows you in one minute where every option is: the Cockpit, the talk button, sleep mode, MUTE and every section.</p>
+    <p class="small">Move on with <b>NEXT</b> or the arrow keys, and leave with <b>EXIT</b> or <kbd>Esc</kbd>. To repeat it: <b>Settings › General › Guided tour</b>.</p>
+  </div></div>
+  <h2>Anonymous questionnaire</h2>
+  <div class="row"><figure><img src="img/v14_cuestionario.jpg"></figure><div>
+    <p class="small" style="margin-top:0">The <b>Questionnaire</b> button, below "Read the Manual", opens eight questions from 1 to 10 (or <b>N/S</b> if you don't use that part) and a box for your ideas.</p>
+    <ul class="small">
+      <li><b>Anonymous:</b> only your ratings, what you write, the NOVA AI version and the language are sent. Not your name, your gametag or any data from your computer.</li>
+      <li>It's published as a <b>public issue</b> on GitHub: don't write personal data.</li>
+      <li>After 3 days Nova reminds you <b>once</b>. "Not now" lets you choose another reminder in 3 days or never being asked again.</li>
+    </ul>
+  </div></div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<section id="cap-11" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">11 · Your own API keys</span></div>
+  <h1><span class="num">11</span>Your own API keys</h1>
+  <p class="lead">An <b>API key</b> is like a password that lets Nova use an artificial intelligence service on your behalf. Some NOVA AI versions include trial keys (the GitHub one doesn't), but they have a <b>daily limit shared</b> by everyone using the program. With your own you'll have the whole quota to yourself. They're free and take a couple of minutes to get.</p>
+  <table class="small">
+    <tr><th style="width:26mm">Service</th><th>What for</th><th style="width:40mm">Cost</th><th style="width:30mm">Starts with</th></tr>
+    <tr><td>Gemini</td><td>Nova's main brain.</td><td class="ok">Free, no credit card</td><td><code>AIza…</code> or <code>AQ.…</code></td></tr>
+    <tr><td>Groq</td><td>Ultra-fast backup and cloud speech recognition.</td><td class="ok">Free, no credit card</td><td><code>gsk_…</code></td></tr>
+    <tr><td>OpenRouter</td><td>Lots of free models as a backup.</td><td class="ok">Free (50 requests/day)</td><td><code>sk-or-v1-…</code></td></tr>
+    <tr><td>Mistral</td><td>European AI, a very good backup for chatting.</td><td class="ok">Free, no credit card (asks for a phone number)</td><td>no fixed prefix</td></tr>
+  </table>
+  <div class="okb"><span class="t">RECOMMENDED</span><b>Gemini + Groq</b>: with those two you have more than enough for everyday use. OpenRouter is a good third backup.</div>
+  <h2>How to add a key to Nova</h2>
+  <div class="row"><figure><img src="img/c_ia.jpg"></figure><div>
+    <ol class="small" style="padding-left:6mm;margin:0">
+      <li>Get the key on the service's website (next pages) and <b>copy it</b>.</li>
+      <li>In Nova, open <b>Nova › Intelligence › Free keys</b>.</li>
+      <li>Click the service's field and <b>paste the key</b> with <kbd>Ctrl</kbd>+<kbd>V</kbd>. It saves by itself and the dot turns <span class="ok">green</span>.</li>
+      <li>In <b>Engine chain</b>, click <b>TEST</b> on an engine from that service: if it answers, you're done!</li>
+    </ol>
+    <p class="small dim" style="margin-top:2mm">Each service's <b>GET A KEY</b> button opens its keys page directly.</p></div></div>
+  <div class="warnb"><span class="t">TREAT KEYS LIKE PASSWORDS</span>Don't share them or post them in forums or screenshots. Most services <b>only show it to you once</b>: if you lose it, delete it and create another. Your keys stay on your PC and are never replaced by the built-in ones.</div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 12 API KEYS 2 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">11 · API key guide</span></div>
+  <div class="key">
+    <div class="hd"><span class="logo">Google Gemini</span><span class="tag">FREE</span><span class="url">aistudio.google.com/apikey</span></div>
+    <ol class="small">
+      <li>Go to <b>aistudio.google.com/apikey</b> and sign in with your <b>Google account</b> (your Gmail one will do).</li>
+      <li>The first time, accept the Google AI Studio terms.</li>
+      <li>Click <b>Create API key</b>. If it asks about a project, let it create a new one.</li>
+      <li>Your key appears: click the <b>copy</b> button.</li>
+      <li>Paste it into Nova: <b>Nova › Intelligence › Free keys › Google Gemini</b>.</li>
+    </ol>
+    <div class="foot"><span><b>Credit card:</b> not needed</span><span><b>Limit:</b> per minute and per day, depending on the model</span></div>
+    <p class="small dim" style="margin:2mm 0 0">Google states that on the free plan it may use what you send to improve its products.</p>
+  </div>
+  <div class="key">
+    <div class="hd"><span class="logo">Groq</span><span class="tag">FREE</span><span class="url">console.groq.com/keys</span></div>
+    <ol class="small">
+      <li>Go to <b>console.groq.com</b> and click <b>Sign up</b>: register with your email or with Google.</li>
+      <li>Accept the terms of service the first time.</li>
+      <li>Go to <b>console.groq.com/keys</b> and click <b>Create API Key</b>.</li>
+      <li>Give it a name (for example "Nova") and click <b>Submit</b>.</li>
+      <li><b>Copy the key now</b> (<code>gsk_…</code>): it's only shown once.</li>
+      <li>Paste it into Nova: <b>Nova › Intelligence › Free keys › Groq</b>. The field in step 1 of the first-time setup works too.</li>
+    </ol>
+    <div class="foot"><span><b>Credit card:</b> not needed</span><span><b>Limit:</b> about 1,000 requests a day with <code>gpt-oss-120b</code></span></div>
+    <p class="small dim" style="margin:3mm 0 0">With Groq you'll also get the fastest speech recognition ("Automatic" engine in Nova › Microphone).</p>
+  </div>
+  <div class="tip"><span class="t">WITH GEMINI AND GROQ YOU'RE ALREADY FLYING</span>With these two keys Nova has a main brain and an ultra-fast backup, and she also recognises your voice in the cloud. The rest are optional.</div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 12 API KEYS 3 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">11 · API key guide</span></div>
+  <div class="key">
+    <div class="hd"><span class="logo">OpenRouter</span><span class="tag">FREE</span><span class="url">openrouter.ai/keys</span></div>
+    <ol class="small">
+      <li>Go to <b>openrouter.ai</b> and click <b>Sign in</b>: you can use your email, Google or GitHub.</li>
+      <li>Go to <b>openrouter.ai/keys</b> (your account menu › <b>Keys</b>).</li>
+      <li>Click <b>Create Key</b>, give it a name ("Nova") and create it. You don't need to set a credit limit.</li>
+      <li><b>Copy the key</b> (<code>sk-or-v1-…</code>) before closing the window.</li>
+      <li>Paste it into Nova: <b>Nova › Intelligence › Free keys › OpenRouter</b>.</li>
+    </ol>
+    <div class="foot"><span><b>Credit card:</b> not needed</span><span><b>Limit:</b> 50 free requests a day (1,000 if you ever buy $10 of credit)</span></div>
+    <p class="small dim" style="margin:2mm 0 0">Use the models ending in <code>:free</code> or <code>openrouter/free</code>, which picks an available free one.</p>
+  </div>
+  <div class="key">
+    <div class="hd"><span class="logo">Mistral</span><span class="tag">FREE</span><span class="url">console.mistral.ai/api-keys</span></div>
+    <ol class="small">
+      <li>Go to <b>console.mistral.ai</b> and create an account (email, Google or Microsoft).</li>
+      <li>Choose the free <b>Experiment</b> plan and verify your <b>phone number</b> with the text message they send. No credit card needed.</li>
+      <li>Go to <b>API Keys</b> and click <b>Create new key</b>; give it a name ("Nova").</li>
+      <li><b>Copy the key</b>: it won't be shown again.</li>
+      <li>Paste it into Nova: <b>Nova › Intelligence › Free keys › Mistral</b>. Nova adds it to the engine chain by herself (model <code>mistral-small-latest</code>).</li>
+    </ol>
+    <div class="foot"><span><b>Credit card:</b> not needed</span><span><b>Limit:</b> 1 request per second, more than enough for Nova</span></div>
+    <p class="small dim" style="margin:2mm 0 0">On the free plan Mistral may use your requests to train its models. If you don't want that, turn it off in the console: <b>Privacy</b> menu. If you already had a <b>DeepSeek</b> key (paid), Nova keeps using it.</p>
+  </div>
+  <div class="tip"><span class="t">WHAT IF A KEY STOPS WORKING?</span>Click <b>TEST</b> in the engine chain. The most common errors: a badly copied key (with an extra space), a key deleted on the service's website, or the day's quota used up (wait until tomorrow; meanwhile Nova uses the next engine).</div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 13 PROBLEMAS -->
+<section id="cap-12" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">12 · Troubleshooting</span></div>
+  <h1><span class="num">12</span>Troubleshooting</h1>
+  <table class="small tight">
+    <tr><th style="width:52mm">If…</th><th>Try this</th></tr>
+    <tr><td>She doesn't hear me</td><td>If the core says <b>SLEEP MODE</b>, press your key or ☀. Check that the meter's <b>MUTE</b> button is <b>OFF</b> and that your headset isn't muted. Choose your microphone in <b>Nova › Microphone</b>: it tells you there if only silence arrives. Raise the sensitivity or the gain if you speak softly.</td></tr>
+    <tr><td>She triggers by herself</td><td>Lower the sensitivity or turn off "Listen without a key". If it's a learned form of her name, remove it with <b>Forget</b>.</td></tr>
+    <tr><td>She doesn't react to her name</td><td>Repeat the training in <b>Nova › Identity &amp; language</b>. Choose a name of 2 or 3 syllables that isn't a common word.</td></tr>
+    <tr><td>The game doesn't get the keys</td><td>If you run Star Citizen as administrator, run Nova as administrator too. Turn on "Press keys only with the game in front".</td></tr>
+    <tr><td>A key doesn't work</td><td><b>⟳ Sync now</b> and check "View details". If the action is only on your HOTAS, give it a keyboard key too.</td></tr>
+    <tr><td>"All my engines are out of quota"</td><td>Add your own keys (section 11) or wait until the next day.</td></tr>
+    <tr><td>Nova hears herself</td><td>Use headphones. The microphone already goes deaf while Nova is speaking.</td></tr>
+    <tr><td>The overlay isn't visible</td><td>Put the game in "Borderless window". Try "◆ Test on screen" and check the chosen monitor.</td></tr>
+    <tr><td>The hologram isn't visible or makes no sound</td><td>Same as the overlay: "Borderless window". Check <b>Holograms enabled</b> and click <b>Test</b>. For the sound: <b>Hologram sounds</b>, their volume and the <b>Audio output</b>.</td></tr>
+    <tr><td>The hologram description appears in English</td><td>Turn on <b>Translate the descriptions</b> and check that you have an AI engine with quota (section 09). It's translated next time.</td></tr>
+    <tr><td>A player shows up as an NPC pilot</td><td>RSI has no record with that name (or it couldn't be checked). Look it up by hand: <span class="say">"look up a player"</span>.</td></tr>
+    <tr><td>The update doesn't install</td><td>Accept the Windows permission (UAC). If it fails, download the installer from GitHub (Releases) and run it: it keeps your data.</td></tr>
+    <tr><td>The message isn't typed in the chat</td><td>In <b>Ship &amp; commands › Game chat</b>: keys <code>f12</code> / <code>enter</code> / <code>f12</code> and "Keys, letter by letter". If it drops letters, raise the <b>typing speed</b> or the <b>wait</b>.</td></tr>
+    <tr><td>The card doesn't reach Discord</td><td>Look at the Cockpit message or "Last post" in <b>Data &amp; memory › Discord &amp; servers</b>: it says what Discord answered. If the webhook doesn't exist, create a new one and paste it. <b>Send test card</b> checks it.</td></tr>
+    <tr><td>A definition is wrong or out of date</td><td>Say <span class="say">"Nova, update the entry for X"</span> or correct it yourself in the <b>Lookup dictionary</b> (Settings › Files).</td></tr>
+    <tr><td>Nova doesn't respond to anything</td><td>She may be <b>stopped</b> (overlay in red): switch on the Cockpit switch or say <span class="say">"Nova, activate"</span>.</td></tr>
+    <tr><td>The translation doesn't appear</td><td>Restart the game. Check the folder in <b>Data &amp; memory › Game language</b> and install the translation again.</td></tr>
+    <tr><td>The window doesn't open</td><td>Nova uses Edge. If you don't have it, open the address in <code>ui_puerto.txt</code> (data folder) in your browser. If the window is closed, look for her in the Windows tray.</td></tr>
+    <tr><td>It closes on start</td><td><b>NOVA AI.exe</b> shows you the error. For more details open <b>DEPURAR.bat</b> in the program folder, or look at <code>fallos.log</code> in your data folder.</td></tr>
+    <tr><td>The installer doesn't open</td><td>It shows you the reason and the log (<code>%TEMP%\NOVA_AI_Setup.log</code>). As a last resort, <b>INSTALAR_CONSOLA.bat</b> from <code>Nova.zip</code>.</td></tr>
+  </table>
+  <div class="tip"><span class="t">MORE HELP?</span>See the <b>LEEME.md</b> file in the program folder (in Spanish): it has all the technical details. In English, the <b>README</b> on GitHub.</div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 14 PRIVACIDAD -->
+<section id="cap-13" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">13 · Privacy and credits</span></div>
+  <h1><span class="num">13</span>Privacy and credits</h1>
+  <div class="g2">
+    <div class="okb"><span class="t">YOUR DATA STAYS ON YOUR PC</span>Settings, memory, conversation, logbooks, commands and keys live in <code>%LOCALAPPDATA%\NOVA AI\datos</code>. No servers of its own, no accounts, no telemetry.</div>
+    <div class="okb"><span class="t">NO RECORDINGS ARE MADE</span>Your voice isn't saved to any file. The training only notes how her name is written in your voice, and the volume.</div>
+  </div>
+  <h2>What leaves your PC</h2>
+  <ul class="d small">
+    <li><b>Artificial intelligence:</b> the text of what you ask and a short context (your name, memories, a summary of your session) is sent to the AI service that answers. It's the same as typing it on its website.</li>
+    <li><b>Speech recognition:</b> only with Groq is the audio of each sentence sent to turn it into text. With local Whisper nothing leaves.</li>
+    <li><b>Nova's voice:</b> with Edge voices, the text of the answer goes to Microsoft to generate the audio.</li>
+    <li><b>Game data:</b> lookups on the wiki, UEX, scmdb.net and DuckDuckGo, as you would do on Google.</li>
+    <li><b>Translation:</b> only if you accept it, it's downloaded from Google Drive or GitHub.</li>
+    <li><b>Player cards and server status:</b> reading the public pages of robertsspaceindustries.com (the record you ask for and its organisation) and status.robertsspaceindustries.com.</li>
+    <li><b>Updates:</b> on start and on exit, she asks GitHub which is the latest NOVA AI version (it can be turned off).</li>
+    <li><b>Holograms:</b> planet, moon and place cards from verseguide.com (kept for 3 days on your computer); photos and logos from robertsspaceindustries.com.</li>
+    <li><b>Discord:</b> only if you paste a webhook, the card of the player you look up is sent to that channel, and only if you say "yes".</li>
+    <li><b>Questionnaire:</b> only if you send it: your ratings, your text, the version and the language, as a public issue on GitHub, without a name or gametag.</li>
+    <li><b>Google Translate:</b> messages for the game chat and VerseGuide descriptions, to translate them.</li>
+    <li><b>StarMap:</b> planet and place data from its public API (only the planet needed; kept for a week).</li>
+  </ul>
+  <p class="small">The full text is in <b>NORMAS_Y_PRIVACIDAD.en.md</b>, which you accepted when installing.</p>
+  <h2>Basic rules</h2>
+  <p class="small"><b>Play fair:</b> Nova presses keys like VoiceAttack; you're responsible for following Star Citizen's terms. <b>The AI can be wrong</b> (and if she makes something up, she owns up). <b>Trial keys</b> (if your version includes them) are shared: don't copy them to other programs.</p>
+  <h2>Credits</h2>
+  <table class="tight small">
+    <tr><td style="width:52mm">Development</td><td>Aaron B. Roldan · gametag <b>0zzyt0</b> · with the Claude Opus 5.5 AI engine (Anthropic)</td></tr>
+    <tr><td>Thanks</td><td>Defcorp org · Faibo, Galleg0, Sr.Scott, AlpacaInTrouble, Lother and many more</td></tr>
+    <tr><td>Licence</td><td>MIT licence (free software): use it, modify it and share it, keeping the copyright notice (<code>LICENSE</code>)</td></tr>
+    <tr><td>Game language</td><td>0zzyt0 and the community</td></tr>
+    <tr><td>Game data</td><td>Community pages: see "Thanks to the community" (section 14)</td></tr>
+    <tr><td>Game.log formats</td><td>Community projects all-slain and sc-assistant (MIT licence)</td></tr>
+    <tr><td>AI and voice engines</td><td>Google Gemini, Groq, OpenRouter, Mistral, Microsoft Edge, Piper, Whisper</td></tr>
+  </table>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 15 GRACIAS -->
+<section id="cap-14" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">14 · Thanks to the community</span></div>
+  <h1><span class="num">14</span>Thanks to the community</h1>
+  <p class="lead"><b>NOVA AI wouldn't be possible without these community projects.</b> All the credit for their information goes to the people who create and maintain them, often in their free time. If you find them useful, visit and support them.</p>
+  <table class="tight small">
+    <tr><th style="width:52mm">Page</th><th>Their credit and their rights</th></tr>
+    <tr><td>Star Citizen Wiki<br><span class="dim">starcitizen.tools</span></td><td>The community encyclopedia: lore, ships, weapons and places. Texts by their authors under the CC BY-SA licence.</td></tr>
+    <tr><td>UEX Corp<br><span class="dim">uexcorp.space</span></td><td>Commodity prices, trade routes, ships and refineries, updated daily by its users.</td></tr>
+    <tr><td>SCMDB<br><span class="dim">scmdb.net</span></td><td>Missions, rewards, crafting blueprints and mining for each patch. Data under the CC BY-NC-ND 4.0 licence.</td></tr>
+    <tr><td>VerseGuide<br><span class="dim">verseguide.com</span></td><td>Planet, moon and planetary location cards.</td></tr>
+    <tr><td>StarMap<br><span class="dim">starmap.space</span></td><td>Planets, stations and thousands of places with coordinates and services, and its free public API.</td></tr>
+    <tr><td>SC Ships Performances Viewer<br><span class="dim">spviewer.eu</span></td><td>Ship performance: fuel, range, capacitors and components.</td></tr>
+    <tr><td>Universal Item Finder<br><span class="dim">finder.cstone.space</span></td><td>By Meepowski (CStone): where to buy every item in the 'verse, with data contributed by the community.</td></tr>
+    <tr><td>SC Haulers<br><span class="dim">schaulers.com</span></td><td>Route, cargo and hauling mission calculators for the industry.</td></tr>
+    <tr><td>Roberts Space Industries<br><span class="dim">robertsspaceindustries.com</span></td><td>Public citizen and organisation records, and server status.</td></tr>
+    <tr><td>Game language</td><td>0zzyt0 and contributors; game texts by Cloud Imperium Games.</td></tr>
+    <tr><td>Google Translate · DuckDuckGo</td><td>Translations and web searches.</td></tr>
+  </table>
+  <p class="small">Each page belongs to its authors and has its own terms of use. NOVA AI only <b>looks them up online</b> (or through their public APIs), as you would from your browser: it doesn't modify their data, doesn't redistribute it (what's downloaded stays on your computer) and doesn't claim authorship.</p>
+  <div class="warnb"><span class="t">DISCLAIMER</span>NOVA AI is a free, independent, non-profit fan project. <b>It is not an official product</b> of Cloud Imperium Games or of any of the pages mentioned, which don't sponsor or endorse it. Star Citizen®, Squadron 42®, Roberts Space Industries® and Cloud Imperium® are registered trademarks of Cloud Imperium Rights LLC. It's provided <b>as is</b>, without warranty: data changes with every patch and the AI can be wrong. You're responsible for using it in line with the game's terms.</div>
+  <div class="logos"><img src="/logos/made_by_the_community.png" alt="Made by the Community"><div><b>NOVA AI</b><br>An open project by <b>0zzyt0</b><br><span class="dim">github.com/0zzyt0/NOVA-AI</span><br><span style="color:var(--cy2);letter-spacing:.25em;font-weight:800">FLY SAFE, PILOT · o7</span></div><img src="/logos/logo_0zzyt0.png" alt="0zzyt0"></div>
+  <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
+</section>
+<script>
+document.querySelectorAll('.tl').forEach(function(d){d.addEventListener('click',function(){
+  var t=document.getElementById('cap-'+d.dataset.cap); if(t) t.scrollIntoView({behavior:'smooth'});});});
+</script></body></html>

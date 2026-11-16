@@ -5,7 +5,7 @@
 <h1 align="center">NOVA AI</h1>
 <p align="center"><b>Voice flight assistant for Star Citizen</b> · English · <a href="README.es.md">Español</a><br>
 She listens, answers with a natural voice, presses your game keys for you and knows what's happening in your game.<br>
-<i>Official version 1.4 · Windows 10/11 · English, español, català, français, Deutsch · completely free and open source</i></p>
+<i>Official version 1.5 · Windows 10/11 · English, español, català, français, Deutsch · completely free and open source</i></p>
 
 <p align="center">
   <a href="../../releases/latest"><b>⬇ Download NOVA AI Setup.exe</b></a> ·
@@ -16,18 +16,18 @@ She listens, answers with a natural voice, presses your game keys for you and kn
   <a href="README.es.md">Español</a>
 </p>
 
-![NOVA AI cockpit](docs/img/cabina.jpg)
+![NOVA AI cockpit](docs/img/en/cabina.jpg)
 
 ## What it does
 
-- **She listens:** hold a key, a mouse button or a HOTAS button, or just say her name: *"Nova, landing gear down"*. You choose her name.
+- **She listens:** hold a key, a mouse button or a HOTAS button, or just say her name: *"Nova, lower the landing gear"*. You choose her name.
 - **She speaks your language:** English, Spanish, Catalan, French or German. The window, her voice, what she understands, the commands, the holograms and the manual all follow the language you pick, and she always addresses you politely.
 - **She flies the ship with you:** she reads your Star Citizen keybinds (`actionmaps.xml`) and presses them for you: landing gear, ATC, shields, quantum, VTOL… A command editor lets you create your own commands and key sequences.
 - **She talks and looks things up** (with a free AI key): lore, ships, mining, crafting blueprints, missions and prices with LIVE patch data (scmdb.net, UEX Corp, Star Citizen Wiki, VerseGuide, StarMap…).
 - **She tells you where to buy things:** *"Where can I buy a P4-AR?"* and she answers by voice with the shops and prices, without opening a browser.
 - **She follows your game:** she reads `Game.log` live: where you are, who boards your ship, ATC, contracts, combat, med-bed healing, cargo…
 - **Holograms over the game:** citizen records (with their org), bounty targets, planets, moons and places, with cinematic, light or no effects.
-- **Game chat and Discord:** *"Nova, send a message to chat…"* and she translates it and types it for you; player cards can be posted to your Discord channel automatically.
+- **Game chat and Discord:** *"Nova, send a message to chat…"* and she translates it and types it for you; player cards can be posted to your Discord channel when you say "yes".
 - **She remembers:** a lookup dictionary with about 7,000 entries that answers without spending AI quota, the things you tell her, and a logbook of every session.
 - **Star Citizen in your language:** install the community `global.ini` translation you choose (Spanish players also get the 0zzyt0 community translation, kept up to date).
 - **She glows in the game:** an overlay with her logo changes colour with what she's doing: listening, understood, searching or speaking.
@@ -38,13 +38,25 @@ Star Citizen asks for a lot of hands: stick, throttle, mouse, keyboard shortcuts
 
 - **Nothing to press:** say her name (*"Nova, …"*) and she listens, no key needed. Or use any key, mouse button or HOTAS button to talk, including a USB foot pedal that sends a key.
 - **Your controls, by voice:** landing gear, landing and takeoff requests, VTOL, shields, power, weapons, lights, quantum, cruise control, decoupled mode, flares and chaff, next target… Nova reads your own keybinds (`actionmaps.xml`), so there are no shortcuts to memorise and no combinations to press.
-- **No more awkward combos:** in the command editor one phrase can hold a key down (up to 30 s), press several keys in a row with pauses, or click the mouse. *"Takeoff sequence"* and *"landing sequence"* come built in, and you can create your own.
+- **No more awkward combos:** in the command editor one phrase can hold a key down or press several keys in a row. *"Takeoff sequence"* and *"landing sequence"* come built in, and you can create your own. To respect the RSI Terms of Service on macros, the cautious key mode (on by default) keeps each command to what you could do with one press: keys held for 3 s at most, no chained waits and no mouse clicks inside sequences.
 - **Type without a keyboard:** *"Nova, send a message to chat: need a medic at Lorville"* and she types it in the game chat for you, translated if you want.
 - **Information without letting go of the controls:** ask about ships, weapons, mining, missions or where to buy something and she answers out loud, without leaving the game or opening a browser. Important game events are announced by voice and as holograms too.
 - **Timers by voice** (with an AI key): *"remind me about the refinery in 3 hours"*.
 - **She adapts to the way you speak:** the setup wizard trains her name with your voice, and you can tune the microphone sensitivity and how long she waits in silence before your sentence is over.
 
 For example, with one hand on the stick: *"Nova, flight ready"*, *"request takeoff"*, *"raise landing gear"* and, in combat, *"flares"* or *"next attacker"*, without ever letting go. Flying and aiming still need a stick, mouse or controller; Nova takes care of almost everything else. If you use NOVA AI for accessibility and something is missing, please tell us in [Issues](../../issues): it's a priority.
+
+## What's new in 1.5
+
+- **Shop purchases in the logbook:** Nova reads what you buy from `Game.log` (with the item name in your language) and adds it to the logbook and the session summary; *Pilot statistics* add up the aUEC you spend in shops. A failed purchase is announced.
+- **What you equip** (armour, weapons, MedPens) is grouped into one logbook line, and Nova tells you when **your** ship's docking tube is ready.
+- **Finer Game.log reading:** quantum jumps following a party member's marker, party invitations and joins, and quantum errors only when they're yours.
+- **The manual in five languages:** the PDF and the in-app manual now come in English, Spanish, Catalan, French and German, each with its own screenshots.
+- **Fixes:** the 1.4 uninstaller didn't open (install 1.5 over it to get the fixed one); the installer subtitle follows your language; in English, Catalan, French and German the chat player card, hologram data and several window texts no longer appear in Spanish, and naming the AI works with natural phrases.
+
+## What's new in 1.4.1
+
+- **The anonymous questionnaire is live:** the *Questionnaire* button now appears in the sidebar, below *Read the Manual*.
 
 ## What's new in 1.4
 
@@ -84,8 +96,8 @@ For example, with one hand on the stick: *"Nova, flight ready"*, *"request takeo
 
 | | |
 |---|---|
-| ![Nova: identity and language](docs/img/nova.jpg) | ![Settings: language, updates and files](docs/img/ajustes.jpg) |
-| ![Overlay and visual effects](docs/img/overlay.jpg) | ![Holograms](docs/img/hologramas.jpg) |
+| ![Nova: identity and language](docs/img/en/nova.jpg) | ![Settings: language, updates and files](docs/img/en/ajustes.jpg) |
+| ![Overlay and visual effects](docs/img/en/overlay.jpg) | ![Holograms](docs/img/en/hologramas.jpg) |
 
 <details>
 <summary><b>Earlier versions (1.2.2, 1.2 and 1.1)</b></summary>
@@ -124,11 +136,11 @@ For example, with one hand on the stick: *"Nova, flight ready"*, *"request takeo
 
 | | |
 |---|---|
-| ![Ship & commands: voice commands](docs/img/juego.jpg)<br><sub>**Ship & commands:** your voice commands and their keys</sub> | ![Ship & commands: game reading](docs/img/lectura.jpg)<br><sub>**Game reading:** which Game.log events she announces</sub> |
-| ![Nova: intelligence](docs/img/ia.jpg)<br><sub>**Nova › Intelligence:** free keys and engine chain</sub> | ![Data & memory: lookup pages](docs/img/datos.jpg)<br><sub>**Data & memory:** lookup pages and their check</sub> |
-| ![Lookup dictionary](docs/img/diccionario.jpg)<br><sub>**Lookup dictionary:** answers without spending AI</sub> | ![Logbook and statistics](docs/img/bitacora.jpg)<br><sub>**Logbook & statistics** of your sessions</sub> |
+| ![Ship & commands: voice commands](docs/img/en/juego.jpg)<br><sub>**Ship & commands:** your voice commands and their keys</sub> | ![Ship & commands: game reading](docs/img/en/lectura.jpg)<br><sub>**Game reading:** which Game.log events she announces</sub> |
+| ![Nova: intelligence](docs/img/en/ia.jpg)<br><sub>**Nova › Intelligence:** free keys and engine chain</sub> | ![Data & memory: lookup pages](docs/img/en/datos.jpg)<br><sub>**Data & memory:** lookup pages and their check</sub> |
+| ![Lookup dictionary](docs/img/en/diccionario.jpg)<br><sub>**Lookup dictionary:** answers without spending AI</sub> | ![Logbook and statistics](docs/img/en/bitacora.jpg)<br><sub>**Logbook & statistics** of your sessions</sub> |
 
-<sub>Screenshots show the Spanish interface; every screen is also available in English, Catalan, French and German.</sub>
+<sub>Every screen is also available in Spanish, Catalan, French and German (*Settings › General › Language*).</sub>
 
 ## Installation
 
@@ -138,10 +150,10 @@ For example, with one hand on the stick: *"Nova, flight ready"*, *"request takeo
 4. Accept the Terms of use and Privacy policy, in your language ([EN](NORMAS_Y_PRIVACIDAD.en.md) · [ES](NORMAS_Y_PRIVACIDAD.md) · [CA](NORMAS_Y_PRIVACIDAD.ca.md) · [FR](NORMAS_Y_PRIVACIDAD.fr.md) · [DE](NORMAS_Y_PRIVACIDAD.de.md)), and click **Start**.
 5. When it finishes, open **NOVA AI** from the desktop: a 7-step wizard tunes her to your voice.
 
-The installer downloads Python 3.12 if you don't have it (for Nova only), creates the shortcuts and registers the uninstaller. The in-app manual (*Read the Manual*) is shown in your language (translated automatically the first time you open it); the detailed guide ([LEEME](LEEME.md)) and the PDF manual in *Releases* are in Spanish.
+The installer downloads Python 3.12 if you don't have it (for Nova only), creates the shortcuts and registers the uninstaller. The in-app manual (*Read the Manual*) and the PDF manual in *Releases* come in all five languages, with screenshots of the window in each one; the detailed technical guide ([LEEME](LEEME.md)) is in Spanish.
 
 > [!IMPORTANT]
-> **The 1.4 executables are not code-signed yet.** A free code signing certificate has been requested from SignPath Foundation (see [Code signing policy](#code-signing-policy)).
+> **The 1.5 executables are not code-signed yet.** A free code signing certificate has been requested from SignPath Foundation (see [Code signing policy](#code-signing-policy)).
 >
 > - **"Windows protected your PC" (SmartScreen):** click *More info → Run anyway*.
 > - **Smart App Control** (Windows 11, *Windows Security › App & browser control*): when it is **On**, it blocks any unsigned program and allows no exceptions. To install NOVA AI you have to set it to **Off** (the portable `.zip` is blocked too) or wait for the signed version. Since the April 2026 Windows update it can be turned back on later without reinstalling Windows. In **Evaluation** mode Windows decides by itself and may let it through.
@@ -224,7 +236,7 @@ Your data stays on your PC (`%LOCALAPPDATA%\NOVA AI\datos`). There are no server
 
 <p align="center"><img src="docs/img/acerca.gif" width="520" alt="About"></p>
 
-**NOVA AI · Official version 1.4**, by **Aaron B. Roldan** (Star Citizen gametag: **0zzyt0**). Built with the **Claude Opus 5.5** AI engine (Anthropic).
+**NOVA AI · Official version 1.5**, by **Aaron B. Roldan** (Star Citizen gametag: **0zzyt0**). Built with the **Claude Opus 5.5** AI engine (Anthropic).
 
 **Thanks** to the **Defcorp org**, and to Faibo, Galleg0, Sr.Scott, AlpacaInTrouble, Lother… and many more!
 

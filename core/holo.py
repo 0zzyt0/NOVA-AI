@@ -349,6 +349,15 @@ def _t(x: str) -> str:
     return out
 
 
+def _vocab_rx():
+    from .verseguide import COMPOUND_ES, TAG_SHORT
+    words = sorted(set(COMPOUND_ES.values()) | set(TAG_SHORT.values()), key=len, reverse=True)
+    return re.compile(r"(?<![\w/])(?:" + "|".join(re.escape(w) for w in words) + r")(?![\w/])")
+
+
+_VOCAB_RX = _vocab_rx()
+
+
 def _localized(card: Card) -> Card:
     """v1.3: etiquetas y textos fijos del holograma en el idioma de NOVA AI (los datos no se tocan)."""
     from dataclasses import replace
@@ -367,7 +376,15 @@ def _localized(card: Card) -> Card:
         return out
 
     def tv(x):  # valores: solo frases fijas (tipo de lugar, «Organización principal oculta»…)
-        return " · ".join(tr(part) for part in x.split(" · ")) if isinstance(x, str) else x
+        if not isinstance(x, str):
+            return x
+        out = []
+        for part in x.split(" · "):
+            got = tr(part)
+            if got == part:  # v1.5: «nitrógeno 98 %, metano 1,5 %», «1 industriales, 1 cuevas/búnkeres»
+                got = _VOCAB_RX.sub(lambda m: tr(m.group(0)), part)
+            out.append(got)
+        return " · ".join(out)
 
     return replace(card, header=t(card.header), subtitle=" · ".join(t(x) for x in card.subtitle.split(" · ")),
                    stamp=t(card.stamp), footer=card.footer.replace("Fuente:", tr("Fuente:")),

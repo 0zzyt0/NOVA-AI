@@ -52,6 +52,8 @@ RULE_KEYS: list[tuple[str, str, tuple[str, ...], tuple[str, ...], str]] = [
     ("grupo_expulsa", "grupo", ("comms_member_kicked", "mobiGlas_ui_notification_Party_Member_Kicked"), ("donde",), "tpl"),
     ("grupo_lider", "grupo", ("comms_leader_changed", "mobiGlas_ui_notification_Party_New_Leader"), ("donde",), "tpl"),
     ("grupo_invitacion", "grupo", ("comms_invite_received", "mobiGlas_ui_notification_Party_Invite"), ("donde",), "tpl"),
+    # 1.5: «Inquisidor211 ⏎ Invitacion a grupo recibida: ¿Aceptar la invitacion?» (nombre delante del título)
+    ("grupo_invitacion", "grupo", ("notification_invite_received_Title",), (), "name_title"),
     ("grupo_rechaza", "grupo", ("comms_invite_declined", "mobiGlas_ui_notification_Party_Invite_Declined"), ("donde",), "tpl"),
     ("grupo_te_unes", "grupo", ("comms_local_player_joined", "comms_local_player_joined_auto",
                                 "mobiGlas_ui_notification_Party_Self_Join"), ("donde",), "tpl"),
@@ -110,6 +112,9 @@ RULE_KEYS: list[tuple[str, str, tuple[str, ...], tuple[str, ...], str]] = [
     ("plano_recibido", "avisos", ("crafting_hud_notification_received_blueprint",), ("x",), "tpl"),
     ("refineria_lista", "avisos", ("refinery_ui_jobComplete",), ("lugar",), "tpl"),
     ("refineria_lista", "avisos", ("refinery_ui_multipleJobsComplete",), ("cantidad", "lugar"), "tpl"),
+    # 1.5: «Te has unido ⏎ grupo» (título y detalle en líneas distintas). Va la última: «Te has unido al
+    # canal 'Nave : piloto'» lo reconocen antes las reglas de los canales de nave.
+    ("grupo_te_unes", "grupo", ("notification_local_player_joined_Title",), (), "title"),
 ]
 
 # Huecos ~funcion(Variable) -> campo

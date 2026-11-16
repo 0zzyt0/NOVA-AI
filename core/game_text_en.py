@@ -99,4 +99,6 @@ EN = {
     'text_hostility_EnterMonitoredArea': 'Entered Monitored Space',
     'text_hostility_LeaveMonitoredArea': 'Exited Monitored Space',
     'text_hostility_Wanted': 'CrimeStat Rating Increased',
+    'notification_invite_received_Title': 'Party Invite Received',
+    'notification_local_player_joined_Title': 'You have joined',
 }

@@ -40,6 +40,7 @@ LINES = {
     "ubicacion": ("LUGAR", "Estás en {lugar}"),
     "llegada_cuantica": ("SALTO", "Llegada cuántica a {lugar}{fuel}"),
     "llegada_cuantica_sin_destino": ("SALTO", "Salto cuántico completado"),
+    "llegada_cuantica_grupo": ("SALTO", "Salto cuántico junto a un miembro del grupo"),
     "salto_error": ("SALTO", "Fallo del motor cuántico: no estaba listo"),
     "jurisdiccion": ("ZONA", "Jurisdicción de {x}"),
     "zona_armisticio_entra": ("ZONA", "Entras en zona de armisticio"),
@@ -85,6 +86,10 @@ LINES = {
     "dinero_recibido": ("DINERO", "{nombre} te envía {cantidad} aUEC"),
     "dinero_ofrecido": ("DINERO", "{nombre} quiere enviarte {cantidad} {moneda}"),
     "dinero_enviado": ("DINERO", "Envías {cantidad} aUEC a {nombre}"),
+    "compra": ("COMPRA", "Compras {x} por {cantidad} aUEC"),
+    "compra_fallida": ("COMPRA", "Compra no completada: {x}"),
+    "equipo": ("EQUIPO", "Te equipas: {x}"),
+    "atraque_listo": ("NAVE", "Tubo de atraque abierto"),
     "multa": ("LEY", "Multa de {cantidad} UEC"),
     "crimestat": ("LEY", "Te suben el CrimeStat"),
     "crimen_contra_ti": ("LEY", "{nombre} comete {x} contra ti"),
@@ -194,6 +199,8 @@ class Diary:
         self.contracts = Counter()
         self.money_in: list[str] = []
         self.money_out: list[str] = []
+        self.purchases: list[str] = []  # 1.5: «40 × Cargador Rifle CQ7 · 11.720»
+        self.equipped: list[str] = []
         self.friends: list[str] = []
         self.calls = 0
         self.blueprints: list[str] = []
@@ -256,7 +263,7 @@ class Diary:
                 self.jumps += 1
                 self.last_jump = place
                 self.last_fuel = d.get("combustible", "")
-        elif k == "llegada_cuantica_sin_destino":
+        elif k in ("llegada_cuantica_sin_destino", "llegada_cuantica_grupo"):
             self.jumps += 1
         elif k == "sesion_fin":
             if d.get("lugar") and d.get("lugar") != "desconocida":
@@ -272,6 +279,7 @@ class Diary:
             self.ship_piloted_at = ev.when
         elif k == "nave_entregada":
             self.ship_delivered = f"{d.get('nave') or 'nave'} en {d.get('lugar', '?')}"
+            self._delivered = (d.get("nave") or "", d.get("lugar", "?"))  # v1.5: para traducir el resumen
         elif k in ("nave_tripulante_entra", "nave_tripulante_sale"):
             c = self.crew[self._ship_label(d)]
             c["entradas" if k.endswith("entra") else "salidas"] += 1
@@ -328,6 +336,10 @@ class Diary:
             self.money_in.append(f"{d.get('cantidad', '?')} de {d.get('nombre', '?')}")
         elif k == "dinero_enviado":
             self.money_out.append(f"{d.get('cantidad', '?')} a {d.get('nombre', '?')}")
+        elif k == "compra":
+            self.purchases.append(f"{d.get('cantidad', '?')} · {d.get('x', '?')}")
+        elif k == "equipo":
+            self.equipped.append(d.get("x", ""))
         elif k in ("amistad_peticion", "amistad_aceptada"):
             if d.get("nombre") and d["nombre"] not in self.friends:
                 self.friends.append(d["nombre"])
@@ -467,7 +479,8 @@ class Diary:
             "carga_segundos": self.load_secs, "cargas_lentas": self.load_slow, "tirones_red": self.stalls,
             "saltos": self.jumps, "ultimo_salto": self.last_jump, "combustible_ultimo_salto": self.last_fuel,
             "autorizaciones_atc": self.atc, "contratos": dict(self.contracts),
-            "dinero_recibido": self.money_in, "dinero_enviado": self.money_out,
+            "dinero_recibido": self.money_in, "dinero_enviado": self.money_out, "compras": self.purchases,
+            "equipado": self.equipped,
             "amigos": self.friends, "llamadas": self.calls, "planos": self.blueprints,
         }
 
@@ -478,7 +491,7 @@ class Diary:
             t = lambda x: time.strftime("%H:%M", time.localtime(x)) if x else "?"
             out = []
             if full:
-                out.append("=" * 30 + " RESUMEN DE LA SESIÓN " + "=" * 20)
+                out.append("=" * 30 + " " + _("RESUMEN DE LA SESIÓN") + " " + "=" * 20)
             head = _("Personaje: {x}", x=self.player or "?")
             if self.version:
                 head += " · " + _("versión {x}", x=self.version)
@@ -494,33 +507,40 @@ class Diary:
                 out.append(_("Nave en la que estás: {x}", x=self.ship_now))
             if self.ship_piloted:
                 out.append(_("Última nave pilotada: {x}", x=f"{self.ship_piloted} ({t(self.ship_piloted_at)})"))
-            state = [self.ship_state]
+            m = re.match(r"^(inutilizada|DESTRUIDA) \((.+)\)$", self.ship_state)
+            state = [_(m.group(1) + " ({h})", h=m.group(2)) if m else _(self.ship_state)]
             if self.ship_delivered:
-                state.append(_("última entrega: {x}", x=self.ship_delivered))
+                dn, dl = getattr(self, "_delivered", ("", ""))
+                state.append(_("última entrega: {n} en {l}", n=dn or _("nave"), l=dl) if dl else
+                             _("última entrega: {x}", x=self.ship_delivered))
             if self.last_jump:
-                state.append(f"último salto: {self.last_jump}" + (f" (combustible estimado {self.last_fuel})" if self.last_fuel else ""))
-            out.append(_("Estado de la nave: {x}", x=" · ".join(_(x) for x in state if x)))
+                state.append(_("último salto: {x} (combustible estimado {f})", x=self.last_jump, f=self.last_fuel)
+                             if self.last_fuel else _("último salto: {x}", x=self.last_jump))
+            out.append(_("Estado de la nave: {x}", x=" · ".join(x for x in state if x)))
             if self.ships:
                 out.append("Naves a las que has subido: " + ", ".join(f"{s} (×{n})" for s, n in self.ships.most_common()))
             for ship, c in self.crew.items():
-                people = ", ".join(f"{p} ({n})" for p, n in c["personas"].most_common())
-                out.append(f"Gente en la {ship}: {c['entradas']} entradas y {c['salidas']} salidas · {people}")
+                people = ", ".join(f"{_(p) if p == 'alguien' else p} ({n})" for p, n in c["personas"].most_common())
+                out.append(_("Gente en la {s}: {a} entradas y {b} salidas", s=ship, a=c["entradas"], b=c["salidas"])
+                           + f" · {people}")
             if self.party_in or self.party_out or self.party_leader:
-                out.append(f"Grupo: {self.party_in} entradas, {self.party_out} salidas"
-                           + (f" · líder: {self.party_leader}" if self.party_leader else ""))
+                out.append(_("Grupo: {a} entradas, {b} salidas", a=self.party_in, b=self.party_out)
+                           + (" · " + _("líder: {x}", x=self.party_leader) if self.party_leader else ""))
             deaths = len(self.deaths)
             line = f"Muertes: {deaths} · incapacitado: {self.downed} · bajas: {self.kills}"
             if self.kills:
-                line += f" ({self.kills_npc} NPC, {self.kills_player} jugadores)"
+                line += " " + _("({a} NPC, {b} jugadores)", a=self.kills_npc, b=self.kills_player)
             if self.deaths:
                 last = self.deaths[-1]
-                line += f" · última: {t(last['hora'])} en {last['lugar'] or '?'}" + (f" por {last['por']}" if last["por"] else "")
+                line += " · " + (_("última: {h} en {l} por {p}", h=t(last["hora"]), l=last["lugar"] or "?", p=last["por"])
+                                 if last["por"] else _("última: {h} en {l}", h=t(last["hora"]), l=last["lugar"] or "?"))
             out.append(line)
             extra = []
             if self.ships_downed:
-                extra.append(f"naves que has derribado: {self.ships_downed}")
+                extra.append(_("naves que has derribado: {x}", x=self.ships_downed))
             if self.seen_deaths or self.seen_ships:
-                extra.append(f"otras muertes anotadas: {self.seen_deaths} · otras naves destruidas: {self.seen_ships}")
+                extra.append(_("otras muertes anotadas: {x}", x=self.seen_deaths) + " · "
+                             + _("otras naves destruidas: {x}", x=self.seen_ships))
             if self.med_bed:
                 extra.append(f"curas en camilla médica: {self.med_bed}")
             if self.respawn_point:
@@ -529,15 +549,19 @@ class Diary:
                 out.append("Combate y salud: " + " · ".join(extra))
             if self.load_secs or self.load_slow or self.stalls:
                 out.append("Carga y red: " + " · ".join(x for x in (
-                    f"entrada al universo en {self.load_secs} s" if self.load_secs else "",
+                    _("entrada al universo en {x} s", x=self.load_secs) if self.load_secs else "",
                     f"cargas lentas: {self.load_slow}" if self.load_slow else "",
                     f"tirones de red: {self.stalls}" if self.stalls else "") if x))
             out.append(f"Saltos cuánticos: {self.jumps} · autorizaciones de la torre: {self.atc}")
             if self.contracts:
-                out.append("Contratos: " + ", ".join(f"{k} {v}" for k, v in self.contracts.items()))
+                out.append("Contratos: " + ", ".join(f"{_(k)} {v}" for k, v in self.contracts.items()))
             if self.money_in or self.money_out:
-                out.append("Dinero: recibido " + ("; ".join(self.money_in) or "nada")
-                           + " · enviado " + ("; ".join(self.money_out) or "nada"))
+                out.append("Dinero: " + _("recibido {x}", x="; ".join(self.money_in) or _("nada"))
+                           + " · " + _("enviado {x}", x="; ".join(self.money_out) or _("nada")))
+            if self.purchases:
+                total = sum(int(re.sub(r"[^\d]", "", p.split(" · ")[0]) or 0) for p in self.purchases)
+                out.append(f"Compras: {len(self.purchases)} · {total:,} aUEC".replace(",", ".")
+                           + (" (" + "; ".join(p.split(" · ", 1)[1] for p in self.purchases) + ")" if full else ""))
             if self.friends or self.calls:
                 out.append(f"Amistad: {', '.join(f for f in self.friends if f) or '—'} · llamadas: {self.calls}")
             if self.blueprints:

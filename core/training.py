@@ -18,7 +18,8 @@ _AI_INTRO = re.compile(
     r"^.*?\b(?:quiero que te llames|me gustaria que te llamaras|me gustaría que te llamaras|te vas a llamar|"
     r"te llamaras|te llamarás|llamate|llámate|tu nombre (?:sera|será|es)|te llamas|te llamare|te llamaré|"
     r"te pondre|te pondré|ponte)\s+", re.IGNORECASE)
-_TRAILING = re.compile(r"\b(por favor|gracias|vale|y ya|please|thanks|thank you|si us plau|gràcies|s'il te pla[iî]t|merci|bitte|danke)\b.*$",
+_TRAILING = re.compile(r"\b(por favor|gracias|vale|y ya|please|thanks|thank you|si us plau|gràcies|s'il te pla[iî]t|merci|bitte|danke|"
+                       r"heißt|heisst|heißen|heissen|nennst)\b.*$",
                        re.IGNORECASE)
 
 
@@ -45,7 +46,7 @@ def extract_name(text: str, who: str = "piloto") -> tuple[str, bool]:
             m = re.match(rf"^.*?\b(?:{extra})\s+", raw, re.IGNORECASE)
     body = raw[m.end():] if m else raw
     body = _TRAILING.sub("", body)
-    words = re.findall(r"[A-Za-zÁÉÍÓÚÜÑáéíóúüñ'-]+", body)
+    words = re.findall(r"[A-Za-zÁÉÍÓÚÜÑáéíóúüñàèòïçÀÈÒÏÇâêîôûëÿœæÂÊÎÔÛËäöÄÖß'-]+", body)
     if not words:
         return "", False
     if not m and len(words) > 3:  # una frase larga sin «me llamo…»: no sé cuál es el nombre

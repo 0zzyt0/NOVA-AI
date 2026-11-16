@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="ca"><head><meta charset="utf-8">
+<title>NOVA AI · Manual d'usuari</title>
+<style>
+@page { size: A4; margin: 0 }
+:root{
+  --bg0:#02060c; --bg1:#061222; --panel:rgba(9,22,38,.78); --panel2:rgba(14,34,56,.62);
+  --line:rgba(32,184,232,.22); --line2:rgba(111,216,255,.45);
+  --cy:#20b8e8; --cy2:#6fd8ff; --cy3:#bff1ff; --txt:#d4f1ff; --dim:#7fa3b8; --dim2:#45657a;
+  --ok:#3fd8a8; --warn:#e8c15a; --bad:#ff6b7a;
+  --mono:"DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg0)}
+body{font-family:Inter,"DejaVu Sans",sans-serif;color:var(--txt);font-size:10pt;line-height:1.5;counter-reset:pg}
+.page{width:210mm;height:297mm;position:relative;overflow:hidden;page-break-after:always;break-after:page;
+  padding:21mm 16mm 17mm;counter-increment:pg;
+  background:
+    linear-gradient(rgba(32,184,232,.035) 1px,transparent 1px) 0 0/9mm 9mm,
+    linear-gradient(90deg,rgba(32,184,232,.035) 1px,transparent 1px) 0 0/9mm 9mm,
+    radial-gradient(160mm 120mm at 15% 8%,#0e2742 0%,var(--bg1) 48%,var(--bg0) 100%)}
+.page:last-child{page-break-after:auto;break-after:auto}
+.ph{position:absolute;left:16mm;right:16mm;top:8mm;display:flex;align-items:center;gap:3mm;
+  font:600 7pt Inter;letter-spacing:.25em;color:var(--cy);text-transform:uppercase}
+.ph img{width:6mm;height:6mm}
+.ph .s{margin-left:auto;color:var(--dim)}
+.ph:after{content:"";position:absolute;left:0;right:0;bottom:-2.5mm;height:1px;background:linear-gradient(90deg,var(--cy),rgba(32,184,232,.15) 60%,transparent)}
+.pf{position:absolute;left:16mm;right:16mm;bottom:7mm;display:flex;font:7pt var(--mono);color:var(--dim2);letter-spacing:.1em}
+.pf .n{margin-left:auto;color:var(--cy)}
+.pf .n:before{content:"PÁG. " counter(pg)}
+
+h1{font:800 22pt Inter;margin:0 0 1mm;color:#fff;letter-spacing:.02em;display:flex;align-items:center;gap:4mm}
+h1 .num{font:700 11pt var(--mono);color:var(--bg0);background:var(--cy);padding:1.2mm 2.6mm;box-shadow:0 0 5mm rgba(32,184,232,.6)}
+h2{font:700 12pt Inter;color:var(--cy2);margin:5mm 0 2mm;letter-spacing:.04em}
+h2:before{content:"▸ ";color:var(--cy)}
+h3{font:700 10.5pt Inter;color:#fff;margin:3mm 0 1mm}
+p{margin:0 0 2.2mm}
+.lead{font-size:11pt;color:#bfe6f7;margin:2mm 0 4mm;border-left:2px solid var(--cy);padding-left:4mm}
+b,strong{color:#fff}
+.cy{color:var(--cy2)} .ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)} .dim{color:var(--dim)}
+ul{margin:0 0 2.5mm;padding-left:5mm} li{margin:.6mm 0}
+ul.d{list-style:none;padding-left:0} ul.d li{padding-left:5mm;position:relative}
+ul.d li:before{content:"◆";position:absolute;left:0;color:var(--cy);font-size:7pt;top:.5mm}
+kbd{font:600 8pt var(--mono);color:#fff;background:rgba(32,184,232,.18);border:1px solid var(--line2);padding:.2mm 1.6mm;border-radius:1mm}
+code{font:8.5pt var(--mono);color:var(--cy3);background:rgba(32,184,232,.10);padding:.2mm 1.2mm;border-radius:.8mm}
+.say{color:var(--cy3);font-style:italic}
+
+.card{position:relative;background:var(--panel);border:1px solid var(--line);padding:4mm 5mm;margin:0 0 4mm}
+.card:before,.card:after{content:"";position:absolute;width:4mm;height:4mm;border:2px solid var(--cy2)}
+.card:before{left:-1.2mm;top:-1.2mm;border-right:0;border-bottom:0}
+.card:after{right:-1.2mm;bottom:-1.2mm;border-left:0;border-top:0}
+.card h3:first-child{margin-top:0}
+.tip,.warnb,.okb{padding:3mm 4mm;margin:0 0 3.5mm;font-size:9.3pt;border-left:3px solid var(--cy);background:rgba(32,184,232,.08)}
+.warnb{border-color:var(--warn);background:rgba(232,193,90,.08)} .warnb b{color:#ffe7a6}
+.okb{border-color:var(--ok);background:rgba(63,216,168,.08)}
+.tip .t,.warnb .t,.okb .t{font:700 7.5pt Inter;letter-spacing:.2em;display:block;margin-bottom:.8mm;color:var(--cy)}
+.warnb .t{color:var(--warn)} .okb .t{color:var(--ok)}
+
+figure{margin:0 0 4mm}
+figure.c{margin-left:auto;margin-right:auto}
+figure img{display:block;width:100%;border:1px solid var(--line2);box-shadow:0 0 6mm rgba(32,184,232,.18)}
+figcaption{font-size:8pt;color:var(--dim);margin-top:1.5mm}
+figcaption b{color:var(--cy2)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:5mm}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4mm}
+.row{display:grid;grid-template-columns:82mm 1fr;gap:5mm;align-items:start;margin-bottom:4.5mm}
+.row figure{margin:0}
+.step-n{display:inline-block;font:700 8pt var(--mono);color:var(--bg0);background:var(--cy2);padding:.4mm 1.8mm;margin-right:2mm}
+
+table{width:100%;border-collapse:collapse;margin:0 0 4mm;font-size:8.8pt}
+th{font:700 7.5pt Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--cy);text-align:left;padding:2mm 2.5mm;border-bottom:1px solid var(--line2);background:rgba(32,184,232,.06)}
+td{padding:1.8mm 2.5mm;border-bottom:1px solid var(--line);vertical-align:top}
+td:first-child{color:#fff;font-weight:600}
+.steps5{display:grid;gap:2.6mm;margin:2mm 0 4mm}.steps5 .st{display:grid;grid-template-columns:10mm 1fr;gap:3.5mm;align-items:start;background:var(--panel2);border:1px solid var(--line);padding:2.6mm 3.5mm}
+.steps5 .st>b{display:flex;align-items:center;justify-content:center;width:9mm;height:9mm;border:1px solid var(--cy);color:var(--cy2);font-size:14pt;box-shadow:0 0 3mm rgba(32,184,232,.35)}
+.logos{display:flex;align-items:center;justify-content:center;gap:9mm;margin-top:3mm;text-align:center;font-size:9pt;line-height:1.5}.logos img{width:30mm;height:30mm;object-fit:contain}
+.steps5 h3{margin:0 0 .6mm;font-size:10.5pt}.steps5 p{margin:0;font-size:9pt}.steps5 .dim{color:var(--dim)}
+table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
+
+.feat{background:var(--panel2);border:1px solid var(--line);padding:3.5mm 4mm}
+.feat .i{font-size:15pt;color:var(--cy2);line-height:1;margin-bottom:1.5mm;text-shadow:0 0 4mm var(--cy)}
+.feat h3{margin:0 0 1mm;font-size:10pt}
+.feats{gap:3mm}.feats .feat{padding:2.6mm 3.2mm}.feats .feat p{font-size:8.2pt;line-height:1.35;margin:0}.feats .feat .i{margin-bottom:1mm}
+.feat p{font-size:8.8pt;color:#b7d9ea;margin:0}
+
+.anno{position:relative}
+.anno .m{position:absolute;width:6.2mm;height:6.2mm;margin:-3.1mm 0 0 -3.1mm;border-radius:50%;background:var(--warn);color:#1b1300;
+  font:800 8pt Inter;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 1mm rgba(232,193,90,.25),0 0 4mm rgba(232,193,90,.8)}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:1.5mm 6mm;font-size:9pt}
+.legend div{display:flex;gap:2.5mm;align-items:baseline}
+.legend .k{flex:0 0 5.5mm;height:5.5mm;border-radius:50%;background:var(--warn);color:#1b1300;font:800 7.5pt Inter;display:flex;align-items:center;justify-content:center}
+
+.sw{display:inline-block;width:3.5mm;height:3.5mm;border-radius:50%;vertical-align:-.5mm;margin-right:1.5mm;box-shadow:0 0 2mm currentColor}
+.key{border:1px solid var(--line2);background:linear-gradient(135deg,rgba(32,184,232,.12),rgba(9,22,38,.85));padding:6mm 7mm;margin-bottom:7mm;position:relative}
+.key ol.small{font-size:10.2pt}.key ol li{margin:2mm 0 !important}.key .foot{font-size:9.2pt !important;padding-top:3mm !important}.key .logo{font-size:16pt !important}
+.key .hd{display:flex;align-items:center;gap:3mm;margin-bottom:2mm}
+.key .logo{font:800 13pt Inter;color:#fff}
+.key .tag{font:700 7pt Inter;letter-spacing:.16em;padding:.6mm 2mm;border:1px solid var(--ok);color:var(--ok)}
+.key .tag.pay{border-color:var(--warn);color:var(--warn)}
+.key .url{margin-left:auto;font:700 9pt var(--mono);color:var(--cy3);background:rgba(32,184,232,.14);padding:1mm 2.5mm;border:1px solid var(--line2)}
+.key ol{margin:1mm 0 2mm;padding-left:6mm} .key ol li{margin:.9mm 0}
+.key .foot{font-size:8.5pt;color:var(--dim);border-top:1px dashed var(--line);padding-top:2mm;display:flex;gap:6mm}
+.key .foot b{color:var(--cy2)}
+
+/* portada */
+.cover{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0}
+.cover .halo{width:92mm;height:92mm;border-radius:50%;position:relative;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 30mm rgba(32,184,232,.35),inset 0 0 18mm rgba(32,184,232,.25);border:1px solid var(--line2)}
+.cover .halo:before{content:"";position:absolute;inset:-7mm;border-radius:50%;border:1px dashed rgba(111,216,255,.35)}
+.cover .halo img{width:76mm;height:76mm}
+.cover .t1{font:900 46pt Inter;letter-spacing:.18em;color:var(--cy2);margin-top:14mm;text-shadow:0 0 8mm var(--cy)}
+.cover .t2{font:600 11pt Inter;letter-spacing:.42em;color:var(--cy);margin-top:1mm}
+.cover .t3{font:800 22pt Inter;color:#fff;margin-top:14mm;letter-spacing:.06em}
+.cover .t4{font:400 11pt Inter;color:#9fd0e6;margin-top:2mm}
+.cover .meta{position:absolute;bottom:18mm;left:0;right:0;font:8pt var(--mono);color:var(--dim);letter-spacing:.2em}
+.cover .beam{position:absolute;left:0;right:0;top:118mm;height:1px;background:linear-gradient(90deg,transparent,var(--cy),transparent);opacity:.6}
+
+.toc{columns:2;column-gap:10mm;font-size:10pt}
+.toc div{display:flex;break-inside:avoid;padding:1.6mm 0;border-bottom:1px solid var(--line)}
+.toc .n{font:700 9pt var(--mono);color:var(--cy);width:9mm}
+.toc .p{margin-left:auto;font:9pt var(--mono);color:var(--dim)}
+.small{font-size:8.6pt}
+.mono{font-family:var(--mono);font-size:8pt}
+.log{font:7.6pt var(--mono);background:#030a14;border:1px solid var(--line);padding:3mm 4mm;color:#a9d6ea;white-space:pre;line-height:1.55}
+.log .c{color:var(--warn)} .log .r{color:var(--bad)} .log .g{color:var(--ok)} .log .b{color:var(--cy2)}
+</style>
+<style>
+@media screen{
+  html,body{background:#01040a}
+  body{padding:64px 0 40px}
+  .page{margin:0 auto 26px;box-shadow:0 0 0 1px rgba(32,184,232,.25),0 18px 50px rgba(0,0,0,.6)}
+  .mbar{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;gap:14px;align-items:center;padding:10px 18px;
+    background:rgba(2,8,16,.92);backdrop-filter:blur(6px);border-bottom:1px solid rgba(32,184,232,.35);
+    font:600 13px Inter,"Segoe UI",sans-serif;letter-spacing:.06em;color:#bfe9ff}
+  .mbar img{width:26px;height:26px}
+  .mbar .sp{flex:1}
+  .mbar a,.mbar button{all:unset;cursor:pointer;color:#6fd8ff;padding:6px 10px;border:1px solid rgba(111,216,255,.4);border-radius:4px}
+  .mbar a:hover,.mbar button:hover{background:rgba(32,184,232,.15)}
+  .tl{cursor:pointer}.tl:hover{color:#fff;text-shadow:0 0 8px rgba(111,216,255,.7)}
+}
+@media screen and (max-width:900px){.page{zoom:.62}}
+@media print{.mbar{display:none}}
+</style>
+</head><body><div class="mbar"><img src="/logo.png" alt=""><span>NOVA AI · MANUAL D'USUARI</span><span class="sp"></span><a href="#cap-00">Guia ràpida</a><a href="#indice">Índex</a><button onclick="window.print()">Imprimeix / desa en PDF</button></div><a id="top"></a>
+
+<!-- ======================================================= PORTADA -->
+<section class="page cover">
+  <div class="beam"></div>
+  <div class="halo"><img src="/logo.png"></div>
+  <div class="t1">NOVA AI</div>
+  <div class="t2">ASSISTENT DE VOL PER A STAR CITIZEN</div>
+  <div class="t3">MANUAL D'USUARI</div>
+  <div class="t4">Tot el que necessites per instal·lar-la, configurar-la i treure-li tot el suc.<br>Tens pressa? Comença per la <b>Guia ràpida</b> (pàgina 3).</div>
+  <div class="meta">VERSIÓ OFICIAL 1.5 · NOVEMBRE 2026 · UEE · STANTON</div>
+</section>
+
+<!-- ======================================================= ÍNDICE -->
+<section id="indice" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">Índex</span></div>
+  <h1>Índex</h1>
+  <p class="lead">Si és la primera vegada, llegeix la <b>Guia ràpida</b> i el <b>Glossari</b>: en 5 minuts estaràs volant amb la Nova. Després, el manual recorre el programa secció per secció, en el mateix ordre que el seu menú, amb captures reals. També el tens dins de NOVA AI: el botó <b>📖 Consulta el Manual</b>.</p>
+  <div class="toc">
+    <div class="tl" data-cap="00"><span class="n">00</span>Guia ràpida i glossari<span class="p">3</span></div>
+    <div class="tl" data-cap="01"><span class="n">01</span>Què és NOVA AI<span class="p">5</span></div>
+    <div class="tl" data-cap="02"><span class="n">02</span>Instal·lació<span class="p">6</span></div>
+    <div class="tl" data-cap="03"><span class="n">03</span>Configuració inicial<span class="p">9</span></div>
+    <div class="tl" data-cap="04"><span class="n">04</span>La finestra de la Nova<span class="p">11</span></div>
+    <div class="tl" data-cap="05"><span class="n">05</span>Cabina i com parlar-li<span class="p">12</span></div>
+    <div class="tl" data-cap="06"><span class="n">06</span>Nau i ordres<span class="p">15</span></div>
+    <div class="tl" data-cap="07"><span class="n">07</span>Nova: veu, oïda i intel·ligència<span class="p">19</span></div>
+    <div class="tl" data-cap="08"><span class="n">08</span>Overlay i hologrames<span class="p">24</span></div>
+    <div class="tl" data-cap="09"><span class="n">09</span>Dades i memòria<span class="p">28</span></div>
+    <div class="tl" data-cap="10"><span class="n">10</span>Ajustos, safata i mode repòs<span class="p">35</span></div>
+    <div class="tl" data-cap="11"><span class="n">11</span>Guia: les teves pròpies claus d'API<span class="p">39</span></div>
+    <div class="tl" data-cap="12"><span class="n">12</span>Resolució de problemes<span class="p">42</span></div>
+    <div class="tl" data-cap="13"><span class="n">13</span>Privacitat i crèdits<span class="p">43</span></div>
+    <div class="tl" data-cap="14"><span class="n">14</span>Agraïments a la comunitat<span class="p">44</span></div>
+  </div>
+  <h2>Com llegir aquest manual</h2>
+  <div class="g3">
+    <div class="tip"><span class="t">CONSELL</span>Trucs per anar més de pressa o treure més profit de la Nova.</div>
+    <div class="warnb"><span class="t">ATENCIÓ</span>Coses que convé saber per evitar problemes.</div>
+    <div class="okb"><span class="t">TOT A PUNT</span>Senyals que tot funciona com cal.</div>
+  </div>
+  <p>Les frases que pots dir a la Nova es veuen així: <span class="say">«Nova, baixa el tren d'aterratge»</span>. Les tecles, així: <kbd>Insert</kbd>. Els botons i les seccions del programa van en <b>negreta</b>, i les rutes de carpetes en <code>format de codi</code>.</p>
+  <div class="okb"><span class="t">NOM PERSONALITZAT</span>En aquest manual l'assistent es diu «Nova», però durant la configuració inicial li pots posar el nom que vulguis (a les captures de l'assistent de configuració, per exemple, es diu «Atena»).</div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 00 GUÍA RÁPIDA -->
+<section id="cap-00" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">Guia ràpida</span></div>
+  <h1><span class="num">00</span>Guia ràpida</h1>
+  <p class="lead">Cinc passos i ja podràs parlar amb la Nova a Star Citizen. La resta la descobriràs sobre la marxa.</p>
+  <div class="steps5">
+    <div class="st"><b>1</b><div><h3>Instal·la</h3><p>Obre <code>NOVA AI Setup.exe</code> i prem <b>INSTAL·LAR</b>. Triga uns minuts i crea la drecera <b>NOVA AI</b> a l'escriptori. <span class="dim">(Secció 02)</span></p></div></div>
+    <div class="st"><b>2</b><div><h3>Presenta't</h3><p>La primera vegada et pregunta el teu nom, com la vols anomenar i com et sent pel micròfon. Només has de respondre. <span class="dim">(Secció 03)</span></p></div></div>
+    <div class="st"><b>3</b><div><h3>Posa una clau d'IA gratuïta</h3><p>Perquè pugui conversar, enganxa una clau gratuïta de Gemini o de Groq a <b>Nova › Intel·ligència</b>. Són 2 minuts. <span class="dim">(Secció 11)</span></p></div></div>
+    <div class="st"><b>4</b><div><h3>Juga en «Finestra sense vores»</h3><p>A Star Citizen: <b>Options › Graphics › Window mode › Borderless</b>. Així el logo i els hologrames de la Nova es veuen per sobre del joc.</p></div></div>
+    <div class="st"><b>5</b><div><h3>Parla-li</h3><p>Mantén premuda la teva tecla (<kbd>Insert</kbd> de fàbrica) i parla, o digues el seu nom: <span class="say">«Nova, baixa el tren d'aterratge»</span>. Minimitza la finestra de NOVA mentre jugues, o tanca-la: continua a la safata de Windows.</p></div></div>
+  </div>
+  <h2>Les frases que més faràs servir</h2>
+  <table class="small tight">
+    <tr><th style="width:62mm">Digues…</th><th>I la Nova…</th></tr>
+    <tr><td><span class="say">«Nova, baixa el tren d'aterratge»</span></td><td>Prem les tecles del teu joc (tren, escuts, quàntic, llums…).</td></tr>
+    <tr><td><span class="say">«Què és la Laranite?»</span></td><td>T'ho diu a l'instant des del seu Diccionari de consultes.</td></tr>
+    <tr><td><span class="say">«Parla'm de Daymar»</span></td><td>Fitxa del planeta, amb holograma per sobre del joc.</td></tr>
+    <tr><td><span class="say">«Busca'm un jugador»</span></td><td>Et demana el handle i et mostra la seva fitxa de RSI (i, si li dius «sí», la publica al teu Discord).</td></tr>
+    <tr><td><span class="say">«Quina ruta paga més amb 100.000 aUEC?»</span></td><td>Calcula la millor ruta comercial per a la teva bodega.</td></tr>
+    <tr><td><span class="say">«Recorda-m'ho d'aquí a 3 hores, la refineria»</span></td><td>Posa un temporitzador que t'avisa encara que tanquis NOVA.</td></tr>
+    <tr><td><span class="say">«Envia un missatge al xat: algú necessita escorta?»</span></td><td>El tradueix si cal i l'escriu al xat del joc.</td></tr>
+    <tr><td><span class="say">«On puc comprar un P4-AR?»</span></td><td>T'ho diu, o t'obre el cercador d'objectes de la comunitat.</td></tr>
+    <tr><td><span class="say">«Nova, atura't»</span> · <span class="say">«Nova, activa't»</span></td><td>L'atura (cancel·lant el que estigui buscant) i la torna a activar.</td></tr>
+    <tr><td><span class="say">«Qui ets?»</span> · <span class="say">«Què saps fer?»</span></td><td>Es presenta (amb una anècdota sobre el seu creador) i t'explica tot el que sap fer.</td></tr>
+    <tr><td><span class="say">«Obre el manual»</span></td><td>Obre aquest manual al navegador.</td></tr>
+  </table>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 00 GLOSARIO -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">Glossari</span></div>
+  <h2>Glossari: paraules que veuràs al manual</h2>
+  <table class="small">
+    <tr><th style="width:44mm">Paraula</th><th>Què vol dir</th></tr>
+    <tr><td>Cabina</td><td>La pantalla principal de NOVA: el que dius, el que et respon i els avisos del joc.</td></tr>
+    <tr><td>Overlay</td><td>El logo de la Nova, dibuixat <b>per sobre del joc</b>, que canvia de color segons el que fa.</td></tr>
+    <tr><td>Holograma</td><td>Una fitxa (jugador, planeta, lloc) que apareix uns segons per sobre del joc.</td></tr>
+    <tr><td>Finestra sense vores</td><td>«Borderless»: un mode de pantalla de Star Citizen que permet veure l'overlay i els hologrames.</td></tr>
+    <tr><td>Tecla per parlar</td><td>La tecla que mantens premuda mentre li parles (com una ràdio). <kbd>Insert</kbd> de fàbrica.</td></tr>
+    <tr><td>Game.log</td><td>Un fitxer que escriu el mateix joc amb el que passa a la teva sessió. La Nova el llegeix per mantenir-te informat.</td></tr>
+    <tr><td>global.ini</td><td>El fitxer amb tots els textos del joc (en el teu idioma si tens una traducció). La Nova el fa servir per entendre els avisos i omplir el seu diccionari.</td></tr>
+    <tr><td>Bitàcola</td><td>El diari que la Nova escriu de cada sessió de joc: on has estat, combats, contractes…</td></tr>
+    <tr><td>Diccionari de consultes</td><td>La «memòria física» de la Nova: un fitxer de text amb milers de definicions del joc. Respon des d'aquí sense gastar IA.</td></tr>
+    <tr><td>Clau d'IA (API key)</td><td>Un codi gratuït de Google, Groq i altres perquè la Nova pugui parlar amb la seva intel·ligència artificial.</td></tr>
+    <tr><td>Quota o tokens</td><td>El que «gasta» cada pregunta a la IA. Les claus gratuïtes tenen un límit diari; la Nova procura estalviar.</td></tr>
+    <tr><td>Handle</td><td>L'àlies d'un jugador a la web de RSI (robertsspaceindustries.com).</td></tr>
+    <tr><td>Webhook de Discord</td><td>Una adreça del teu canal de Discord on la Nova pot publicar fitxes.</td></tr>
+  </table>
+  <h2>Colors de la Nova</h2>
+  <ul class="d small" style="list-style:none">
+    <li><span class="sw" style="background:#20b8e8;color:#20b8e8"></span><b>Blau:</b> escolta, pensa o parla · <span class="sw" style="background:#39e47a;color:#39e47a"></span><b>Verd:</b> t'ha entès · <span class="sw" style="background:#ffc933;color:#ffc933"></span><b>Groc:</b> busca a internet</li>
+    <li><span class="sw" style="background:#a35cff;color:#a35cff"></span><b>Lila:</b> busca a la seva memòria física · <span class="sw" style="background:#f4f7ff;color:#f4f7ff"></span><b>Blanc:</b> memoritza · <span class="sw" style="background:#ff3b4e;color:#ff3b4e"></span><b>Vermell:</b> aturada o no t'ha entès</li>
+  </ul>
+  <div class="okb"><span class="t">PREGUNTA-LI</span>Digues <span class="say">«Nova, qui ets?»</span> o <span class="say">«presenta't»</span>: t'explicarà la seva versió, qui la va crear (el jugador espanyol <b>0zzyt0</b>, amb zeros en lloc d'os) i alguna anècdota inventada. Amb <span class="say">«què saps fer?»</span> t'explica tot el que sap fer… i el que està per venir.</div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 01 QUÉ ES -->
+<section id="cap-01" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">01 · Què és NOVA AI</span></div>
+  <h1><span class="num">01</span>Què és NOVA AI</h1>
+  <p class="lead">NOVA AI és la teva intel·ligència artificial de bord: la crides pel seu nom o amb una tecla, et respon amb veu natural, prem les tecles del joc per tu i sempre sap què passa a la teva sessió. Tot el que fa servir és gratuït.</p>
+  <div class="g3 feats">
+    <div class="feat"><div class="i">🎙</div><h3>T'escolta</h3><p>Mantén premuda una tecla, un botó del ratolí o del HOTAS, o simplement digues el seu nom: «Nova, …».</p></div>
+    <div class="feat"><div class="i">⌨</div><h3>Pilota la nau amb tu</h3><p>Baixa el tren, demana plataforma d'aterratge, aixeca escuts o salta al quàntic prement les tecles del teu joc.</p></div>
+    <div class="feat"><div class="i">🧠</div><h3>Conversa i consulta</h3><p>Lore, naus, mineria, plànols de fabricació, missions i preus, amb dades del pegat actual.</p></div>
+    <div class="feat"><div class="i">📡</div><h3>Segueix la teva sessió</h3><p>Llegeix el Game.log: sap on ets, qui puja a la teva nau, contractes, ATC i combats.</p></div>
+    <div class="feat"><div class="i">📓</div><h3>Bitàcola i memòria</h3><p>Registra cada sessió (lloc, nau, morts, baixes, curacions…) i recorda el que li expliques.</p></div>
+    <div class="feat"><div class="i">🌐</div><h3>Star Citizen en el teu idioma</h3><p>Instal·la la traducció de la comunitat del joc en el teu idioma amb un sol clic.</p></div>
+    <div class="feat"><div class="i">🛰</div><h3>Overlay i hologrames</h3><p>El seu logo canvia de color en una cantonada, i apareixen fitxes de jugadors, objectius, planetes i llocs.</p></div>
+    <div class="feat"><div class="i">🔎</div><h3>Busca jugadors</h3><p>La seva fitxa pública de RSI i la de la seva organització, a la pantalla, a la bitàcola i al teu canal de Discord.</p></div>
+    <div class="feat"><div class="i">💬</div><h3>Parla al xat</h3><p>«Envia un missatge al xat…»: el tradueix si cal i l'escriu per tu al xat del joc.</p></div>
+    <div class="feat"><div class="i">📖</div><h3>Diccionari de consultes</h3><p>La seva memòria física: milers de definicions sense gastar IA, i aprèn sola el que no sap.</p></div>
+    <div class="feat"><div class="i">⏰</div><h3>Temporitzadors i rutes</h3><p>Refinatge i contractes amb avís per veu; rutes comercials amb el benefici real per a la teva bodega.</p></div>
+    <div class="feat"><div class="i">⬆</div><h3>S'actualitza sola</h3><p>En arrencar i en sortir mira a GitHub si hi ha una versió nova i et pregunta si la vols instal·lar.</p></div>
+  </div>
+  <h2>Què necessites</h2>
+  <table>
+    <tr><th style="width:44mm">Requisit</th><th>Detalls</th></tr>
+    <tr><td>Windows 10 o 11</td><td>De 64 bits. L'instal·lador fa servir components que Windows ja porta.</td></tr>
+    <tr><td>Micròfon</td><td>Qualsevol serveix. Amb auriculars, la Nova no se sent a si mateixa pels altaveus.</td></tr>
+    <tr><td>Connexió a internet</td><td>Per a la IA, les veus neuronals i les dades del joc. Les ordres de tecles funcionen sense connexió.</td></tr>
+    <tr><td>Python</td><td>No el necessites: si falta, l'instal·lador descarrega Python 3.12 només per a la Nova.</td></tr>
+    <tr><td>Targeta NVIDIA <span class="dim">(opcional)</span></td><td>Accelera el reconeixement de veu local (Whisper). Sense targeta, es fa servir el processador o el núvol.</td></tr>
+    <tr><td>Claus d'IA</td><td>Gratuïtes i en 2 minuts (secció 11). Algunes versions de l'instal·lador ja porten claus de prova.</td></tr>
+  </table>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 02 INSTALACIÓN 1 -->
+<section id="cap-02" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">02 · Instal·lació</span></div>
+  <h1><span class="num">02</span>Instal·lació</h1>
+  <p class="lead">Un sol fitxer, <b>NOVA AI Setup.exe</b>, ho instal·la tot en uns minuts: el programa, Python si cal, les veus i les dreceres.</p>
+  <div class="row">
+    <div>
+      <h3><span class="step-n">1</span>Obre l'instal·lador</h3>
+      <p>Fes doble clic a <b>NOVA AI Setup.exe</b> (la icona amb la fletxa). Windows et demanarà permís d'administrador perquè s'instal·la a <code>C:\Program Files\NOVA AI</code>: prem <b>Sí</b>.</p>
+      <h3><span class="step-n">2</span>Tria l'idioma i accepta les normes</h3>
+      <p>Primer apareix l'<b>idioma</b> (español, English, català, français o Deutsch; ve preseleccionat el del teu Windows). Després, les <b>Normes d'ús i la Política de privacitat</b> en aquest idioma. Llegeix-les, marca <b>«He llegit i accepto»</b> i prem <b>ACCEPTAR I CONTINUAR</b>. Si no les acceptes, no s'instal·la res.</p>
+    </div>
+    <div class="warnb"><span class="t">«WINDOWS HA PROTEGIT L'ORDINADOR»</span>L'instal·lador no està signat amb un certificat de pagament, així que la primera vegada SmartScreen et pot avisar. Prem <b>Més informació → Executa igualment</b>.</div>
+  </div>
+  <figure><img src="img/inst_normas.jpg"><figcaption><b>Les normes d'ús</b> (després de triar l'idioma). Recreació del disseny; el text complet és a <code>NORMAS_Y_PRIVACIDAD.ca.md</code>.</figcaption></figure>
+  <h3><span class="step-n">3</span>Revisa el diagnòstic i prem INICIAR</h3>
+  <p>L'instal·lador comprova Python, la teva targeta gràfica, l'espai lliure i la connexió. Pots canviar la carpeta amb <b>CANVIAR…</b> i triar opcions: acceleració NVIDIA, veu sense internet (Piper), drecera a l'escriptori i obrir la Nova en acabar. Després prem <b>◆ INICIAR SEQÜÈNCIA D'INSTAL·LACIÓ</b>.</p>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 02 INSTALACIÓN 2 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">02 · Instal·lació</span></div>
+  <h3><span class="step-n">4</span>Espera que acabi</h3>
+  <p>Veuràs cada pas amb el seu estat, el percentatge, la velocitat de descàrrega i el <b>temps restant</b>. Si alguna cosa falla, apareixen els botons <b>Tornar-ho a provar</b> i <b>Veure registre</b>.</p>
+  <figure class="c" style="width:140mm"><img src="img/inst_secuencia.jpg"><figcaption><b>Seqüència d'instal·lació</b> en curs (recreació del disseny).</figcaption></figure>
+  <h3><span class="step-n">5</span>A punt per enlairar-se!</h3>
+  <p>Quan acabi tindràs la drecera <b>NOVA AI</b> a l'escriptori i al menú Inici. La primera vegada que l'obris començarà la configuració inicial (secció 03).</p>
+  <figure class="c" style="width:95mm"><img src="../img/iconos.jpg"><figcaption><b>Les tres icones:</b> NOVA AI (el programa), l'instal·lador (fletxa) i el desinstal·lador (creu vermella).</figcaption></figure>
+  <div class="g2">
+    <div class="card"><h3>On va cada cosa</h3><ul class="d small">
+      <li><b>Programa:</b> <code>C:\Program Files\NOVA AI</code></li>
+      <li><b>Les teves dades</b> (ajustos, memòria, bitàcoles, claus): <code>%LOCALAPPDATA%\NOVA AI\datos</code></li>
+      <li>Actualitzar o desinstal·lar <b>no esborra les teves dades</b> si no marques aquesta opció.</li></ul></div>
+    <div class="card"><h3>Actualitzar o desinstal·lar</h3><ul class="d small">
+      <li><b>Actualitzar:</b> NOVA t'avisa sola quan hi ha una versió nova (pàgina següent). També pots obrir el <b>NOVA AI Setup.exe</b> de la versió nova. Tot el teu es conserva.</li>
+      <li><b>Desinstal·lar:</b> menú Inici › NOVA AI › <b>Desinstal·la NOVA AI</b>, o Configuració › Aplicacions.</li></ul></div>
+  </div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 02 INSTALACIÓN 3: ACTUALIZACIONES -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">02 · Actualitzacions automàtiques</span></div>
+  <h2>Actualitzacions automàtiques</h2>
+  <p>En <b>arrencar</b> i en <b>sortir</b>, NOVA mira a GitHub (github.com/0zzyt0/NOVA-AI) si hi ha una versió nova. Si n'hi ha, t'avisa a la pantalla i en veu alta:</p>
+  <figure class="c" style="width:150mm"><img src="img/v12_actualizacion.jpg"><figcaption>L'avís, amb les novetats d'aquella versió.</figcaption></figure>
+  <ul class="small">
+    <li><b>SÍ:</b> descarrega l'instal·lador oficial d'aquella versió, comprova que està complet i que és el publicat (mida i empremta SHA-256) i l'obre en mode actualització. Windows demana permís, la instal·lació comença sola i NOVA es torna a obrir ja actualitzada.</li>
+    <li><b>NO:</b> et quedes amb la teva versió; no t'ho tornarà a preguntar en aquella sessió.</li>
+    <li><b>EN TANCAR:</b> la descarrega ara i la instal·la quan tanquis NOVA, sense tornar-la a obrir.</li>
+  </ul>
+  <p class="small">També pots respondre en veu: <span class="say">«sí»</span>, <span class="say">«no»</span> o <span class="say">«en tancar»</span>. Si no respons i tanques NOVA, t'ho pregunta en una finestra en sortir. Les teves dades, ajustos i ordres sempre es conserven. Si ja havies acceptat les normes d'aquella versió, l'instal·lador no te les torna a demanar.</p>
+  <figure class="c" style="width:150mm"><img src="img/n_datos_actualizaciones.jpg"><figcaption><b>Ajustos › Actualitzacions de NOVA AI:</b> activa o desactiva la comprovació i busca actualitzacions a mà.</figcaption></figure>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 03 CONFIG 1 -->
+<section id="cap-03" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">03 · Configuració inicial</span></div>
+  <h1><span class="num">03</span>Configuració inicial</h1>
+  <p class="lead">La primera vegada, la Nova obre un assistent de 7 passos. Pots respondre <b>parlant</b> (botó del micròfon) o <b>escrivint</b>. Cada resposta es marca amb un <span class="ok">✓ verd</span> si t'ha entès; si surt una <span class="bad">✕ vermella</span>, torna-ho a dir.</p>
+  <div class="row"><figure><img src="img/w_wiz1_micro.jpg"></figure><div>
+    <h3><span class="step-n">1</span>Micròfon</h3>
+    <p>Tria el teu micròfon i parla: el mesurador de l'esquerra s'ha de moure. Enganxa aquí la teva clau de Groq si en tens (secció 11); és opcional.</p></div></div>
+  <div class="row"><figure><img src="img/w_wiz2_juego.jpg"></figure><div>
+    <h3><span class="step-n">2</span>El teu joc</h3>
+    <p>La Nova busca la carpeta <code>LIVE</code> de Star Citizen i el seu idioma. Si el joc no està en el teu idioma, pots instal·lar la traducció de la comunitat més endavant des de <b>Dades i memòria › Idioma del joc</b> (secció 09).</p>
+    <p class="small dim">No troba el joc? Prem <b>Triar carpeta</b> i assenyala la teva carpeta StarCitizen.</p></div></div>
+  <div class="row"><figure><img src="../img/w_wiz2_ok.jpg"></figure><div>
+    <h3><span class="step-n">2</span>Traducció instal·lada</h3>
+    <p>En castellà, amb <b>Sí, descarrega-la i instal·la-la</b> descarrega la traducció de 0zzyt0, la copia a <code>LIVE</code> i posa el teu <code>user.cfg</code> en castellà (les veus del joc continuen en anglès). Abans en desa una còpia: <code>user.cfg.nova_copia</code>.</p></div></div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 03 CONFIG 2 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">03 · Configuració inicial</span></div>
+  <div class="row" style="grid-template-columns:68mm 1fr;margin-bottom:3.5mm"><figure><img src="img/w_wiz3_piloto.jpg"></figure><div>
+    <h3><span class="step-n">3</span>Com et dius?</h3>
+    <p>Digues <span class="say">«Em dic Antoni»</span> o escriu-ho, i tria com vols que et tracti: senyor, capità, pel teu nom…</p></div></div>
+  <div class="row" style="grid-template-columns:68mm 1fr;margin-bottom:3.5mm"><figure><img src="img/w_wiz4_nombre.jpg"></figure><div>
+    <h3><span class="step-n">4</span>Com em vols dir?</h3>
+    <p>El nom que vulguis: Nova, Atena, Jarvis… T'avisa si és massa curt o una paraula comuna, perquè es despertaria sense voler. Dues o tres síl·labes són el millor.</p></div></div>
+  <div class="row" style="grid-template-columns:68mm 1fr;margin-bottom:3.5mm"><figure><img src="img/w_wiz5_ejercicios.jpg"></figure><div>
+    <h3><span class="step-n">5</span>Exercicis de so</h3>
+    <p>Prem <b>Escoltar com sona</b> i després <b>digues només el seu nom</b> tres vegades. Si el reconeixement de veu l'escriu diferent («A tena» en lloc d'«Atena»), la Nova ho aprèn.</p></div></div>
+  <div class="row" style="grid-template-columns:68mm 1fr;margin-bottom:3.5mm"><figure><img src="img/w_wiz6_frases.jpg"></figure><div>
+    <h3><span class="step-n">6</span>Frases d'entrenament</h3>
+    <p>Llegeix en veu alta 3 frases de Star Citizen que comencen pel seu nom. Surten <b>a l'atzar</b>: una amb moltes vocals seguides (per captar la teva vocalització), una altra amb consonants difícils i una altra que barreja les dues coses. Així ajusta la sensibilitat a la teva veu i al soroll de la teva habitació.</p></div></div>
+  <div class="row" style="grid-template-columns:68mm 1fr;margin-bottom:0"><figure><img src="img/w_wiz7_listo.jpg"></figure><div>
+    <h3><span class="step-n">7</span>Sistemes en línia</h3>
+    <p>Un resum de tot. Prem <b>◆ Acabar i enlairar-se</b>.</p>
+    <div class="tip"><span class="t">TORNA-HI</span>Ho pots repetir quan vulguis des de <b>Nova › Identitat i idioma › Repetir configuració</b>.</div></div></div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 04 VENTANA -->
+<section id="cap-04" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">04 · La finestra de la Nova</span></div>
+  <h1><span class="num">04</span>La finestra de la Nova</h1>
+  <p class="lead">La Nova s'obre en una finestra pròpia. <b>Si la tanques, la Nova continua a la safata de Windows</b>, al costat del rellotge (secció 10). Quan la tornes a obrir recupera la conversa, la secció i la mida de la finestra.</p>
+  <figure class="anno c" style="width:112mm"><img src="img/cabina.jpg">
+    <span class="m" style="left:9.4%;top:21%">1</span><span class="m" style="left:34%;top:3.8%">2</span>
+    <span class="m" style="left:36%;top:23.5%">3</span><span class="m" style="left:36%;top:91.2%">4</span>
+    <span class="m" style="left:91%;top:20%">5</span><span class="m" style="left:98%;top:39.5%">6</span>
+    <span class="m" style="left:98.7%;top:52.2%">7</span><span class="m" style="left:98.7%;top:75.4%">8</span>
+    <span class="m" style="left:17.7%;top:75.1%">9</span><span class="m" style="left:17.7%;top:91.8%">10</span>
+    <span class="m" style="left:95.9%;top:6.8%">11</span>
+  </figure>
+  <div class="legend">
+    <div><span class="k">1</span><span><b>Menú:</b> Cabina, el Manual i els Ajustos, ordenats per tasques.</span></div>
+    <div><span class="k">2</span><span><b>Secció</b> oberta i estat dels sistemes.</span></div>
+    <div><span class="k">3</span><span><b>Transmissions:</b> el que dius, el que et respon i els avisos del joc.</span></div>
+    <div><span class="k">4</span><span><b>Escriu a la Nova</b> en lloc de parlar.</span></div>
+    <div><span class="k">5</span><span><b>Holograma:</b> en espera, escoltant, pensant, parlant…</span></div>
+    <div><span class="k">6</span><span><b>Mantén per parlar</b>, silenciar i l'interruptor <b>NOVA ACTIVA</b> (aturar-la).</span></div>
+    <div><span class="k">7</span><span><b>Temporitzadors</b> de refinatge i contractes.</span></div>
+    <div><span class="k">8</span><span><b>Situació:</b> lloc, contractes, servidors…</span></div>
+    <div><span class="k">9</span><span><b>Accessos ràpids:</b> escoltar el seu nom sense tecla, l'overlay i els comentaris del joc.</span></div>
+    <div><span class="k">10</span><span><b>Estat</b> i mesurador del micròfon, amb el botó <b>MUTE</b> a la cantonada (verd = la Nova no escolta).</span></div>
+    <div><span class="k">11</span><span><b>Apagar</b> la Nova del tot (finestra, overlay i escolta).</span></div>
+  </div>
+  <p class="small" style="margin-top:2.5mm">Tot hi cap sense barres de desplaçament: si la finestra és baixa, l'holograma es fa petit i <b>Situació</b>, <b>Temporitzadors</b> i <b>Accessos ràpids</b> es pleguen sols (plegats mostren un resum com «2 actius»). Prem la seva capçalera per obrir-los o plegar-los; la Nova ho recorda.</p>
+  <h2>El menú</h2>
+  <table class="small">
+    <tr><th style="width:40mm">Secció</th><th>Què hi trobaràs</th></tr>
+    <tr><td>📖 Consulta el Manual</td><td>Sota Cabina: obre aquest manual al navegador (en el teu idioma).</td></tr>
+    <tr><td>Nau i ordres</td><td>Ordres de veu, lectura del joc (Game.log) i tecles, perfils de nau i xat del joc.</td></tr>
+    <tr><td>Nova</td><td>Identitat i idioma, veu, micròfon, com parlar-li, sortida d'àudio, intel·ligència i estalvi de tokens.</td></tr>
+    <tr><td>Overlay i hologrames</td><td>El logo d'estat i els hologrames sobre el joc, els seus sons i el nivell d'efectes.</td></tr>
+    <tr><td>Dades i memòria</td><td>Pàgines de consulta, Diccionari, el que sap de tu, bitàcoles, Discord i l'idioma del joc.</td></tr>
+    <tr><td>Ajustos</td><td>Idioma, actualitzacions, la safata de Windows, els teus fitxers, Quant a i començar de zero.</td></tr>
+  </table>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 05 CABINA -->
+<section id="cap-05" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">05 · Cabina i com parlar-li</span></div>
+  <h1><span class="num">05</span>Cabina i com parlar-li</h1>
+  <p class="lead">La Cabina és el registre de tot el que dius a la Nova i de les seves respostes. Sota cada resposta veuràs quin motor d'IA l'ha generada (per exemple, <i>via gemini-flash-lite-latest</i>).</p>
+  <h2>Tres maneres de parlar-li</h2>
+  <div class="g3">
+    <div class="feat"><div class="i">⌨</div><h3>Amb una tecla</h3><p>Mantén premuda <kbd>Insert</kbd> mentre parles i deixa-la anar. La pots canviar per qualsevol tecla, botó del ratolí o del HOTAS.</p></div>
+    <div class="feat"><div class="i">🗣</div><h3>Pel seu nom</h3><p><span class="say">«Nova, baixa el tren d'aterratge»</span>. Si només dius «Nova», et respon «Sí, senyor?» i espera l'ordre.</p></div>
+    <div class="feat"><div class="i">✎</div><h3>Escrivint</h3><p>Fes servir el quadre de text de la Cabina i prem <b>ENVIAR</b>. Ideal quan ets en una trucada de veu de Discord.</p></div>
+  </div>
+  <h2>Exemples del que li pots demanar</h2>
+  <table class="small">
+    <tr><th style="width:52mm">Tipus</th><th>Frases</th></tr>
+    <tr><td>Maniobres</td><td><span class="say">«baixa el tren d'aterratge»</span> · <span class="say">«sol·licita aterratge»</span> · <span class="say">«mode VTOL»</span> · <span class="say">«salt quàntic»</span></td></tr>
+    <tr><td>Sistemes</td><td><span class="say">«activa els escuts»</span> · <span class="say">«activa l'energia»</span> · <span class="say">«obre les portes»</span> · <span class="say">«llums»</span></td></tr>
+    <tr><td>Informació del joc</td><td><span class="say">«on puc minar quantainium?»</span> · <span class="say">«a quant es ven la laranite?»</span> · <span class="say">«plànols d'una pistola a Pyro»</span></td></tr>
+    <tr><td>La teva sessió</td><td><span class="say">«on soc?»</span> · <span class="say">«on he deixat el meu personatge?»</span> · <span class="say">«qui ha pujat a la nau?»</span></td></tr>
+    <tr><td>Memòria</td><td><span class="say">«recorda que la meva nau preferida és la Cutlass»</span> · <span class="say">«oblida la Cutlass»</span></td></tr>
+    <tr><td>Jugadors i planetes</td><td><span class="say">«busca'm un jugador»</span> · <span class="say">«parla'm de Daymar»</span> · <span class="say">«què és el Security Post Kareah?»</span></td></tr>
+    <tr><td>Temporitzadors</td><td><span class="say">«recorda-m'ho d'aquí a 3 hores i 20 minuts, la refineria d'ARC-L1»</span> · <span class="say">«quins temporitzadors tinc?»</span></td></tr>
+    <tr><td>Comerç i servidors</td><td><span class="say">«quina ruta paga més amb 100.000 aUEC?»</span> · <span class="say">«com estan els servidors?»</span></td></tr>
+    <tr><td>Combat i estadístiques</td><td><span class="say">«fixa l'objectiu»</span> (va a la bitàcola) · <span class="say">«quantes baixes porto aquest mes?»</span></td></tr>
+    <tr><td>Control de la Nova</td><td><span class="say">«Nova, atura't»</span> o <span class="say">«desactiva't»</span> (l'atura) · <span class="say">«Nova, activa't»</span> · <span class="say">«silenci»</span> o <span class="say">«calla»</span> (deixa de parlar)</td></tr>
+    <tr><td>Sobre la Nova</td><td><span class="say">«Qui ets?»</span> · <span class="say">«Presenta't»</span> · <span class="say">«Què saps fer?»</span> · <span class="say">«Obre el manual»</span></td></tr>
+    <tr><td>Xat del joc</td><td><span class="say">«Nova, envia un missatge al xat: algú necessita escorta?»</span> (el tradueix si cal i l'escriu)</td></tr>
+  </table>
+  <div class="warnb"><span class="t">ELS SISTEMES SÓN INTERRUPTORS</span>«Activa els escuts» i «desactiva els escuts» premen la mateixa tecla: la Nova no veu l'estat real de la nau. Si ja estaven activats, «activa els escuts» els apaga.</div>
+  <div class="tip"><span class="t">INTERROMPRE-LA</span>Si prems la teva tecla per parlar mentre la Nova parla, calla a l'instant. El botó 🔇 de la Cabina fa el mateix.</div>
+  <div class="tip"><span class="t">LA REGLA D'OR DE L'HUMOR</span>Si la Nova no sap alguna cosa, de vegades se la inventa amb una mica de gràcia… i ho confessa al final. Ho pots desactivar a <b>Nova › Intel·ligència › Personalitat</b>.</div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 05 CABINA 2 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">05 · Cabina</span></div>
+  <h2>Dins de la Cabina</h2>
+  <figure class="c" style="width:150mm"><img src="img/c_cabina.jpg"><figcaption><b>Cabina:</b> transmissions (esquerra), estat de la Nova, temporitzadors i situació (dreta).</figcaption></figure>
+  <div class="g2">
+    <div class="card"><h3>Transmissions</h3><ul class="d small">
+      <li>Tot el que dius i tot el que respon la Nova, amb els avisos del joc (📡) i del sistema.</li>
+      <li>Les <b>fitxes</b> de jugadors i planetes apareixen en un marc daurat.</li>
+      <li><b>🧹 NETEJAR</b> buida la Cabina quan vulguis (la memòria i la bitàcola no es toquen).</li></ul></div>
+    <div class="card"><h3>Temporitzadors</h3><ul class="d small">
+      <li>Per al refinatge (⚗), els contractes (📜) o el que sigui (⏰). Crea'ls per veu o escriu el motiu i la durada (<code>90</code>, <code>1:30</code> o <code>2h30</code>) i prem <b>＋</b>.</li>
+      <li><b>Continuen comptant encara que tanquis NOVA</b>: si acaben mentre està tancada, t'ho diu quan tornes. ✕ cancel·la.</li></ul></div>
+  </div>
+  <div class="row" style="grid-template-columns:52mm 1fr;gap:6mm">
+    <figure><img src="img/n_cabina_power_off.jpg"><figcaption>Nova <b>aturada</b>.</figcaption></figure>
+    <div><div class="card"><h3>Interruptor NOVA ACTIVA</h3><ul class="d small">
+      <li><b>Apaga'l</b> per aturar-la a l'instant: cancel·la les cerques en curs (jugadors, IA, recompenses), calla, treu l'holograma i ignora les ordres. L'overlay es posa vermell.</li>
+      <li><b>Encén-lo</b> (o digues <span class="say">«Nova, activa't»</span>) perquè torni. També per veu: <span class="say">«Nova, atura't»</span>.</li>
+      <li>Mentre està aturada continua escrivint la bitàcola i els temporitzadors continuen comptant.</li></ul></div>
+    <div class="card"><h3>Situació</h3><p class="small">On ets, els teus contractes actius, l'overlay i els <b>servidors RSI</b>: en arrencar, NOVA consulta <b>status.robertsspaceindustries.com</b> i t'avisa de caigudes o manteniments.</p></div></div>
+  </div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 05 CABINA 3: JUGADORES -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">05 · Buscar jugadors</span></div>
+  <h2>Buscar un jugador</h2>
+  <ol class="small" style="padding-left:6mm">
+    <li>Digues <span class="say">«Nova, busca'm un jugador»</span> o <span class="say">«localitza un jugador»</span>.</li>
+    <li>La Nova et demana que <b>escriguis el handle</b> al quadre de text de la Cabina (es posa groc): així no hi ha errors de pronunciació. Tens 3 minuts.</li>
+    <li>Escriu el handle (per exemple <code>Nebula_Rider</code>) i prem <kbd>Enter</kbd>. Si ho dius tot de cop (<span class="say">«busca el jugador Nebula_Rider»</span>), el pas 2 se salta.</li>
+  </ol>
+  <div class="row" style="grid-template-columns:1fr 70mm">
+    <figure><img src="img/n_cabina_ficha.jpg"><figcaption>La fitxa a la Cabina.</figcaption></figure>
+    <div><p class="small">La Nova llegeix la seva fitxa pública a robertsspaceindustries.com: <b>àlies al joc</b>, <b>handle</b>, <b>expedient UEE</b>, <b>data d'alta</b>, <b>idiomes</b> i <b>organització principal</b>, i després la pàgina d'aquella organització (membres, tipus, activitat). La seva <b>fitxa policial també apareix com a holograma</b> per sobre del joc (secció 08).</p>
+    <p class="small">Si alguna dada està oculta (RSI la mostra com a <b>[REDACTED]</b>), la Nova et diu que aquella informació està oculta.</p></div>
+  </div>
+  <div class="warnb"><span class="t">SI NO EL TROBA</span>Davant de qualsevol error, o si la fitxa no dona les dades, la Nova diu: <b>«Usuari no trobat. El handle està ben escrit?»</b>.</div>
+  <div class="g2">
+    <div class="card"><h3>A la bitàcola</h3><p class="small">Cada cerca es desa a <b>Dades i memòria › Bitàcola i estadístiques</b>, al fitxer <code>Busquedas_de_jugadores.log</code>: <i>data · hora · jugador · organització</i>.</p></div>
+    <div class="card"><h3>A Discord</h3><p class="small">Amb un webhook a <b>Dades i memòria › Discord i servidors</b>, la Nova pregunta «L'envio a Discord?» i, si dius o escrius <b>«sí»</b> en 30 segons, la publica en aquell canal (els objectius de caça, en vermell). La Cabina t'indica si ha arribat.</p></div>
+  </div>
+  <h3>Objectius de caça</h3>
+  <p class="small">Quan acceptes una missió de caçarecompenses o PvP (o quan apareix <i>«Objectiu nou: Neutralitzar XX»</i>), la Nova pregunta «Busco la seva fitxa de RSI?» i només la busca si dius <b>«sí»</b>. Si té fitxa és un <b>jugador</b>: sona una alerta i la seva fitxa apareix <b>en vermell</b> amb el segell «OBJECTIU DE CAÇA». Si no, et diu que és un <b>pilot NPC</b>. Tots dos casos van al registre de cerques de jugadors.</p>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 06 JUEGO 1 -->
+<section id="cap-06" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">06 · Nau i ordres</span></div>
+  <h1><span class="num">06</span>Nau i ordres</h1>
+  <p class="lead">Tot el que té a veure amb Star Citizen: el que la Nova llegeix del joc i t'explica en veu alta, les teves tecles i les ordres de veu que premen tecles per tu.</p>
+  <figure class="c" style="width:148mm"><img src="img/c_juego.jpg"><figcaption><b>Joc:</b> lectura del Game.log (esquerra) i tecles de Star Citizen (dreta).</figcaption></figure>
+  <div class="g2">
+    <div class="card"><h3>Lectura del joc (Game.log)</h3><ul class="d small">
+      <li><b>Llegir el Game.log:</b> la Nova segueix la teva sessió (només llegeix el fitxer; no toca el joc).</li>
+      <li><b>Comentar els esdeveniments en veu:</b> arribades, ATC, diners, contractes, ferides…</li>
+      <li><b>Comentaris amb IA:</b> més divertits i variats, però gasten quota.</li>
+      <li><b>Què t'avisa en veu:</b> marca només els tipus d'avís que vols sentir.</li>
+      <li>Detecta els <b>objectius de caça</b> i quan t'acostes a un <b>planeta, lluna o lloc</b> (per als seus hologrames).</li>
+      <li><b>Prémer tecles només amb el joc al davant</b>, <b>pausa entre tecles</b> i <b>mode prudent</b> (activat de fàbrica: sense esperes ni ratolí dins de les seqüències i tecles mantingudes 3 s com a màxim, per respectar els Termes de Servei de RSI sobre macros).</li></ul></div>
+    <div class="card"><h3>Tecles de Star Citizen</h3><ul class="d small">
+      <li>La Nova llegeix el teu <code>actionmaps.xml</code> en arrencar i <b>fa servir les teves pròpies tecles</b>.</li>
+      <li>Crea ordres per a les accions noves a les quals has donat tecla.</li>
+      <li>T'avisa de les accions que només tens al joystick: la Nova no pot prémer botons del HOTAS, així que dona'ls també una tecla.</li>
+      <li><b>⟳ Sincronitzar ara</b> si canvies els controls amb la Nova oberta.</li></ul></div>
+  </div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 06 JUEGO 2 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">06 · Nau i ordres</span></div>
+  <h2>Ordres de veu</h2>
+  <p>La llista d'ordres agrupades per categoria (enlairament i aterratge, energia i sistemes, armes, mineria…). Cadascuna mostra les seves frases i tecles. Les pots buscar per nom, frase o tecla.</p>
+  <div class="g2">
+    <figure><img src="img/c_juego_comandos.jpg"><figcaption><b>Llista d'ordres:</b> ▶ provar, ✎ editar, 🗑 amagar.</figcaption></figure>
+    <figure><img src="img/c_editor.jpg"><figcaption><b>Editor d'ordres:</b> ＋ ORDRE NOVA.</figcaption></figure>
+  </div>
+  <h2>Crear una ordre pròpia</h2>
+  <ol class="small" style="padding-left:6mm">
+    <li>Prem <b>＋ ORDRE NOVA</b> (o ✎ en una que ja existeixi).</li>
+    <li>Posa-li un <b>nom</b> i les <b>frases de veu</b> que vulguis, una per línia. Aquestes frases s'executen a l'instant, sense IA.</li>
+    <li>Prem <b>● GRAVAR</b> i <b>prem la combinació al teclat</b> (per exemple <kbd>Ctrl dreta</kbd> + <kbd>Num 8</kbd>). Fins i tot AltGr, el teclat numèric i les tecles pròpies del teu teclat es graven.</li>
+    <li>Per a una seqüència, afegeix passos: <b>＋ Tecla</b>, <b>＋ Clic de ratolí</b> o <b>＋ Espera</b>. Cada tecla es pot mantenir uns segons o ser una doble pulsació. Amb el mode prudent de tecles activat, les esperes i els clics de ratolí dins de les seqüències s'ometen i les tecles es mantenen 3 s com a màxim.</li>
+    <li><b>＋ Acció del joc</b> vincula el pas a una acció de Star Citizen: si canvies aquella tecla al joc, la Nova l'actualitza sola (⟳).</li>
+    <li><b>▶ Provar en 3 s</b> et dona temps per canviar al joc. Després prem <b>Desar</b>.</li>
+  </ol>
+  <p class="small"><b>Només en aquestes naus</b> limita una ordre a certes naus (i permet la mateixa frase amb tecles diferents a cadascuna). <b>Anotar-ho a la bitàcola</b> el registra amb la nau i el lloc, com <span class="say">«fixa l'objectiu»</span>.</p>
+  <div class="g2">
+    <div class="tip"><span class="t">NOMÉS FRASE EXACTA</span>Activa-ho per a ordres delicades: la IA no les executarà mai pel seu compte. Així està protegit «expulsa la càrrega».</div>
+    <div class="tip"><span class="t">LES TEVES ORDRES ESTAN SEGURES</span>Es desen a part (<code>comandos_personales.json</code>): les actualitzacions no les esborren. ↺ restaura una ordre de fàbrica.</div>
+  </div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 06 JUEGO 3 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">06 · Nau i ordres</span></div>
+  <h2>Perfils de nau</h2>
+  <p>Cada nau pot tenir <b>els seus propis avisos en veu</b>: per exemple, sense avisos de grup ni de diners a la MOLE. La Nova sap en quina nau vas pel Game.log. Escriu o tria la nau, prem <b>＋ CREAR PERFIL</b> i marca el que vols sentir-hi; el que és diferent dels avisos generals es mostra en groc. El perfil de la nau on ets es marca com <b>EN ÚS</b>.</p>
+  <figure class="c" style="width:150mm"><img src="img/n_juego_perfiles.jpg"><figcaption><b>Nau i ordres › Perfils de nau.</b></figcaption></figure>
+  <h2>Fixar l'objectiu</h2>
+  <p>El Game.log no registra quan fixes un objectiu («marcar» un enemic). Si li ho demanes per veu (<span class="say">«Nova, fixa l'objectiu»</span>, <span class="say">«marca l'objectiu»</span>), la Nova prem la tecla i ho anota a la bitàcola (etiqueta <b>OBJECTIU</b>) amb la nau i el lloc.</p>
+  <h2>Rutes comercials</h2>
+  <p><span class="say">«Nova, quina ruta paga més amb 100.000 aUEC?»</span>: amb els preus d'UEX calcula quants SCU comprar per a la bodega de la nau on vas (o la que diguis), l'estoc a l'origen, la demanda al destí i els teus diners, i ordena pel <b>benefici real</b>. Si no sap la teva nau fa servir la <b>Bodega per defecte</b> de Dades i memòria.</p>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 06 JUEGO 4: CHAT -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">06 · Nau i ordres</span></div>
+  <h2>Missatges al xat del joc</h2>
+  <p>Escriu al xat de Star Citizen sense deixar anar els controls, i en anglès encara que li parlis en un altre idioma:</p>
+  <ol class="small" style="padding-left:6mm">
+    <li>Digues <span class="say">«Nova, envia un missatge al xat»</span>. La Nova pregunta quin missatge vols enviar.</li>
+    <li>Digues el missatge (no cal repetir el seu nom): <span class="say">«algú necessita escorta fins a Daymar?»</span>. O digues-ho tot de cop: <span class="say">«Nova, envia un missatge al xat: algú necessita escorta fins a Daymar?»</span>.</li>
+    <li>La Nova el tradueix amb <b>Google Translate</b> (gratuït, sense quota d'IA) i fa el que faries tu: <kbd>F12</kbd> + <kbd>Enter</kbd> per obrir el xat i escriure, les lletres tecla a tecla, i <kbd>Enter</kbd> + <kbd>F12</kbd> per enviar-lo i tancar el xat.</li>
+  </ol>
+  <figure class="c" style="width:112mm"><img src="img/n_cabina_chat.jpg"><figcaption>La Cabina conserva el que s'ha enviat i l'original.</figcaption></figure>
+  <figure class="c" style="width:150mm"><img src="img/n_juego_chat.jpg"><figcaption><b>Nau i ordres › Xat del joc.</b></figcaption></figure>
+  <div class="g2">
+    <div class="card"><h3>Ajustos</h3><ul class="d small">
+      <li><b>Tecles</b> per obrir el xat (F12), començar a escriure (Enter) i tancar-lo (F12), i l'<b>espera</b>.</li>
+      <li><b>Traduir a</b> l'anglès (o francès, alemany, italià, portuguès; o sense traducció).</li>
+      <li><b>Llegir la traducció abans d'enviar-la</b>: la Nova te la llegeix i espera el teu <span class="say">«sí»</span>.</li>
+      <li><b>Com l'escriu:</b> «Tecles, lletra a lletra» (la que funciona a Star Citizen: el xat no accepta enganxar) i la seva <b>velocitat</b>.</li></ul></div>
+    <div class="card"><h3>Prova</h3><p class="small">Escriu un missatge i prem <b>TRADUIR</b> per veure la traducció, o <b>ENVIAR AL JOC (5 s)</b> i torna a Star Citizen: s'escriu al cap de 5 segons. <span class="say">«Cancel·la»</span> anul·la un missatge pendent. Cada missatge va a la bitàcola (etiqueta <b>XAT</b>).</p></div>
+  </div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 07 VOZ -->
+<section id="cap-07" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">07 · Nova › Veu</span></div>
+  <h1><span class="num">07</span>Nova: veu, oïda i intel·ligència</h1>
+  <p class="lead">A <b>Nova</b> hi ha tot el que la fa ser ella, en pestanyes: <b>Identitat i idioma</b>, <b>Veu</b>, <b>Micròfon</b>, <b>Com parlar-li</b>, <b>Sortida d'àudio</b>, <b>Intel·ligència</b> i <b>Estalvi de tokens</b>. Comencem per com sona. Totes les veus són gratuïtes: les d'Edge són les més naturals i les de Piper funcionen sense internet.</p>
+  <figure><img src="img/c_voz.jpg"><figcaption><b>Nova › Veu:</b> motor, veu i ajustos fins. <b>▶ Provar veu</b> la reprodueix (torna-hi a prémer per aturar-la).</figcaption></figure>
+  <table>
+    <tr><th style="width:38mm">Motor</th><th>Com és</th><th style="width:30mm">Internet</th></tr>
+    <tr><td>Edge</td><td>Veus neuronals de Microsoft, molt naturals. La llista només mostra les del teu idioma; les <i>Multilingual</i> són més expressives.</td><td>Sí</td></tr>
+    <tr><td>Piper</td><td>Bona qualitat i sense internet. La veu es descarrega sola la primera vegada.</td><td>No</td></tr>
+    <tr><td>Windows</td><td>La veu del sistema, com a últim recurs.</td><td>No</td></tr>
+  </table>
+  <div class="g2">
+    <div class="card"><h3>Ajustos</h3><ul class="d small">
+      <li><b>Velocitat, to i volum</b> amb els seus controls lliscants.</li>
+      <li><b>Efecte «IA de cabina»:</b> li dona aquell toc de ràdio de nau.</li></ul></div>
+    <div class="okb"><span class="t">SEMPRE PARLA</span>Si el motor triat falla (per exemple, sense internet), la Nova passa sola al següent.</div>
+  </div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 08 INTERFAZ 1 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">07 · Nova</span></div>
+  <h2>Micròfon i Com parlar-li</h2>
+  <p class="lead">Com et comuniques amb la Nova: les pestanyes <b>Micròfon</b> i <b>Com parlar-li</b>.</p>
+  <div class="g2">
+    <figure><img src="img/c_interfaz_mic.jpg"><figcaption><b>Micròfon i reconeixement.</b></figcaption></figure>
+    <figure><img src="img/c_interfaz_hablar.jpg"><figcaption><b>Com parlar-li.</b></figcaption></figure>
+  </div>
+  <div class="g2">
+    <div class="card"><h3>Micròfon i reconeixement</h3><ul class="d small">
+      <li><b>Micròfon</b> i el seu mesurador en directe.</li>
+      <li><b>Sensibilitat:</b> puja-la si parles fluix, baixa-la si s'activa sola.</li>
+      <li><b>Guany</b> (×1 a ×8): amplifica el senyal si el teu micròfon entra molt baix. A sobre pots veure quin micròfon està obert i si només hi arriba silenci (per exemple, uns auriculars silenciats).</li>
+      <li><b>Silenci per acabar la frase:</b> quant espera abans de donar la frase per acabada.</li>
+      <li><b>Motor:</b> <i>Automàtic</i> fa servir Groq (núvol, superràpid) si hi ha clau; si no, Whisper al teu PC.</li>
+      <li><b>Model local:</b> <code>small</code> sense NVIDIA; <code>large-v3-turbo</code> amb NVIDIA.</li></ul></div>
+    <div class="card"><h3>Com parlar-li</h3><ul class="d small">
+      <li><b>Tecla o botó per parlar:</b> prem <b>Assignar</b> i prem la tecla, el botó del ratolí o del HOTAS.</li>
+      <li><b>Escoltar «Nova…» sense tecla:</b> activa-ho per cridar-la pel seu nom.</li>
+      <li><b>Altres maneres de cridar-la</b>, com «ordinador».</li>
+      <li><b>Com sent el seu nom amb la teva veu:</b> les formes apreses; <b>Oblidar</b> treu les que l'activen sense voler.</li></ul></div>
+  </div>
+  <div class="warnb"><span class="t">QUOTA DE GROQ</span>Amb «Escoltar sense tecla», cada frase que dius es transcriu per buscar-hi el seu nom. Amb Groq això gasta quota; si jugues parlant molt per Discord, fes servir només la tecla.</div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 08 INTERFAZ 2 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">07 · Nova</span></div>
+  <h2>Intel·ligència</h2>
+  <p class="lead">El cervell de la Nova: el seu nom i el teu, les claus dels motors d'IA, l'ordre en què els fa servir i la seva personalitat.</p>
+  <div class="row"><figure><img src="img/c_ia.jpg"></figure><div>
+    <h3>Identitat</h3>
+    <p><b>Nom de la IA</b>, <b>el teu nom</b> i <b>com et diu</b>. Si li canvies el nom, repeteix l'entrenament amb <b>◆ Repetir configuració</b> perquè el reconegui amb la teva veu.</p>
+    <h3>Claus gratuïtes</h3>
+    <p>Enganxa aquí les teves claus (secció 11). Si el teu instal·lador inclou claus de prova, ja hi seran. Un punt <span class="ok">verd</span> vol dir que hi ha clau. Per fer servir la teva, prem el camp i enganxa-la a sobre (secció 11).</p></div></div>
+  <h2>Cadena de motors</h2>
+  <figure class="c" style="width:140mm"><img src="img/c_ia_claves.jpg"><figcaption><b>Claus i cadena de motors.</b> PROVAR comprova la clau; MODELS descarrega la llista actual de models.</figcaption></figure>
+
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 09 INTELIGENCIA 2 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">07 · Nova</span></div>
+  <p>La Nova prova els motors <b>per ordre</b>: si un es queda sense quota o falla, salta al següent sense que te n'adonis. L'ordre de fàbrica és:</p>
+  <table class="small">
+    <tr><th style="width:10mm">#</th><th style="width:34mm">Proveïdor</th><th>Model</th></tr>
+    <tr><td>01</td><td>Gemini</td><td><code>gemini-flash-lite-latest</code> · ràpid, moltes peticions gratuïtes</td></tr>
+    <tr><td>02</td><td>Gemini</td><td><code>gemini-3.5-flash-lite</code></td></tr>
+    <tr><td>03</td><td>Groq</td><td><code>openai/gpt-oss-120b</code> · reserva ultraràpida</td></tr>
+    <tr><td>04</td><td>OpenRouter</td><td><code>openrouter/free</code> · models gratuïts variats</td></tr>
+    <tr><td>05</td><td>Mistral</td><td><code>mistral-small-latest</code> · reserva europea, sense targeta de crèdit</td></tr>
+  </table>
+  <h2>Personalitat</h2>
+  <figure class="c" style="width:122mm"><img src="img/c_ia_personalidad.jpg"><figcaption><b>Personalitat:</b> humor, raonament, memòria de la conversa i frases de confessió.</figcaption></figure>
+  <table class="small">
+    <tr><th style="width:52mm">Ajust</th><th>Per a què serveix</th></tr>
+    <tr><td>Humor</td><td>De 0 (seriosa) a 10 (bromista total).</td></tr>
+    <tr><td>Raonament (Gemini)</td><td>Més alt = més llesta però més lenta. «Ràpid» és l'ideal mentre voles.</td></tr>
+    <tr><td>Memòria de la conversa</td><td>Quants torns anteriors recorda a cada resposta.</td></tr>
+    <tr><td>Inventar quan no ho sap</td><td>Activat: s'inventa la resposta amb gràcia i ho confessa al final. Desactivat: et diu amb humor que no ho sap.</td></tr>
+    <tr><td>Frases de confessió</td><td>Una per línia; en tria una a l'atzar. <code>{t}</code> se substitueix per com et diu. <b>Restaurar l'original</b> torna a la de fàbrica.</td></tr>
+  </table>
+  <div class="tip"><span class="t">AFEGIR UN MOTOR A LA CADENA</span>A la fila buida tria el proveïdor (per exemple <b>deepseek</b>, si en tens la clau), escriu el model o prem <b>MODELS</b> per triar-lo de la llista, i comprova'l amb <b>PROVAR</b>. Per treure'n un, posa el proveïdor a «—».</div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 09 INTELIGENCIA 3: AHORRO -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">07 · Nova</span></div>
+  <h2>Estalvi de tokens</h2>
+  <p class="small">Les claus gratuïtes tenen un límit diari. La Nova respon tot el que pot sense la IA:</p>
+  <figure class="c" style="width:132mm"><img src="img/n_ia_ahorro.jpg"><figcaption><b>Nova › Estalvi de tokens.</b></figcaption></figure>
+  <div class="g2">
+    <div class="card"><h3>Respostes desades</h3><p class="small">Si la IA respon fent servir només dades que no canvien (naus, armes, armadures i roba, components, minerals, plànols, planetes…), la resposta es desa. La pròxima vegada que preguntis el mateix (<span class="say">«què és la Cutlass Black?»</span> o <span class="say">«parla'm de la Cutlass Black»</span>) la Nova la repeteix sense gastar res. Caduquen al cap de 14 dies o quan canvia el pegat. Els preus, les rutes, la teva sessió i les preguntes que depenen de la conversa no es desen mai.</p></div>
+    <div class="card"><h3>Planetes i llocs sense IA</h3><p class="small"><span class="say">«Parla'm de Daymar»</span>, <span class="say">«què és el Security Post Kareah?»</span>: la Nova obté la fitxa de VerseGuide, la mostra com a holograma i te'n fa un resum en veu.</p></div>
+    <div class="card"><h3>Traduccions gratuïtes</h3><p class="small">Les descripcions dels hologrames i els missatges del xat es tradueixen amb <b>Google Translate</b>. Només si Google no respon es fa servir la IA (ho pots desactivar). Les traduccions es desen i no es tornen a demanar mai.</p></div>
+    <div class="card"><h3>Conversa més curta</h3><p class="small">Envia menys historial a la IA (6 torns de fàbrica) i retalla les respostes i els resultats de cerca llargs. Comptadors, una llista de respostes desades i botons per esborrar-les.</p></div>
+  </div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 10 DATOS 1 -->
+<section id="cap-08" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">07 · Nova  ·  08 · Overlay i hologrames</span></div>
+  <h2>Sortida d'àudio</h2>
+  <div class="row"><figure><img src="img/c_interfaz_sonido.jpg"></figure><div>
+    <p>Si tens diverses sortides (altaveus, auriculars, interfície d'àudio USB…), tria on vols sentir la Nova. <b>Per defecte</b> fa servir la de Windows.</p>
+    <p><b>▶ Provar el so</b> per comprovar-ho.</p>
+    <div class="tip"><span class="t">CONSELL</span>Amb auriculars, la Nova no se sent a si mateixa pel micròfon.</div></div></div>
+  <h1><span class="num">08</span>Overlay i hologrames</h1>
+  <p class="small">Tot el que NOVA dibuixa per sobre del joc: el <b>logo d'estat</b> i els <b>hologrames d'informació</b>, cadascun a la seva pestanya. A dalt tries el <b>nivell d'efectes</b> (capítol 10).</p>
+  <figure class="c" style="width:74mm"><img src="img/c_interfaz_overlay.jpg"><figcaption><b>Logo d'estat:</b> vista prèvia (prem una casella per moure el logo), ajustos i colors.</figcaption></figure>
+  <div class="g2">
+    <div class="card"><h3>Què vol dir cada color</h3><ul class="d small" style="list-style:none">
+      <li><span class="sw" style="background:#20b8e8;color:#20b8e8"></span><b>Blau:</b> escolta, pensa o parla (només parpelleja mentre parla).</li>
+      <li><span class="sw" style="background:#39e47a;color:#39e47a"></span><b>Verd:</b> ha entès la teva ordre.</li>
+      <li><span class="sw" style="background:#ffc933;color:#ffc933"></span><b>Groc:</b> busca a internet.</li>
+      <li><span class="sw" style="background:#ff3b4e;color:#ff3b4e"></span><b>Vermell:</b> aturada o no t'ha entès.</li>
+      <li><span class="sw" style="background:#a35cff;color:#a35cff"></span><b>Lila:</b> busca a la seva memòria física (Diccionari de consultes).</li>
+      <li><span class="sw" style="background:#f4f7ff;color:#f4f7ff"></span><b>Blanc:</b> memoritza el que ha après.</li></ul></div>
+    <div class="card"><h3>Ajustos del logo</h3><ul class="d small">
+      <li>Posició, <b>monitor</b>, resolució, mida, opacitat en repòs, brillantor i distància a la vora.</li>
+      <li><b>◆ Provar a la pantalla</b> recorre tots els estats en 9 s.</li>
+      <li>Els sis colors es poden canviar.</li></ul></div>
+  </div>
+  <div class="warnb"><span class="t">FINESTRA SENSE VORES</span>L'overlay es dibuixa per sobre del joc amb Star Citizen en <b>«Finestra sense vores»</b>. En pantalla completa exclusiva, Windows no deixa dibuixar-hi a sobre. No roba el focus ni els clics.</div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 08 INTERFAZ 4: HOLOGRAMAS -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">08 · Overlay i hologrames</span></div>
+  <h2>Hologrames d'informació</h2>
+  <p class="small">Fitxes holografiques per sobre del joc. Apareixen com una projecció (una línia de llum que s'obre amb un <b>so d'encesa</b>), tenen línies d'escaneig mentre són a la pantalla i es pleguen amb un <b>so d'apagada</b>.</p>
+  <div class="row" style="grid-template-columns:1fr 1fr;gap:5mm">
+    <figure><img src="img/v12_jugador.jpg"><figcaption><b>Jugador</b> consultat: holograma <b>blau</b>.</figcaption></figure>
+    <figure><img src="img/v12_recompensa.jpg"><figcaption><b>Objectiu de caça</b>: holograma <b>vermell</b> i alerta.</figcaption></figure>
+  </div>
+  <div class="g2">
+    <div class="card"><h3>Fitxa policial UEE (blava)</h3><p class="small">Quan busques un jugador: <b>foto de perfil</b>, àlies al joc, handle, número d'expedient, data d'alta, idiomes i l'<b>organització amb el seu logo</b>. El que el jugador amaga surt com a <b>REDACTED</b>.</p></div>
+    <div class="card"><h3>Objectiu de caça (vermella)</h3><p class="small">Si l'objectiu d'una recompensa o missió PvP és un <b>jugador</b> i dius «sí» a buscar-lo, sona una <b>alerta</b> de dos tons abans d'obrir-se la fitxa, en <b>vermell</b> i amb el segell <b>OBJECTIU DE CAÇA</b>. Si és un pilot NPC, només t'ho diu.</p></div>
+  </div>
+  <div class="row" style="grid-template-columns:1fr 1fr;gap:5mm">
+    <figure><img src="img/v12_planeta.jpg"><figcaption><b>Planeta o lluna</b>: el cos gira en 3D.</figcaption></figure>
+    <figure><img src="img/v12_lugar.jpg"><figcaption><b>Lloc planetari</b>: la balisa marca el punt.</figcaption></figure>
+  </div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 08 INTERFAZ 5: HOLOGRAMAS 2 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">08 · Overlay i hologrames</span></div>
+  <div class="g2">
+    <div class="card"><h3>Planetes i llunes</h3><p class="small"><span class="say">«Nova, parla'm de Daymar»</span>. Dades de <b>verseguide.com</b>: tipus, radi, gravetat, durada del dia, atmosfera, perill, economia, població, els seus llocs i una descripció <b>en el teu idioma</b>.</p></div>
+    <div class="card"><h3>Llocs planetaris</h3><p class="small">Coves, llocs avançats, bases, búnquers: <span class="say">«què és el Security Post Kareah?»</span> → tipus, on és, temperatura i descripció en el teu idioma.</p></div>
+  </div>
+  <p class="small"><b>En arribar:</b> quan el Game.log indica que t'acostes a un planeta o lluna, o que arribes a un dels seus llocs, la fitxa apareix sola (com a màxim un cop cada mitja hora per al mateix lloc).</p>
+  <div class="row" style="grid-template-columns:96mm 1fr;gap:6mm">
+    <figure><img src="img/c_interfaz_holo.jpg"><figcaption><b>Overlay i hologrames › Hologrames.</b></figcaption></figure>
+    <div><h3>Ajustos</h3><ul class="d small">
+      <li><b>Opacitat</b> (menys = més transparent), <b>temps a la pantalla</b>, <b>mida</b> i <b>posició</b>.</li>
+      <li><b>Quan apareix:</b> en buscar un jugador, en les recompenses, quan demanes un planeta o lloc, en arribar.</li>
+      <li><b>Traduir les descripcions:</b> VerseGuide és en anglès; es tradueixen un cop per lloc i es desen.</li>
+      <li><b>Cercar l'objectiu de cada recompensa:</b> abans t'ho pregunta; fitxa si és un jugador, avís si és un pilot NPC.</li>
+      <li><b>So:</b> el de cada moment i el seu volum (pàgina següent).</li>
+      <li>Els botons <b>Provar</b> mostren cada fitxa a la vista prèvia i a la pantalla; <b>Amagar</b> la treu.</li></ul>
+    <div class="tip"><span class="t">TEXT CLAR</span>Els textos són en negreta amb un contorn fosc perquè es llegeixin bé sobre qualsevol fons del joc.</div>
+    <div class="tip"><span class="t">SENSE CONNEXIÓ</span>Les pàgines de VerseGuide es guarden 3 dies al teu ordinador; sense internet, la Nova fa servir l'última còpia.</div></div>
+  </div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 08 INTERFAZ 6: SONIDOS -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">08 · Overlay i hologrames</span></div>
+  <h2>Sons dels hologrames</h2>
+  <div class="row" style="grid-template-columns:82mm 1fr;gap:7mm">
+    <figure><img src="img/n_interfaz_sonidos.jpg"><figcaption><b>Overlay i hologrames › Hologrames › So.</b></figcaption></figure>
+    <div>
+      <p class="small">Cada holograma fa un so quan <b>s'encén</b> i quan <b>s'apaga</b>, i els objectius de caça tenen una <b>alerta</b> abans d'obrir-se. Per a cadascun dels tres moments tries:</p>
+      <table class="small">
+        <tr><th style="width:30mm">Moment</th><th>Sons de la llista</th></tr>
+        <tr><td>En encendre's</td><td>Projector hologràfic · Pols digital · Escàner · Campaneta · Arrencada de motor</td></tr>
+        <tr><td>En apagar-se</td><td>Projector hologràfic · Pols digital · Desconnexió · Campaneta · Aturada de motor</td></tr>
+        <tr><td>Alerta de caça</td><td>Sirena de dos tons · Clàxon · Pitets ràpids · Alarma de proximitat · Campana de combat</td></tr>
+      </table>
+      <ul class="d small">
+        <li><b>Fitxer propi…</b> o el botó 📁: fa servir el teu propi àudio (WAV, MP3, OGG o FLAC, 4 MB com a màxim; tallat a 6 segons). Se'n desa una còpia a la teva carpeta de dades.</li>
+        <li><b>Sense so</b> per silenciar només aquell moment.</li>
+        <li>Cadascun té el seu <b>volum</b> (fins al 150 %), a més del <b>volum general</b>. <b>▶</b> el reprodueix.</li>
+      </ul>
+      <div class="tip"><span class="t">ON SONA</span>Per la mateixa sortida que la veu de la Nova (<b>Nova › Sortida d'àudio</b>).</div>
+    </div>
+  </div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 09 INTELIGENCIA 1 -->
+<section id="cap-09" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">09 · Dades i memòria</span></div>
+  <h1><span class="num">09</span>Dades i memòria</h1>
+  <p class="lead">D'on treu la Nova la informació del joc. En arrencar comprova si hi ha dades noves per al teu pegat abans d'encendre res.</p>
+  <figure class="c" style="width:128mm"><img src="img/c_datos.jpg"><figcaption><b>Pàgines de consulta</b> amb la seva versió i l'última comprovació, l'enciclopèdia local i els ajustos.</figcaption></figure>
+  <table class="small">
+    <tr><th style="width:38mm">Font</th><th>Què aporta</th></tr>
+    <tr><td>SCMDB</td><td>Missions, recompenses, plànols, fabricació i mineria del pegat LIVE.</td></tr>
+    <tr><td>UEX Corp</td><td>Preus de mercaderies, rutes comercials, naus, objectes i refineries.</td></tr>
+    <tr><td>Star Citizen Wiki</td><td>Lore, naus, armes, llocs i mecàniques.</td></tr>
+    <tr><td>Els textos del teu joc</td><td>El <code>global.ini</code>: noms oficials i avisos del HUD en el teu idioma.</td></tr>
+    <tr><td>RSI</td><td>Fitxes públiques de jugadors i organitzacions, i l'estat dels servidors.</td></tr>
+    <tr><td>VerseGuide</td><td>Planetes, llunes i llocs planetaris per als hologrames.</td></tr>
+    <tr><td>StarMap</td><td>Planetes, estacions i llocs: gravetat, temperatura, coordenades, serveis (clínica, plataformes) i minerals.</td></tr>
+  </table>
+  <p class="small"><b>Pàgines que la Nova obre al navegador</b> quan són la millor font (digues-li: <span class="say">«obre el cercador d'objectes»</span>): <b>Universal Item Finder</b> (finder.cstone.space, on comprar cada objecte), <b>SC Ships Performances Viewer</b> (spviewer.eu, rendiment de les naus) i <b>SC Haulers</b> (schaulers.com, calculadores de càrrega i rutes).</p>
+  <div class="tip"><span class="t">ENCICLOPÈDIA LOCAL</span>El que la Nova consulta primer, sense connexió i al dia amb el teu pegat. Escriu alguna cosa al cercador (per exemple «quantainium») per veure què en sap.</div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 10 DATOS 2 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">09 · Dades i memòria</span></div>
+  <h2>Idioma del joc</h2>
+  <figure class="c" style="width:136mm"><img src="img/c_datos_enciclopedia.jpg"><figcaption><b>Enciclopèdia</b> buscant «quantainium» i el tauler <b>Idioma del joc</b>.</figcaption></figure>
+  <div class="g2">
+    <div class="card"><h3>Què pots fer</h3><ul class="d small">
+      <li><b>Instal·lar o actualitzar la traducció:</b> en castellà descarrega l'última versió de 0zzyt0; en altres idiomes, el <code>global.ini</code> de la comunitat que triïs. Sobreescriu els fitxers de <code>LIVE</code> després de fer-ne una còpia de seguretat.</li>
+      <li><b>Triar carpeta del joc</b> si la Nova no la troba.</li>
+      <li><b>Enllaç de la traducció</b> (només en castellà): es mostra amagat amb asteriscos. Enganxa un altre enllaç de Google Drive per canviar-lo; buit = el de 0zzyt0.</li></ul></div>
+    <div class="card"><h3>Cada 3 mesos</h3><p class="small">La Nova et pregunta <b>«Comprovar i reinstal·lar?»</b>:</p><ul class="d small">
+      <li><b>Sí:</b> la torna a descarregar i sobreescriu.</li>
+      <li><b>No:</b> no fa res durant 3 mesos més.</li>
+      <li><b>Recorda-m'ho a la següent sessió:</b> t'ho torna a preguntar quan la tornis a obrir.</li></ul></div>
+  </div>
+  <div class="row" style="grid-template-columns:90mm 1fr"><figure><img src="../img/aviso.jpg"><figcaption><b>El recordatori dels 3 mesos.</b></figcaption></figure>
+    <div class="warnb"><span class="t">REINICIA EL JOC</span>Si Star Citizen està obert mentre s'instal·la la traducció, reinicia'l per veure els textos nous. La Nova recarrega els textos sola per entendre el Game.log en el teu idioma.</div></div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 10 DATOS 3 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">09 · Dades i memòria</span></div>
+  <h2>Servidors, Discord i bodega</h2>
+  <figure class="c" style="width:150mm"><img src="img/n_datos_servidores.jpg"><figcaption><b>Estat dels servidors RSI</b> i <b>Discord</b>.</figcaption></figure>
+  <div class="g3">
+    <div class="card"><h3>Servidors RSI</h3><p class="small">En arrencar, NOVA consulta <b>status.robertsspaceindustries.com</b> i t'avisa de caigudes o manteniments. <b>Comprovar ara</b> ho torna a mirar. Pregunta-li <span class="say">«com estan els servidors?»</span>.</p></div>
+    <div class="card"><h3>Discord</h3><p class="small">Enganxa el webhook d'un canal (Discord: <b>Edita el canal › Integracions › Webhooks</b>): després de cada fitxa la Nova pregunta si l'envia; amb <b>«sí»</b> es publica amb foto i logo, també els objectius de caça (en vermell). <b>Enviar fitxa de prova</b> en publica una d'exemple i a sota veus el resultat de l'última publicació.</p></div>
+    <div class="card"><h3>Bodega per defecte</h3><p class="small">Els SCU que la Nova fa servir per calcular rutes comercials quan no sap en quina nau vas.</p></div>
+  </div>
+  <h2>Actualitzacions de NOVA AI</h2>
+  <figure class="c" style="width:150mm"><img src="img/n_datos_actualizaciones.jpg"><figcaption>El tauler <b>Actualitzacions de NOVA AI</b>.</figcaption></figure>
+  <p class="small">Aquí actives o desactives la comprovació de versions noves en arrencar i en sortir, i en pots buscar una a mà amb <b>Comprovar actualitzacions ara</b>. Com funciona l'actualització: secció 02.</p>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 11 MEMORIA 1 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">09 · Dades i memòria</span></div>
+  <h2>El que sap de tu, i bitàcoles</h2>
+  <p class="lead">El que la Nova guarda de tu, en tres pestanyes: <b>El que l'assistent sap de tu</b>, <b>Fitxers</b> i <b>Fitxers de bitàcola</b>.</p>
+  <figure class="c" style="width:120mm"><img src="img/c_memoria_sabe.jpg"><figcaption><b>El que l'assistent sap de tu</b> i la zona <b>Començar de zero</b>.</figcaption></figure>
+  <div class="g2">
+    <div class="card"><h3>El que sap de tu</h3><ul class="d small">
+      <li>Digues-li <span class="say">«Nova, recorda que…»</span> i ho tindrà sempre present.</li>
+      <li>✕ esborra un record; <b>Oblidar-ho tot</b> els esborra tots.</li>
+      <li><b>Esborrar conversa</b> buida l'historial de la Cabina.</li></ul></div>
+    <div class="card"><h3>Començar de zero</h3><ul class="d small">
+      <li>Esborra el teu nom i el seu, els records, la conversa, les bitàcoles, l'entrenament de veu i els ajustos.</li>
+      <li>Torna a obrir la configuració inicial.</li>
+      <li>Per defecte <b>conserva les teves claus d'IA i les teves ordres</b> (desmarca-ho si vols).</li></ul></div>
+  </div>
+  <div class="row" style="grid-template-columns:100mm 1fr"><figure><img src="img/c_memoria_archivos.jpg"><figcaption><b>Fitxers.</b></figcaption></figure>
+    <div><h3>Fitxers</h3><p class="small">Tot el teu viu a <code>%LOCALAPPDATA%\NOVA AI\datos</code>. Tres botons:</p><ul class="d small"><li><b>Carpeta de dades:</b> l'obre a l'Explorador de fitxers.</li><li><b>Registre (nova.log):</b> els missatges tècnics, útils si alguna cosa falla.</li><li><b>Ordres de fàbrica:</b> la llista original d'ordres.</li></ul></div></div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 11 MEMORIA 2 BITÁCORA -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">09 · Dades i memòria</span></div>
+  <h2>Fitxers de bitàcola</h2>
+  <p>Cada sessió de joc s'escriu en un fitxer <code>.log</code> que pots obrir amb el Bloc de notes (es guarden les 60 últimes). Surt del mateix Game.log: si obres la Nova amb la sessió ja començada o després de jugar, reconstrueix la bitàcola completa.</p>
+  <figure class="c" style="width:112mm"><img src="img/c_memoria_bitacora.jpg"><figcaption><b>Resum de la sessió</b> i bitàcoles desades. <b>Obrir l'última bitàcola</b> l'obre al Bloc de notes.</figcaption></figure>
+  <div class="log">  NOVA AI · BITÀCOLA · sessió del 07/11/2026 21:47
+<span class="b">22:16:51  CÀRREGA</span>      Càrrega completa: univers persistent en 45 s
+<span class="b">22:21:10  NAU</span>          Puges a l'Argo MOLE
+<span class="c">22:30:00  COMBAT</span>       Abats un NPC (NineTails, Grunt) amb un GATS Ballistic Gatling (trets)
+<span class="c">22:30:09  COMBAT</span>       Cutlass Black destruïda per tu (pilot: NPC)
+<span class="r">22:30:18  SALUT</span>        Incapacitat (trets)
+<span class="g">22:30:27  SALUT</span>        Llitera mèdica de la Constellation Taurus: tors i braç esquerre curats</div>
+  <table class="small" style="margin-top:3mm">
+    <tr><th style="width:36mm">Etiqueta</th><th>Què registra</th></tr>
+    <tr><td>COMBAT</td><td>Baixes de NPC i de jugadors (arma i causa) i naus que destrueixes o inutilitzes.</td></tr>
+    <tr><td>MORT · MORTS</td><td>Les teves morts (qui, amb què, causa), les dels altres i el punt de reaparició.</td></tr>
+    <tr><td>SALUT</td><td>Ferides, incapacitacions amb la seva causa i curacions a la llitera mèdica.</td></tr>
+    <tr><td>CÀRREGA · XARXA</td><td>Connexió, aparició, temps de càrrega, càrregues encallades i talls de xarxa.</td></tr>
+    <tr><td>NAU · GRUP · TORRE…</td><td>Pujar i baixar de naus, qui puja a la teva, grup, hangar, contractes, diners, compres, plànols.</td></tr>
+  </table>
+  <div class="warnb"><span class="t">EL QUE EL JOC NO ESCRIU</span>Des de la versió 4.0.2 el Game.log només registra els combats en què participes. I <b>fixar un objectiu</b> («marcar» un enemic) no s'escriu mai. Per això, si li ho demanes per veu (<span class="say">«Nova, fixa l'objectiu»</span>), la Nova prem la tecla i ho anota ella mateixa amb la nau i el lloc.</div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 11 MEMORIA 3 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">09 · Dades i memòria</span></div>
+  <h2>Cerques de jugadors</h2>
+  <p>Cada jugador que busques (o que la Nova busca per una recompensa) s'escriu a <code>Busquedas_de_jugadores.log</code>, a la mateixa carpeta de bitàcoles. És un sol fitxer que no s'esborra amb les sessions antigues:</p>
+  <div class="log">  NOVA AI · CERQUES DE JUGADORS
+  Data · Hora · Jugador · Organització
+<span class="b">10/11/2026 · 21:04 · Nebula_Rider · Orión Vanguard</span>
+<span class="b">10/11/2026 · 21:37 · Kestrel_77 · sense organització</span>
+<span class="r">10/11/2026 · 22:12 · Ghost_Mako · Black Talon · objectiu de caça</span>
+<span class="g">10/11/2026 · 22:40 · Varek Holt · pilot NPC</span></div>
+  <p class="small">Si hi ha una sessió en curs, la cerca també va a la bitàcola d'aquella sessió (etiqueta <b>JUGADOR</b> o <b>OBJECTIU</b>).</p>
+  <h2>Estadístiques de pilot</h2>
+  <figure class="c" style="width:150mm"><img src="img/n_memoria_stats.jpg"><figcaption><b>Dades i memòria › Bitàcola i estadístiques › Estadístiques de pilot.</b></figcaption></figure>
+  <p class="small">Hores, baixes, morts, salts, contractes i diners gastats a botigues de <b>totes</b> les teves sessions, setmana a setmana. <b>Recalcular</b> llegeix els Game.log antics del joc (<code>logbackups</code>) per afegir el que vas jugar abans d'instal·lar la Nova. Pregunta-li <span class="say">«quantes baixes porto aquest mes?»</span>.</p>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 11 MEMORIA 4: DICCIONARIO -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">09 · Dades i memòria</span></div>
+  <h2>Diccionari de consultes</h2>
+  <p class="small">La <b>memòria física</b> de la Nova: <code>Diccionario_de_consultas.txt</code>, a la teva carpeta de dades. Ordenat per <b>grups</b> (planetes i llunes, estacions, ciutats, llocs, naus i vehicles, armadures, armes personals i de nau, components, recursos i minerals, mercaderies, roba, pintures, fabricants…) i dins de cadascun per <b>ordre alfabètic</b>. Les <b>variants</b> van juntes sota la seva família, perquè no són iguals: l'Attrition-1 és de mida 1 i l'Attrition-5 de mida 5.</p>
+  <div class="row" style="grid-template-columns:1fr 1fr;gap:5mm">
+    <div><h3>Com el fa servir</h3><ol class="small" style="padding-left:6mm;margin:0">
+      <li>Li preguntes: <span class="say">«parla'm de l'Attrition»</span>, <span class="say">«què és la Laranite?»</span>, <span class="say">«informació de CRU-L1»</span>.</li>
+      <li>L'overlay es posa <b style="color:#a35cff">lila</b>: busca al diccionari. Si hi és, respon a l'instant <b>sense gastar IA</b>.</li>
+      <li>Si no hi és, es posa <b style="color:#ffc933">groc</b> i ho busca a internet (starcitizen.tools, traduït amb Google Translate).</li>
+      <li>El que aprèn es desa al diccionari amb l'overlay en <b>blanc</b> («memoritzant»). La pròxima vegada ja ho sap.</li></ol></div>
+    <figure><img src="img/n_cabina_diccionario.jpg"><figcaption>Del diccionari (Attrition) i après a internet (Jalanite).</figcaption></figure>
+  </div>
+  <div class="log" style="font-size:7.4pt">==================== ARMES DE NAU ====================
+* Attrition (6 variants):
+    - Attrition-1 Repeater: Fabricant: Hurston Dynamics · … · Mida: 1 · …  ‹4.10.2 · 10/11/2026 · joc›
+    - Attrition-5 Repeater: Fabricant: Hurston Dynamics · … · Mida: 5 · …  ‹4.10.2 · 10/11/2026 · joc›
+==================== RECURSOS I MINERALS ====================
+* Jalanite: Mineral poc comú que es troba en algunes coves… (starcitizen.tools)  ‹4.10.2 · 10/11/2026 · internet›</div>
+  <div class="g2">
+    <div class="card"><h3>Es crea sol</h3><p class="small">Si no existeix (primera instal·lació), la Nova el crea, t'ho diu i l'omple amb els <b>textos oficials del joc</b> en el teu idioma (el global.ini del joc): unes 7.000 entrades, sense gastar res. Cada entrada porta el <b>pegat</b>, la <b>data</b> i el seu <b>origen</b> (joc, internet o IA).</p></div>
+    <div class="card"><h3>No caduca mai</h3><p class="small">Es conserva entre versions, en actualitzar i quan «comences de zero», i el desinstal·lador no l'esborra. Amb un pegat o una traducció nous, el que ve del joc s'actualitza sol. <span class="say">«Nova, actualitza la fitxa de X»</span> ho torna a buscar.</p></div>
+  </div>
+  <div class="row" style="grid-template-columns:96mm 1fr;gap:5mm">
+    <figure><img src="img/n_memoria_diccionario.jpg"><figcaption><b>Dades i memòria › Diccionari.</b></figcaption></figure>
+    <div class="tip"><span class="t">TU MANES</span>Obre'l amb <b>📖 Obrir diccionari</b> i canvia el que vulguis amb el Bloc de notes (mantén el format <code>* Nom: definició</code>). La Nova fa servir el teu text i no el torna a sobreescriure mai. <b>Cercar</b> et mostra què sap d'alguna cosa sense preguntar-li-ho.</div>
+  </div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 12 API KEYS 1 -->
+<section id="cap-10" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">10 · Ajustos i idiomes</span></div>
+  <h1><span class="num">10</span>Ajustos i idiomes</h1>
+  <p class="lead">A <b>Ajustos</b> tens l'idioma, les actualitzacions, la safata de Windows, els teus fitxers, <b>Quant a</b> i començar de zero. Des de la versió 1.3, NOVA AI parla <b>cinc idiomes</b>: castellà, anglès, català, francès i alemany.</p>
+  <div class="row"><figure style="width:78mm"><img src="img/n_idioma.jpg"><figcaption><b>Ajustos › Idioma</b> (també a <b>Nova › Identitat i idioma</b>).</figcaption></figure><div>
+    <p class="small">Prem la targeta del teu idioma. La finestra es recarrega i canvia <b>tot</b>: els textos, la veu de la Nova, el que entén, les seves ordres de veu, els hologrames i aquest manual. També el pots triar a la primera pantalla de l'instal·lador, que et proposa el de Windows.</p>
+    <p class="small">La Nova sempre et tracta amb respecte: <i>señor</i>, <i>sir</i>, <i>senyor</i>, <i>monsieur</i>, <i>Herr</i>… (ho canvies a <b>Nova › Identitat i idioma › Com et diu</b>).</p></div></div>
+  <table class="small">
+    <tr><th style="width:26mm">Idioma</th><th>«On puc comprar un P4-AR?»</th><th>«Baixa el tren d'aterratge»</th></tr>
+    <tr><td>English</td><td><span class="say">"Where can I buy a P4-AR?"</span></td><td><span class="say">"Lower the landing gear"</span></td></tr>
+    <tr><td>Català</td><td><span class="say">«On puc comprar un P4-AR?»</span></td><td><span class="say">«Baixa el tren»</span></td></tr>
+    <tr><td>Français</td><td><span class="say">«Où puis-je acheter un P4-AR ?»</span></td><td><span class="say">«Sors le train»</span></td></tr>
+    <tr><td>Deutsch</td><td><span class="say">«Wo kann ich ein P4-AR kaufen?»</span></td><td><span class="say">«Fahrwerk ausfahren»</span></td></tr>
+  </table>
+  <h2>El global.ini del teu idioma</h2>
+  <figure><img src="img/n_datos_gini.jpg"><figcaption><b>Dades i memòria › Idioma del joc.</b></figcaption></figure>
+  <ul class="d small">
+    <li><b>«Afegeix el global.ini del teu idioma de Star Citizen [AQUÍ]»</b>: tries el fitxer de la comunitat i la Nova el copia a <code>LIVE\data\Localization\&lt;idioma&gt;\global.ini</code>.</li>
+    <li>Abans desa el que hi havia (<code>global.ini.antes_de_nova</code>), posa <code>g_language</code> a <code>user.cfg</code> i el fa servir per entendre els avisos del joc en el teu idioma.</li>
+    <li><b>↶ Treure i restaurar la còpia</b> ho deixa tot com estava.</li></ul>
+  <div class="warnb"><span class="t">NOMÉS EN CASTELLÀ</span>La traducció de 0zzyt0 i la seva descàrrega des de Google Drive només s'ofereixen amb NOVA AI en castellà. Star Citizen només accepta els seus propis codis d'idioma: el català fa servir la plaça <code>spanish_(latin_america)</code>.</div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">10 · Ajustos i idiomes</span></div>
+  <h2>Efectes visuals</h2>
+  <figure><img src="img/n_efectos.jpg"><figcaption><b>Overlay i hologrames › Efectes visuals.</b> Afecta el logo, els hologrames i la mateixa finestra.</figcaption></figure>
+  <div class="g3">
+    <div class="card"><h3>✦ Cinematogràfic</h3><p class="small">Espurnes, escombratge d'escaneig, aberració cromàtica en projectar-se, partícules de llum i un anell que gira al voltant del logo.</p></div>
+    <div class="card"><h3>◇ Lleuger</h3><p class="small">Fosos i resplendor suaus, sense partícules ni parpelleig. Per a PC modestos o si fas streaming.</p></div>
+    <div class="card"><h3>□ Sense efectes</h3><p class="small">Apareix i desapareix a l'instant, sense animacions. El més lleuger i llegible.</p></div>
+  </div>
+  <h2>Comprovar les pàgines</h2>
+  <figure><img src="img/n_datos_comprobar.jpg"><figcaption><b>Dades i memòria › Pàgines de consulta › Comprovar les pàgines.</b></figcaption></figure>
+  <p class="small">Comprova des del teu PC, <b>sense obrir el navegador</b>, que respon cada pàgina que fa servir la Nova (UEX, wiki, scmdb, VerseGuide, StarMap, spviewer, CStone, SC Haulers, RSI…). Verd: respon · groc: lenta · vermell: no respon.</p>
+  <div class="okb"><span class="t">SENSE OBRIR EL NAVEGADOR</span>Pregunta <span class="say">«On puc comprar un P4-AR?»</span> i la Nova t'ho diu en veu alta amb dades d'UEX (botigues i preus). Només obre una pàgina si li ho demanes o respons que sí quan t'ho ofereix.</div>
+  <h2>Fitxers i començar de zero</h2>
+  <p class="small"><b>Ajustos › General › Fitxers</b> obre la teva carpeta de dades, el registre (<code>nova.log</code>) i les ordres de fàbrica. <b>Ajustos › Començar de zero</b> esborra el que la Nova ha après de tu i torna a la configuració inicial.</p>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 10 NOVEDADES 1.4 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">10 · Safata i mode repòs (1.4)</span></div>
+  <h2>La Nova a la safata de Windows</h2>
+  <figure class="c" style="width:150mm"><img src="img/v14_bandeja.jpg"><figcaption><b>Ajustos › General › Finestra i safata.</b></figcaption></figure>
+  <p class="small">Des de la versió 1.4, quan <b>tanques la finestra</b> la Nova no s'apaga: es queda a la <b>safata de Windows</b>, al costat del rellotge (de vegades dins de la fletxeta <b>^</b>). Continua escoltant, l'overlay es manté al joc i els temporitzadors continuen avisant. La primera vegada, Windows mostra un avís perquè sàpigues on és.</p>
+  <div class="g3">
+    <div class="card"><h3>Clic a la icona</h3><p class="small">Obre la finestra (o la porta al davant si ja estava oberta).</p></div>
+    <div class="card"><h3>Clic dret</h3><p class="small"><b>Obre NOVA AI</b>, <b>Silencia el micròfon (MUTE)</b>, <b>Mode repòs</b> i <b>Surt de NOVA AI</b>, que la tanca del tot.</p></div>
+    <div class="card"><h3>⤓ a la capçalera</h3><p class="small">Envia la finestra a la safata a l'instant. ⏻ continua apagant la Nova.</p></div>
+  </div>
+  <div class="tip"><span class="t">PREFEREIXES COM ABANS?</span>Desactiva <b>«En tancar la finestra, continuar a la safata»</b> i tancar la finestra tancarà NOVA AI, com a la 1.3.</div>
+  <h2>Mode repòs</h2>
+  <div class="row"><figure><img src="img/v14_reposo_cabina.jpg"><figcaption>En repòs el nucli diu <b>MODE REPÒS</b> i el botó <b>☀</b> la desperta.</figcaption></figure><div>
+    <p class="small" style="margin-top:0">Si passes una estona sense parlar-li, la Nova <b>descansa</b>: deixa d'escoltar i l'overlay s'enfosqueix, respirant a poc a poc. Els temporitzadors i els avisos del joc continuen funcionant.</p>
+    <ul class="small">
+      <li><b>Posar-la en repòs:</b> el botó <b>💤</b> de la Cabina, <b>Mode repòs</b> a la safata, o digues <span class="say">«Nova, mode repòs»</span> (també «a dormir» o «descansa»).</li>
+      <li><b>Despertar-la:</b> la teva tecla per parlar, el botó <b>☀</b> o escriure-li. La primera pulsació només la desperta («Aquí estic, senyor»); la següent ja és per parlar.</li>
+      <li><span class="say">«Nova, desactiva't»</span> continua sent la <b>pausa</b> de sempre: no apaga el micròfon i torna amb «Nova, activa't».</li>
+    </ul>
+  </div></div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">10 · Mode repòs, recorregut i qüestionari (1.4)</span></div>
+  <div class="row"><figure><img src="img/v14_reposo_ajustes.jpg"><figcaption><b>Nova › Micròfon › Mode repòs.</b></figcaption></figure><div>
+    <h3 style="margin-top:0">Quan i com</h3>
+    <ul class="small">
+      <li><b>Entrar en repòs:</b> mai (de fàbrica) o al cap de 5, 10, 15, 30 o 60 minuts sense parlar-li ni escriure-li.</li>
+      <li><b>Amb la tecla o el botó:</b> el micròfon es tanca del tot; Windows deixa de mostrar-lo en ús.</li>
+      <li><b>També pel seu nom:</b> el micròfon queda obert i només reacciona al que comença pel seu nom: <span class="say">«Nova, quina hora és a Lorville?»</span> la desperta i respon. Amb Groq gasta una mica de quota.</li>
+    </ul>
+  </div></div>
+  <h2>Recorregut guiat</h2>
+  <div class="row"><figure><img src="img/v14_tour.jpg"><figcaption>Cada pas il·lumina una part de la finestra.</figcaption></figure><div>
+    <p class="small" style="margin-top:0">Després de la configuració inicial (o la primera vegada que obres la 1.4), la Nova t'ensenya en un minut on és cada opció: la Cabina, el botó per parlar, el mode repòs, el MUTE i cada secció.</p>
+    <p class="small">Avança amb <b>SEGÜENT</b> o les fletxes, i surt amb <b>SURT</b> o <kbd>Esc</kbd>. Per repetir-lo: <b>Ajustos › General › Recorregut guiat</b>.</p>
+  </div></div>
+  <h2>Qüestionari anònim</h2>
+  <div class="row"><figure><img src="img/v14_cuestionario.jpg"></figure><div>
+    <p class="small" style="margin-top:0">El botó <b>Qüestionari</b>, sota «Consulta el Manual», obre vuit preguntes de l'1 al 10 (o <b>N/S</b> si no fas servir aquella part) i un quadre per a les teves idees.</p>
+    <ul class="small">
+      <li><b>Anònim:</b> només s'envien les teves notes, el que escrius, la versió de NOVA AI i l'idioma. Ni el teu nom, ni el teu gametag, ni cap dada del teu ordinador.</li>
+      <li>Es publica com a <b>issue públic</b> a GitHub: no hi escriguis dades personals.</li>
+      <li>Al cap de 3 dies la Nova t'ho recorda <b>una vegada</b>. «Ara no» et deixa triar un altre recordatori d'aquí a 3 dies o que no t'ho pregunti mai més.</li>
+    </ul>
+  </div></div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<section id="cap-11" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">11 · Les teves claus d'API</span></div>
+  <h1><span class="num">11</span>Les teves pròpies claus d'API</h1>
+  <p class="lead">Una <b>clau d'API</b> és com una contrasenya que permet a la Nova fer servir un servei d'intel·ligència artificial en nom teu. Algunes versions de NOVA AI inclouen claus de prova (la de GitHub no), però tenen un <b>límit diari compartit</b> entre tots els que fan servir el programa. Amb la teva tindràs tota la quota per a tu. Són gratuïtes i s'aconsegueixen en un parell de minuts.</p>
+  <table class="small">
+    <tr><th style="width:26mm">Servei</th><th>Per a què</th><th style="width:40mm">Cost</th><th style="width:30mm">Comença per</th></tr>
+    <tr><td>Gemini</td><td>El cervell principal de la Nova.</td><td class="ok">Gratuït, sense targeta</td><td><code>AIza…</code> o <code>AQ.…</code></td></tr>
+    <tr><td>Groq</td><td>Reserva ultraràpida i reconeixement de veu al núvol.</td><td class="ok">Gratuït, sense targeta</td><td><code>gsk_…</code></td></tr>
+    <tr><td>OpenRouter</td><td>Molts models gratuïts com a reserva.</td><td class="ok">Gratuït (50 peticions/dia)</td><td><code>sk-or-v1-…</code></td></tr>
+    <tr><td>Mistral</td><td>IA europea, una reserva molt bona per conversar.</td><td class="ok">Gratuït, sense targeta (demana un telèfon)</td><td>sense prefix fix</td></tr>
+  </table>
+  <div class="okb"><span class="t">RECOMANAT</span><b>Gemini + Groq</b>: amb aquestes dues en tens de sobres per a l'ús diari. OpenRouter és una bona tercera reserva.</div>
+  <h2>Com posar una clau a la Nova</h2>
+  <div class="row"><figure><img src="img/c_ia.jpg"></figure><div>
+    <ol class="small" style="padding-left:6mm;margin:0">
+      <li>Aconsegueix la clau a la web del servei (pàgines següents) i <b>copia-la</b>.</li>
+      <li>A la Nova, obre <b>Nova › Intel·ligència › Claus gratuïtes</b>.</li>
+      <li>Prem el camp del servei i <b>enganxa la clau</b> amb <kbd>Ctrl</kbd>+<kbd>V</kbd>. Es desa sola i el punt es posa <span class="ok">verd</span>.</li>
+      <li>A <b>Cadena de motors</b>, prem <b>PROVAR</b> en un motor d'aquell servei: si respon, ja està!</li>
+    </ol>
+    <p class="small dim" style="margin-top:2mm">El botó <b>OBTENIR CLAU</b> de cada servei obre directament la seva pàgina de claus.</p></div></div>
+  <div class="warnb"><span class="t">TRACTA LES CLAUS COM CONTRASENYES</span>No les comparteixis ni les publiquis en fòrums o captures. La majoria de serveis <b>només te la mostren una vegada</b>: si la perds, esborra-la i crea'n una altra. Les teves claus es queden al teu PC i mai no se substitueixen per les de fàbrica.</div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 12 API KEYS 2 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">11 · Guia de claus d'API</span></div>
+  <div class="key">
+    <div class="hd"><span class="logo">Google Gemini</span><span class="tag">GRATUÏT</span><span class="url">aistudio.google.com/apikey</span></div>
+    <ol class="small">
+      <li>Entra a <b>aistudio.google.com/apikey</b> i inicia sessió amb el teu <b>compte de Google</b> (el de Gmail serveix).</li>
+      <li>La primera vegada, accepta les condicions de Google AI Studio.</li>
+      <li>Prem <b>Create API key</b>. Si et pregunta per un projecte, deixa que en creï un de nou.</li>
+      <li>Apareix la teva clau: prem el botó de <b>copiar</b>.</li>
+      <li>Enganxa-la a la Nova: <b>Nova › Intel·ligència › Claus gratuïtes › Google Gemini</b>.</li>
+    </ol>
+    <div class="foot"><span><b>Targeta de crèdit:</b> no cal</span><span><b>Límit:</b> per minut i per dia, segons el model</span></div>
+    <p class="small dim" style="margin:2mm 0 0">Google indica que al pla gratuït pot fer servir el que envies per millorar els seus productes.</p>
+  </div>
+  <div class="key">
+    <div class="hd"><span class="logo">Groq</span><span class="tag">GRATUÏT</span><span class="url">console.groq.com/keys</span></div>
+    <ol class="small">
+      <li>Entra a <b>console.groq.com</b> i prem <b>Sign up</b>: registra't amb el teu correu o amb Google.</li>
+      <li>Accepta les condicions del servei la primera vegada.</li>
+      <li>Ves a <b>console.groq.com/keys</b> i prem <b>Create API Key</b>.</li>
+      <li>Posa-li un nom (per exemple «Nova») i prem <b>Submit</b>.</li>
+      <li><b>Copia la clau ara</b> (<code>gsk_…</code>): només es mostra una vegada.</li>
+      <li>Enganxa-la a la Nova: <b>Nova › Intel·ligència › Claus gratuïtes › Groq</b>. També serveix el camp del pas 1 de la configuració inicial.</li>
+    </ol>
+    <div class="foot"><span><b>Targeta de crèdit:</b> no cal</span><span><b>Límit:</b> unes 1.000 peticions al dia amb <code>gpt-oss-120b</code></span></div>
+    <p class="small dim" style="margin:3mm 0 0">Amb Groq també tindràs el reconeixement de veu més ràpid (motor «Automàtic» a Nova › Micròfon).</p>
+  </div>
+  <div class="tip"><span class="t">AMB GEMINI I GROQ JA VOLES</span>Amb aquestes dues claus la Nova té un cervell principal i una reserva ultraràpida, i a més reconeix la teva veu al núvol. La resta són opcionals.</div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 12 API KEYS 3 -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">11 · Guia de claus d'API</span></div>
+  <div class="key">
+    <div class="hd"><span class="logo">OpenRouter</span><span class="tag">GRATUÏT</span><span class="url">openrouter.ai/keys</span></div>
+    <ol class="small">
+      <li>Entra a <b>openrouter.ai</b> i prem <b>Sign in</b>: pots fer servir el correu, Google o GitHub.</li>
+      <li>Ves a <b>openrouter.ai/keys</b> (menú del teu compte › <b>Keys</b>).</li>
+      <li>Prem <b>Create Key</b>, posa-li un nom («Nova») i crea-la. No cal posar límit de crèdit.</li>
+      <li><b>Copia la clau</b> (<code>sk-or-v1-…</code>) abans de tancar la finestra.</li>
+      <li>Enganxa-la a la Nova: <b>Nova › Intel·ligència › Claus gratuïtes › OpenRouter</b>.</li>
+    </ol>
+    <div class="foot"><span><b>Targeta de crèdit:</b> no cal</span><span><b>Límit:</b> 50 peticions gratuïtes al dia (1.000 si algun dia compres 10 $ de crèdit)</span></div>
+    <p class="small dim" style="margin:2mm 0 0">Fes servir els models acabats en <code>:free</code> o <code>openrouter/free</code>, que en tria un de gratuït disponible.</p>
+  </div>
+  <div class="key">
+    <div class="hd"><span class="logo">Mistral</span><span class="tag">GRATUÏT</span><span class="url">console.mistral.ai/api-keys</span></div>
+    <ol class="small">
+      <li>Entra a <b>console.mistral.ai</b> i crea un compte (correu, Google o Microsoft).</li>
+      <li>Tria el pla gratuït <b>Experiment</b> i verifica el teu <b>telèfon</b> amb l'SMS que t'envien. No cal targeta de crèdit.</li>
+      <li>Ves a <b>API Keys</b> i prem <b>Create new key</b>; posa-li un nom («Nova»).</li>
+      <li><b>Copia la clau</b>: no es tornarà a mostrar.</li>
+      <li>Enganxa-la a la Nova: <b>Nova › Intel·ligència › Claus gratuïtes › Mistral</b>. La Nova l'afegeix sola a la cadena de motors (model <code>mistral-small-latest</code>).</li>
+    </ol>
+    <div class="foot"><span><b>Targeta de crèdit:</b> no cal</span><span><b>Límit:</b> 1 petició per segon, de sobres per a la Nova</span></div>
+    <p class="small dim" style="margin:2mm 0 0">Al pla gratuït Mistral pot fer servir les teves peticions per entrenar els seus models. Si no ho vols, desactiva-ho a la consola: menú <b>Privacy</b>. Si ja tenies una clau de <b>DeepSeek</b> (de pagament), la Nova la continua fent servir.</p>
+  </div>
+  <div class="tip"><span class="t">I SI UNA CLAU DEIXA DE FUNCIONAR?</span>Prem <b>PROVAR</b> a la cadena de motors. Els errors més habituals: una clau mal copiada (amb un espai de més), una clau esborrada a la web del servei, o la quota del dia esgotada (espera fins demà; mentrestant la Nova fa servir el motor següent).</div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 13 PROBLEMAS -->
+<section id="cap-12" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">12 · Resolució de problemes</span></div>
+  <h1><span class="num">12</span>Resolució de problemes</h1>
+  <table class="small tight">
+    <tr><th style="width:52mm">Si…</th><th>Prova això</th></tr>
+    <tr><td>No em sent</td><td>Si el nucli diu <b>MODE REPÒS</b>, prem la teva tecla o ☀. Comprova que el botó <b>MUTE</b> del mesurador està <b>OFF</b> i que els teus auriculars no estan silenciats. Tria el teu micròfon a <b>Nova › Micròfon</b>: allà t'avisa si només hi arriba silenci. Puja la sensibilitat o el guany si parles fluix.</td></tr>
+    <tr><td>S'activa sola</td><td>Baixa la sensibilitat o desactiva «Escoltar sense tecla». Si és una forma apresa del seu nom, treu-la amb <b>Oblidar</b>.</td></tr>
+    <tr><td>No reacciona al seu nom</td><td>Repeteix l'entrenament a <b>Nova › Identitat i idioma</b>. Tria un nom de 2 o 3 síl·labes que no sigui una paraula comuna.</td></tr>
+    <tr><td>Al joc no li arriben les tecles</td><td>Si executes Star Citizen com a administrador, executa també la Nova com a administrador. Activa «Prémer tecles només amb el joc al davant».</td></tr>
+    <tr><td>Una tecla no funciona</td><td><b>⟳ Sincronitzar ara</b> i revisa «Veure detalls». Si l'acció només és al teu HOTAS, dona-li també una tecla del teclat.</td></tr>
+    <tr><td>«Tots els meus motors s'han quedat sense quota»</td><td>Afegeix les teves pròpies claus (secció 11) o espera fins l'endemà.</td></tr>
+    <tr><td>La Nova se sent a si mateixa</td><td>Fes servir auriculars. El micròfon ja s'ensordeix mentre la Nova parla.</td></tr>
+    <tr><td>No es veu l'overlay</td><td>Posa el joc en «Finestra sense vores». Prova «◆ Provar a la pantalla» i revisa el monitor triat.</td></tr>
+    <tr><td>No es veu l'holograma o no fa so</td><td>El mateix que amb l'overlay: «Finestra sense vores». Revisa <b>Hologrames activats</b> i prem <b>Provar</b>. Per al so: <b>Sons dels hologrames</b>, el seu volum i la <b>Sortida d'àudio</b>.</td></tr>
+    <tr><td>La descripció de l'holograma surt en anglès</td><td>Activa <b>Traduir les descripcions</b> i comprova que tens un motor d'IA amb quota (secció 09). Es tradueix la pròxima vegada.</td></tr>
+    <tr><td>Un jugador surt com a pilot NPC</td><td>RSI no té cap fitxa amb aquell nom (o no s'ha pogut comprovar). Busca'l a mà: <span class="say">«busca'm un jugador»</span>.</td></tr>
+    <tr><td>L'actualització no s'instal·la</td><td>Accepta el permís de Windows (UAC). Si falla, descarrega l'instal·lador de GitHub (Releases) i executa'l: conserva les teves dades.</td></tr>
+    <tr><td>El missatge no s'escriu al xat</td><td>A <b>Nau i ordres › Xat del joc</b>: tecles <code>f12</code> / <code>enter</code> / <code>f12</code> i «Tecles, lletra a lletra». Si es menja lletres, puja la <b>velocitat d'escriptura</b> o l'<b>espera</b>.</td></tr>
+    <tr><td>La fitxa no arriba a Discord</td><td>Mira el missatge de la Cabina o «Última publicació» a <b>Dades i memòria › Discord i servidors</b>: diu què ha respost Discord. Si el webhook no existeix, crea'n un de nou i enganxa'l. <b>Enviar fitxa de prova</b> ho comprova.</td></tr>
+    <tr><td>Una definició és incorrecta o antiga</td><td>Digues <span class="say">«Nova, actualitza la fitxa de X»</span> o corregeix-la tu mateix al <b>Diccionari de consultes</b> (Ajustos › Fitxers).</td></tr>
+    <tr><td>La Nova no respon a res</td><td>Pot ser que estigui <b>aturada</b> (overlay en vermell): encén l'interruptor de la Cabina o digues <span class="say">«Nova, activa't»</span>.</td></tr>
+    <tr><td>No apareix la traducció</td><td>Reinicia el joc. Revisa la carpeta a <b>Dades i memòria › Idioma del joc</b> i torna a instal·lar la traducció.</td></tr>
+    <tr><td>La finestra no s'obre</td><td>La Nova fa servir Edge. Si no el tens, obre al navegador l'adreça de <code>ui_puerto.txt</code> (carpeta de dades). Si la finestra està tancada, busca-la a la safata de Windows.</td></tr>
+    <tr><td>Es tanca en arrencar</td><td><b>NOVA AI.exe</b> et mostra l'error. Per a més detalls obre <b>DEPURAR.bat</b> a la carpeta del programa, o mira <code>fallos.log</code> a la teva carpeta de dades.</td></tr>
+    <tr><td>L'instal·lador no s'obre</td><td>T'indica el motiu i el registre (<code>%TEMP%\NOVA_AI_Setup.log</code>). Com a últim recurs, <b>INSTALAR_CONSOLA.bat</b> de <code>Nova.zip</code>.</td></tr>
+  </table>
+  <div class="tip"><span class="t">MÉS AJUDA?</span>Consulta el fitxer <b>LEEME.md</b> de la carpeta del programa (en castellà): té tots els detalls tècnics. En anglès, el <b>README</b> de GitHub.</div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 14 PRIVACIDAD -->
+<section id="cap-13" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">13 · Privacitat i crèdits</span></div>
+  <h1><span class="num">13</span>Privacitat i crèdits</h1>
+  <div class="g2">
+    <div class="okb"><span class="t">LES TEVES DADES ES QUEDEN AL TEU PC</span>Ajustos, memòria, conversa, bitàcoles, ordres i claus viuen a <code>%LOCALAPPDATA%\NOVA AI\datos</code>. Sense servidors propis, sense comptes, sense telemetria.</div>
+    <div class="okb"><span class="t">NO ES FAN GRAVACIONS</span>La teva veu no es desa en cap fitxer. L'entrenament només anota com s'escriu el seu nom amb la teva veu, i el volum.</div>
+  </div>
+  <h2>Què surt del teu PC</h2>
+  <ul class="d small">
+    <li><b>Intel·ligència artificial:</b> el text del que demanes i un context breu (el teu nom, records, un resum de la teva sessió) s'envia al servei d'IA que respon. És el mateix que escriure-ho a la seva web.</li>
+    <li><b>Reconeixement de veu:</b> només amb Groq s'envia l'àudio de cada frase per passar-lo a text. Amb Whisper local no en surt res.</li>
+    <li><b>Veu de la Nova:</b> amb les veus d'Edge, el text de la resposta va a Microsoft per generar l'àudio.</li>
+    <li><b>Dades del joc:</b> consultes a la wiki, UEX, scmdb.net i DuckDuckGo, com faries a Google.</li>
+    <li><b>Traducció:</b> només si l'acceptes, es descarrega de Google Drive o de GitHub.</li>
+    <li><b>Fitxes de jugadors i estat dels servidors:</b> lectura de les pàgines públiques de robertsspaceindustries.com (la fitxa que demanes i la seva organització) i status.robertsspaceindustries.com.</li>
+    <li><b>Actualitzacions:</b> en arrencar i en sortir, pregunta a GitHub quina és l'última versió de NOVA AI (es pot desactivar).</li>
+    <li><b>Hologrames:</b> fitxes de planetes, llunes i llocs de verseguide.com (es guarden 3 dies al teu ordinador); fotos i logos de robertsspaceindustries.com.</li>
+    <li><b>Discord:</b> només si enganxes un webhook, s'envia a aquell canal la fitxa del jugador que busques, i només si dius «sí».</li>
+    <li><b>Qüestionari:</b> només si l'envies: les teves notes, el teu text, la versió i l'idioma, com a issue públic a GitHub, sense nom ni gametag.</li>
+    <li><b>Google Translate:</b> missatges per al xat del joc i descripcions de VerseGuide, per traduir-los.</li>
+    <li><b>StarMap:</b> dades de planetes i llocs de la seva API pública (només el planeta necessari; es guarden una setmana).</li>
+  </ul>
+  <p class="small">El text complet és a <b>NORMAS_Y_PRIVACIDAD.ca.md</b>, que vas acceptar en instal·lar.</p>
+  <h2>Normes bàsiques</h2>
+  <p class="small"><b>Joc net:</b> la Nova prem tecles com VoiceAttack; tu ets responsable de complir les condicions de Star Citizen. <b>La IA es pot equivocar</b> (i si s'inventa alguna cosa, ho confessa). Les <b>claus de prova</b> (si la teva versió en porta) són compartides: no les copiïs a altres programes.</p>
+  <h2>Crèdits</h2>
+  <table class="tight small">
+    <tr><td style="width:52mm">Desenvolupament</td><td>Aaron B. Roldan · gametag <b>0zzyt0</b> · amb el motor d'IA Claude Opus 5.5 (Anthropic)</td></tr>
+    <tr><td>Agraïments</td><td>Org Defcorp · Faibo, Galleg0, Sr.Scott, AlpacaInTrouble, Lother i molts més</td></tr>
+    <tr><td>Llicència</td><td>Llicència MIT (programari lliure): fes-lo servir, modifica'l i comparteix-lo, conservant l'avís de copyright (<code>LICENSE</code>)</td></tr>
+    <tr><td>Idioma del joc</td><td>0zzyt0 i la comunitat</td></tr>
+    <tr><td>Dades del joc</td><td>Pàgines de la comunitat: vegeu «Agraïments a la comunitat» (secció 14)</td></tr>
+    <tr><td>Formats del Game.log</td><td>Projectes de la comunitat all-slain i sc-assistant (llicència MIT)</td></tr>
+    <tr><td>Motors d'IA i de veu</td><td>Google Gemini, Groq, OpenRouter, Mistral, Microsoft Edge, Piper, Whisper</td></tr>
+  </table>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 15 GRACIAS -->
+<section id="cap-14" class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">14 · Agraïments a la comunitat</span></div>
+  <h1><span class="num">14</span>Agraïments a la comunitat</h1>
+  <p class="lead"><b>NOVA AI no seria possible sense aquests projectes de la comunitat.</b> Tot el mèrit de la seva informació és de les persones que els creen i mantenen, sovint en el seu temps lliure. Si et són útils, visita'ls i dona'ls suport.</p>
+  <table class="tight small">
+    <tr><th style="width:52mm">Pàgina</th><th>El seu mèrit i els seus drets</th></tr>
+    <tr><td>Star Citizen Wiki<br><span class="dim">starcitizen.tools</span></td><td>L'enciclopèdia de la comunitat: lore, naus, armes i llocs. Textos dels seus autors sota la llicència CC BY-SA.</td></tr>
+    <tr><td>UEX Corp<br><span class="dim">uexcorp.space</span></td><td>Preus de mercaderies, rutes comercials, naus i refineries, actualitzats cada dia pels seus usuaris.</td></tr>
+    <tr><td>SCMDB<br><span class="dim">scmdb.net</span></td><td>Missions, recompenses, plànols de fabricació i mineria de cada pegat. Dades sota la llicència CC BY-NC-ND 4.0.</td></tr>
+    <tr><td>VerseGuide<br><span class="dim">verseguide.com</span></td><td>Fitxes de planetes, llunes i llocs planetaris.</td></tr>
+    <tr><td>StarMap<br><span class="dim">starmap.space</span></td><td>Planetes, estacions i milers de llocs amb coordenades i serveis, i la seva API pública gratuïta.</td></tr>
+    <tr><td>SC Ships Performances Viewer<br><span class="dim">spviewer.eu</span></td><td>Rendiment de les naus: combustible, autonomia, condensadors i components.</td></tr>
+    <tr><td>Universal Item Finder<br><span class="dim">finder.cstone.space</span></td><td>De Meepowski (CStone): on comprar cada objecte del 'verse, amb dades aportades per la comunitat.</td></tr>
+    <tr><td>SC Haulers<br><span class="dim">schaulers.com</span></td><td>Calculadores de rutes, càrrega i missions de transport per a la indústria.</td></tr>
+    <tr><td>Roberts Space Industries<br><span class="dim">robertsspaceindustries.com</span></td><td>Fitxes públiques de ciutadans i organitzacions, i l'estat dels servidors.</td></tr>
+    <tr><td>Idioma del joc</td><td>0zzyt0 i col·laboradors; textos del joc de Cloud Imperium Games.</td></tr>
+    <tr><td>Google Translate · DuckDuckGo</td><td>Traduccions i cerques web.</td></tr>
+  </table>
+  <p class="small">Cada pàgina és dels seus autors i té les seves pròpies condicions d'ús. NOVA AI només <b>les consulta en línia</b> (o a través de les seves API públiques), com faries des del teu navegador: no modifica les seves dades, no les redistribueix (el que es descarrega es queda al teu ordinador) i no se n'atribueix l'autoria.</p>
+  <div class="warnb"><span class="t">AVÍS LEGAL</span>NOVA AI és un projecte de fans gratuït, independent i sense ànim de lucre. <b>No és un producte oficial</b> de Cloud Imperium Games ni de cap de les pàgines esmentades, que no el patrocinen ni l'avalen. Star Citizen®, Squadron 42®, Roberts Space Industries® i Cloud Imperium® són marques registrades de Cloud Imperium Rights LLC. Es proporciona <b>tal qual</b>, sense garantia: les dades canvien amb cada pegat i la IA es pot equivocar. Ets responsable de fer-lo servir d'acord amb les condicions del joc.</div>
+  <div class="logos"><img src="/logos/made_by_the_community.png" alt="Made by the Community"><div><b>NOVA AI</b><br>Un projecte obert de <b>0zzyt0</b><br><span class="dim">github.com/0zzyt0/NOVA-AI</span><br><span style="color:var(--cy2);letter-spacing:.25em;font-weight:800">BON VOL, PILOT · o7</span></div><img src="/logos/logo_0zzyt0.png" alt="0zzyt0"></div>
+  <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
+</section>
+<script>
+document.querySelectorAll('.tl').forEach(function(d){d.addEventListener('click',function(){
+  var t=document.getElementById('cap-'+d.dataset.cap); if(t) t.scrollIntoView({behavior:'smooth'});});});
+</script></body></html>

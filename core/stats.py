@@ -15,7 +15,7 @@ from pathlib import Path
 
 log = logging.getLogger("nova.stats")
 FIELDS = ("segundos", "muertes", "incapacitado", "bajas", "bajas_npc", "bajas_jugadores", "naves_abatidas",
-          "saltos", "contratos_completados", "contratos_fallidos", "auec_recibidos", "auec_enviados", "camilla")
+          "saltos", "contratos_completados", "contratos_fallidos", "auec_recibidos", "auec_enviados", "auec_compras", "camilla")
 
 
 def _amount(text: str) -> int:
@@ -41,6 +41,7 @@ def record_from_state(st: dict) -> dict | None:
         "contratos_completados": con.get("completado", 0), "contratos_fallidos": con.get("fallido", 0),
         "auec_recibidos": sum(_amount(x) for x in st.get("dinero_recibido") or []),
         "auec_enviados": sum(_amount(x) for x in st.get("dinero_enviado") or []),
+        "auec_compras": sum(_amount(x) for x in st.get("compras") or []),
         "camilla": st.get("camilla_medica", 0), "naves": dict(st.get("naves") or {}),
         "lugares": len(st.get("lugares") or []),
     }
@@ -119,7 +120,8 @@ class Stats:
                  f"{t['naves_abatidas']} · muertes: {t['muertes']} · incapacitado: {t['incapacitado']}.",
                  f"Saltos cuánticos: {t['saltos']} · contratos completados: {t['contratos_completados']} "
                  f"(fallidos {t['contratos_fallidos']}) · curas en camilla: {t['camilla']}.",
-                 f"aUEC por transferencias: +{t['auec_recibidos']:,} / -{t['auec_enviados']:,}".replace(",", ".")]
+                 f"aUEC por transferencias: +{t['auec_recibidos']:,} / -{t['auec_enviados']:,}".replace(",", "."),
+                 f"aUEC gastados en tiendas: {t.get('auec_compras', 0):,}".replace(",", ".")]
         if t["naves_top"]:
             lines.append("Naves más usadas: " + ", ".join(t["naves_top"]) + ".")
         lines.append("Nota: el juego no escribe en el Game.log lo que ganas con contratos o ventas; los aUEC "

@@ -215,7 +215,7 @@ details summary{cursor:pointer;color:var(--cy);font-size:12px;letter-spacing:1px
 .step-n{font-family:var(--mono);color:var(--cy);font-size:12px;width:22px}
 .step-t{font-size:10.5px;letter-spacing:1.6px;color:var(--dim);width:58px}
 .step .combo{min-width:110px;cursor:text}
-.step .combo.empty::after{content:"sin tecla";color:var(--bad);font-size:12px}
+.step .combo.empty::after{content:attr(data-empty);color:var(--bad);font-size:12px}
 .step input[type=number]{width:72px;padding:5px 7px}
 .step select{padding:5px 7px}
 .step .lbl{font-size:12px;color:var(--dim);display:flex;align-items:center;gap:6px}
@@ -299,7 +299,7 @@ body.offline .offline-bar{display:block}
 .su-core .halo{position:absolute;inset:0;border-radius:50%;border:1px dashed rgba(111,216,255,.45);animation:spin 16s linear infinite;
   background:radial-gradient(circle,color-mix(in srgb,var(--tc,#20b8e8) calc(12% + var(--lvl)*45%),transparent),transparent 65%)}
 .setup.listening .su-core .halo{border-color:var(--bad);animation-duration:3s}
-.su-title{text-align:center;font-size:13px;letter-spacing:3px;color:var(--cy2);text-shadow:0 0 10px rgba(32,184,232,.7);margin-bottom:22px;line-height:1.5}
+.su-title{max-width:170px;margin-left:auto;margin-right:auto;text-align:center;font-size:13px;letter-spacing:3px;color:var(--cy2);text-shadow:0 0 10px rgba(32,184,232,.7);margin-bottom:22px;line-height:1.5}
 .su-steps{list-style:none;margin:0;padding:0;counter-reset:s}
 .su-steps li{counter-increment:s;display:flex;align-items:center;gap:10px;padding:8px 6px;color:var(--dim2);font-size:13.5px;letter-spacing:.4px;position:relative}
 .su-steps li::before{content:counter(s);width:22px;height:22px;flex:none;display:grid;place-items:center;border:1px solid currentColor;border-radius:50%;font-size:11px;font-family:var(--mono)}

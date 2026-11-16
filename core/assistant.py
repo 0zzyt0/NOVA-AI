@@ -1643,8 +1643,26 @@ class Nova:
 
     def _emit_message(self, who: str, text: str) -> None:
         if who in self.LOC_WHO and i18n.lang() != "es":
-            text = self._loc(text)
+            text = self._loc_card(text) if who == "ficha" and text.startswith("FICHA DE JUGADOR\n") else self._loc(text)
         self._on_message_raw(who, text)
+
+    @staticmethod
+    def _loc_card(text: str) -> str:
+        """v1.5: la ficha de jugador del chat con sus etiquetas en el idioma elegido (los datos no se tocan)."""
+        out = []
+        for i, ln in enumerate(text.split("\n")):
+            m = re.match(r"^(\s*(?:• )?)([^:]{2,40}): (.*)$", ln) if i else None
+            if not m:
+                out.append(i18n.tr(ln) if ln.strip() else ln)
+                continue
+            lead, key, val = m.groups()
+            if key == "Fecha de alta (Enlisted)":
+                val = re.sub(r" \([^()]*\)$", "", val)  # la fecha en español sobra
+            elif key == "Fluency (Idioma)":
+                val = re.sub(r" \([^()]*\)", "", val)  # «Spanish (español)» → «Spanish»
+            val = i18n.tr(val).replace(" · rango: ", f" · {i18n.tr('rango')}: ")
+            out.append(f"{lead}{i18n.tr(key)}: {val}")
+        return "\n".join(out)
 
     def _loc(self, text: str | None, net: bool = True) -> str | None:
         """Texto de Nova (escrito en español) en el idioma elegido: catálogo y, si no está, Google Translate."""

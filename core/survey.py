@@ -21,7 +21,7 @@ log = logging.getLogger("nova.survey")
 
 # Dirección del servicio intermedio. Vacía = el cuestionario no aparece (por ejemplo, en una versión compilada
 # por otra persona sin su propio servicio).
-URL = ""
+URL = "https://nova-cuestonario.aboraita.workers.dev"
 
 QUESTIONS = ("reconocimiento", "comandos", "respuestas", "voz", "configuracion", "overlay", "ventana",
              "recomendarias")
