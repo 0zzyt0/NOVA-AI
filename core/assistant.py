@@ -1621,8 +1621,9 @@ class Nova:
 
     # ----------------------------------------------------------------- otros
     def preview_voice(self) -> bool:
-        text = (f"Sistemas en línea, {self.settings.get('tratamiento')}. Escudos al cien por cien "
-                f"y el café, por desgracia, al cero.")
+        # v2.0: en tu idioma y con nombres del juego, para oír cómo los pronuncia
+        text = i18n.tr("Sistemas en línea, {t}. Rumbo a Hurston en la Cutlass, escudos al cien por cien "
+                       "y el café, por desgracia, al cero.", t=self.settings.get("tratamiento") or "")
         if not self.tts.busy():
             self._spoken.append((time.time(), simplify(text)))
         return self.tts.preview(text)

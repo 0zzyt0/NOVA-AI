@@ -144,11 +144,21 @@ class UIServer:
                     cat = json.dumps(i18n.client_catalog(lang), ensure_ascii=False).replace("</", "<\\/")
                     html = (WEB / "index.html").read_text(encoding="utf-8").replace("__TOKEN__", server.token)
                     html = html.replace('"__LANG__"', json.dumps(lang)).replace("__I18N__", cat)
+                    theme = server.nova.settings.get("tema", "cian")
+                    if theme != "cian":  # v2.0: temas de color
+                        from core.themes import recolor_html
+                        html = recolor_html(html, theme).replace("<body", f'<body data-tema="{theme}"', 1)
                     return self._send(200, html.encode("utf-8"), TYPES[".html"])
+                if path == "/overlay_logo.png":  # v2.0: el logo elegido para el overlay
+                    from core.overlay import logo_path
+                    f = logo_path(server.nova.settings)
+                    return self._send(200, f.read_bytes(), TYPES.get(f.suffix.lower(), "image/png"))
                 if path in ("/logo.png", "/favicon.ico"):
                     f = APP_DIR / "recursos" / ("nova.png" if path == "/logo.png" else "nova.ico")
                 elif path in ("/logos/made_by_the_community.png", "/logos/logo_0zzyt0.png"):
                     f = APP_DIR / "recursos" / path.rsplit("/", 1)[-1]
+                elif re.fullmatch(r"/logos/(nucleo|onda|hexagono|radar|reticula)\.png", path):  # v2.0
+                    f = APP_DIR / "recursos" / "logos" / path.rsplit("/", 1)[-1]
                 elif re.fullmatch(r"/manual/(en|ca|fr|de)/?", path):  # v1.5: manual traducido con sus capturas
                     f = WEB / "manual" / path.strip("/").split("/")[1] / "index.html"
                     if not path.endswith("/"):
@@ -171,6 +181,10 @@ class UIServer:
                         return self._send(404, b"", "text/plain")
                 if not f.is_file():
                     return self._send(404, b"", "text/plain")
+                theme = server.nova.settings.get("tema", "cian")
+                if theme != "cian" and f.suffix == ".css" and f.parent == WEB.resolve():  # v2.0: la ventana con el tema elegido
+                    from core.themes import recolor
+                    return self._send(200, recolor(f.read_text(encoding="utf-8"), theme).encode("utf-8"), TYPES[".css"])
                 return self._send(200, f.read_bytes(), TYPES.get(f.suffix, "application/octet-stream"))
 
             def do_POST(self):  # noqa: N802
@@ -291,6 +305,138 @@ class UIServer:
     def api_preview_voice(self) -> bool:
         return self.nova.preview_voice()
 
+    # --- v2.0: copias de seguridad (exportar / importar)
+    def _ps_dialog(self, kind: str, title: str, name: str = "") -> str:
+        """Ventana de Windows para guardar o abrir una copia de NOVA. Devuelve la ruta o ''."""
+        if sys.platform != "win32":
+            return ""
+        cls = "SaveFileDialog" if kind == "save" else "OpenFileDialog"
+        script = ("Add-Type -AssemblyName System.Windows.Forms;"
+                  f"$d = New-Object System.Windows.Forms.{cls};"
+                  f"$d.Title = '{title.replace(chr(39), '')}';"
+                  "$d.Filter = 'Copia de NOVA AI (*.novacopia)|*.novacopia|Zip (*.zip)|*.zip';"
+                  "$d.InitialDirectory = [Environment]::GetFolderPath('MyDocuments');"
+                  + (f"$d.FileName = '{name}';" if name else "") +
+                  "$f = New-Object System.Windows.Forms.Form -Property @{TopMost=$true};"
+                  "if ($d.ShowDialog($f) -eq 'OK') { [Console]::Out.Write($d.FileName) }")
+        try:
+            r = subprocess.run(["powershell", "-NoProfile", "-STA", "-Command", script], capture_output=True,
+                               text=True, timeout=300, creationflags=0x08000000)
+            return (r.stdout or "").strip()
+        except (OSError, subprocess.SubprocessError):
+            return ""
+
+    def api_backup_export(self, partes: list | None = None) -> dict:
+        from core import backup
+
+        self.nova.settings.save()
+        name = time.strftime("NOVA_copia_%Y-%m-%d") + backup.EXT
+        if sys.platform == "win32":
+            dest = self._ps_dialog("save", i18n.tr("Guardar copia de NOVA AI"), name)
+            if not dest:
+                return {"cancelado": True}
+        else:
+            dest = str(DATA_DIR / "copias" / name)
+        return backup.export(Path(dest), partes)
+
+    def api_backup_pick(self) -> dict:
+        from core import backup
+
+        src = self._ps_dialog("open", i18n.tr("Abrir copia de NOVA AI"))
+        if not src:
+            return {"cancelado": True}
+        info = backup.inspect(Path(src))
+        info["ruta"] = src
+        return info
+
+    def api_backup_import(self, ruta: str, partes: list | None = None) -> dict:
+        from core import backup
+
+        r = backup.restore(Path(ruta), partes)
+        n = self.nova
+        if "ajustes" in r["partes"]:
+            n.settings.load()
+            own = DATA_DIR / "logo_overlay.png"
+            if own.is_file():
+                n.settings.set("overlay_logo_ruta", str(own))
+            n.settings.save()
+        if "comandos" in r["partes"]:
+            try:
+                n.reload_commands()
+            except Exception:  # noqa: BLE001
+                log.exception("recargar comandos")
+        if "memoria" in r["partes"]:
+            try:
+                n.memory.load()
+            except Exception:  # noqa: BLE001
+                log.exception("recargar memoria")
+        return r
+
+    # --- v2.0: logos del overlay
+    def api_overlay_logos(self) -> dict:
+        from core.overlay import LOGOS
+
+        s = self.nova.settings
+        return {"logos": list(LOGOS), "actual": s.get("overlay_logo", "nova"), "propio": s.get("overlay_logo_ruta", "")}
+
+    def api_pick_overlay_logo(self) -> dict:
+        """Ventana de Windows para elegir tu propio PNG (fondo transparente) como logo del overlay."""
+        s = self.nova.settings
+        if sys.platform == "win32":
+            script = ("Add-Type -AssemblyName System.Windows.Forms;"
+                      "$d = New-Object System.Windows.Forms.OpenFileDialog;"
+                      "$d.Title = 'Logo del overlay (PNG con fondo transparente)';"
+                      "$d.Filter = 'Imagen PNG|*.png|WebP|*.webp';"
+                      "$f = New-Object System.Windows.Forms.Form -Property @{TopMost=$true};"
+                      "if ($d.ShowDialog($f) -eq 'OK') { [Console]::Out.Write($d.FileName) }")
+            try:
+                r = subprocess.run(["powershell", "-NoProfile", "-STA", "-Command", script], capture_output=True,
+                                   text=True, timeout=300, creationflags=0x08000000)
+                path = (r.stdout or "").strip()
+            except (OSError, subprocess.SubprocessError):
+                path = ""
+            if path:
+                from PIL import Image
+
+                try:  # se copia a los datos de NOVA (cuadrado, 512 px como mucho) por si mueves el original
+                    im = Image.open(path).convert("RGBA")
+                    side = max(im.size)
+                    sq = Image.new("RGBA", (side, side), (0, 0, 0, 0))
+                    sq.paste(im, ((side - im.width) // 2, (side - im.height) // 2))
+                    if side > 512:
+                        sq = sq.resize((512, 512), Image.LANCZOS)
+                    dest = DATA_DIR / "logo_overlay.png"
+                    sq.save(dest)
+                    s.set("overlay_logo_ruta", str(dest))
+                    s.set("overlay_logo", "personal")
+                except Exception as e:  # noqa: BLE001
+                    raise ValueError(f"No he podido abrir esa imagen: {e}") from e
+        return self.api_overlay_logos()
+
+    # --- v2.0: temas de color
+    def api_themes(self) -> dict:
+        from core.themes import theme_list
+
+        return {"temas": theme_list(), "actual": self.nova.settings.get("tema", "cian")}
+
+    # --- v2.0: estilos de voz
+    def api_voice_styles(self) -> dict:
+        from core.voices import style_list
+
+        lang = i18n.norm(self.nova.settings.get("idioma"))
+        avail = self.api_voices()
+        return {"estilos": style_list(lang, avail), "actual": self.nova.settings.get("tts_estilo") or ""}
+
+    def api_voice_style(self, estilo: str, probar: bool = True) -> dict:
+        from core.voices import apply_style
+
+        lang = i18n.norm(self.nova.settings.get("idioma"))
+        r = apply_style(self.nova.settings, estilo, lang, self.api_voices())
+        if probar:
+            self.nova.tts.stop()
+            self.nova.preview_voice()
+        return r
+
     # --- ajustes
     def api_set(self, key: str, value):
         if key not in DEFAULTS or key == "claves":
@@ -316,6 +462,8 @@ class UIServer:
         if key == "nombre_asistente":
             return wake.rename(s, str(value or ""))
         s.set(key, value)
+        if key in ("tts_voz_edge", "tts_velocidad", "tts_tono", "tts_efecto_radio", "tts_efecto", "tts_efecto_fuerza", "tts_motor"):
+            s.set("tts_estilo", "")  # v2.0: retocada a mano = ya no es un estilo
         if key == "sensibilidad_vad" and n.listener:
             n.listener.vad.set_sensitivity(value)
         elif key == "dispositivo_entrada":
@@ -562,6 +710,8 @@ class UIServer:
         import base64
         from core import holo
         from core.overlay import _hex
+        holo.set_weight(self.nova.settings.get("holo_letra", "gruesa"))
+        holo.set_model(self.nova.settings.get("holo_modelo", "clasico"))
         png = holo.preview_png(card, _hex(self.nova.settings.get("overlay_color")), 0.9)
         return "data:image/png;base64," + base64.b64encode(png).decode()
 
@@ -916,7 +1066,7 @@ class UIServer:
     def api_overlay_test(self) -> str:
         if not self.overlay:
             return "no disponible"
-        self.overlay.test(9)
+        self.overlay.test(15)
         return self.overlay.status
 
     # --- traducción al español (0zzyt0) en la carpeta LIVE
@@ -1002,6 +1152,42 @@ class UIServer:
         if path:
             self.nova.settings.set("juego_carpeta", path)
         return path
+
+    # --- v2.0: el Game.log en el primer inicio
+    def api_gamelog_info(self) -> dict:
+        """Qué Game.log uso: el elegido por el jugador o el que encuentro solo."""
+        from core.gamelog import find_game_log, game_log_in
+
+        s = self.nova.settings
+        custom = (s.get("gamelog_ruta") or "").strip()
+        if custom:
+            return {"ruta": custom, "existe": Path(custom).is_file(), "elegido": True}
+        found = self.nova.gamelog.path or game_log_in(s.get("juego_carpeta") or "") or find_game_log()
+        return {"ruta": str(found) if found else "", "existe": bool(found), "elegido": False}
+
+    def api_pick_gamelog(self, limpiar: bool = False) -> dict:
+        """Ventana de Windows para elegir el Game.log (o volver a buscarlo solo)."""
+        s = self.nova.settings
+        if limpiar:
+            s.set("gamelog_ruta", "")
+            return self.api_gamelog_info()
+        if sys.platform != "win32":
+            return self.api_gamelog_info()
+        script = ("Add-Type -AssemblyName System.Windows.Forms;"
+                  "$d = New-Object System.Windows.Forms.OpenFileDialog;"
+                  "$d.Title = 'Game.log de Star Citizen';"
+                  "$d.Filter = 'Game.log|Game.log|Registros (*.log)|*.log';"
+                  "$f = New-Object System.Windows.Forms.Form -Property @{TopMost=$true};"
+                  "if ($d.ShowDialog($f) -eq 'OK') { [Console]::Out.Write($d.FileName) }")
+        try:
+            r = subprocess.run(["powershell", "-NoProfile", "-STA", "-Command", script], capture_output=True,
+                               text=True, timeout=300, creationflags=0x08000000)
+            path = (r.stdout or "").strip()
+        except (OSError, subprocess.SubprocessError):
+            path = ""
+        if path:
+            s.set("gamelog_ruta", path)
+        return self.api_gamelog_info()
 
     # --- empezar de cero
     def api_reset_all(self, conservar_claves: bool = True, conservar_comandos: bool = True) -> bool:

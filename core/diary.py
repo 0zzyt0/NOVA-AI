@@ -466,7 +466,7 @@ class Diary:
         return {
             "archivo": str(self.file) if self.file else "",
             "inicio": self.start, "fin": self.end, "personaje": self.player, "version": self.version,
-            "servidor": self.server, "ubicacion": self.location, "lugares": self.places[-30:],
+            "servidor": self.server, "ubicacion": self.location, "lugares": [_(x) for x in self.places[-30:]],
             "nave_actual": self.ship_now, "ultima_nave_subida": self.ship_boarded,
             "ultima_nave_pilotada": self.ship_piloted, "pilotada_a_las": self.ship_piloted_at,
             "nave_entregada": self.ship_delivered, "estado_nave": self.ship_state,
@@ -567,7 +567,7 @@ class Diary:
             if self.blueprints:
                 out.append("Planos recibidos: " + ", ".join(self.blueprints))
             if self.places and full:
-                out.append("Recorrido: " + " → ".join(self.places[-20:]))
+                out.append("Recorrido: " + " → ".join(_(x) for x in self.places[-20:]))
             if full:
                 out.append(_("Nota: desde la versión 4.0.2 el juego solo anota las muertes, incapacitaciones y naves "
                              "destruidas en las que participas tú; el resto no llega al Game.log."))

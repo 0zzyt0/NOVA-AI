@@ -14,6 +14,7 @@ Nova es tu IA de a bordo (y puedes ponerle el nombre que quieras):
 - **Usa tus teclas:** lee tu configuración de controles de Star Citizen cada vez que arranca.
 - **Brilla en el juego:** su logo aparece en una esquina y parpadea mientras te habla (overlay).
 - **Pone Star Citizen en español:** instala y mantiene al día la traducción de 0zzyt0.
+- **Novedades 2.0:** ventana reorganizada (Juego SC · Nova · Pantalla · Información · Ajustes) con buscador de ajustes, 7 estilos de voz y nombres del juego pronunciados en inglés, temas de color, nuevos logos del overlay y modelos de holograma, letra más gruesa, copias de seguridad, y el instalador te deja elegir carpeta y unidad.
 - **Novedades 1.5:** apunta tus compras, lo que te equipas y los atraques en la bitácora, y el manual llega en los cinco idiomas con sus propias capturas.
 - **Novedades 1.4:** sigue en la bandeja de Windows con la ventana cerrada, modo reposo, recorrido guiado y cuestionario anónimo.
 - **Novedades 1.2:** fichas en holograma sobre el juego: ficha policial de jugadores y de objetivos de recompensa, y fichas de planetas, lunas y lugares de verseguide.com.
@@ -27,7 +28,7 @@ Todo lo que usa es **gratis**.
 
 1. Haz doble clic en **`NOVA AI Setup.exe`** (el instalador todo en uno, con el logo de NOVA AI). Windows pedirá **permiso de administrador**: pulsa «Sí». Se abre el instalador holográfico azul, que:
    - **te pide aceptar las Normas de uso y la Política de privacidad** (sin aceptarlas no se instala);
-   - **instala NOVA AI en `C:\Program Files\NOVA AI`** («Archivos de programa»). Con «Cambiar…» puedes elegir otra carpeta;
+   - **instala NOVA AI en `C:\Program Files\NOVA AI`** («Archivos de programa») o donde quieras: en **▸ Carpeta de instalación** ves la ruta y el espacio libre de esa unidad, y **«Elegir carpeta…»** la cambia a otra carpeta o unidad (al actualizar se queda donde estaba);
    - **comprueba el sistema:** Python, tarjeta gráfica, espacio libre y conexión;
    - **instala Python 3.12** si no lo tienes, solo para tu usuario y sin tocar el tuyo;
    - **muestra el progreso** con porcentaje, paso actual, velocidad de descarga y **tiempo restante estimado**;
@@ -42,8 +43,8 @@ Todo lo que usa es **gratis**.
 **Si el instalador gráfico no llega a abrirse**, ya no se cierra sin decir nada: lo reintenta de otra forma y, si sigue sin poder, te enseña una ventana con el motivo y te ofrece abrir el registro (`%TEMP%\NOVA_AI_Setup.log`). Como último recurso, `INSTALAR_CONSOLA.bat` del `.zip` instala Nova en modo portátil.
 
 ### Dónde queda cada cosa
-- **El programa:** `C:\Program Files\NOVA AI`.
-- **Tus datos** (ajustes, comandos propios, memoria, sesión, voces y modelos descargados): `%LOCALAPPDATA%\NOVA AI\datos`. Windows no deja escribir en «Archivos de programa» sin ser administrador, por eso viven aparte. **Ajustes › General › Archivos › Carpeta de datos** la abre.
+- **El programa:** `C:\Program Files\NOVA AI` (o la carpeta que elegiste).
+- **Tus datos** (ajustes, comandos propios, memoria, sesión, voces y modelos descargados): `%LOCALAPPDATA%\NOVA AI\datos`. Windows no deja escribir en «Archivos de programa» sin ser administrador, por eso viven aparte. **Ajustes › Copias y archivos › Carpeta de datos** la abre.
 - **Si ya tenías Nova instalada:** el instalador encuentra tu carpeta antigua (por su acceso directo «NOVA» del escritorio, o la carpeta `datos\` junto al instalador) y **trae tus ajustes, comandos y memoria**. Después puedes borrar la carpeta antigua.
 
 ### Desinstalar
@@ -87,11 +88,11 @@ Antes de usar nada, Nova abre una ventana para terminar de configurarse. Puedes 
 - **Cómo escribe el reconocimiento de voz su nombre** cuando lo dices tú. Si oye «Ya tenía» en vez de «Atenea», lo apunta y a partir de entonces también le sirve.
 - **Tu volumen de voz y el ruido de tu habitación**, para ajustar solo la sensibilidad del micrófono.
 
-**Para cambiarle el nombre o repetir el entrenamiento:** ve a **Nova › Identidad e idioma**. Al cambiar el nombre olvida lo aprendido del anterior, así que conviene **repetir la configuración**. En **Nova › Cómo hablarle** ves cómo oye su nombre en tu voz; si alguna forma aprendida la activa sin querer, pulsa «Olvidar».
+**Para cambiarle el nombre o repetir el entrenamiento:** ve a **Nova › Identidad**. Al cambiar el nombre olvida lo aprendido del anterior, así que conviene **repetir la configuración**. En **Nova › Cómo hablarle** ves cómo oye su nombre en tu voz; si alguna forma aprendida la activa sin querer, pulsa «Olvidar».
 
 ## 2. Claves gratuitas (Nova › Inteligencia)
 
-**Claves de serie:** algunas versiones del instalador traen claves gratuitas de prueba (cifradas) para Gemini, Groq, OpenRouter y DeepSeek, puestas en su sitio al instalar. La versión pública de GitHub **no las trae**: consigue las tuyas, gratis y en 2 minutos (pasos abajo y en el manual). Si tu versión sí las trae, tienen un límite diario compartido; tus claves nunca se sustituyen por las de fábrica.
+**Claves de serie:** algunas versiones del instalador traen claves gratuitas de prueba (cifradas) para Gemini, Groq y OpenRouter, puestas en su sitio al instalar. La versión pública de GitHub **no las trae**: consigue las tuyas, gratis y en 2 minutos (pasos abajo y en el manual). Si tu versión sí las trae, tienen un límite diario compartido; tus claves nunca se sustituyen por las de fábrica.
 
 Sin ninguna clave, Nova ya ejecuta comandos por frase directa. **Para conversar y buscar** necesita al menos una.
 
@@ -100,7 +101,7 @@ Sin ninguna clave, Nova ya ejecuta comandos por frase directa. **Para conversar 
 | **Gemini** (Google) | El cerebro más listo | aistudio.google.com/apikey | Gratis, sin tarjeta, con límite diario |
 | **Groq** | Respaldo ultrarrápido **y** reconocimiento de voz en la nube | console.groq.com/keys | Gratis, sin tarjeta |
 | OpenRouter | Más modelos gratis (`:free`) | openrouter.ai/keys | Gratis, unas 50 peticiones al día |
-| Mistral | Europeo, muy bueno en español, francés y alemán | console.mistral.ai/api-keys | Gratis, sin tarjeta (plan «Experiment»; pide verificar el teléfono) |
+| Mistral | Europeo, muy bueno en español, francés y alemán. **Opcional** | console.mistral.ai/api-keys | **De pago** desde agosto de 2026 (ya no está en la cadena de fábrica) |
 | Ollama | IA en tu propio PC, sin internet | ollama.com | Gratis (necesita buena GPU) |
 
 **Recomendado: Gemini + Groq.** Pulsa «Conseguir clave», copia la clave y pégala.
@@ -111,9 +112,8 @@ Nova prueba los motores **en orden**. Si uno se queda sin cuota o falla, salta a
 2. Gemini `gemini-3.5-flash-lite`.
 3. Groq `openai/gpt-oss-120b`.
 4. OpenRouter `openrouter/free`.
-5. Mistral `mistral-small-latest`.
 
-Si pones la clave de un servicio que no está en tu cadena, se añade solo al final. DeepSeek ya no es gratuito: solo aparece si ya tenías su clave puesta.
+Si pones la clave de un servicio que no está en tu cadena, se añade solo al final. **Mistral** (de pago desde agosto de 2026) y **DeepSeek** ya no son gratuitos: solo entran en la cadena si pones tu propia clave. Al actualizar desde la 1.x, Nova quita la clave de fábrica de Mistral y respeta la tuya.
 
 Los botones de cada motor:
 - **Probar:** comprueba que la clave funciona.
@@ -121,8 +121,8 @@ Los botones de cada motor:
 
 ## 3. Cómo hablarle
 
-- **Tecla para hablar:** mantén **Insert** mientras hablas y suelta. Puedes cambiarla en **Nova › Cómo hablarle › Asignar**: sirve cualquier tecla, botón lateral del ratón o **botón del HOTAS o joystick**. Si pulsas la tecla mientras Nova habla, se calla.
-- **Por su nombre:** di «**Nova**, baja el tren» (o el nombre que le hayas puesto). Si solo dices su nombre, te responde «¿Sí, señor?» y puedes dar la orden sin repetirlo. En **Nova › Cómo hablarle › Otras formas de llamarla** puedes añadir más, como «computadora».
+- **Tecla para hablar:** mantén **Insert** mientras hablas y suelta. Puedes cambiarla en **Nova › Escucha › Cómo hablarle › Asignar**: sirve cualquier tecla, botón lateral del ratón o **botón del HOTAS o joystick**. Si pulsas la tecla mientras Nova habla, se calla.
+- **Por su nombre:** di «**Nova**, baja el tren» (o el nombre que le hayas puesto). Si solo dices su nombre, te responde «¿Sí, señor?» y puedes dar la orden sin repetirlo. En **Nova › Escucha › Otras formas de llamarla** puedes añadir más, como «computadora».
 - **Por escrito:** usa la caja de texto de la **Cabina**.
 - **Para que se calle:** di «silencio», «cállate» o «basta», o pulsa 🔇.
 - **Para pausarla:** di «Nova, desactívate» o pulsa ⏸. Vuelve con «Nova, actívate».
@@ -144,15 +144,19 @@ Los botones de cada motor:
 
 ## 4. Voces (Nova › Voz)
 
+**Estilos de voz (2.0):** arriba de **Nova › Voz** tienes siete estilos ya afinados (voz, velocidad, tono y efecto de cabina) con el aire de las IA de a bordo del cine: *Clásica de NOVA*, *Mayordomo de a bordo*, *Ordenador de la nave*, *Copiloto cercano*, *IA táctica*, *Asistente serena* y *Voz internacional* (una voz inglesa que habla tu idioma con acento). Son voces sintéticas de Microsoft Edge: **no imitan a ningún actor ni personaje**. Si después tocas algo a mano, el estilo se desmarca.
+
+**Nombres del juego en inglés (2.0):** Edge lee «Crusader» o «Hurston» con las reglas de tu idioma. Con **Nombres del juego en inglés** (activado de serie) Nova los dice como en el juego: planetas, lunas, estaciones, fabricantes y naves. En **Mi pronunciación** añades o corriges los tuyos, uno por línea (`Orison = Órison`).
+
 - **Edge:** voces neuronales de Microsoft, gratis y muy naturales. Necesita internet. Prueba `es-ES-XimenaNeural`, `es-ES-AlvaroNeural` o las *Multilingual*, que son más expresivas.
 - **Piper:** gratis y sin internet. La voz se descarga sola la primera vez.
 - **Windows:** la voz del sistema, por si todo lo demás falla.
 
-También puedes ajustar velocidad, tono, volumen y el filtro «IA de cabina». Si el motor elegido falla, Nova cambia solo al siguiente. El botón **▶ Probar voz** es un interruptor: si lo pulsas otra vez, se calla.
+También puedes ajustar velocidad, tono, volumen y el **efecto de voz** (2.0): sin efecto, *IA de cabina* (altavoz de nave, más marcado que en la 1.x), *Comunicador del casco*, *Radio* o *Walkie-talkie* (con ruido de fondo, chasquido al empezar y al acabar y pitido de cambio), con su intensidad. Si el motor elegido falla, Nova cambia solo al siguiente. El botón **▶ Probar voz** es un interruptor: si lo pulsas otra vez, se calla.
 
-**¿Por dónde suena?** Si tienes varias salidas de audio (altavoces, auriculares, interfaz USB…), elígela en **Nova › Salida de audio**.
+**¿Por dónde suena?** Si tienes varias salidas de audio (altavoces, auriculares, interfaz USB…), elígela al final de **Nova › Voz** (Salida de audio).
 
-## 5. Reconocimiento de voz (Nova › Micrófono)
+## 5. Reconocimiento de voz (Nova › Escucha)
 
 - **auto** (por defecto): usa Groq si tienes clave, que es lo más rápido y no gasta tu PC. Si no hay clave, usa Whisper en tu PC.
 - **local:** Whisper en tu PC. Con una tarjeta **NVIDIA** puedes usar `large-v3-turbo`, rapidísimo y muy preciso. Sin NVIDIA, usa `small` (el instalador detecta tu tarjeta). El modelo se descarga la primera vez.
@@ -160,7 +164,7 @@ También puedes ajustar velocidad, tono, volumen y el filtro «IA de cabina». S
 
 > Con «Escuchar Nova sin tecla», cada frase que dices se transcribe para buscar su nombre. Con Groq eso gasta cuota: unas 2.000 frases gratis al día. Con Whisper local gasta algo de CPU. Si juegas hablando mucho por Discord, usa solo la tecla.
 
-## 6. Comandos y teclas (Nave y comandos)
+## 6. Comandos y teclas (Juego SC)
 
 ### Tus teclas del juego, siempre al día
 Cada vez que arranca, Nova lee tu archivo de controles de Star Citizen:
@@ -215,7 +219,7 @@ El juego escribe los avisos del HUD tal cual los ves, **en tu idioma**: «Nuevo 
 - **Zonas:** armisticio, espacio vigilado, jurisdicción, territorio hostil, zona restringida y llamaradas solares.
 
 ### Avisos en voz
-Nova comenta lo que pasa en la partida. Puedes activar o desactivar cada tipo en **Nave y comandos › Lectura del juego y teclas**:
+Nova comenta lo que pasa en la partida. Puedes activar o desactivar cada tipo en **Juego SC › Lectura del juego y teclas**:
 - **Ubicación:** llegadas, armisticio y jurisdicción.
 - **Tu nave:**
   - quién sube y quién baja;
@@ -249,7 +253,7 @@ Los avisos se ponen en cola: no se pierden aunque Nova esté hablando. Si uno ll
 
 ## 7 ter. Archivos de Bitácora
 
-Cada sesión de juego queda apuntada en un archivo `.log` que puedes abrir con el Bloc de notas, en `%LOCALAPPDATA%\NOVA AI\datos\diario\` (por ejemplo `2026-11-07_2147_Nebula_Rider.log`). En **Datos y memoria › Bitácora y estadísticas** ves el resumen de la sesión y las bitácoras guardadas (se conservan las 60 últimas).
+Cada sesión de juego queda apuntada en un archivo `.log` que puedes abrir con el Bloc de notas, en `%LOCALAPPDATA%\NOVA AI\datos\diario\` (por ejemplo `2026-11-07_2147_Nebula_Rider.log`). En **Información › Bitácora y estadísticas** ves el resumen de la sesión y las bitácoras guardadas (se conservan las 60 últimas).
 
 **Cada línea:** la hora y lo que pasó: llegadas, saltos, subir y bajar de naves, quién entra y sale de tu nave y del grupo, la torre, amistades, contratos, planos, heridas…
 
@@ -274,20 +278,20 @@ Sale del propio Game.log: si abres Nova con la partida empezada o después de ju
 
 ## 7 octies. Novedades de la versión 1.1
 
-- **Buscar jugadores.** Di «Nova, localízame a un jugador» o «búscame a un jugador»: te pedirá que **escribas el apodo** en el cuadro de texto de la Cabina (por voz se entendería mal). Lee su ficha pública en `robertsspaceindustries.com/en/citizens/APODO` y te da: Apodo en juego, HandleName, UEE Citizen Record, Fecha de alta (Enlisted), Fluency (idioma) y Main Organization; después abre `robertsspaceindustries.com/en/orgs/ORG` (miembros, tipo, actividad). La ficha se guarda en la bitácora (etiqueta `JUGADOR`) y, si pegas un webhook en **Datos y memoria › Discord y servidores**, se manda a ese canal. Si hay cualquier error o la ficha no trae esos datos: «Usuario no encontrado, ¿Está bien escrito el apodo?». Si el jugador o su organización tienen algún dato oculto (RSI lo muestra como `[REDACTED]`), Nova te avisa de que esa información está oculta. También vale escribirlo de una vez: «búscame al jugador Nebula_Rider».
+- **Buscar jugadores.** Di «Nova, localízame a un jugador» o «búscame a un jugador»: te pedirá que **escribas el apodo** en el cuadro de texto de la Cabina (por voz se entendería mal). Lee su ficha pública en `robertsspaceindustries.com/en/citizens/APODO` y te da: Apodo en juego, HandleName, UEE Citizen Record, Fecha de alta (Enlisted), Fluency (idioma) y Main Organization; después abre `robertsspaceindustries.com/en/orgs/ORG` (miembros, tipo, actividad). La ficha se guarda en la bitácora (etiqueta `JUGADOR`) y, si pegas un webhook en **Información › Discord y servidores**, se manda a ese canal. Si hay cualquier error o la ficha no trae esos datos: «Usuario no encontrado, ¿Está bien escrito el apodo?». Si el jugador o su organización tienen algún dato oculto (RSI lo muestra como `[REDACTED]`), Nova te avisa de que esa información está oculta. También vale escribirlo de una vez: «búscame al jugador Nebula_Rider».
 - **Temporizadores** para refinados, contratos o lo que quieras: «avísame en 3 horas y 20 minutos, el refinado de ARC-L1». Se ven en la Cabina, se crean también a mano y **siguen aunque cierres Nova** (si terminan con ella cerrada, te lo dice al volver). Quedan en la bitácora (`TEMPORIZADOR`).
 - **Rutas de comercio con beneficio real:** con los precios de UEX, Nova calcula cuántas SCU caben en la nave en la que vas (o la que le digas), el stock del origen, la demanda del destino y tu dinero, y ordena por lo que ganas de verdad. Si no sabe tu nave, usa la «Bodega por defecto» de Fuentes de datos.
-- **Perfiles de nave:** en **Nave y comandos › Perfiles de nave**, cada nave puede tener sus propios avisos en voz. En el editor de comandos, **Solo en estas naves** limita un comando a ciertas naves (y deja usar la misma frase con teclas distintas en cada una).
+- **Perfiles de nave:** en **Juego SC › Perfiles de nave**, cada nave puede tener sus propios avisos en voz. En el editor de comandos, **Solo en estas naves** limita un comando a ciertas naves (y deja usar la misma frase con teclas distintas en cada una).
 - **Estado de los servidores:** al arrancar mira `status.robertsspaceindustries.com` y te avisa si hay caídas o mantenimiento (Cabina › Situación y Fuentes de datos). Pregúntale «¿cómo están los servidores?».
 - **Fijar el objetivo por voz:** «Nova, fija el objetivo» pulsa la tecla y lo anota en la bitácora (`OBJETIVO`) con la nave y el lugar, ya que el Game.log no lo escribe.
-- **Estadísticas de piloto:** horas, bajas, muertes, saltos y contratos de **todas** tus sesiones, semana a semana (Datos y memoria › Bitácora y estadísticas). «Recalcular» lee los Game.log antiguos del juego (`logbackups`). Pregúntale «¿cuántas bajas llevo este mes?».
+- **Estadísticas de piloto:** horas, bajas, muertes, saltos y contratos de **todas** tus sesiones, semana a semana (Información › Bitácora y estadísticas). «Recalcular» lee los Game.log antiguos del juego (`logbackups`). Pregúntale «¿cuántas bajas llevo este mes?».
 - **🧹 Limpiar transmisiones:** botón en la Cabina que vacía el chat (la memoria y la bitácora no se tocan).
 
 ## 7 nonies. Hologramas (versión 1.2 en adelante)
 
-Nova enseña **fichas en holograma encima del juego** (como el logo: con Star Citizen en «Ventana sin bordes», sin robar el foco ni los clics). Aparecen con una animación de proyector, tienen líneas de barrido mientras están en pantalla y se pliegan al irse. Al encenderse y al apagarse suenan, y los objetivos de captura llevan una alerta: para cada momento eliges uno de los sonidos de la lista, un audio tuyo (WAV, MP3, OGG o FLAC) o ninguno, con su propio volumen. Se ajustan en **Overlay y hologramas › Hologramas**, junto al logo: opacidad, tiempo en pantalla, tamaño, posición, sonido y en qué casos aparecen; los botones «Probar» enseñan un ejemplo.
+Nova enseña **fichas en holograma encima del juego** (como el logo: con Star Citizen en «Ventana sin bordes», sin robar el foco ni los clics). Aparecen con una animación de proyector, tienen líneas de barrido mientras están en pantalla y se pliegan al irse. Al encenderse y al apagarse suenan, y los objetivos de captura llevan una alerta: para cada momento eliges uno de los sonidos de la lista, un audio tuyo (WAV, MP3, OGG o FLAC) o ninguno, con su propio volumen. Se ajustan en **Pantalla › Hologramas**: opacidad, tiempo en pantalla, tamaño, posición, **modelo de tarjeta** (clásico, biselado, cristal o táctico), **cómo aparece** (proyector, barrido, despliegue o transmisión), **grosor de la letra** (normal, gruesa o muy gruesa), sonido y en qué casos aparecen; los botones «Probar» enseñan un ejemplo.
 
-- **Ficha policial UEE de un jugador** («búscame a un jugador»), en **tono azul**: foto de perfil, apodo, handle, expediente, fecha de alta, idiomas y la organización con su logotipo. Los datos ocultos salen tachados como `REDACTED`. Cada búsqueda queda anotada en **Datos y memoria › Bitácora y estadísticas**, en el archivo `Busquedas_de_jugadores.log`, con fecha, hora, jugador y organización.
+- **Ficha policial UEE de un jugador** («búscame a un jugador»), en **tono azul**: foto de perfil, apodo, handle, expediente, fecha de alta, idiomas y la organización con su logotipo. Los datos ocultos salen tachados como `REDACTED`. Cada búsqueda queda anotada en **Información › Bitácora y estadísticas**, en el archivo `Busquedas_de_jugadores.log`, con fecha, hora, jugador y organización.
 - **Objetivos de recompensa:** al aceptar una misión de cazarrecompensas o JcJ (o cuando aparece «Objetivo nuevo: Neutralizar XX»), Nova te pregunta «¿Busco su ficha en RSI?» y solo la busca si dices **«sí»** (así no se consulta la web de RSI sin que tú lo pidas). Si tiene ficha es un **jugador**: suena una **alerta** y su ficha sale en **rojo** con el sello **OBJETIVO DE CAZA**. Si no la tiene (o su nombre lleva espacios), te dice que es un **piloto NPC**. También queda en la bitácora de búsquedas.
 - **Planetas y lunas:** «Nova, háblame de Daymar» → ficha de verseguide.com con el cuerpo girando, tipo, radio, gravedad, duración del día, atmósfera, nivel de peligro, economía y población, cuántos lugares tiene y su descripción (traducida al español con Google Translate, gratis y una sola vez). «Háblame de Daymar» se contesta sin gastar la IA: la ficha de VerseGuide y un resumen hablado.
 - **Lugares planetarios** (cuevas, puestos avanzados, bases, búnkeres…): «Nova, ¿qué es Security Post Kareah?» → tipo, dónde está, temperatura y descripción.
@@ -304,6 +308,21 @@ Desde la 1.2, **al iniciar y al cerrar** NOVA mira en GitHub ([github.com/0zzyt0
 - **Al cerrar la aplicación:** lo descarga ya y lo instala cuando cierres NOVA, sin volver a abrirla.
 
 También puedes contestar por voz («sí», «no», «al cerrar»). Si no contestas y cierras, te lo pregunta en una ventana al salir. Tus datos, ajustes y comandos se conservan. Se desactiva y se busca a mano en **Ajustes › Actualizaciones de NOVA AI**.
+
+## 7 octodecies. Novedades de la versión 2.0
+
+- **Ventana reorganizada** para encontrarlo todo antes: **Juego SC** (comandos de voz, teclas y joystick, avisos del juego con perfiles de nave, chat e idioma del juego), **Nova** (identidad, voz, escucha e inteligencia), **Pantalla** (overlay, hologramas y aspecto), **Información** (fuentes y servidores, diccionario, lo que sabe de ti, bitácora y Discord) y **Ajustes** (el único sitio donde se cambia el idioma, ventana y bandeja, actualizaciones, copias y empezar de cero).
+- **Buscador de ajustes** en la cabecera (o `Ctrl+F`): escribe «grosor», «micrófono» o «tema» y te lleva a la opción.
+- **Estilos de voz**, **nombres del juego en inglés** y **efectos de voz** nuevos: IA de cabina más marcada, comunicador del casco, radio y walkie-talkie, con intensidad ajustable (sección 4).
+- **Temas de color** de la ventana (Pantalla › Aspecto): cian, ámbar, verde, carmesí, violeta, oro y plata. Los colores de estado no cambian.
+- **Logos del overlay:** NOVA, Núcleo, Onda de voz, Hexágono, Radar, Retícula o el tuyo (PNG con fondo transparente).
+- **Hologramas:** 4 modelos de tarjeta, 4 formas de aparecer y **letra más gruesa** (de serie), que se lee mejor sobre el juego.
+- **Copias de seguridad** (Ajustes › Copias y archivos): exporta e importa en un archivo `.novacopia` tus ajustes, comandos, memoria, diccionario y bitácora. **Nunca lleva tus claves de IA** ni tu webhook de Discord.
+- **Primer inicio:** el asistente te enseña dónde ha encontrado el **Game.log** y te deja elegirlo si juegas desde otra carpeta.
+- **Instalador:** eliges la **carpeta y la unidad** de instalación, con el espacio libre de esa unidad. Además es más ligero (el manual usa imágenes WebP) y tiene un modo desatendido para las pruebas automáticas.
+- **Avisos:** la zona de armisticio se anuncia **una sola vez** al entrar y otra al salir; **◆ Probar en pantalla** dura 15 segundos; la vista previa del overlay lleva de fondo una escena del juego.
+- **Mistral** es de pago desde agosto de 2026: sale de la cadena de fábrica y queda como opción tuya.
+- **Arreglos:** el recuadro amarillo de comando sincronizado y la etiqueta «TUYO» ya no se salen del título; en inglés y alemán Nova entiende «pin the target» y «markiere das Ziel»; los nombres de sitios de la bitácora (puntos y estaciones de salto) salen en tu idioma.
 
 ## 7 septendecies. Novedades de la versión 1.5
 
@@ -326,7 +345,7 @@ También puedes contestar por voz («sí», «no», «al cerrar»). Si no contes
 ## 7 quindecies. Novedades de la versión 1.4
 
 - **Bandeja de Windows.** Al cerrar la ventana, Nova sigue funcionando junto al reloj de Windows: te escucha, el overlay sigue en el juego y los temporizadores avisan. **Clic** en su icono para abrir la ventana; **clic derecho** para MUTE, modo reposo o **Salir de NOVA AI**. También puedes mandarla a la bandeja con **⤓** (arriba a la derecha) o desde **Ajustes › General › Ventana y bandeja**. Si prefieres que cerrar la ventana cierre NOVA AI, como antes, desactiva «Al cerrar la ventana, seguir en la bandeja».
-- **Modo reposo** (**Nova › Micrófono › Modo reposo**). Elige tras cuántos minutos sin hablarle descansa (o «Nunca», que es lo que viene de serie). En reposo deja de escucharte y el overlay queda tenue; los temporizadores y los avisos del juego siguen. Cómo despertarla:
+- **Modo reposo** (**Nova › Escucha › Modo reposo**). Elige tras cuántos minutos sin hablarle descansa (o «Nunca», que es lo que viene de serie). En reposo deja de escucharte y el overlay queda tenue; los temporizadores y los avisos del juego siguen. Cómo despertarla:
   - **Con la tecla o el botón** (de serie): el micrófono se apaga del todo. Pulsa tu tecla de hablar, el botón **☀** de la Cabina, «Modo reposo» en la bandeja o escríbele.
   - **También por su nombre**: el micrófono sigue abierto y solo atiende a «Nova…». Con Groq gasta algo de cuota.
   También puedes dormirla con el botón **💤** de la Cabina o diciendo «Nova, modo reposo» (o «a dormir», «descansa»). «Nova, desactívate» sigue siendo la pausa de siempre.
@@ -335,10 +354,10 @@ También puedes contestar por voz («sí», «no», «al cerrar»). Si no contes
 
 ## 7 quaterdecies. Novedades de la versión 1.4: micrófono, juego limpio y motores de IA
 
-- **Micrófono más robusto.** Nova prueba tu micrófono por varias vías de Windows (MME, DirectSound, WASAPI) y a su frecuencia nativa (por ejemplo 48 kHz). Si no puede abrirlo usa el micrófono predeterminado de Windows y te lo dice. En **Nova › Micrófono** verás qué dispositivo está abierto y su estado: si llega silencio absoluto (micrófono silenciado en los auriculares o en Windows) o si la señal es muy baja.
-- **Ganancia del micrófono** (×1 a ×8) en **Nova › Micrófono**. Al terminar la configuración inicial, si tu voz llega muy baja, Nova la sube sola.
+- **Micrófono más robusto.** Nova prueba tu micrófono por varias vías de Windows (MME, DirectSound, WASAPI) y a su frecuencia nativa (por ejemplo 48 kHz). Si no puede abrirlo usa el micrófono predeterminado de Windows y te lo dice. En **Nova › Escucha** verás qué dispositivo está abierto y su estado: si llega silencio absoluto (micrófono silenciado en los auriculares o en Windows) o si la señal es muy baja.
+- **Ganancia del micrófono** (×1 a ×8) en **Nova › Escucha**. Al terminar la configuración inicial, si tu voz llega muy baja, Nova la sube sola.
 - **Botón MUTE** en la esquina del medidor del micrófono (lateral izquierdo). **MUTE ON** (verde): Nova no escucha nada, ni la tecla ni su nombre. Vuelve a pulsarlo para **MUTE OFF**.
-- **Modo prudente con las teclas** (**Nave y comandos › Lectura del juego y teclas**, activado por defecto): un comando de voz hace como mucho lo que harías tú con una pulsación: sin esperas largas encadenadas, sin ratón dentro de secuencias, «mantener» como máximo 3 segundos y nunca en bucle. Así se respeta el espíritu de los Términos de RSI sobre macros.
+- **Modo prudente con las teclas** (**Juego SC › Lectura del juego y teclas**, activado por defecto): un comando de voz hace como mucho lo que harías tú con una pulsación: sin esperas largas encadenadas, sin ratón dentro de secuencias, «mantener» como máximo 3 segundos y nunca en bucle. Así se respeta el espíritu de los Términos de RSI sobre macros.
 - **Búsquedas en RSI y envíos a Discord solo si dices «sí».** Los objetivos de recompensa ya no se buscan solos y las fichas no se mandan solas a Discord. Además Nova guarda cada ficha 10 minutos y espera al menos 2 segundos entre consultas a la web de RSI.
 - **Mistral sustituye a DeepSeek** como motor de IA gratuito (plan Experiment, sin tarjeta). DeepSeek sigue funcionando si ya tenías su clave.
 - **Edge ya no ofrece guardar tus claves** como contraseñas.
@@ -352,24 +371,24 @@ También puedes contestar por voz («sí», «no», «al cerrar»). Si no contes
 
 ## 7 duodecies. Novedades de la versión 1.3
 
-- **Cinco idiomas: español, inglés, catalán, francés y alemán.** Se elige en la primera pantalla del instalador (preseleccionado con el de Windows) o en **Ajustes › General** / **Nova › Identidad e idioma**. Cambia todo: la ventana, la voz de Nova, lo que entiende, sus comandos de voz, los hologramas y el manual. Nova te trata de forma formal en cada idioma (sir, senyor, monsieur, Herr…).
-- **«Add your Language global.ini of Star Citizen [HERE]»** (en **Datos y memoria › Traducción del juego**): eliges un global.ini de la comunidad en tu idioma y Nova lo instala en la carpeta del juego, guarda una copia del que hubiera, ajusta user.cfg y lo usa para entender los avisos. Se puede deshacer con un botón. En idiomas distintos del español no se ofrece la traducción de 0zzyt0 ni su Google Drive.
+- **Cinco idiomas: español, inglés, catalán, francés y alemán.** Se elige en la primera pantalla del instalador (preseleccionado con el de Windows) o en **Ajustes › General** / **Nova › Identidad**. Cambia todo: la ventana, la voz de Nova, lo que entiende, sus comandos de voz, los hologramas y el manual. Nova te trata de forma formal en cada idioma (sir, senyor, monsieur, Herr…).
+- **«Add your Language global.ini of Star Citizen [HERE]»** (en **Información › Traducción del juego**): eliges un global.ini de la comunidad en tu idioma y Nova lo instala en la carpeta del juego, guarda una copia del que hubiera, ajusta user.cfg y lo usa para entender los avisos. Se puede deshacer con un botón. En idiomas distintos del español no se ofrece la traducción de 0zzyt0 ni su Google Drive.
 - **Ventana nueva «Cristal holográfico»**, ordenada por tareas: Cabina · Nave y comandos · Nova (voz, IA, idioma) · Overlay y hologramas · Datos y memoria · Ajustes.
 - **Efectos en tres niveles** (Overlay y hologramas): Cinematográficos (destellos, aberración cromática, motas de luz, anillo giratorio en el logo), Ligeros (fundidos suaves, para PCs justos o directos) y Sin efectos (estático).
 - **«¿Dónde compro un P4-AR?»** se contesta por voz con los datos de UEX; Nova ya no abre el navegador por su cuenta (solo si se lo pides o le dices que sí).
-- **Comprobar las páginas** (Datos y memoria › Páginas de consulta): comprueba desde tu PC, sin abrir el navegador, que cada página de consulta responde.
+- **Comprobar las páginas** (Información › Páginas de consulta): comprueba desde tu PC, sin abrir el navegador, que cada página de consulta responde.
 
 ## 7 undecies. Novedades de la versión 1.2.2
 
 - **Interruptor «NOVA ACTIVA» en la Cabina:** apágalo para detenerla al momento: cancela las búsquedas en curso (jugadores, IA, recompensas), se calla, quita el holograma y deja de atender órdenes hasta que lo enciendas o digas «Nova, actívate». Por voz: «Nova, detente». La bitácora y los temporizadores siguen.
-- **Mensajes al chat del juego:** «Nova, envía mensaje al chat» y luego el mensaje (o todo seguido: «envía mensaje al chat: ¿alguien necesita escolta?»). Lo traduce al inglés con Google Translate (sin gastar IA) y hace lo mismo que tú: F12 + Intro, escribe tecla a tecla con tu distribución de teclado, Intro + F12. En **Nave y comandos › Chat del juego** eliges esas teclas, la velocidad, el idioma y si te lee la traducción antes de enviarla.
+- **Mensajes al chat del juego:** «Nova, envía mensaje al chat» y luego el mensaje (o todo seguido: «envía mensaje al chat: ¿alguien necesita escolta?»). Lo traduce al inglés con Google Translate (sin gastar IA) y hace lo mismo que tú: F12 + Intro, escribe tecla a tecla con tu distribución de teclado, Intro + F12. En **Juego SC › Chat del juego** eliges esas teclas, la velocidad, el idioma y si te lee la traducción antes de enviarla.
 - **Discord:** después de cada ficha Nova pregunta «¿La mando a Discord?»; di o escribe **«sí»** en 30 segundos y se manda (con foto y logotipo), también los objetivos de recompensa en rojo. La Cabina y el panel de Discord dicen si llegó o qué respondió Discord; «Enviar ficha de prueba» comprueba todo el camino.
 - **Sonidos de los hologramas a tu gusto:** cinco sonidos para cada momento, un audio tuyo o ninguno, y volumen para cada uno.
-- **Diccionario de consultas** (`Diccionario_de_consultas.txt`, en tu carpeta de datos): la memoria física de Nova, por grupos (planetas y lunas, estaciones, ciudades, lugares, naves, armaduras, armas, componentes, recursos, mercancías, ropa, pinturas, fabricantes…) y en orden alfabético, con las variantes de cada familia juntas (Attrition-1 … Attrition-6). Al crearse se rellena con los textos oficiales del juego en español (unas 7.000 entradas). Cuando preguntas «háblame de X» o «¿qué es X?», el overlay se pone **morado** («buscando en memoria física») y, si está, contesta sin gastar IA; si no, lo busca en internet (amarillo: starcitizen.tools traducido con Google Translate) y lo guarda (**blanco**, «memorizando»). No caduca nunca: se conserva entre versiones, al empezar de cero y al desinstalar. Puedes editarlo con el Bloc de notas y Nova respeta tus cambios; «Nova, actualiza la ficha de X» la vuelve a buscar. Está en **Datos y memoria › Diccionario**.
+- **Diccionario de consultas** (`Diccionario_de_consultas.txt`, en tu carpeta de datos): la memoria física de Nova, por grupos (planetas y lunas, estaciones, ciudades, lugares, naves, armaduras, armas, componentes, recursos, mercancías, ropa, pinturas, fabricantes…) y en orden alfabético, con las variantes de cada familia juntas (Attrition-1 … Attrition-6). Al crearse se rellena con los textos oficiales del juego en español (unas 7.000 entradas). Cuando preguntas «háblame de X» o «¿qué es X?», el overlay se pone **morado** («buscando en memoria física») y, si está, contesta sin gastar IA; si no, lo busca en internet (amarillo: starcitizen.tools traducido con Google Translate) y lo guarda (**blanco**, «memorizando»). No caduca nunca: se conserva entre versiones, al empezar de cero y al desinstalar. Puedes editarlo con el Bloc de notas y Nova respeta tus cambios; «Nova, actualiza la ficha de X» la vuelve a buscar. Está en **Información › Diccionario**.
 - **Nuevas páginas de consulta:** StarMap (starmap.space, con su API pública: gravedad, temperatura, coordenadas, servicios y minerales de planetas, estaciones y lugares) y, para abrirlas en tu navegador cuando son la mejor fuente, SC Ships Performances Viewer (spviewer.eu), Universal Item Finder (finder.cstone.space, dónde comprar cada objeto) y SC Haulers (schaulers.com). Créditos y agradecimientos a todas en **Acerca de** y en el manual.
 - **«¿Quién eres?» / «Preséntate» / «¿Para qué sirves?»:** Nova se presenta con su versión, su creador (0zzyt0, con ceros) y alguna anécdota inventada, y cuenta todo lo que sabe hacer y lo que está por venir.
 - **📖 Consulta el Manual:** botón debajo de Cabina (o «Nova, abre el manual») que abre el manual completo en tu navegador, con guía rápida y glosario.
-- **Ahorro de tokens** (**Nova › Ahorro de tokens**): respuestas guardadas para datos que no cambian (naves, armas, armaduras y ropa, minerales, planos, planetas…; caducan a los 14 días o con un parche nuevo), planetas y lugares contestados con VerseGuide sin IA, traducciones con Google Translate guardadas en tu equipo y una conversación más corta para la IA.
+- **Ahorro de tokens** (**Nova › Inteligencia › Ahorro de tokens**): respuestas guardadas para datos que no cambian (naves, armas, armaduras y ropa, minerales, planos, planetas…; caducan a los 14 días o con un parche nuevo), planetas y lugares contestados con VerseGuide sin IA, traducciones con Google Translate guardadas en tu equipo y una conversación más corta para la IA.
 
 ## 7 quater. Fuentes de datos y enciclopedia
 
@@ -402,7 +421,7 @@ Nova entiende mejor el juego si está en tu idioma, y puede ponértelo en españ
   - **Sí:** vuelve a descargar el `.zip` y sobrescribe los archivos de `LIVE`;
   - **No:** no hace nada hasta dentro de otros 3 meses;
   - **Recuérdamelo en la siguiente sesión:** te lo vuelve a preguntar la próxima vez que abras Nova.
-- **Cuando quieras:** **Datos y memoria › Traducción del juego › ⬇ Actualizar traducción** descarga la última versión y sobrescribe las carpetas de `LIVE`. Desde ahí también puedes elegir la carpeta del juego si Nova no la encuentra.
+- **Cuando quieras:** **Información › Traducción del juego › ⬇ Actualizar traducción** descarga la última versión y sobrescribe las carpetas de `LIVE`. Desde ahí también puedes elegir la carpeta del juego si Nova no la encuentra.
 - **El enlace de descarga aparece oculto con asteriscos**, pero puedes cambiarlo: pega otro enlace de Google Drive encima. Si dejas el campo vacío, se usa el de 0zzyt0.
 
 Si Star Citizen está abierto, reinícialo para ver los textos nuevos. Nova recarga sola los textos para entender el Game.log en español.
@@ -424,7 +443,7 @@ El logo de Nova aparece en una esquina de la pantalla mientras juegas y cambia d
 | **Amarillo** | está buscando la información en internet (wiki, web, precios) |
 | **Rojo** | en pausa, sin micrófono, o no te ha entendido |
 
-**Solo parpadea cuando la IA está hablando**; el resto de estados son luz fija. Los cuatro colores se cambian en **Overlay y hologramas › Logo de estado**.
+**Solo parpadea cuando la IA está hablando**; el resto de estados son luz fija. Los colores se cambian en **Pantalla › Overlay**, donde también eliges el **logo** (NOVA, Núcleo, Onda de voz, Hexágono, Radar, Retícula o un PNG tuyo).
 
 **Monitor:** el overlay se queda fijo en el monitor que elijas, el **Monitor 1 (principal)** por defecto. No sigue al ratón ni a la ventana activa. También puedes elegir «El monitor donde esté el juego».
 
@@ -434,7 +453,7 @@ El logo de Nova aparece en una esquina de la pantalla mientras juegas y cambia d
 
 **Pausa:** el botón ⏸ de la Cabina, o decir «Nova, desactívate», pone a Nova en pausa: no obedece nada y el overlay se queda en rojo. «Nova, actívate» (o el botón ▶) la reactiva. Al cerrar Nova, el overlay se pone rojo un momento antes de desaparecer.
 
-En **Overlay y hologramas › Logo de estado** también eliges la esquina (pulsando en la pantalla de muestra), el tamaño y la intensidad. Los botones de demostración enseñan cada color, y **◆ Probar en pantalla** recorre todos los estados durante 9 segundos sobre tu escritorio.
+En **Pantalla › Overlay** también eliges la esquina (pulsando en la pantalla de muestra, que lleva de fondo una escena del juego), el tamaño y la intensidad. Los botones de demostración enseñan cada color, y **◆ Probar en pantalla** recorre todos los estados durante 15 segundos sobre tu escritorio.
 
 - **Modo de pantalla:** se ve con Star Citizen en **«Ventana sin bordes» (Borderless)**. En «Pantalla completa» exclusiva, Windows no deja dibujar nada encima.
 - **No molesta:** no recibe clics ni roba el foco; el ratón lo atraviesa.
@@ -454,18 +473,18 @@ Además, Nova tiene un control propio: si buscó en la wiki o en internet, no en
 
 - **«Failed to build pygame» o «subprocess-exited-with-error»:** tu Python es demasiado nuevo (3.14, 3.15…) y esas librerías todavía no tienen versión precompilada para él. Vuelve a abrir `NOVA AI Setup.exe`. El instalador ya no usa ese Python: instala Python 3.12 aparte, solo para Nova, sin tocar el tuyo. Tampoco instales nada con `pip` a mano: usa siempre el instalador.
 - **El juego no recibe las teclas:** si ejecutas Star Citizen como administrador, ejecuta Nova también como administrador.
-- **No me oye:** si el núcleo de la Cabina dice **MODO REPOSO**, pulsa tu tecla de hablar o el botón ☀ para despertarla. Si no, elige tu micrófono en **Nova › Micrófono** y mira el medidor. Allí también ves qué micrófono se abrió y, si algo falla, el motivo. Comprueba que el botón **MUTE** del medidor del lateral izquierdo está en **MUTE OFF** y que tus auriculares no están silenciados. Si hablas bajo, sube la ganancia o la sensibilidad.
+- **No me oye:** si el núcleo de la Cabina dice **MODO REPOSO**, pulsa tu tecla de hablar o el botón ☀ para despertarla. Si no, elige tu micrófono en **Nova › Escucha** y mira el medidor. Allí también ves qué micrófono se abrió y, si algo falla, el motivo. Comprueba que el botón **MUTE** del medidor del lateral izquierdo está en **MUTE OFF** y que tus auriculares no están silenciados. Si hablas bajo, sube la ganancia o la sensibilidad.
 - **No encuentro la ventana:** con la ventana cerrada Nova sigue en la bandeja de Windows (junto al reloj; quizá dentro de la flecha ^). Haz clic en su icono. Para cerrarla del todo: clic derecho › Salir de NOVA AI.
 - **Se activa sola:** baja la sensibilidad o desactiva «Escuchar por su nombre sin tecla». Si es por una forma aprendida del nombre, quítala en **Nova › Cómo hablarle** con «Olvidar».
 - **«Todos mis motores están sin cuota»:** añade una clave de Groq u OpenRouter como respaldo, o espera al día siguiente.
 - **Nova se oye a sí misma por los altavoces:** el micrófono se queda sordo mientras Nova habla, e ignora lo que se parece a lo que acaba de decir. Aun así, con auriculares va mejor.
-- **No reacciona cuando la llamas por su nombre:** repite el entrenamiento en **Nova › Identidad e idioma**. Elige un nombre de 2 o 3 sílabas y que no sea una palabra común.
+- **No reacciona cuando la llamas por su nombre:** repite el entrenamiento en **Nova › Identidad**. Elige un nombre de 2 o 3 sílabas y que no sea una palabra común.
 - **Se cierra sola de golpe:** mira `fallos.log` y `nova.log` en tu carpeta de datos (**Memoria → Archivos → Carpeta de datos**) y mándamelos.
 - **La ventana no se abre:** Nova la abre con Edge. Si no tienes Edge ni Chrome, abre el navegador normal; si ni eso, entra a mano en la dirección de `ui_puerto.txt` de tu carpeta de datos (`http://127.0.0.1:PUERTO/`).
-- **El overlay está en otro monitor:** en **Overlay y hologramas › Logo de estado › Monitor** elige el tuyo; el Monitor 1 es siempre el principal de Windows.
+- **El overlay está en otro monitor:** en **Pantalla › Logo de estado › Monitor** elige el tuyo; el Monitor 1 es siempre el principal de Windows.
 - **El overlay no se ve:** pon Star Citizen en «Ventana sin bordes». Prueba con «◆ Probar en pantalla» y desactiva «Solo con Star Citizen delante» para comprobarlo.
-- **El mensaje no se escribe en el chat del juego:** en **Nave y comandos › Chat del juego** deja las teclas `f12` / `enter` / `f12` y «Teclas, letra a letra» (el chat de Star Citizen no admite pegar). Si se come letras, sube la velocidad al escribir o la espera.
-- **La ficha no llega a Discord:** mira el mensaje de la Cabina o «Último envío» en **Datos y memoria › Discord y servidores**: dice qué respondió Discord. Si el webhook se borró, crea uno nuevo.
+- **El mensaje no se escribe en el chat del juego:** en **Juego SC › Chat del juego** deja las teclas `f12` / `enter` / `f12` y «Teclas, letra a letra» (el chat de Star Citizen no admite pegar). Si se come letras, sube la velocidad al escribir o la espera.
+- **La ficha no llega a Discord:** mira el mensaje de la Cabina o «Último envío» en **Información › Discord y servidores**: dice qué respondió Discord. Si el webhook se borró, crea uno nuevo.
 - **Nova no responde a nada:** puede estar detenida (overlay en rojo): enciende el interruptor de la Cabina o di «Nova, actívate».
 - **Una tecla del juego no funciona:** pulsa «⟳ Sincronizar ahora» y revisa «Ver detalles». Si la acción solo está en tu HOTAS, dale también una tecla de teclado en el juego.
 

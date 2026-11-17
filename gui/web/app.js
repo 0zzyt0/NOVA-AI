@@ -31,10 +31,14 @@ function toast(text, kind = "") {
 const safe = (fn) => async (...a) => { try { return await fn(...a); } catch (e) { toast(e.message, "bad"); } };
 
 // ------------------------------------------------------------ navegación
-const TITLES = { cabina: "Cabina", juego: "Nave y comandos", nova: "Nova", overlay: "Overlay y hologramas",
-                 datos: "Datos y memoria", ajustes: "Ajustes" };
+const TITLES = { cabina: "Cabina", juego: "Juego SC", nova: "Nova", overlay: "Pantalla",
+                 datos: "Información", ajustes: "Ajustes" };
+// v2.0: pestañas que se unieron o cambiaron de sitio → [sección, pestaña nueva]
+const MOVED_SUBS = { "nova/mic": ["nova", "escucha"], "nova/hablar": ["nova", "escucha"], "nova/sonido": ["nova", "voz"],
+                     "nova/ahorro": ["nova", "ia"], "juego/lectura": ["juego", "avisos"], "juego/perfiles": ["juego", "avisos"],
+                     "datos/traduccion": ["juego", "idioma"], "nova/idioma": ["ajustes", "general"] };
 // Nombres de secciones de versiones anteriores → [sección, pestaña]
-const OLD_SECTIONS = { oido: ["nova", "mic"], voz: ["nova", "voz"], interfaz: ["nova", "mic"], ia: ["nova", "ia"],
+const OLD_SECTIONS = { oido: ["nova", "escucha"], voz: ["nova", "voz"], interfaz: ["nova", "escucha"], ia: ["nova", "ia"],
                        memoria: ["datos", "memoria"] };
 // Ganchos de las versiones anteriores: qué nombre antiguo «se abre» con cada sección nueva
 const LEGACY = { cabina: ["cabina"], juego: ["juego"], nova: ["voz", "interfaz", "ia"], overlay: ["interfaz"],
@@ -43,14 +47,15 @@ const secOn = (sec, sub) => { const r = $("#sec-" + sec); if (!r || !r.classList
   return !sub || !!$(`.subsec.on[data-sub="${sub}"]`, r); };
 function go(sec, remember = true, sub = "") {
   if (OLD_SECTIONS[sec]) { const [a, b] = OLD_SECTIONS[sec]; sec = a; sub = sub || b; }
+  if (sub && MOVED_SUBS[sec + "/" + sub]) [sec, sub] = MOVED_SUBS[sec + "/" + sub];
   if (!TITLES[sec]) sec = "cabina";
   if (sub) showSub(sec, sub);
   if (remember) api("ui_state", { seccion: sec }).catch(() => {});
   $$("#nav button[data-sec]").forEach((b) => b.classList.toggle("on", b.dataset.sec === sec));
   $$(".sec").forEach((s) => s.classList.toggle("on", s.id === "sec-" + sec));
   $("#secTitle").textContent = T(TITLES[sec]);
-  if (sec === "datos") { loadMemory(); loadDiary(); loadSources(); Trad.load(); }
-  if (sec === "juego") loadCommands();
+  if (sec === "datos") { loadMemory(); loadDiary(); loadSources(); }
+  if (sec === "juego") { loadCommands(); Trad.load(); }
   if (sec === "nova") { loadDevices(); loadIA(); }
   if (sec === "ajustes") loadSources();
   if (sec === "overlay") window.dispatchEvent(new Event("resize"));
@@ -61,6 +66,8 @@ $$("#nav button[data-sec]").forEach((b) => b.addEventListener("click", () => go(
 $("#btnManual").addEventListener("click", safe(async () => { await api("open_manual"); toast("Manual abierto en tu navegador", "ok"); }));
 // Subapartados (pestañas dentro de una sección)
 function showSub(sec, sub) {
+  const mv = MOVED_SUBS[sec + "/" + sub];
+  if (mv && mv[0] === sec) sub = mv[1];
   const root = $("#sec-" + sec);
   if (!root) return;
   $$(".subtabs button", root).forEach((b) => b.classList.toggle("on", b.dataset.sub === sub));
@@ -82,7 +89,7 @@ function paintRange(el) {
 function showSetting(key) {
   const v = S[key];
   $$(`[data-set="${key}"]`).forEach((el) => {
-    if (el === document.activeElement && (el.type === "text" || el.type === "password")) return;
+    if (el === document.activeElement && (el.type === "text" || el.type === "password" || el.tagName === "TEXTAREA")) return;
     if (el.type === "checkbox") el.checked = !!v;
     else if (el.dataset.list) el.value = (v || []).join(", ");
     else if (el.dataset.lines) el.value = (v || []).join("\n");
@@ -261,7 +268,7 @@ function onLevels(ev) {
   $("#stateText").textContent = stateText(ev.mode, ev.tint);
   paintMeter($("#sideMeter"), ev.mic);
   if (!$("#setup").hidden) paintMeter($("#suMeter"), ev.mic);
-  if (secOn("nova", "mic")) paintMeter($("#bigMeter"), ev.mic);
+  if (secOn("nova", "escucha")) paintMeter($("#bigMeter"), ev.mic);
   if (window.MicInfo) MicInfo.lv(ev);
   if (window.V14) V14.lv(ev);
   if (ev.mode !== "idle") removeThinking.idleSince = 0;
@@ -558,7 +565,7 @@ function renderCommands() {
     const ph = (c.frases || []).slice(0, 4).map((f) => `<span>«${esc(f)}»</span>`).join("") + ((c.frases || []).length > 4 ? `<em>+${c.frases.length - 4}</em>` : "") ||
       `<em>${c.solo_frase_exacta ? "" : "solo por IA (sin frase fija)"}</em>`;
     const keys = (c.acciones || []).filter((a) => !("esperar" in a)).map(stepHtml).join('<span class="plus">→</span>');
-    const src = c.origen !== "base" ? `<span class="src ${c.origen}">${{ personal: "TUYO", modificado: "MODIFICADO", juego: "DEL JUEGO" }[c.origen]}</span>` : "";
+    const src = c.origen !== "base" ? `<span class="cmd-src ${c.origen}">${{ personal: "TUYO", modificado: "MODIFICADO", juego: "DEL JUEGO" }[c.origen]}</span>` : "";
     html += `<div class="cmd" data-id="${esc(c.id)}">
       <div class="n">${esc(c.nombre)}${src}${c.solo_frase_exacta ? '<small class="hint">🔒 solo frase exacta</small>' : ""}</div>
       <div class="ph">${ph}</div><div class="k">${keys}</div>
@@ -1090,7 +1097,7 @@ const Setup = (() => {
   }
   function enter(p) {
     if (p === 0 && firstRun && !enter.greeted) { enter.greeted = true; say("Bienvenido a bordo. Antes de despegar, vamos a terminar de configurarme."); }
-    if (p === 1) Trad.wizard();
+    if (p === 1) { Trad.wizard(); gameLog(); }
     if (p === 2) { say(`Hola. Soy tu nueva inteligencia de a bordo. ¿Cómo te llamas?`); setTimeout(() => $("#suPilot").focus(), 50); }
     if (p === 3) { say(`Un placer, ${pilot()}. ¿Y cómo quieres que me llame yo?`); setTimeout(() => $("#suName").focus(), 50); checkName(); }
     if (p === 4) {
@@ -1101,6 +1108,20 @@ const Setup = (() => {
     if (p === 5) { buildPhrases(); say("A continuación, lee las siguientes tres frases que contienen mi nombre."); }
     if (p === 6) summary();
   }
+
+  // --- paso 2 (v2.0): el Game.log, para los avisos del juego
+  function paintGameLog(g) {
+    const ok = !!(g && g.existe);
+    verdict($("#vGl"), ok ? true : g && g.elegido ? false : null);
+    $("#glWizText").textContent = ok ? (g.elegido ? T("Usaré el Game.log que has elegido:") : T("Lo he encontrado aquí. Si juegas en otra carpeta, elígelo tú:"))
+      : g && g.elegido ? T("No encuentro ese archivo. Elige otro o deja que lo busque yo.")
+      : T("No lo encuentro todavía (aparece al abrir el juego por primera vez). Puedes elegirlo ahora o lo buscaré yo cuando juegues.");
+    $("#glWizPath").hidden = !(g && g.ruta); $("#glWizPath").textContent = (g && g.ruta) || "";
+    $("#glWizAuto").hidden = !(g && g.elegido);
+  }
+  async function gameLog() { try { paintGameLog(await api("gamelog_info")); } catch { paintGameLog(null); } }
+  $("#glWizPick").addEventListener("click", safe(async () => { paintGameLog(await api("pick_gamelog", {})); S.gamelog_ruta = (await api("state")).settings.gamelog_ruta; showSetting("gamelog_ruta"); }));
+  $("#glWizAuto").addEventListener("click", safe(async () => { paintGameLog(await api("pick_gamelog", { limpiar: true })); S.gamelog_ruta = ""; showSetting("gamelog_ruta"); }));
 
   // --- paso 1: micrófono
   async function loadMic() {

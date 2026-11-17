@@ -7,12 +7,13 @@
   accesos directos y lo registra en «Aplicaciones instaladas» con su desinstalador.
   Tus datos (ajustes, comandos, memoria) viven aparte, en %LOCALAPPDATA%\NOVA AI\datos.
 #>
-param([string]$Destino = '', [string]$Origen = '', [switch]$Actualizar, [switch]$SinIniciar)
+param([string]$Destino = '', [string]$Origen = '', [switch]$Actualizar, [switch]$SinIniciar, [switch]$Desatendido)
 # -Actualizar: lo abre NOVA AI cuando hay una versión nueva en GitHub (empieza solo, sin preguntar de nuevo
 #  las normas si ya estaban aceptadas). -SinIniciar: no volver a abrir NOVA al terminar (actualizar «al cerrar»).
+# -Desatendido (2.0): instala sin ventana ni preguntas y sale con 0 si todo fue bien (pruebas automáticas en GitHub).
 $ErrorActionPreference = 'Continue'
 $AppName = 'NOVA AI'
-$AppVersion = '1.5.0'
+$AppVersion = '2.0.0'
 # Origen: carpeta con el programa a instalar. «NOVA AI Setup.exe» la pasa (la descomprime en TEMP);
 # con INSTALAR.bat es la carpeta padre de este script.
 $Src = if ($Origen) { $Origen } elseif ($PSScriptRoot) { Split-Path -Parent $PSScriptRoot } else { (Get-Location).Path }
@@ -46,6 +47,7 @@ if (-not $isAdmin) {
         if ($Destino) { $argList += ' -Destino "' + $Destino + '"' }
         if ($Actualizar) { $argList += ' -Actualizar' }
         if ($SinIniciar) { $argList += ' -SinIniciar' }
+        if ($Desatendido) { Write-Output 'Hace falta una consola de administrador para -Desatendido.'; exit 3 }
         Start-Process -FilePath 'powershell.exe' -Verb RunAs -ArgumentList $argList -ErrorAction Stop
         exit 0
     } catch {
@@ -173,6 +175,10 @@ $h['Elige el idioma de NOVA AI: la ventana, la voz de Nova, lo que entiende, sus
 $h['◆  CONTINUAR'] = '◆  CONTINUE'
 $h['Detectado en Windows: '] = 'Detected in Windows: '
 $h['PROTOCOLO DE INSTALACIÓN  //  ASISTENTE DE VUELO PARA STAR CITIZEN'] = 'INSTALLATION PROTOCOL  //  FLIGHT ASSISTANT FOR STAR CITIZEN'
+$h['▸ CARPETA DE INSTALACIÓN'] = '▸ INSTALLATION FOLDER'
+$h['ELEGIR CARPETA…'] = 'CHOOSE FOLDER…'
+$h['{0:N1} GB libres en la unidad {1}'] = '{0:N1} GB free on drive {1}'
+$h['Ya está instalada aquí: se actualiza en la misma carpeta. Para cambiarla, desinstálala primero.'] = 'Already installed here: it will be updated in the same folder. To move it, uninstall it first.'
 $TX['en'] = $h
 $h = New-Object Collections.Hashtable ([StringComparer]::Ordinal)
 $h['NOVA · Instalación'] = 'NOVA · Instal·lació'
@@ -284,6 +290,10 @@ $h['Elige el idioma de NOVA AI: la ventana, la voz de Nova, lo que entiende, sus
 $h['◆  CONTINUAR'] = '◆  CONTINUAR'
 $h['Detectado en Windows: '] = 'Detectat a Windows: '
 $h['PROTOCOLO DE INSTALACIÓN  //  ASISTENTE DE VUELO PARA STAR CITIZEN'] = 'PROTOCOL D''INSTAL·LACIÓ  //  ASSISTENT DE VOL PER A STAR CITIZEN'
+$h['▸ CARPETA DE INSTALACIÓN'] = '▸ CARPETA D''INSTAL·LACIÓ'
+$h['ELEGIR CARPETA…'] = 'TRIA LA CARPETA…'
+$h['{0:N1} GB libres en la unidad {1}'] = '{0:N1} GB lliures a la unitat {1}'
+$h['Ya está instalada aquí: se actualiza en la misma carpeta. Para cambiarla, desinstálala primero.'] = 'Ja està instal·lada aquí: s''actualitza a la mateixa carpeta. Per canviar-la, desinstal·la-la primer.'
 $TX['ca'] = $h
 $h = New-Object Collections.Hashtable ([StringComparer]::Ordinal)
 $h['NOVA · Instalación'] = 'NOVA · Installation'
@@ -395,6 +405,10 @@ $h['Elige el idioma de NOVA AI: la ventana, la voz de Nova, lo que entiende, sus
 $h['◆  CONTINUAR'] = '◆  CONTINUER'
 $h['Detectado en Windows: '] = 'Détecté dans Windows : '
 $h['PROTOCOLO DE INSTALACIÓN  //  ASISTENTE DE VUELO PARA STAR CITIZEN'] = 'PROTOCOLE D''INSTALLATION  //  ASSISTANT DE VOL POUR STAR CITIZEN'
+$h['▸ CARPETA DE INSTALACIÓN'] = '▸ DOSSIER D''INSTALLATION'
+$h['ELEGIR CARPETA…'] = 'CHOISIR LE DOSSIER…'
+$h['{0:N1} GB libres en la unidad {1}'] = '{0:N1} Go libres sur le lecteur {1}'
+$h['Ya está instalada aquí: se actualiza en la misma carpeta. Para cambiarla, desinstálala primero.'] = 'Déjà installée ici : la mise à jour se fait dans le même dossier. Pour la déplacer, désinstallez-la d''abord.'
 $TX['fr'] = $h
 $h = New-Object Collections.Hashtable ([StringComparer]::Ordinal)
 $h['NOVA · Instalación'] = 'NOVA · Installation'
@@ -506,6 +520,10 @@ $h['Elige el idioma de NOVA AI: la ventana, la voz de Nova, lo que entiende, sus
 $h['◆  CONTINUAR'] = '◆  WEITER'
 $h['Detectado en Windows: '] = 'In Windows erkannt: '
 $h['PROTOCOLO DE INSTALACIÓN  //  ASISTENTE DE VUELO PARA STAR CITIZEN'] = 'INSTALLATIONSPROTOKOLL  //  FLUGASSISTENT FÜR STAR CITIZEN'
+$h['▸ CARPETA DE INSTALACIÓN'] = '▸ INSTALLATIONSORDNER'
+$h['ELEGIR CARPETA…'] = 'ORDNER WÄHLEN…'
+$h['{0:N1} GB libres en la unidad {1}'] = '{0:N1} GB frei auf Laufwerk {1}'
+$h['Ya está instalada aquí: se actualiza en la misma carpeta. Para cambiarla, desinstálala primero.'] = 'Bereits hier installiert: Das Update erfolgt im selben Ordner. Zum Verschieben zuerst deinstallieren.'
 $TX['de'] = $h
 $DoneSpeech = @{
     es = 'Instalación completada. Nova lista para el despegue, señor.'
@@ -552,7 +570,7 @@ try {
 $xaml = @'
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="NOVA · Instalación" Width="1000" Height="660"
+        Title="NOVA · Instalación" Width="1000" Height="690"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
         FontFamily="Bahnschrift, Segoe UI" Foreground="#CFEFFF" UseLayoutRounding="True">
@@ -908,20 +926,30 @@ $xaml = @'
               </Grid>
 
               <!-- 1) Diagnóstico y opciones -->
-              <StackPanel x:Name="PanelOptions" Visibility="Collapsed">
+              <!-- 2.0.1: con desplazamiento por si no cabe (pantallas pequeñas o escalado de Windows alto) -->
+              <ScrollViewer x:Name="PanelOptions" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+              <StackPanel Margin="0,0,6,0">
                 <TextBlock Style="{StaticResource Caption}" Text="▸ DIAGNÓSTICO DEL SISTEMA"/>
-                <Border BorderBrush="#2A20B8E8" BorderThickness="1" Background="#0A20B8E8" Padding="14,10" Margin="0,0,0,16">
+                <Border BorderBrush="#2A20B8E8" BorderThickness="1" Background="#0A20B8E8" Padding="14,7" Margin="0,0,0,10">
                   <StackPanel>
-                    <TextBlock x:Name="DiagPython" Text="◇  Python ··· analizando" Margin="0,2"/>
-                    <TextBlock x:Name="DiagGpu" Text="◇  Tarjeta gráfica ··· analizando" Margin="0,2"/>
-                    <TextBlock x:Name="DiagDisk" Text="◇  Espacio en disco ··· analizando" Margin="0,2"/>
-                    <TextBlock x:Name="DiagNet" Text="◇  Conexión ··· analizando" Margin="0,2"/>
-                    <DockPanel Margin="0,2">
-                      <Button x:Name="BtnPath" DockPanel.Dock="Right" Style="{StaticResource FlatButton}" FontSize="11" Content="CAMBIAR…" Margin="8,0,0,0"/>
-                      <TextBlock x:Name="DiagPath" Text="◇  Destino ···" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
-                    </DockPanel>
+                    <TextBlock x:Name="DiagPython" Text="◇  Python ··· analizando" Margin="0,1"/>
+                    <TextBlock x:Name="DiagGpu" Text="◇  Tarjeta gráfica ··· analizando" Margin="0,1"/>
+                    <TextBlock x:Name="DiagDisk" Text="◇  Espacio en disco ··· analizando" Margin="0,1"/>
+                    <TextBlock x:Name="DiagNet" Text="◇  Conexión ··· analizando" Margin="0,1"/>
                   </StackPanel>
                 </Border>
+                <TextBlock Style="{StaticResource Caption}" Text="▸ CARPETA DE INSTALACIÓN"/>
+                <DockPanel Margin="0,0,0,10">
+                  <Border DockPanel.Dock="Right" BorderBrush="#8820B8E8" BorderThickness="1" Margin="10,0,0,0" VerticalAlignment="Stretch">
+                    <Button x:Name="BtnPath" Style="{StaticResource FlatButton}" Content="ELEGIR CARPETA…" Foreground="#8FE4FF" FontSize="13"/>
+                  </Border>
+                  <Border BorderBrush="#5520B8E8" BorderThickness="1" Background="#1420B8E8" Padding="12,7">
+                    <StackPanel>
+                      <TextBlock x:Name="DiagPath" Text=" " TextTrimming="CharacterEllipsis" Foreground="#DFF7FF"/>
+                      <TextBlock x:Name="DiagPathSub" Style="{StaticResource Dim}" Text=" "/>
+                    </StackPanel>
+                  </Border>
+                </DockPanel>
                 <TextBlock Style="{StaticResource Caption}" Text="▸ MÓDULOS A INSTALAR"/>
                 <CheckBox x:Name="ChkCuda" Style="{StaticResource HoloCheck}">
                   <StackPanel>
@@ -945,11 +973,12 @@ $xaml = @'
                     <TextBlock Text="Iniciar Nova al terminar"/>
                   </StackPanel>
                 </CheckBox>
-                <TextBlock x:Name="EstimateText" Style="{StaticResource Dim}" Margin="0,14,0,16" FontSize="13" Foreground="#8FB8CC"/>
-                <Button x:Name="BtnStart" Style="{StaticResource HoloButton}" HorizontalAlignment="Left" IsEnabled="False">
+                <TextBlock x:Name="EstimateText" Style="{StaticResource Dim}" Margin="0,8,0,10" FontSize="13" Foreground="#8FB8CC"/>
+                <Button x:Name="BtnStart" Style="{StaticResource HoloButton}" HorizontalAlignment="Left" IsEnabled="False" Margin="0,0,0,4">
                   <TextBlock Text="◆  INICIAR SECUENCIA DE INSTALACIÓN" FontWeight="SemiBold"/>
                 </Button>
               </StackPanel>
+              </ScrollViewer>
 
               <!-- 2) Secuencia en curso -->
               <Grid x:Name="PanelSteps" Visibility="Collapsed">
@@ -1094,7 +1123,7 @@ try {
 
 $ui = @{}
 foreach ($n in 'Header','Logo','Subtitle','Clock','BtnMin','BtnClose','Ticks','Arc','Pct','EtaSmall',
-               'PanelOptions','DiagPython','DiagGpu','DiagDisk','DiagNet','DiagPath','BtnPath','ChkCuda','ChkCudaSub','ChkPiper',
+               'PanelOptions','DiagPython','DiagGpu','DiagDisk','DiagNet','DiagPath','DiagPathSub','BtnPath','ChkCuda','ChkCudaSub','ChkPiper',
                'ChkShortcut','ChkLaunch','EstimateText','BtnStart','PanelSteps','StepsList','StatusText',
                'DetailText','BtnLogToggle','LogBorder','LogBox','PanelDone','DoneText','DoneWarn','BtnLaunch',
                'BtnFinish','PanelError','ErrorText','ErrorTail','BtnRetry','BtnOpenLog','BarTrack','BarFill',
@@ -1105,7 +1134,18 @@ foreach ($n in 'Header','Logo','Subtitle','Clock','BtnMin','BtnClose','Ticks','A
 
 $iconPath = Join-Path $Src 'recursos\nova.ico'
 $pngPath = Join-Path $Src 'recursos\nova.png'
-function Show-Destination { $ui.DiagPath.Text = (T '◇  Destino ··· ') + $script:Root }
+function Show-Destination {
+    # v2.0: la carpeta, a la vista y con el espacio libre de su unidad
+    $ui.DiagPath.Text = $script:Root
+    $sub = ''
+    try {
+        $di = New-Object System.IO.DriveInfo ([IO.Path]::GetPathRoot($script:Root))
+        $sub = (T '{0:N1} GB libres en la unidad {1}') -f ($di.AvailableFreeSpace / 1GB), $di.Name.TrimEnd('\')
+    } catch {}
+    if ($script:repairMode -or $Actualizar) { $sub = (T 'Ya está instalada aquí: se actualiza en la misma carpeta. Para cambiarla, desinstálala primero.') }
+    $ui.DiagPathSub.Text = $sub
+    $ui.BtnPath.IsEnabled = -not ($script:repairMode -or $Actualizar)
+}
 $script:Root = $Root
 try {
     if (Test-Path $iconPath) { $window.Icon = [Windows.Media.Imaging.BitmapFrame]::Create([Uri]$iconPath) }
@@ -1796,6 +1836,7 @@ function On-Tick {
                 else { Set-Diag $ui.DiagDisk $true ((T '{0:N1} GB libres') -f $d.FreeGB) }
                 if ($d.Net) { Set-Diag $ui.DiagNet $true (T 'Conexión con los repositorios establecida') }
                 else { Set-Diag $ui.DiagNet $false (T 'Sin conexión con pypi.org · revisa internet o el firewall') }
+                if ($d.Repair) { $script:repairMode = $true; Show-Destination }
                 if ($d.Repair) { $ui.Subtitle.Text = (T 'INSTALACIÓN PREVIA DETECTADA  //  MODO REPARACIÓN Y ACTUALIZACIÓN'); $script:typed = 999 }
                 if ($Actualizar) { $ui.Subtitle.Text = (T 'ACTUALIZANDO NOVA AI A LA VERSIÓN ') + $AppVersion; $script:typed = 999 }
                 $ui.BtnStart.IsEnabled = $true
@@ -2062,6 +2103,12 @@ $ui.BtnPath.Add_Click({
             if ((Split-Path -Leaf $p) -ne $AppName) { $p = Join-Path $p $AppName }
             $script:Root = $p
             Show-Destination
+            try {
+                $di = New-Object System.IO.DriveInfo ([IO.Path]::GetPathRoot($p))
+                $gb = $di.AvailableFreeSpace / 1GB
+                if ($gb -lt 3) { Set-Diag $ui.DiagDisk $false ((T 'Solo {0:N1} GB libres · se recomiendan 3 GB (5 GB con CUDA)') -f $gb) $true }
+                else { Set-Diag $ui.DiagDisk $true ((T '{0:N1} GB libres') -f $gb) }
+            } catch {}
         }
     } catch {}
 })
@@ -2118,6 +2165,36 @@ $window.Add_Loaded({
     Apply-Lang
     Start-Background $detect @($sync, $script:Root, $OwnPython)
 })
+
+# ==========================================================  SIN VENTANA (2.0)
+if ($Desatendido) {
+    $drain = { $line = $null; while ($sync.Log.TryDequeue([ref]$line)) { Write-Output ('  ' + $line) } }
+    Apply-Lang
+    Write-Output ('NOVA AI ' + $AppVersion + ' · instalación desatendida en ' + $script:Root)
+    & $detect $sync $script:Root $OwnPython
+    & $drain
+    Write-Output ('Python: ' + $(if ($sync.Diag.PyExe) { $sync.Diag.PyExe } else { '(se descargará)' }))
+    $ui.ChkCuda.IsChecked = $false; $ui.ChkPiper.IsChecked = $false; $ui.ChkShortcut.IsChecked = $true
+    $script:termsAccepted = Get-Date -Format 'yyyy-MM-dd HH:mm'
+    Start-Install
+    $deadline = (Get-Date).AddMinutes(45)
+    $last = -2
+    while (-not $sync.Done -and -not $sync.Failed -and (Get-Date) -lt $deadline) {
+        & $drain
+        if ($sync.StepIndex -ne $last -and $sync.StepIndex -ge 0 -and $sync.StepIndex -lt $script:plan.Count) {
+            $last = $sync.StepIndex
+            Write-Output ('[' + ($last + 1) + '/' + $script:plan.Count + '] ' + $script:plan[$last].Name)
+        }
+        Start-Sleep -Milliseconds 400
+    }
+    & $drain
+    foreach ($r in $script:runspaces) { try { $r[0].Stop(); $r[0].Dispose() } catch {} }
+    if ($sync.Failed) { Write-Output ('FALLO: ' + $sync.Error); exit 1 }
+    if (-not $sync.Done) { Write-Output 'FALLO: tiempo agotado'; exit 2 }
+    if ($sync.Warn) { Write-Output ('Avisos: ' + $sync.Warn.Trim()) }
+    Write-Output ('INSTALADA en ' + $script:Root)
+    exit 0
+}
 
 [void]$window.ShowDialog()
 $timer.Stop()

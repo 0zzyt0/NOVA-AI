@@ -53,10 +53,39 @@ _FONT_DIRS = [Path("C:/Windows/Fonts"), Path.home() / "AppData/Local/Microsoft/W
               Path("/usr/share/fonts/truetype/dejavu"), Path("/usr/share/fonts/TTF")]
 
 
+# v2.0: grosor de la letra de los hologramas («normal» = la de la 1.x; «gruesa» de serie; «muy gruesa»)
+WEIGHTS = ("normal", "gruesa", "muy gruesa")
+_weight = {"v": "gruesa"}
+
+
+_model = {"v": "clasico"}
+
+
+def set_model(value: str | None) -> str:
+    """v2.0: forma de la tarjeta: clasico, biselado, cristal o tactico."""
+    _model["v"] = value if value in ("clasico", "biselado", "cristal", "tactico") else "clasico"
+    return _model["v"]
+
+
+def set_weight(value: str | None) -> str:
+    _weight["v"] = value if value in WEIGHTS else "gruesa"
+    return _weight["v"]
+
+
+def weight_extra(size: int) -> int:
+    """Píxeles que se engorda cada trazo (contorno del mismo color), según el tamaño de la letra:
+    en la letra pequeña un píxel la emborrona, así que ahí basta con la variante negrita."""
+    w = _weight["v"]
+    if w == "normal":
+        return 0
+    return size // 18 if w == "gruesa" else size // 12
+
+
 def font(size: int, kind: str = "sans"):
     from PIL import ImageFont
 
-    key = (kind, size)
+    heavy = _weight["v"] != "normal"
+    key = (kind, size, heavy)
     if key in _FONTS:
         return _FONTS[key]
     f = None
@@ -68,7 +97,7 @@ def font(size: int, kind: str = "sans"):
                     f = ImageFont.truetype(str(p), size)
                     if name == "bahnschrift.ttf":  # fuente variable de Windows: elegir grosor
                         try:
-                            f.set_variation_by_name("Bold" if kind == "bold" else "SemiBold")
+                            f.set_variation_by_name("Bold" if kind == "bold" or heavy else "SemiBold")
                         except Exception:  # noqa: BLE001
                             pass
                     break
@@ -429,30 +458,78 @@ def render(card: Card, scale: float = 1.0, accent=CYAN) -> Layout:
     bg[..., 0] = base[0] + top_glow[0] * (1 - gy)
     bg[..., 1] = base[1] + top_glow[1] * (1 - gy)
     bg[..., 2] = base[2] + top_glow[2] * (1 - gy)
-    bg[..., 3] = 200
-    grid = int(18 * s)
+    model = _model["v"]
+    bg[..., 3] = {"cristal": 125, "tactico": 228}.get(model, 200)
     yy, xx = np.mgrid[0:H, 0:W]
-    on = ((yy % grid) == 0) | ((xx % grid) == 0)
-    bg[on, 0:3] += np.array(acc, dtype=np.float32) * 0.08
+    if model == "cristal":  # sin rejilla: líneas horizontales muy suaves, como un cristal proyectado
+        on = (yy % max(3, int(4 * s))) == 0
+        bg[on, 0:3] += np.array(acc, dtype=np.float32) * 0.05
+    elif model == "tactico":  # oscuro, con un rayado diagonal fino
+        on = ((xx + yy) % int(14 * s)) == 0
+        bg[..., 0:3] *= 0.75
+        bg[on, 0:3] += np.array(acc, dtype=np.float32) * 0.13
+    else:
+        grid = int(18 * s)
+        on = ((yy % grid) == 0) | ((xx % grid) == 0)
+        bg[on, 0:3] += np.array(acc, dtype=np.float32) * 0.08
     img = Image.fromarray(np.clip(bg, 0, 255).astype(np.uint8), "RGBA")
     d = ImageDraw.Draw(img)
     _plain_text = d.text
 
     def _text(xy, text, fill=None, font=None, anchor=None, **kw):  # contorno oscuro: se lee sobre cualquier fondo
+        extra = weight_extra(getattr(font, "size", 12)) if "stroke_width" not in kw and fill is not None else 0
+        if extra:
+            # v2.0: letra más gruesa: primero el contorno oscuro más ancho y encima el trazo engordado
+            _plain_text(xy, text, fill=fill, font=font, anchor=anchor, stroke_width=max(1, int(1.2 * s)) + extra,
+                        stroke_fill=(0, 6, 14, 215), **kw)
+            return _plain_text(xy, text, fill=fill, font=font, anchor=anchor, stroke_width=extra, stroke_fill=fill, **kw)
         kw.setdefault("stroke_width", max(1, int(1.2 * s)))
         kw.setdefault("stroke_fill", (0, 6, 14, 215))
         return _plain_text(xy, text, fill=fill, font=font, anchor=anchor, **kw)
     d.text = _text
     lw = max(1, int(1.4 * s))
-    d.rectangle((0, 0, W - 1, H - 1), outline=acc + (120,), width=lw)
-    # Esquinas tipo HUD
-    L = int(26 * s)
-    t = max(2, int(3 * s))
-    for (x0, y0, dx, dy) in ((0, 0, 1, 1), (W - 1, 0, -1, 1), (0, H - 1, 1, -1), (W - 1, H - 1, -1, -1)):
-        d.line((x0, y0, x0 + dx * L, y0), fill=acc + (255,), width=t)
-        d.line((x0, y0, x0, y0 + dy * L), fill=acc + (255,), width=t)
+    cut = int(40 * s)
+    shape = _frame_shape(model, W, H, s)
+    if model == "biselado":  # esquinas cortadas en diagonal
+        d.line(shape + [shape[0]], fill=acc + (170,), width=max(2, int(2 * s)))
+        for (x, y) in ((cut // 2, cut // 2), (W - 1 - cut // 2, cut // 2), (cut // 2, H - 1 - cut // 2), (W - 1 - cut // 2, H - 1 - cut // 2)):
+            r = max(2, int(3 * s))
+            d.ellipse((x - r, y - r, x + r, y + r), fill=acc + (255,))
+    elif model == "cristal":  # borde fino y redondeado
+        d.rounded_rectangle((0, 0, W - 1, H - 1), radius=int(22 * s), outline=acc + (190,), width=max(2, int(2 * s)))
+        d.rounded_rectangle((int(5 * s), int(5 * s), W - 1 - int(5 * s), H - 1 - int(5 * s)), radius=int(18 * s),
+                            outline=acc + (70,), width=1)
+    elif model == "tactico":  # sin marco completo: escuadras grandes y una barra lateral
+        L, t = int(48 * s), max(3, int(4 * s))
+        for (x0, y0, dx, dy) in ((0, 0, 1, 1), (W - 1, 0, -1, 1), (0, H - 1, 1, -1), (W - 1, H - 1, -1, -1)):
+            d.line((x0, y0, x0 + dx * L, y0), fill=acc + (255,), width=t)
+            d.line((x0, y0, x0, y0 + dy * L), fill=acc + (255,), width=t)
+        d.rectangle((0, int(H * 0.2), max(4, int(7 * s)), int(H * 0.8)), fill=acc + (230,))
+        for k in range(12):  # marcas de regla en el lado derecho
+            y = int(H * 0.2 + k * H * 0.6 / 11)
+            d.line((W - 1 - int((14 if k % 3 == 0 else 7) * s), y, W - 1, y), fill=acc + (200,), width=max(1, int(1.5 * s)))
+    else:
+        d.rectangle((0, 0, W - 1, H - 1), outline=acc + (120,), width=lw)
+        # Esquinas tipo HUD
+        L = int(26 * s)
+        t = max(2, int(3 * s))
+        for (x0, y0, dx, dy) in ((0, 0, 1, 1), (W - 1, 0, -1, 1), (0, H - 1, 1, -1), (W - 1, H - 1, -1, -1)):
+            d.line((x0, y0, x0 + dx * L, y0), fill=acc + (255,), width=t)
+            d.line((x0, y0, x0, y0 + dy * L), fill=acc + (255,), width=t)
     # Cabecera
-    d.rectangle((lw, lw, W - lw - 1, header_h), fill=acc + (34,))
+    if model in ("clasico", "tactico"):
+        d.rectangle((lw, lw, W - lw - 1, header_h), fill=acc + (34,))
+    else:
+        d.polygon(_clip_poly(shape, header_h), fill=acc + (30,))
+        if model == "biselado":  # el marco otra vez, que la franja lo ha tapado
+            d.line(shape + [shape[0]], fill=acc + (170,), width=max(2, int(2 * s)))
+        else:
+            d.rounded_rectangle((0, 0, W - 1, H - 1), radius=int(22 * s), outline=acc + (190,), width=max(2, int(2 * s)))
+        if model == "biselado":  # pestaña diagonal en la esquina de la cabecera
+            c = int(40 * s)
+            for k in range(4):
+                o = int((10 + k * 9) * s)
+                d.line((W - 1 - c - o, int(6 * s), W - 1 - o - int(6 * s), c - int(2 * s)), fill=acc + (110,), width=max(1, int(2 * s)))
     d.line((pad, header_h, W - pad, header_h), fill=acc + (170,), width=lw)
     _emblem(d, pad + int(18 * s), int(39 * s), int(18 * s), warn if card.alert else acc, s)
     x0 = pad + int(46 * s)
@@ -489,10 +566,42 @@ def render(card: Card, scale: float = 1.0, accent=CYAN) -> Layout:
     # Brillo exterior suave en los bordes
     glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     gd = ImageDraw.Draw(glow)
-    gd.rectangle((0, 0, W - 1, H - 1), outline=acc + (160,), width=max(2, int(4 * s)))
+    if model == "tactico":
+        gd.rectangle((0, int(H * 0.2), max(4, int(7 * s)), int(H * 0.8)), fill=acc + (160,))
+    elif model == "cristal":
+        gd.rounded_rectangle((0, 0, W - 1, H - 1), radius=int(22 * s), outline=acc + (150,), width=max(2, int(4 * s)))
+    else:
+        gd.line(shape + [shape[0]], fill=acc + (160,), width=max(2, int(4 * s)))
     glow = glow.filter(ImageFilter.GaussianBlur(4 * s))
+    if model in ("biselado", "cristal"):  # lo de fuera de la forma, transparente
+        m = Image.new("L", (W, H), 0)
+        md = ImageDraw.Draw(m)
+        if model == "cristal":
+            md.rounded_rectangle((0, 0, W - 1, H - 1), radius=int(22 * s), fill=255)
+        else:
+            md.polygon(shape, fill=255)
+        a_ch = Image.fromarray(np.minimum(np.asarray(img.getchannel("A")), np.asarray(m)))
+        img.putalpha(a_ch)
     layout.image = Image.alpha_composite(glow, img)
     return layout
+
+
+def _frame_shape(model: str, W: int, H: int, s: float) -> list[tuple[int, int]]:
+    """Contorno de la tarjeta (en «biselado», con las cuatro esquinas cortadas)."""
+    if model != "biselado":
+        return [(0, 0), (W - 1, 0), (W - 1, H - 1), (0, H - 1)]
+    c = int(40 * s)
+    return [(c, 0), (W - 1 - c, 0), (W - 1, c), (W - 1, H - 1 - c), (W - 1 - c, H - 1), (c, H - 1), (0, H - 1 - c), (0, c)]
+
+
+def _clip_poly(shape: list[tuple[int, int]], y_max: int) -> list[tuple[int, int]]:
+    """La parte del contorno por encima de y_max (para la franja de la cabecera)."""
+    pts = [(x, min(y, y_max)) for x, y in shape]
+    out = []
+    for p in pts:
+        if not out or out[-1] != p:
+            out.append(p)
+    return out
 
 
 def _draw_player(img, d, card, s, top, W, pad, acc, warn, f_lab, f_val, f_small) -> None:
@@ -607,14 +716,19 @@ def _ease(t: float) -> float:
     return 1 - (1 - t) ** 3
 
 
+ENTRIES = ("proyector", "barrido", "despliegue", "pixeles")  # v2.0: cómo aparece y se va (efectos «cine»)
+MODELS = ("clasico", "biselado", "cristal", "tactico")  # v2.0: forma de la tarjeta
+
+
 class Animation:
     """Fotogramas de una tarjeta: aparición (proyección), estado en pantalla y salida (pliegue)."""
 
     APPEAR, LEAVE = 0.95, 0.55
 
     def __init__(self, layout: Layout, accent=CYAN, opacity: float = 0.9, duration: float = 14.0,
-                 level: str = "cine") -> None:
+                 level: str = "cine", entry: str = "proyector") -> None:
         self.level = level if level in ("cine", "ligero", "ninguno") else "cine"
+        self.entry = entry if entry in ENTRIES else "proyector"
         if self.level == "ligero":
             self.APPEAR, self.LEAVE = 0.35, 0.3
         elif self.level == "ninguno":
@@ -684,6 +798,39 @@ class Animation:
         out[..., 3] = (a[..., 0] * 255).astype(np.uint8)
         return out
 
+    def _reveal(self, e: float, leaving: bool):
+        """Máscara (h, w, 1) de lo que se ve y borde brillante, con e de 0 a 1."""
+        if self.entry == "barrido":  # una cortina de luz que baja (y al irse, sigue bajando y se lo lleva)
+            front = e * (self.h + 24) - 12
+            mask = (np.clip((self.rows - front) / 4.0 + 0.5, 0, 1) if leaving
+                    else np.clip((front - self.rows) / 6.0 + 0.5, 0, 1))
+            edge = np.exp(-((self.rows - front) / 3.0) ** 2) * (1 - e * 0.5)
+            return np.broadcast_to(mask, (self.h, self.w))[..., None], np.broadcast_to(edge, (self.h, self.w))[..., None]
+        if self.entry == "despliegue":  # se abre de lado a lado desde una columna central
+            cols = np.arange(self.w, dtype=np.float32)[None, :]
+            half = (1 - e if leaving else e) * self.w / 2
+            dist = np.abs(cols - self.w / 2)
+            mask = np.clip((half - dist) / 5.0 + 0.5, 0, 1)
+            edge = np.exp(-((dist - half) / 3.0) ** 2) * (1 - e * 0.6 if not leaving else 1 - e)
+            return np.broadcast_to(mask, (self.h, self.w))[..., None], np.broadcast_to(edge, (self.h, self.w))[..., None]
+        if self.entry == "pixeles":  # se materializa por bloques, como una transmisión que llega
+            if not hasattr(self, "_blocks"):
+                b = max(6, int(self.w / 70))
+                gh, gw = -(-self.h // b), -(-self.w // b)
+                noise = np.random.default_rng(int(self.w * 7 + self.h)).random((gh, gw)).astype(np.float32)
+                self._blocks = np.kron(noise, np.ones((b, b), dtype=np.float32))[:self.h, :self.w]
+            lvl = 1 - e if leaving else e
+            mask = (self._blocks < lvl).astype(np.float32)
+            edge = (np.abs(self._blocks - lvl) < 0.06).astype(np.float32) * (1 - abs(2 * e - 1)) * 0.8
+            return mask[..., None], edge[..., None]
+        # «proyector» (la de siempre): una línea brillante que se abre desde el centro y al irse se pliega
+        half = (1 - e if leaving else e) * self.h / 2
+        dist = np.abs(self.rows - self.h / 2)
+        mask = np.clip((half - dist) / (4.0 if leaving else 6.0) + 0.5, 0, 1)
+        edge = (np.exp(-(dist / 2.0) ** 2) * (1 - e) if leaving
+                else np.exp(-((dist - half) / 3.0) ** 2) * (1 - e * 0.6))
+        return np.broadcast_to(mask, (self.h, self.w))[..., None], np.broadcast_to(edge, (self.h, self.w))[..., None]
+
     def _sparks(self, t: float) -> np.ndarray:
         """v1.3 «cinematográfico»: motas de luz que suben por la tarjeta."""
         if not hasattr(self, "_pts"):
@@ -730,28 +877,22 @@ class Animation:
         band = np.exp(-((self.rows - band_y) / 22.0) ** 2) * 0.22
         img[..., :3] = np.clip(img[..., :3] * scan[..., None] + band[..., None] * self.acc * img[..., 3:4], 0, 1)
         alpha = img[..., 3:4] * scan[..., None]
-        # Aparición: una línea brillante que se abre desde el centro
+        # Aparición (v2.0: proyector, barrido, despliegue o píxeles)
         k = 1.0
         if t < self.APPEAR:
             e = _ease(t / self.APPEAR)
-            half = e * self.h / 2
-            dist = np.abs(self.rows - self.h / 2)
-            mask = np.clip((half - dist) / 6.0 + 0.5, 0, 1)[..., None]
-            edge = np.exp(-((dist - half) / 3.0) ** 2)[..., None] * (1 - e * 0.6)
+            mask, edge = self._reveal(e, False)
             alpha = alpha * mask + edge * 0.9
             img[..., :3] = np.clip(img[..., :3] + edge * self.acc, 0, 1)
             k = 0.35 + 0.65 * e
-            if self._rnd.random() < 0.25:  # parpadeo de proyector
+            if self.entry == "proyector" and self._rnd.random() < 0.25:  # parpadeo de proyector
                 k *= 0.6
-        # Salida: se pliega hacia una línea y se apaga
+        # Salida: lo mismo al revés
         if self.leave_at is not None and now >= self.leave_at:
             e = _ease((now - self.leave_at) / self.LEAVE)
-            half = (1 - e) * self.h / 2
-            dist = np.abs(self.rows - self.h / 2)
-            mask = np.clip((half - dist) / 4.0 + 0.5, 0, 1)[..., None]
-            line = np.exp(-(dist / 2.0) ** 2)[..., None] * (1 - e)
-            alpha = alpha * mask + line
-            img[..., :3] = np.clip(img[..., :3] + line * self.acc, 0, 1)
+            mask, edge = self._reveal(e, True)
+            alpha = alpha * mask + edge
+            img[..., :3] = np.clip(img[..., :3] + edge * self.acc, 0, 1)
             k *= 1 - e * 0.4
         # Glitch ocasional: una franja se desplaza un instante
         if now >= self._next_glitch:
@@ -879,10 +1020,13 @@ class HoloOverlay(threading.Thread):
                 rect, _src = target_area(self.settings)
                 k = scale_for(rect[3] - rect[1]) * float(self.settings.get("holo_escala", 1.0))
                 acc = card.accent or self._accent()
+                set_weight(self.settings.get("holo_letra", "gruesa"))
+                set_model(self.settings.get("holo_modelo", "clasico"))
                 lay = render(card, k, acc)
                 fx = self.settings.get("efectos_nivel", "cine")
                 anim = Animation(lay, acc, float(self.settings.get("holo_opacidad", 0.85)),
-                                 float(self.settings.get("holo_segundos", 14)), level=fx)
+                                 float(self.settings.get("holo_segundos", 14)), level=fx,
+                                 entry=self.settings.get("holo_entrada", "proyector"))
                 self.current = card
                 self._skip.clear()
                 if card.alert:

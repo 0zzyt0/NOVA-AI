@@ -1,0 +1,77 @@
+# NOVA AI · prueba la instalación y la desinstalación en un Windows limpio de GitHub.
+#
+# Instala NOVA AI sin ventana (instalador.ps1 -Desatendido), comprueba que arranca su Python y sus módulos,
+# que queda registrada en «Aplicaciones instaladas» y que el desinstalador silencioso la quita entera.
+# Se lanza a mano (Actions › Probar instalación › Run workflow), al subir una etiqueta v* y en cada cambio del
+# instalador. No usa claves de ningún tipo.
+name: Probar instalación
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+    paths: ['instalador/**', 'requirements.txt', '.github/workflows/probar_instalacion.yml']
+  pull_request:
+    paths: ['instalador/**', 'requirements.txt']
+
+permissions:
+  contents: read
+
+jobs:
+  instalar:
+    runs-on: windows-2025
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Instalar sin ventana
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          powershell -NoProfile -ExecutionPolicy Bypass -STA -File instalador\instalador.ps1 -Origen "$PWD" -Desatendido
+          if ($LASTEXITCODE -ne 0) { throw "El instalador terminó con el código $LASTEXITCODE" }
+
+      - name: Comprobar la instalación
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $root = Join-Path $env:ProgramFiles 'NOVA AI'
+          foreach ($f in 'nova.py', 'NOVA AI.exe', 'core\config.py', 'gui\web\index.html', '.venv\Scripts\python.exe') {
+            if (-not (Test-Path (Join-Path $root $f))) { throw "Falta $f" }
+          }
+          $py = Join-Path $root '.venv\Scripts\python.exe'
+          & $py -c "import sys; sys.path.insert(0, r'$root'); from core import config, i18n, voices, themes, backup, holo, overlay; print('NOVA', config.VERSION, 'módulos OK')"
+          if ($LASTEXITCODE -ne 0) { throw 'Los módulos de NOVA no cargan' }
+          & $py -c "import numpy, PIL, edge_tts, sounddevice, miniaudio, openai, rapidfuzz; print('dependencias OK')"
+          if ($LASTEXITCODE -ne 0) { throw 'Faltan dependencias' }
+          $key = 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\NOVA AI'
+          $reg = Get-ItemProperty $key
+          Write-Output ("Registrada: {0} {1}" -f $reg.DisplayName, $reg.DisplayVersion)
+          if (-not $reg.QuietUninstallString) { throw 'Sin desinstalador silencioso' }
+
+      - name: Desinstalar sin preguntas
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $key = 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\NOVA AI'
+          $cmd = (Get-ItemProperty $key).QuietUninstallString
+          Write-Output $cmd
+          $p = Start-Process -FilePath 'cmd.exe' -ArgumentList ('/c ' + $cmd) -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "El desinstalador terminó con el código $($p.ExitCode)" }
+          $root = Join-Path $env:ProgramFiles 'NOVA AI'
+          # el desinstalador se copia a TEMP para poder borrar su propia carpeta: se espera a que acabe
+          for ($i = 0; $i -lt 90 -and ((Test-Path (Join-Path $root 'nova.py')) -or (Test-Path $key)); $i++) { Start-Sleep -Seconds 2 }
+          if (Test-Path (Join-Path $root 'nova.py')) { throw 'La carpeta de NOVA sigue ahí' }
+          if (Test-Path $key) { throw 'Sigue en «Aplicaciones instaladas»' }
+          Write-Output 'Desinstalada por completo'
+
+      - name: Registro del instalador
+        if: failure()
+        shell: powershell
+        run: |
+          $log = Join-Path $env:TEMP 'NOVA_AI_Setup_error.log'
+          if (Test-Path $log) { Get-Content $log }

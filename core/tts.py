@@ -67,10 +67,14 @@ def list_edge_voices(lang: str = "es") -> list[str]:
 
         voices = asyncio.run(edge_tts.list_voices())
         names = sorted(v["ShortName"] for v in voices if v["Locale"].lower().startswith(lang + "-"))
-        return [v for v in base if v in names] + [v for v in names if v not in base] if names else base
+        # v2.0: las «Multilingual» de otros idiomas también hablan el tuyo (con su acento)
+        multi = sorted(v["ShortName"] for v in voices if "Multilingual" in v["ShortName"] and v["ShortName"] not in names)
+        out = [v for v in base if v in names] + [v for v in names if v not in base] if names else list(base)
+        return out + [v for v in multi if v not in out]
     except Exception as e:
         log.info("Lista de voces Edge no disponible (%s); uso la lista básica", e)
-        return base
+        return list(base) + [v for v in ("en-US-BrianMultilingualNeural", "en-US-AndrewMultilingualNeural",
+                                         "en-US-EmmaMultilingualNeural", "en-US-AvaMultilingualNeural") if v not in base]
 
 
 def piper_voices(lang: str = "es") -> list[str]:
@@ -101,18 +105,111 @@ def split_sentences(text: str) -> list[str]:
     return [s for s in out if s.strip()]
 
 
-def cockpit_filter(samples: np.ndarray, rate: int) -> np.ndarray:
-    """Toque de 'IA de nave': banda telefónica suave + leve saturación, mezclado con la voz limpia."""
-    if len(samples) < 64:
-        return samples
+# v2.0: efectos de voz. Solo con numpy (filtros en frecuencia, saturación, ruido y pitidos).
+VOICE_FX = ("ninguno", "cabina", "casco", "radio", "walkie")
+
+
+def _band(freqs: np.ndarray, lo: float, hi: float, order: int) -> np.ndarray:
+    """Paso banda con caída suave (tipo Butterworth) de orden 'order'."""
+    f = np.maximum(freqs, 1.0)
+    return 1.0 / np.sqrt(1.0 + (lo / f) ** (2 * order)) / np.sqrt(1.0 + (f / hi) ** (2 * order))
+
+
+def _shape(samples: np.ndarray, rate: int, lo: float, hi: float, order: int,
+           peak_hz: float = 0.0, peak_gain: float = 0.0, peak_w: float = 600.0) -> np.ndarray:
     spec = np.fft.rfft(samples)
     freqs = np.fft.rfftfreq(len(samples), 1 / rate)
-    band = np.where((freqs > 280) & (freqs < 4200), 1.0, 0.15)
-    filtered = np.fft.irfft(spec * band, n=len(samples))
-    filtered = np.tanh(filtered * 1.8) / 1.6
-    out = 0.55 * samples + 0.6 * filtered
+    gain = _band(freqs, lo, hi, order)
+    if peak_gain:
+        gain = gain * (1.0 + peak_gain * np.exp(-((freqs - peak_hz) / peak_w) ** 2))
+    return np.fft.irfft(spec * gain, n=len(samples)).astype(np.float32)
+
+
+def _env(x: np.ndarray, rate: int, ms: float = 25.0) -> np.ndarray:
+    """Envolvente de la voz (para que el ruido de fondo suene solo mientras habla)."""
+    n = max(1, int(rate * ms / 1000))
+    e = np.convolve(np.abs(x), np.ones(n, dtype=np.float32) / n, mode="same")
+    return e / (np.max(e) or 1.0)
+
+
+def _noise(n: int, rate: int, lo: float, hi: float, seed: int) -> np.ndarray:
+    w = np.random.default_rng(seed).standard_normal(n).astype(np.float32)
+    w = _shape(w, rate, lo, hi, 2)
+    return w / (np.max(np.abs(w)) or 1.0)
+
+
+def _tone(rate: int, freq: float, ms: float, amp: float = 0.35) -> np.ndarray:
+    t = np.arange(int(rate * ms / 1000), dtype=np.float32) / rate
+    fade = np.minimum(1.0, np.minimum(t, t[::-1]) * 400)
+    return (amp * np.sin(2 * np.pi * freq * t) * fade).astype(np.float32)
+
+
+def voice_fx(samples: np.ndarray, rate: int, kind: str = "cabina", strength: float = 0.7,
+             first: bool = True, last: bool = True) -> np.ndarray:
+    """Pone a la voz un efecto: cabina (altavoz de nave), casco (comunicador del casco), radio o walkie-talkie.
+    strength 0..1 = cuánto se nota (mezcla con la voz limpia, saturación y ruido)."""
+    if kind not in VOICE_FX or kind == "ninguno" or len(samples) < 256:
+        return samples
+    k = float(min(1.0, max(0.0, strength)))
+    x = samples.astype(np.float32)
+    seed = len(x)
+    if kind == "cabina":  # altavoz de nave: banda media, presencia metálica y pequeñas reflexiones
+        w = _shape(x, rate, 320, 4200, 3, 2600, 1.4 * k, 700)
+        w = np.tanh(w * (1.5 + 3.0 * k)) / np.tanh(1.5 + 3.0 * k)
+        for ms, g in ((6.5, 0.35), (11.0, 0.22), (17.0, 0.12)):  # resonancia de cabina pequeña
+            d = int(rate * ms / 1000)
+            w[d:] += g * k * w[:-d]
+        dry = _shape(x, rate, 170, 9000, 2)  # la voz limpia también pierde los graves de «estudio»
+        out = (1.0 - k) * 0.7 * dry + (0.5 + 1.0 * k) * w
+    elif kind == "casco":  # comunicador del casco: claro pero estrecho, con un soplido leve
+        w = _shape(x, rate, 300, 4600, 3, 1900, 1.1 * k, 800)
+        w = np.tanh(w * (2.0 + 3.0 * k)) / np.tanh(2.0 + 3.0 * k)
+        w = w / (np.max(np.abs(w)) or 1.0)
+        hiss = _noise(len(x), rate, 2000, 7000, seed) * (0.02 + 0.05 * k) * (0.3 + _env(x, rate))
+        dry = _shape(x, rate, 200, 8000, 2)
+        dry = dry / (np.max(np.abs(dry)) or 1.0)
+        out = (1.0 - k) * 0.6 * dry + (0.5 + 0.8 * k) * w + hiss
+    else:  # radio y walkie: banda estrecha, saturación fuerte, ruido, chasquido de silenciador y pitido final
+        walkie = kind == "walkie"
+        lo, hi = (550, 2500) if walkie else (380, 3200)
+        w = _shape(x, rate, lo, hi, 4, 1700, 0.9 * k, 500)
+        drive = (4.0 if walkie else 2.5) + (6.0 if walkie else 4.0) * k
+        w = np.tanh(w / (np.max(np.abs(w)) or 1.0) * drive)
+        if walkie:  # sonido de pocos bits: muestreo a 8 kHz y 6 bits
+            step = max(1, int(rate / 8000))
+            w = np.repeat(w[::step], step)[: len(x)]
+            q = 2 ** 5
+            w = np.round(w * q) / q
+            w = _shape(w, rate, lo, hi, 2)
+        hiss = _noise(len(x), rate, 800, 6000, seed) * ((0.05 if walkie else 0.03) + 0.06 * k)
+        w = w / (np.max(np.abs(w)) or 1.0) + hiss * (0.4 + 0.6 * _env(x, rate))
+        out = (1.0 - k) * 0.6 * x / (np.max(np.abs(x)) or 1.0) + (0.5 + 0.5 * k) * w
+        sq = _noise(int(rate * (0.16 if walkie else 0.09)), rate, 600, 5000, seed + 1)
+        sq *= np.linspace(1.0, 0.0, len(sq), dtype=np.float32) * (0.45 if walkie else 0.3)
+        head = sq[: int(rate * 0.05)] * 0.8
+        tail = [sq]
+        if walkie:  # pitido de «cambio» al soltar el botón
+            tail = [np.zeros(int(rate * 0.03), np.float32), _tone(rate, 1250, 70), _tone(rate, 900, 70), sq]
+        out = np.concatenate([head if first else head[:0], out.astype(np.float32), *(tail if last else [])])
     peak = np.max(np.abs(out)) or 1.0
     return (out / peak * 0.9).astype(np.float32)
+
+
+def cockpit_filter(samples: np.ndarray, rate: int) -> np.ndarray:
+    """Compatibilidad con la 1.x: el efecto de cabina a fuerza media."""
+    return voice_fx(samples, rate, "cabina", 0.7)
+
+
+def voice_fx_from(settings) -> tuple[str, float]:
+    """Efecto elegido (con lo que guardaban las versiones anteriores, que solo tenían «IA de cabina» sí/no)."""
+    kind = settings.get("tts_efecto", None)
+    if kind not in VOICE_FX:
+        kind = "cabina" if settings.get("tts_efecto_radio", True) else "ninguno"
+    try:
+        strength = float(settings.get("tts_efecto_fuerza", 70)) / 100.0
+    except (TypeError, ValueError):
+        strength = 0.7
+    return kind, strength
 
 
 def resample(samples: np.ndarray, rate: int, target: int = OUT_RATE) -> np.ndarray:
@@ -266,10 +363,19 @@ class TextToSpeech:
     # ------------------------------------------------------------------ público
     def say(self, text: str) -> None:
         text = speakable(text)
+        try:  # v2.0: nombres del juego con pronunciación inglesa
+            from .i18n import lang
+            from .voices import pronounce
+
+            text = pronounce(text, lang(), bool(self.settings.get("tts_nombres_ingles", True)),
+                             self.settings.get("tts_pronunciacion", "") or "")
+        except Exception:  # noqa: BLE001
+            log.debug("pronunciación", exc_info=True)
         if text:
             gen = self._generation
-            for s in split_sentences(text):
-                self._text_q.put((gen, s))
+            parts = split_sentences(text)
+            for i, s in enumerate(parts):  # primera/última: el chasquido de radio solo al empezar y al acabar
+                self._text_q.put((gen, s, i == 0, i == len(parts) - 1))
 
     def stop(self) -> None:
         """Calla inmediatamente. Seguro desde cualquier hilo."""
@@ -363,7 +469,7 @@ class TextToSpeech:
             eng.runAndWait()
             return _wav_to_np(f.read_bytes())
 
-    def synthesize(self, text: str) -> tuple[np.ndarray, int]:
+    def synthesize(self, text: str, first: bool = True, last: bool = True) -> tuple[np.ndarray, int]:
         engine = self.settings.get("tts_motor")
         order = [engine] + [e for e in ("edge", "piper", "windows") if e != engine]
         last = None
@@ -373,8 +479,9 @@ class TextToSpeech:
                 samples, rate = fn(text)
                 if e != engine:
                     log.warning("Voz '%s' falló; usando '%s'", engine, e)
-                if self.settings.get("tts_efecto_radio"):
-                    samples = cockpit_filter(samples, rate)
+                kind, strength = voice_fx_from(self.settings)
+                if kind != "ninguno":
+                    samples = voice_fx(samples, rate, kind, strength, first, last)
                 return samples * float(self.settings.get("volumen")), rate
             except Exception as ex:
                 last = ex
@@ -384,12 +491,12 @@ class TextToSpeech:
     # ------------------------------------------------------------------- hilos
     def _synth_loop(self) -> None:
         while True:
-            gen, text = self._text_q.get()
+            gen, text, first, last = self._text_q.get()
             if gen != self._generation:
                 continue
             self._synthesizing = True
             try:
-                samples, rate = self.synthesize(text)
+                samples, rate = self.synthesize(text, first, last)
                 self.out.push(samples, rate, still_valid=lambda: gen == self._generation)
             except Exception as e:
                 log.error("No pude hablar: %s", e)

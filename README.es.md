@@ -5,7 +5,7 @@
 <h1 align="center">NOVA AI</h1>
 <p align="center"><b>Asistente de vuelo por voz para Star Citizen</b> · <a href="README.md">English</a> · Español<br>
 Te escucha, te responde con voz natural, pulsa las teclas del juego por ti y sabe qué está pasando en tu partida.<br>
-<i>Versión oficial 1.5 · Windows 10/11 · español, English, català, français, Deutsch · todo gratis y de código abierto</i></p>
+<i>Versión oficial 2.0 · Windows 10/11 · español, English, català, français, Deutsch · todo gratis y de código abierto</i></p>
 
 <p align="center">
   <a href="../../releases/latest"><b>⬇ Descargar NOVA AI Setup.exe</b></a> ·
@@ -46,6 +46,19 @@ Star Citizen pide muchas manos: palanca, acelerador, ratón, atajos de teclado, 
 - **Se adapta a tu forma de hablar:** el asistente inicial entrena su nombre con tu voz, y puedes ajustar la sensibilidad del micrófono y el silencio que espera antes de dar la frase por terminada.
 
 Un ejemplo: con una sola mano en la palanca, *«Nova, listo para volar»*, *«pide permiso para despegar»*, *«sube el tren»* y, en combate, *«bengalas»* o *«siguiente atacante»*, sin soltarla nunca. Pilotar y apuntar siguen necesitando palanca, ratón o mando; Nova se encarga de casi todo lo demás. Si usas NOVA AI por accesibilidad y echas algo en falta, cuéntalo en [Issues](../../issues): es una prioridad.
+
+## Novedades de la 2.0
+
+- **Ventana reorganizada:** **Juego SC** (comandos de voz, teclas y joystick, avisos del juego con perfiles de nave, chat e idioma del juego), **Nova** (identidad, voz, escucha e inteligencia), **Pantalla** (overlay, hologramas y aspecto), **Información** (fuentes y servidores, diccionario, lo que sabe de ti, bitácora y Discord) y **Ajustes** (el único sitio donde se cambia el idioma, ventana y bandeja, actualizaciones, copias y empezar de cero). Un **buscador de ajustes** en la cabecera (o `Ctrl+F`) te lleva directo a cualquier opción.
+- **Estilos de voz:** siete estilos ya afinados con el aire de las IA de a bordo del cine (mayordomo de a bordo, ordenador de la nave, copiloto cercano, IA táctica…). Son voces sintéticas de Microsoft Edge y **no imitan a ningún actor ni personaje**.
+- **Efectos de voz:** el filtro *IA de cabina* mucho más marcado, y además *comunicador del casco*, *radio* y *walkie-talkie* (ruido, chasquido y pitido de cambio), con intensidad ajustable.
+- **Nombres del juego pronunciados en inglés** en español, catalán, francés y alemán (*Crusader*, *Hurston*, *Cutlass*…), con tu propia lista de pronunciación editable.
+- **Temas de color** de la ventana, **logos nuevos del overlay** (o tu propio PNG), **4 modelos de holograma**, **4 formas de aparecer** y **letra más gruesa**, que se lee mejor sobre el juego.
+- **Copias de seguridad:** exporta e importa en un archivo `.novacopia` tus ajustes, comandos, memoria, diccionario y bitácora. **Nunca lleva tus claves de IA.**
+- **Primer inicio:** el asistente te enseña dónde ha encontrado el **Game.log** y te deja elegirlo.
+- **Instalador:** eliges **carpeta y unidad** (con el espacio libre), pesa menos (imágenes del manual en WebP) y tiene un modo desatendido que se prueba en Windows con GitHub Actions.
+- **Avisos:** la zona de armisticio se anuncia una sola vez al entrar y otra al salir; *Probar en pantalla* dura 15 s; la vista previa del overlay lleva de fondo una escena del juego.
+- **Mistral** es de pago desde agosto de 2026: sale de la cadena de motores de fábrica, pero puedes poner tu propia clave.
 
 ## Novedades de la 1.5
 
@@ -137,14 +150,14 @@ Un ejemplo: con una sola mano en la palanca, *«Nova, listo para volar»*, *«pi
 
 | | |
 |---|---|
-| ![Nave y comandos: comandos de voz](docs/img/juego.jpg)<br><sub>**Nave y comandos:** tus comandos de voz y sus teclas</sub> | ![Nave y comandos: lectura del juego](docs/img/lectura.jpg)<br><sub>**Lectura del juego:** qué avisos lee del Game.log</sub> |
-| ![Nova: inteligencia](docs/img/ia.jpg)<br><sub>**Nova › Inteligencia:** claves gratuitas y cadena de motores</sub> | ![Datos y memoria: páginas de consulta](docs/img/datos.jpg)<br><sub>**Datos y memoria:** páginas de consulta y su comprobación</sub> |
+| ![Juego SC: comandos de voz](docs/img/juego.jpg)<br><sub>**Juego SC:** tus comandos de voz y sus teclas</sub> | ![Juego SC: teclas y joystick](docs/img/lectura.jpg)<br><sub>**Teclas y joystick:** tus teclas de Star Citizen y cómo las pulsa Nova</sub> |
+| ![Nova: inteligencia](docs/img/ia.jpg)<br><sub>**Nova › Inteligencia:** claves gratuitas y cadena de motores</sub> | ![Información: fuentes](docs/img/datos.jpg)<br><sub>**Información › Fuentes:** páginas de consulta y su comprobación</sub> |
 | ![Diccionario de consultas](docs/img/diccionario.jpg)<br><sub>**Diccionario de consultas:** contesta sin gastar IA</sub> | ![Bitácora y estadísticas](docs/img/bitacora.jpg)<br><sub>**Bitácora y estadísticas** de tus sesiones</sub> |
 
 ## Instalación
 
 1. Descarga **`NOVA AI Setup.exe`** desde [Releases](../../releases/latest) (o el `.zip` portátil).
-2. Ábrelo y acepta el permiso de administrador (se instala en `C:\Program Files\NOVA AI`).
+2. Ábrelo y acepta el permiso de administrador (se instala en `C:\Program Files\NOVA AI`; con **Elegir carpeta…** puedes elegir otra carpeta o unidad).
 3. **Elige tu idioma** (propone el de tu Windows).
 4. Acepta las Normas de uso y la Política de privacidad, en tu idioma ([ES](NORMAS_Y_PRIVACIDAD.md) · [EN](NORMAS_Y_PRIVACIDAD.en.md) · [CA](NORMAS_Y_PRIVACIDAD.ca.md) · [FR](NORMAS_Y_PRIVACIDAD.fr.md) · [DE](NORMAS_Y_PRIVACIDAD.de.md)), y pulsa **Iniciar**.
 5. Al terminar, abre **NOVA AI** desde el escritorio: un asistente de 7 pasos la deja lista para tu voz.
@@ -152,7 +165,7 @@ Un ejemplo: con una sola mano en la palanca, *«Nova, listo para volar»*, *«pi
 El instalador descarga Python 3.12 si no lo tienes (solo para Nova), crea los accesos directos y registra el desinstalador. Todos los detalles están en el [LEEME](LEEME.md) y en el manual en PDF de *Releases*, disponible en los cinco idiomas.
 
 > [!IMPORTANT]
-> **Los ejecutables de la 1.5 todavía no están firmados.** La firma digital gratuita está solicitada a SignPath Foundation (ver [Code signing policy](#code-signing-policy)).
+> **Los ejecutables de la 2.0 todavía no están firmados.** La firma digital gratuita está solicitada a SignPath Foundation (ver [Code signing policy](#code-signing-policy)).
 >
 > - **«Windows protegió su PC» (SmartScreen):** pulsa *Más información → Ejecutar de todas formas*.
 > - **Control inteligente de aplicaciones** (Windows 11, *Seguridad de Windows › Control de aplicaciones y navegador*): si está en **Activado**, bloquea cualquier programa sin firmar y no permite excepciones. Para instalar NOVA AI hay que ponerlo en **Desactivado** (el `.zip` portátil también se bloquea) o esperar a la versión firmada. Desde la actualización de Windows de abril de 2026 se puede volver a activar después sin reinstalar Windows. Si está en **Evaluación**, Windows decide solo y puede dejarlo pasar.
@@ -171,7 +184,8 @@ NOVA AI usa servicios gratuitos, en una **cadena de motores**: si uno se queda s
 | 2 | Google Gemini | `gemini-3.5-flash-lite` |
 | 3 | Groq | `openai/gpt-oss-120b` |
 | 4 | OpenRouter | `openrouter/free` |
-| 5 | Mistral | `mistral-small-latest` |
+
+*Mistral* (de pago desde agosto de 2026) y *DeepSeek* son opcionales: solo entran en la cadena si pones tu propia clave.
 
 El instalador de *Releases* **no trae claves de IA**: Nova obedece los comandos de voz desde el primer momento, y para conversar y buscar necesita al menos una clave gratuita. Se consiguen en 2 minutos y sin tarjeta (Gemini y Groq son las recomendadas): el capítulo 11 del manual, *Tus propias API Keys*, lo explica paso a paso. Después se pegan en ***Nova › Inteligencia › Claves gratuitas***. Nova contesta siempre en el idioma que hayas elegido.
 
@@ -229,7 +243,7 @@ Tus datos se quedan en tu PC (`%LOCALAPPDATA%\NOVA AI\datos`): sin servidores pr
 
 <p align="center"><img src="docs/img/acerca.gif" width="520" alt="Acerca de"></p>
 
-**NOVA AI · Versión oficial 1.5**, de **Aaron B. Roldan** (gametag de Star Citizen: **0zzyt0**). Desarrollado con el motor de IA **Claude Opus 5.5** (Anthropic).
+**NOVA AI · Versión oficial 2.0**, de **Aaron B. Roldan** (gametag de Star Citizen: **0zzyt0**). Desarrollado con el motor de IA **Claude Opus 5.5** (Anthropic).
 
 **Agradecimientos** a la **Org. Defcorp**, y gracias a: Faibo, Galleg0, Sr.Scott, AlpacaInTrouble, Lother… ¡y muchos más!
 

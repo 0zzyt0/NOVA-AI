@@ -350,7 +350,9 @@
     "ziel aufschalten",
     "ziel markieren",
     "ziel festlegen",
-    "ziel auswählen"
+    "ziel auswählen",
+    "markiere das ziel",
+    "markier das ziel"
    ],
    "respuestas": [
     "Ziel gewechselt."

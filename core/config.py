@@ -14,7 +14,7 @@ import os
 import threading
 from pathlib import Path
 
-VERSION = "1.5.0"
+VERSION = "2.0.0"
 APP_NAME = "NOVA AI"
 APP_DIR = Path(__file__).resolve().parent.parent
 FACTORY_DIR = APP_DIR / "datos"  # archivos de fábrica que vienen con el programa (solo lectura)
@@ -92,8 +92,8 @@ PROVIDERS = {
         "modelos": ["openrouter/free", "meta-llama/llama-3.3-70b-instruct:free"],
         "clave_url": "https://openrouter.ai/keys",
     },
-    "mistral": {  # 1.3.2: sustituye a DeepSeek (que ya no es gratis); plan Experiment sin tarjeta
-        "nombre": "Mistral (gratis, sin tarjeta)",
+    "mistral": {  # 2.0: de pago desde agosto de 2026; ya no va en la cadena de serie, queda como opción
+        "nombre": "Mistral (de pago)",
         "base_url": "https://api.mistral.ai/v1",
         "modelos": ["mistral-small-latest", "mistral-medium-latest", "mistral-large-latest"],
         "clave_url": "https://console.mistral.ai/api-keys",
@@ -133,7 +133,6 @@ DEFAULTS: dict = {
         {"proveedor": "gemini", "modelo": "gemini-3.5-flash-lite"},
         {"proveedor": "groq", "modelo": "openai/gpt-oss-120b"},
         {"proveedor": "openrouter", "modelo": "openrouter/free"},
-        {"proveedor": "mistral", "modelo": "mistral-small-latest"},
     ],
     "claves": {"gemini": "", "groq": "", "openrouter": "", "mistral": "", "deepseek": "", "ollama": "ollama"},
     "humor": 7,  # 0 = serio, 10 = cachondo
@@ -147,7 +146,12 @@ DEFAULTS: dict = {
     "tts_velocidad": 5,  # % (-50..+50)
     "tts_tono": 0,  # Hz (-50..+50)
     "tts_voz_piper": "es_ES-davefx-medium",
-    "tts_efecto_radio": True,
+    "tts_efecto_radio": True,  # 1.x (sí/no); desde la 2.0 manda «tts_efecto»
+    "tts_efecto": "cabina",  # 2.0: ninguno, cabina, casco, radio, walkie
+    "tts_efecto_fuerza": 70,  # 2.0: intensidad del efecto, 10-100
+    "tts_estilo": "",  # v2.0: estilo de voz elegido ("" = a tu gusto)
+    "tts_nombres_ingles": True,  # v2.0: nombres del juego pronunciados en inglés
+    "tts_pronunciacion": "",  # v2.0: «Nombre = cómo decirlo», uno por línea
     "volumen": 1.0,
     "dispositivo_salida": None,
     # --- Oído de Nova (STT) -----------------------------------------------
@@ -172,6 +176,9 @@ DEFAULTS: dict = {
     "tutorial_visto": False,  # 1.4: recorrido guiado tras la configuración inicial
     # --- Juego ------------------------------------------------------------
     "gamelog_activo": True,
+    "holo_modelo": "clasico",  # v2.0: forma de la tarjeta: clasico, biselado, cristal, tactico
+    "holo_entrada": "proyector",  # v2.0: aparición: proyector, barrido, despliegue, pixeles
+    "holo_letra": "gruesa",  # v2.0: grosor de la letra de los hologramas: normal, gruesa, muy gruesa
     "gamelog_ruta": "",  # vacío = autodetectar
     "gamelog_comentarios": True,  # Nova comenta lo que pasa (contratos, combustible...)
     "gamelog_comentarios_ia": False,  # usar la IA para comentar (gasta cuota)
@@ -256,6 +263,9 @@ DEFAULTS: dict = {
     "overlay_solo_juego": True,  # solo visible con Star Citizen en primer plano
     "overlay_reposo": "tenue",  # tenue | oculto
     "overlay_opacidad_reposo": 0.35,
+    "tema": "cian",  # v2.0: tema de color de la ventana (core/themes.py)
+    "overlay_logo": "nova",  # v2.0: nova, nucleo, onda, hexagono, radar, reticula o personal
+    "overlay_logo_ruta": "",  # v2.0: tu PNG (con «personal»)
     "overlay_color": "#20b8e8",  # escuchando / pensando / hablando
     "overlay_color_ok": "#39e47a",  # ha entendido
     "overlay_color_busca": "#ffc933",  # buscando en internet
@@ -287,6 +297,8 @@ class Settings:
                     if saved.get("palabras_clave") == OLD_WAKE_DEFAULT:  # versiones anteriores
                         saved["palabras_clave"] = []
                         saved.setdefault("nombre_variantes", ["noba"])
+                    if "tts_efecto" not in saved:  # 2.0: el antiguo sí/no de «IA de cabina»
+                        saved["tts_efecto"] = "cabina" if saved.get("tts_efecto_radio", True) else "ninguno"
                     for k, v in saved.items():
                         if k == "claves" and isinstance(v, dict):
                             self.data["claves"].update(v)
@@ -295,6 +307,7 @@ class Settings:
             except (OSError, ValueError):
                 pass
         self._apply_base()
+        self._migrate_20()
         # Las claves también se pueden pasar por variables de entorno.
         for prov in PROVIDERS:
             env = os.environ.get(f"{prov.upper()}_API_KEY")
@@ -347,6 +360,22 @@ class Settings:
             self.data["ia_cadena"] = copy.deepcopy(DEFAULTS["ia_cadena"])
             self.data["base_aplicada"] = BASE_VERSION
         if save and SETTINGS_FILE.exists():
+            self.save()
+
+    def _migrate_20(self) -> None:
+        """2.0: Mistral pasó a ser de pago (agosto de 2026). Sale de la cadena salvo que tengas tu propia clave;
+        la clave de prueba de fábrica, si la había, se quita."""
+        if self.data.get("migrado_2_0"):
+            return
+        with self._lock:
+            base = (read_base_keys() or {}).get("mistral", "")
+            mine = (self.data["claves"].get("mistral") or "").strip()
+            if mine and base and mine == base:
+                self.data["claves"]["mistral"] = mine = ""
+            if not mine:
+                self.data["ia_cadena"] = [e for e in (self.data.get("ia_cadena") or []) if e.get("proveedor") != "mistral"]
+            self.data["migrado_2_0"] = True
+        if SETTINGS_FILE.exists():
             self.save()
 
     def key_for(self, provider: str) -> str:

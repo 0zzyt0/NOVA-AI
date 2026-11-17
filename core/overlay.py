@@ -32,6 +32,19 @@ from .config import APP_DIR
 log = logging.getLogger("nova.overlay")
 IS_WINDOWS = sys.platform == "win32"
 LOGO = APP_DIR / "recursos" / "nova.png"
+# v2.0: logos del overlay (diseños propios en recursos/logos) y el tuyo («personal»)
+LOGOS = ("nova", "nucleo", "onda", "hexagono", "radar", "reticula", "personal")
+
+
+def logo_path(settings) -> Path:
+    name = settings.get("overlay_logo", "nova") or "nova"
+    if name == "personal":
+        own = Path(settings.get("overlay_logo_ruta", "") or "")
+        if own.suffix.lower() in (".png", ".webp") and own.is_file():
+            return own
+        return LOGO
+    p = APP_DIR / "recursos" / "logos" / f"{name}.png"
+    return p if name != "nova" and p.is_file() else LOGO
 
 RESOLUTIONS = ["640x480", "800x600", "1024x768", "1280x720", "1280x1024", "1366x768", "1440x900", "1600x900",
                "1680x1050", "1920x1080", "1920x1200", "2560x1080", "2560x1440", "3440x1440", "3840x1600", "3840x2160"]
@@ -227,9 +240,10 @@ def layout(settings, rect: tuple[int, int, int, int]) -> tuple[int, int]:
     return size, int(float(settings.get("overlay_margen")) * k)
 
 
-DEMO = [("listening", "base", 1.3), ("searching", "purple", 1.3), ("searching", "yellow", 1.3),
-        ("searching", "white", 1.0), ("idle", "green", 1.3),
-        ("speaking", "green", 1.8), ("idle", "red", 1.3), ("off", "red", 1.0)]
+# v2.0: la prueba dura 15 s; cada estado se ve unos 2 s
+DEMO = [("listening", "base", 1.9), ("searching", "purple", 1.9), ("searching", "yellow", 1.9),
+        ("searching", "white", 1.5), ("idle", "green", 1.9),
+        ("speaking", "green", 2.5), ("idle", "red", 1.9), ("off", "red", 1.5)]
 
 
 class Overlay(threading.Thread):
@@ -260,8 +274,15 @@ class Overlay(threading.Thread):
                 "game": bool(_game_window_rect())}
 
     def _frame_maker(self, size: int) -> FrameMaker:
-        if self._maker is None or self._maker.size != size:
-            self._maker = FrameMaker(size)
+        path = logo_path(self.settings)
+        if self._maker is None or self._maker.size != size or getattr(self._maker, "path", None) != path:
+            try:
+                self._maker = FrameMaker(size, path)
+            except Exception:  # noqa: BLE001  (un PNG propio roto: el de NOVA)
+                log.exception("logo del overlay")
+                self._maker = FrameMaker(size)
+                path = LOGO
+            self._maker.path = path
         return self._maker
 
     def _demo_state(self, now: float) -> tuple[str, float, str]:

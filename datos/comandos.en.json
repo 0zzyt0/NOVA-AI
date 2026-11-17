@@ -368,7 +368,9 @@
     "lock target",
     "lock the target",
     "mark the target",
-    "select target"
+    "select target",
+    "pin the target",
+    "pin target"
    ],
    "respuestas": [
     "Target changed."

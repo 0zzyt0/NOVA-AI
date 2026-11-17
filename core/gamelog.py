@@ -147,6 +147,12 @@ JUMP_STATION = re.compile(r"(?i)^rr_jp_([a-z]+?)(stanton|pyro|nyx|castra|magnus|
 SYS_SHORT = {"stan": "Stanton", "pyro": "Pyro", "nyx": "Nyx", "cast": "Castra", "magn": "Magnus", "terr": "Terra"}
 
 
+def _tr(text: str, **kw) -> str:
+    """v2.0: los nombres de sitios que pone Nova (no el juego) en el idioma elegido."""
+    from .i18n import tr
+    return tr(text, **kw)
+
+
 def pretty_loc(raw: str, text=None) -> str:
     """Códigos internos -> nombres: RR_CRU_LEO -> Seraphim Station, Stanton1_Lorville -> Lorville (Hurston).
     Con el global.ini del juego se usan además los nombres oficiales en tu idioma."""
@@ -158,11 +164,11 @@ def pretty_loc(raw: str, text=None) -> str:
     m = JUMP.match(t)
     if m:
         a, b = (SYS_SHORT.get(x[:4], x.capitalize()) for x in m.groups())
-        return f"punto de salto {a} → {b}"
+        return _tr("punto de salto {a} → {b}", a=a, b=b)
     m = JUMP_STATION.match(t)
     if m:
         a, b = (SYS_SHORT.get(x[:4], x.capitalize()) for x in m.groups())
-        return f"estación del salto {a}-{b} (lado {a})"
+        return _tr("estación del salto {a}-{b} (lado {a})", a=a, b=b)
     if text is not None:
         local = text.local(t) or text.local(re.sub(r"^(?:LOC_|OOC_)", "", t))
         if local and len(local) <= 60 and "%" not in local:
@@ -175,13 +181,14 @@ def pretty_loc(raw: str, text=None) -> str:
         if name:
             return name
         body = PLANETS.get(m.group(1), m.group(1).upper())
-        return f"estación de descanso de {body}" if m.group(2) == "leo" else f"{m.group(1).upper()}-{m.group(2).upper()}"
+        return _tr("estación de descanso de {b}", b=body) if m.group(2) == "leo" else f"{m.group(1).upper()}-{m.group(2).upper()}"
     m = re.fullmatch(r"rr_jp_\w+?(stanton|pyro|nyx|castra|magnus|terra)", low)
     if m:
-        return f"puerta de salto a {SYSTEMS[m.group(1)]}"
+        return _tr("puerta de salto a {s}", s=SYSTEMS[m.group(1)])
     for key, name in CITIES.items():
         if key in low.replace("_", ""):
             body = next((b for code, b in BODIES.items() if code in low), "")
+            name = _tr(name)
             return f"{name} ({body})" if body and body not in name else name
     t = re.sub(r"^(OOC_|ObjectContainer_)", "", t)
     m = re.fullmatch(r"(?i)(stanton|pyro|nyx)_(\d[a-f]?)_(.+)", t)
@@ -200,7 +207,7 @@ def pretty_loc(raw: str, text=None) -> str:
 def pretty_dest(raw: str, text=None) -> str:
     low = (raw or "").lower()
     if low.startswith("partymembermarker"):
-        return "un miembro del grupo"
+        return _tr("un miembro del grupo")
     if low.startswith(("navpoint_dynamic", "mission_qt")) or re.search(r"final|_encounter|_dungeon|_cluster_", low):
         return ""
     m = re.fullmatch(r"(?i)loc_rr_s([1-4])_l(\d)", raw or "")
@@ -380,6 +387,20 @@ COMMENTS = {
 INJURY = {"minor": "leve", "moderate": "moderada", "major": "grave", "severe": "muy grave"}
 
 
+def game_log_in(folder: str) -> Path | None:
+    """v2.0: el Game.log dentro de la carpeta del juego que eligió el jugador (StarCitizen, LIVE, PTU…)."""
+    if not folder:
+        return None
+    base = Path(folder)
+    for p in [base / "Game.log"] + [base / ch / "Game.log" for ch in ("LIVE", "PTU", "EPTU", "HOTFIX", "TECH-PREVIEW")]:
+        try:
+            if p.is_file():
+                return p
+        except OSError:
+            pass
+    return None
+
+
 def find_game_log() -> Path | None:
     """Busca el Game.log más reciente en las carpetas habituales de todas las unidades."""
     candidates = []
@@ -446,6 +467,8 @@ class GameLog(threading.Thread):
         self.status = "inactivo"
         self._record = ""
         self._seen: dict[str, float] = {}
+        self._armistice: bool | None = None  # v2.0: dentro o fuera de la zona de armisticio
+        self._armistice_t = -1e9
         self._replaying = False
         self._qt_target = ""
         self._qt_raw = ""
@@ -494,6 +517,16 @@ class GameLog(threading.Thread):
         detail = detail or " · ".join(str(v) for k, v in data.items() if v and k != "raw")
         key = f"{kind}|{detail}"
         now = self._now or time.time()
+        if kind in ("zona_armisticio_entra", "zona_armisticio_sale"):
+            # v2.0: un solo aviso al entrar y otro al salir. El juego lo repite (y llega por dos vías: texto
+            # en inglés y clave del global.ini); en el borde de la zona entra y sale en segundos.
+            inside = kind == "zona_armisticio_entra"
+            quick = now - self._armistice_t < 20
+            if self._armistice is inside:
+                return
+            self._armistice, self._armistice_t = inside, now
+            if quick:
+                return
         if abs(now - self._seen.get(key, -1e9)) < 3:  # el juego repite el mismo aviso varias veces
             return
         self._seen[key] = now
@@ -921,7 +954,7 @@ class GameLog(threading.Thread):
         custom = self.settings.get("gamelog_ruta")
         if custom and Path(custom).exists():
             return Path(custom)
-        return find_game_log()
+        return game_log_in(self.settings.get("juego_carpeta") or "") or find_game_log()
 
     def load_texts(self, path: Path | None = None, force: bool = False) -> None:
         """Carga (o recarga si cambió) el global.ini del juego para entender los avisos en tu idioma."""
