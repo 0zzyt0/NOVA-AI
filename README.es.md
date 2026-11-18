@@ -60,6 +60,31 @@ Un ejemplo: con una sola mano en la palanca, *«Nova, listo para volar»*, *«pi
 - **Avisos:** la zona de armisticio se anuncia una sola vez al entrar y otra al salir; *Probar en pantalla* dura 15 s; la vista previa del overlay lleva de fondo una escena del juego.
 - **Mistral** es de pago desde agosto de 2026: sale de la cadena de motores de fábrica, pero puedes poner tu propia clave.
 
+### A tu gusto
+
+**Siete temas de color** (*Pantalla › Aspecto*). Los colores de estado (verde, amarillo, rojo y morado) no cambian, para que sigan significando lo mismo:
+
+![Los siete temas de color](docs/img/temas.jpg)
+
+| | |
+|---|---|
+| ![Tu propio logo en el overlay](docs/img/logo_propio.jpg)<br><sub>**Logo del overlay:** seis diseños de serie o **tu propio PNG** (aquí un emblema de escuadrón), teñido con los colores de estado sobre una escena del juego</sub> | ![Estilos de voz](docs/img/voz_estilos.jpg)<br><sub>**Estilos de voz** con el aire de las IA de a bordo del cine, y nombres del juego dichos en inglés</sub> |
+
+**Efectos de voz:** IA de cabina, comunicador del casco, radio y walkie-talkie, cada uno con su intensidad.
+
+<p align="center"><img src="docs/img/voz_efectos.jpg" width="720" alt="Efecto de voz e intensidad"></p>
+
+![Qué hace cada efecto de voz](docs/img/voz_espectro.jpg)
+
+**Hologramas nuevos:** cuatro modelos de tarjeta (Clásico, Biselado, Cristal y Táctico), cuatro formas de aparecer y letra más gruesa.
+
+| | |
+|---|---|
+| ![Los cuatro modelos de holograma](docs/img/holo_modelos.jpg)<br><sub>**Modelos de tarjeta** sobre el juego</sub> | ![Ajustes de los hologramas](docs/img/holo_ajustes.jpg)<br><sub>**Pantalla › Hologramas:** modelo, cómo aparece y grosor de la letra</sub> |
+
+![Cómo aparecen los hologramas](docs/img/holo_entradas.jpg)
+<sub>De arriba abajo: el holograma apareciendo y ya completo con cada efecto de entrada.</sub>
+
 ## Novedades de la 1.5
 
 - **Compras en la bitácora:** Nova lee del `Game.log` lo que compras (con el nombre del objeto en tu idioma) y lo apunta en la bitácora y en el resumen de la sesión; las *Estadísticas de piloto* suman los aUEC gastados en tiendas. Si una compra falla, te avisa.
@@ -98,7 +123,7 @@ Un ejemplo: con una sola mano en la palanca, *«Nova, listo para volar»*, *«pi
 
 ## Novedades de la 1.3
 
-![NOVA AI en inglés y en alemán](docs/img/idiomas.jpg)
+![NOVA AI en inglés, alemán, francés y catalán](docs/img/idiomas.jpg)
 
 - **Cinco idiomas**: español, English, català, français y Deutsch. Se eligen en el primer paso del instalador (propone el de tu Windows) o en *Ajustes › General*. Cambia la ventana, la voz de Nova (Edge y Piper), lo que entiende, los comandos de voz, los hologramas, la bitácora, las normas de uso y el manual. Quien ya usaba NOVA AI sigue en español.
 - **«Add your Language global.ini of Star Citizen [HERE]»** (traducido a cada idioma), en *Datos y memoria › Traducción del juego*: instala el `global.ini` de la comunidad en tu idioma con copia de seguridad, ajusta `user.cfg` y Nova lo usa para entender el `Game.log`. Se deshace con un botón. En los idiomas distintos del español se desactivan la traducción de 0zzyt0 y su descarga de Google Drive.
@@ -172,7 +197,7 @@ El instalador descarga Python 3.12 si no lo tienes (solo para Nova), crea los ac
 >
 > Para comprobar que el archivo es el original, compara la huella SHA-256 que muestra GitHub junto a cada archivo de la Release con la de tu descarga: `certutil -hashfile "NOVA AI Setup.exe" SHA256`.
 
-<p align="center"><img src="docs/img/asistente.jpg" width="720" alt="Configuración inicial"></p>
+<p align="center"><img src="docs/img/asistente.jpg" width="720" alt="Configuración inicial: tu juego y su Game.log"></p>
 
 ## Motores de IA y claves
 

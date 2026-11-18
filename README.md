@@ -59,6 +59,31 @@ For example, with one hand on the stick: *"Nova, flight ready"*, *"request takeo
 - **Alerts:** the armistice zone is announced only once when entering and once when leaving; *Test on screen* lasts 15 s; the overlay preview shows a game scene.
 - **Mistral** became paid in August 2026: it's no longer in the default engine chain, but you can still add your own key.
 
+### Make it yours
+
+**Seven colour themes** (*Screen › Appearance*). Status colours (green, yellow, red, purple) never change, so they keep their meaning:
+
+![The seven colour themes](docs/img/en/temas.jpg)
+
+| | |
+|---|---|
+| ![Your own overlay logo](docs/img/en/logo_propio.jpg)<br><sub>**Overlay logo:** six built-in designs or **your own PNG** (here a squadron badge), tinted with the status colours over a game scene</sub> | ![Voice styles](docs/img/en/voz_estilos.jpg)<br><sub>**Voice styles** with the feel of film onboard AIs, and game names said in English</sub> |
+
+**Voice effects:** cockpit AI, helmet comms, radio and walkie-talkie, each with its own strength.
+
+<p align="center"><img src="docs/img/en/voz_efectos.jpg" width="720" alt="Voice effect and strength"></p>
+
+![What each voice effect does](docs/img/en/voz_espectro.jpg)
+
+**New holograms:** four card styles (Classic, Bevelled, Glass, Tactical), four ways to appear and thicker lettering.
+
+| | |
+|---|---|
+| ![The four hologram styles](docs/img/en/holo_modelos.jpg)<br><sub>**Card styles** over the game</sub> | ![Hologram settings](docs/img/en/holo_ajustes.jpg)<br><sub>**Screen › Holograms:** card style, how it appears and letter weight</sub> |
+
+![How holograms appear](docs/img/en/holo_entradas.jpg)
+<sub>From top to bottom: the hologram appearing and fully shown with each entrance effect.</sub>
+
 ## What's new in 1.5
 
 - **Shop purchases in the logbook:** Nova reads what you buy from `Game.log` (with the item name in your language) and adds it to the logbook and the session summary; *Pilot statistics* add up the aUEC you spend in shops. A failed purchase is announced.
@@ -97,7 +122,7 @@ For example, with one hand on the stick: *"Nova, flight ready"*, *"request takeo
 
 ## What's new in 1.3
 
-![NOVA AI in English and German](docs/img/idiomas.jpg)
+![NOVA AI in English, German, French and Catalan](docs/img/idiomas.jpg)
 
 - **Five languages**: English, español, català, français and Deutsch. Choose one in the first step of the installer (it suggests your Windows language) or in *Settings › General*. It changes the window, Nova's voice (Edge and Piper), what she understands, the voice commands, the holograms, the logbook, the terms of use and the manual. Existing users stay in Spanish.
 - **"Add your Language global.ini of Star Citizen [HERE]"** (translated into each language) in *Data & memory › Game language*: it installs the community `global.ini` for your language with a backup, sets `user.cfg`, and Nova uses it to understand `Game.log`. One click undoes it. In languages other than Spanish, the 0zzyt0 Spanish translation and its Google Drive download are turned off.
@@ -173,7 +198,7 @@ The installer downloads Python 3.12 if you don't have it (for Nova only), create
 >
 > To check that the file is the original, compare the SHA-256 shown by GitHub next to each Release file with your download: `certutil -hashfile "NOVA AI Setup.exe" SHA256`.
 
-<p align="center"><img src="docs/img/asistente.jpg" width="720" alt="Initial setup"></p>
+<p align="center"><img src="docs/img/en/asistente.jpg" width="720" alt="First-start setup: your game and its Game.log"></p>
 
 ## AI engines and keys
 
