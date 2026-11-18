@@ -81,8 +81,8 @@ For example, with one hand on the stick: *"Nova, flight ready"*, *"request takeo
 |---|---|
 | ![The four hologram styles](docs/img/en/holo_modelos.jpg)<br><sub>**Card styles** over the game</sub> | ![Hologram settings](docs/img/en/holo_ajustes.jpg)<br><sub>**Screen › Holograms:** card style, how it appears and letter weight</sub> |
 
-![How holograms appear](docs/img/en/holo_entradas.jpg)
-<sub>From top to bottom: the hologram appearing and fully shown with each entrance effect.</sub>
+<p align="center"><img src="docs/img/en/holo_animacion.gif" width="720" alt="The four ways a hologram appears and disappears"></p>
+<p align="center"><sub>The four ways a hologram appears and disappears over the game: <b>Projector</b>, <b>Sweep</b>, <b>Unfold</b> and <b>Transmission</b>.</sub></p>
 
 ## What's new in 1.5
 

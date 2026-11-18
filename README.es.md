@@ -82,8 +82,8 @@ Un ejemplo: con una sola mano en la palanca, *«Nova, listo para volar»*, *«pi
 |---|---|
 | ![Los cuatro modelos de holograma](docs/img/holo_modelos.jpg)<br><sub>**Modelos de tarjeta** sobre el juego</sub> | ![Ajustes de los hologramas](docs/img/holo_ajustes.jpg)<br><sub>**Pantalla › Hologramas:** modelo, cómo aparece y grosor de la letra</sub> |
 
-![Cómo aparecen los hologramas](docs/img/holo_entradas.jpg)
-<sub>De arriba abajo: el holograma apareciendo y ya completo con cada efecto de entrada.</sub>
+<p align="center"><img src="docs/img/holo_animacion.gif" width="720" alt="Las cuatro formas de aparecer y desaparecer de un holograma"></p>
+<p align="center"><sub>Las cuatro formas en que un holograma aparece y desaparece sobre el juego: <b>Proyector</b>, <b>Barrido</b>, <b>Despliegue</b> y <b>Transmisión</b>.</sub></p>
 
 ## Novedades de la 1.5
 
