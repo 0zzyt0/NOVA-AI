@@ -11,7 +11,7 @@ from typing import Callable
 
 import numpy as np
 
-from . import extras, gamechat, i18n, lang_data
+from . import extras, gamechat, i18n, lang_data, profile
 from .commands import CommandBook, _partial, _similarity, normalize, simplify
 from .config import Settings
 from .gamelog import GameEvent, GameLog, comment_for, find_game_log
@@ -74,6 +74,7 @@ class Nova:
         self.settings = settings
         i18n.set_lang(settings.get("idioma"))
         self.memory = Memory()
+        self.memory.profile.set_field("nombre", settings.get("nombre_piloto") or "", overwrite=False)
         self.gamelog = GameLog(settings, on_event=self._on_game_event)
         self.commands = CommandBook(settings, gamelog_path_fn=lambda: self.gamelog.path or find_game_log())
         self.tools = Tools(settings, self.commands, self.memory, self.gamelog)
@@ -946,6 +947,11 @@ class Nova:
         self.on_message("juego", f"📡 {label}: {ev.detail}" if ev.detail else f"📡 {label}")
         if ev.kind == "nave_subes" and not ev.replay:
             extras.remember_ship(self.settings, (ev.data or {}).get("nave", ""))
+        if self.settings.get("perfil_auto", True) and not self.training:  # v2.0.1: naves, misiones y planos al .txt
+            try:
+                profile.on_game_event(self.memory.profile, ev, self.gamelog.player)
+            except Exception:  # noqa: BLE001 — un archivo bloqueado no debe parar los avisos
+                log.exception("perfil del piloto")
         if not ev.replay and not self.training:
             if ev.kind in ("contrato_aceptado", "objetivo_nuevo"):
                 self._check_bounty(ev)

@@ -14,7 +14,7 @@ import os
 import threading
 from pathlib import Path
 
-VERSION = "2.0.0"
+VERSION = "2.0.1"
 APP_NAME = "NOVA AI"
 APP_DIR = Path(__file__).resolve().parent.parent
 FACTORY_DIR = APP_DIR / "datos"  # archivos de fábrica que vienen con el programa (solo lectura)
@@ -62,6 +62,7 @@ DATA_DIR = pick_data_dir()
 SETTINGS_FILE = DATA_DIR / "ajustes.json"
 COMMANDS_FILE = FACTORY_DIR / "comandos.json"
 MEMORY_FILE = DATA_DIR / "memoria.json"
+PROFILE_FILE = DATA_DIR / "lo_que_sabe_de_ti.txt"  # v2.0.1: lo que Nova sabe de ti (texto editable)
 SESSION_FILE = DATA_DIR / "sesion.json"
 MODELS_DIR = DATA_DIR / "modelos"
 LOG_FILE = DATA_DIR / "nova.log"
@@ -123,6 +124,7 @@ DEFAULTS: dict = {
     "globalini_idioma_antes": "",  # g_language que había antes (para deshacerlo)
     "nombre_asistente": "Nova",  # se puede llamar como quieras: se entrena en la configuración inicial
     "nombre_piloto": "",
+    "perfil_auto": True,  # v2.0.1: anotar naves, misiones y planos en lo_que_sabe_de_ti.txt
     "tratamiento": "señor",
     "asistente_completado": False,  # False = al abrir sale la ventana de configuración inicial
     "nombre_variantes": [],  # cómo escribe Whisper el nombre cuando TÚ lo dices (aprendido)

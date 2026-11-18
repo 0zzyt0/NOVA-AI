@@ -578,10 +578,23 @@
       </div>
       <div class="subsec" data-sub="memoria">
             <div class="panel">
-        <div class="panel-h"><span>LO QUE <span class="ai-name up">Nova</span> SABE DE TI</span></div>
-        <div class="facts" id="facts"></div>
-        <p class="muted">Dile por ejemplo «<span class="ai-name">Nova</span>, recuerda que mi nave es una Cutlass Black» y lo tendrá en cuenta siempre.</p>
-        <div class="row gap"><button class="btn" id="btnClearHist">BORRAR CONVERSACIÓN</button><button class="btn danger" id="btnClearFacts">OLVIDAR TODO</button></div>
+        <div class="panel-h"><span>LO QUE <span class="ai-name up">Nova</span> SABE DE TI</span><span class="chip" id="profChip">—</span></div>
+        <p class="muted">Lo guarda en un archivo de texto, <code>lo_que_sabe_de_ti.txt</code>, que lee antes de responderte. Puedes cambiarlo aquí o con el Bloc de notas: <span class="ai-name">Nova</span> respeta tus cambios al momento. Dile también «<span class="ai-name">Nova</span>, recuerda que mi organización es…» o «olvida lo de…».</p>
+        <div class="save-stats prof-stats">
+          <div><b id="profNaves">0</b><span>NAVES</span></div>
+          <div><b id="profMis">0</b><span>MISIONES</span></div>
+          <div><b id="profPlanos">0</b><span>PLANOS</span></div>
+          <div><b id="profOtros">0</b><span>OTROS DATOS</span></div>
+        </div>
+        <textarea id="profText" class="prof-text" rows="16" spellcheck="false" data-no-i18n></textarea>
+        <div class="row gap wrap prof-actions">
+          <button class="btn pri" id="btnProfSave" disabled>GUARDAR CAMBIOS</button>
+          <button class="btn" id="btnProfUndo" disabled>DESHACER</button>
+          <button class="btn" id="btnProfOpen">ABRIR CON EL BLOC DE NOTAS</button>
+          <span class="muted small" id="profMsg"></span>
+        </div>
+        <div class="field" style="margin-top:12px"><label>Anotar sola tus naves, misiones completadas y planos (del Game.log)</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="perfil_auto"><i></i></span></div></div>
+        <div class="row gap" style="margin-top:12px"><button class="btn" id="btnClearHist">BORRAR CONVERSACIÓN</button><button class="btn danger" id="btnClearFacts">BORRAR TODO LO QUE SABE DE TI</button></div>
       </div>
       </div>
       <div class="subsec" data-sub="bitacora">

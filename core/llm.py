@@ -116,7 +116,9 @@ def system_prompt(settings, memory, gamelog, commands_ok: bool, phrase: str = FI
 
 ## Lo que sabes del piloto (memoria)
 {memory.facts_text()}
-Si el piloto cuenta algo útil de sí mismo (su nave, su organización, sus gustos), guárdalo con 'recordar'.
+(Es el archivo «lo que sabe de ti», que el piloto puede leer y editar.) Si el piloto cuenta algo útil de sí mismo
+(su nombre, sus naves, su organización, sus gustos o planes), guárdalo con 'recordar'; si pide que olvides algo, usa 'olvidar'.
+Las misiones completadas, las naves y los planos se anotan solos desde el Game.log: no los guardes tú.
 
 ## Situación actual
 Fecha y hora real: {time.strftime('%A %d/%m/%Y %H:%M')}

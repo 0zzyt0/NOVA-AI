@@ -1,4 +1,4 @@
-"""Memoria entre sesiones: datos sobre el piloto y las últimas conversaciones."""
+"""Memoria entre sesiones: lo que sabe del piloto (en datos/lo_que_sabe_de_ti.txt, v2.0.1) y las últimas conversaciones."""
 from __future__ import annotations
 
 import json
@@ -6,7 +6,8 @@ import os
 import threading
 import time
 
-from .config import MEMORY_FILE
+from .config import MEMORY_FILE, PROFILE_FILE
+from .profile import Profile
 
 
 class Memory:
@@ -18,6 +19,7 @@ class Memory:
         self.facts: list[dict] = []
         self.history: list[dict] = []
         self.dirty = False
+        self.profile = Profile(PROFILE_FILE)
         self.load()
 
     def load(self) -> None:
@@ -27,11 +29,25 @@ class Memory:
             self.history = d.get("historial", [])
         except (OSError, ValueError):
             pass
+        # v2.0.1: los datos pasan al archivo de texto (una sola vez)
+        old = [f.get("texto", "") for f in self.facts if isinstance(f, dict)]
+        if not self.profile.exists():
+            self.profile.ensure(facts=old)
+        else:  # p. ej. una copia de seguridad anterior a la 2.0.1
+            for f in old:
+                self.profile.add_item("otros", f)
+        if self.facts:
+            self.facts = []
+            try:
+                self.save()
+            except OSError:
+                pass
 
     def wipe(self) -> None:
         """Olvidarlo todo (datos y conversación)."""
         with self._lock:
             self.facts, self.history = [], []
+        self.profile.delete()
         self.save()
 
     def save(self) -> None:
@@ -44,31 +60,23 @@ class Memory:
             self.dirty = False
 
     # ----------------------------------------------------------------- datos
-    def remember(self, fact: str) -> str:
-        fact = fact.strip()
+    def remember(self, fact: str, seccion: str = "otros") -> str:
+        fact = " ".join((fact or "").split())
         if not fact:
             return "Nada que recordar."
-        with self._lock:
-            low = fact.lower()
-            self.facts = [f for f in self.facts if f["texto"].lower() != low]
-            self.facts.append({"texto": fact, "fecha": time.strftime("%Y-%m-%d")})
-            self.facts = self.facts[-self.MAX_FACTS:]
-        self.save()
+        sec = seccion if seccion in ("naves", "otros", "misiones", "planos") else "otros"
+        if sec == "naves":
+            self.profile.add_item("naves", fact, key=fact)
+        else:
+            self.profile.add_item(sec, fact)
         return f"Recordado: {fact}"
 
     def forget(self, query: str) -> str:
-        q = query.lower().strip()
-        with self._lock:
-            before = len(self.facts)
-            self.facts = [f for f in self.facts if q not in f["texto"].lower()]
-            removed = before - len(self.facts)
-        self.save()
+        removed = self.profile.forget(query)
         return f"Olvidados {removed} datos." if removed else "No encontré nada parecido en la memoria."
 
     def facts_text(self) -> str:
-        if not self.facts:
-            return "(todavía no sabes nada del piloto)"
-        return "\n".join(f"- {f['texto']}" for f in self.facts)
+        return self.profile.for_ai()
 
     # ------------------------------------------------------------- historial
     def add_turn(self, role: str, content: str) -> None:

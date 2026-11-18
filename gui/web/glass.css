@@ -225,3 +225,10 @@ body.asleep #sideMeter{opacity:.25}
 .tour-foot{display:flex;gap:8px;align-items:center}
 .tour-foot span{flex:1}
 body.touring .modal{display:none}
+
+/* 2.0.1 · las ventanas emergentes (editor de comandos, cuestionario, actualización)
+   recuperan su barra de desplazamiento: .panel{overflow:visible} la anulaba */
+.modal>.modal-box{overflow-y:auto;overflow-x:hidden;max-height:calc(100vh - 32px);overscroll-behavior:contain;scrollbar-gutter:stable}
+.modal>.modal-box::-webkit-scrollbar{width:10px}
+.modal>.modal-box::-webkit-scrollbar-thumb{background:rgba(111,216,255,.35);border-radius:5px;border:2px solid transparent;background-clip:padding-box}
+.modal>.modal-box::-webkit-scrollbar-track{background:rgba(0,0,0,.25)}

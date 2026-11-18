@@ -462,6 +462,8 @@ class UIServer:
         if key == "nombre_asistente":
             return wake.rename(s, str(value or ""))
         s.set(key, value)
+        if key == "nombre_piloto" and value:
+            n.memory.profile.set_field("nombre", str(value))  # v2.0.1: también en lo que sabe de ti
         if key in ("tts_voz_edge", "tts_velocidad", "tts_tono", "tts_efecto_radio", "tts_efecto", "tts_efecto_fuerza", "tts_motor"):
             s.set("tts_estilo", "")  # v2.0: retocada a mano = ya no es un estilo
         if key == "sensibilidad_vad" and n.listener:
@@ -595,17 +597,37 @@ class UIServer:
         threading.Thread(target=run, daemon=True).start()
         return True
 
-    # --- memoria
+    # --- memoria · v2.0.1: lo que sabe de ti, en un archivo de texto
     def api_memory(self) -> dict:
-        return {"facts": self.nova.memory.facts}
+        pr = self.nova.memory.profile
+        if not pr.exists():
+            pr.ensure(self.nova.settings.get("nombre_piloto") or "")
+        try:
+            mt = pr.path.stat().st_mtime
+        except OSError:
+            mt = 0
+        return {"texto": pr.read(), "ruta": str(pr.path), "cambiado": mt,
+                "naves": len(pr.items("naves")), "misiones": len(pr.items("misiones")),
+                "planos": len(pr.items("planos")), "otros": len(pr.items("otros"))}
+
+    def api_memory_save(self, texto: str) -> dict:
+        self.nova.memory.profile.save_text(str(texto or ""))
+        return self.api_memory()
+
+    def api_memory_open(self) -> bool:
+        pr = self.nova.memory.profile
+        if not pr.exists():
+            pr.ensure(self.nova.settings.get("nombre_piloto") or "")
+        if sys.platform == "win32":
+            os.startfile(str(pr.path))  # noqa: S606 — se abre con el Bloc de notas (o el editor de .txt)
+        return True
 
     def api_forget(self, text: str) -> dict:
         self.nova.memory.forget(text)
         return self.api_memory()
 
     def api_clear_facts(self) -> dict:
-        self.nova.memory.facts = []
-        self.nova.memory.save()
+        self.nova.memory.profile.reset(self.nova.settings.get("nombre_piloto") or "")
         return self.api_memory()
 
     def api_clear_chat(self) -> bool:
@@ -945,6 +967,7 @@ class UIServer:
     def api_setup_save(self, piloto: str, nombre: str, tratamiento: str = "") -> dict:
         s = self.nova.settings
         s.set("nombre_piloto", " ".join((piloto or "").split())[:40], save=False)
+        self.nova.memory.profile.set_field("nombre", s.get("nombre_piloto"))  # v2.0.1
         if tratamiento.strip():
             s.set("tratamiento", tratamiento.strip()[:30], save=False)
         wake.rename(s, nombre)

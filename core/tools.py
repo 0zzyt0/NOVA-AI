@@ -246,8 +246,12 @@ class Tools:
                 "parameters": {"type": "object", "properties": {}}}},
             {"type": "function", "function": {
                 "name": "recordar",
-                "description": "Guarda en la memoria permanente un dato útil sobre el piloto (su nave, gustos, organización, planes).",
-                "parameters": {"type": "object", "properties": {"dato": {"type": "string"}}, "required": ["dato"]}}},
+                "description": "Guarda en la memoria permanente (el archivo «lo que sabe de ti») un dato útil sobre el piloto: "
+                               "gustos, organización, planes… Para una nave suya usa seccion='naves' con solo el nombre de la nave.",
+                "parameters": {"type": "object", "properties": {
+                    "dato": {"type": "string"},
+                    "seccion": {"type": "string", "enum": ["otros", "naves"], "description": "Por defecto 'otros'."}},
+                    "required": ["dato"]}}},
             {"type": "function", "function": {
                 "name": "olvidar",
                 "description": "Borra de la memoria los datos que contengan un texto.",
@@ -734,8 +738,8 @@ class Tools:
                 pass
         return self.stats.describe(periodo)
 
-    def t_recordar(self, dato: str) -> str:
-        return self.memory.remember(dato)
+    def t_recordar(self, dato: str, seccion: str = "otros") -> str:
+        return self.memory.remember(dato, seccion)
 
     def t_olvidar(self, texto: str) -> str:
         return self.memory.forget(texto)

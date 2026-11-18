@@ -462,13 +462,49 @@ const saveChain = safe(async () => {
 });
 
 // ------------------------------------------------------------- memoria
-const loadMemory = safe(async () => {
-  const m = await api("memory");
-  $("#facts").innerHTML = m.facts.length ? m.facts.map((f) => `<div class="fact"><span>${esc(f.texto)}</span><small>${esc(f.fecha)}</small><button class="icon-btn" data-forget="${esc(f.texto)}" title="Olvidar">✕</button></div>`).join("")
-    : `<div class="empty">Todavía no sabe nada de ti.</div>`;
-  $$("[data-forget]").forEach((b) => b.addEventListener("click", safe(async () => { await api("forget", { text: b.dataset.forget }); loadMemory(); })));
+// v2.0.1: lo que sabe de ti = un archivo de texto (datos/lo_que_sabe_de_ti.txt)
+let PROF = { texto: "", cambiado: 0 };
+const profDirty = () => $("#profText").value !== PROF.texto;
+const profUi = () => {
+  const d = profDirty();
+  $("#profText").classList.toggle("dirty", d);
+  $("#btnProfSave").disabled = !d; $("#btnProfUndo").disabled = !d;
+};
+const paintMemory = (m, force) => {
+  const keep = !force && profDirty();  // no pisar lo que estás escribiendo
+  PROF = m;
+  if (!keep) $("#profText").value = m.texto;
+  $("#profNaves").textContent = m.naves; $("#profMis").textContent = m.misiones;
+  $("#profPlanos").textContent = m.planos; $("#profOtros").textContent = m.otros;
+  $("#profChip").textContent = (m.ruta || "").split(/[\\/]/).pop();
+  $("#profChip").title = m.ruta || "";
+  profUi();
+};
+const loadMemory = safe(async (force) => paintMemory(await api("memory"), force === true));
+$("#profText").addEventListener("input", profUi);
+$("#profText").addEventListener("keydown", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") { e.preventDefault(); if (profDirty()) $("#btnProfSave").click(); }
 });
-$("#btnClearFacts").addEventListener("click", safe(async () => { if (confirm(`¿Olvidar todo lo que ${S.nombre_asistente || "Nova"} sabe de ti?`)) { await api("clear_facts"); loadMemory(); } }));
+$("#btnProfSave").addEventListener("click", safe(async () => {
+  paintMemory(await api("memory_save", { texto: $("#profText").value }), true);
+  $("#profMsg").textContent = ""; toast("Guardado en lo_que_sabe_de_ti.txt", "ok");
+}));
+$("#btnProfUndo").addEventListener("click", () => { $("#profText").value = PROF.texto; profUi(); });
+$("#btnProfOpen").addEventListener("click", safe(() => api("memory_open")));
+// si cambia por fuera (Bloc de notas, o se anota una misión) mientras miras la pestaña, se actualiza
+setInterval(safe(async () => {
+  const sub = document.querySelector('#sec-datos .subsec[data-sub="memoria"]');
+  if (!sub || !sub.classList.contains("on") || document.hidden || !$("#sec-datos").classList.contains("on")) return;
+  const m = await api("memory");
+  if (m.cambiado === PROF.cambiado) return;
+  if (profDirty()) { $("#profMsg").textContent = "El archivo ha cambiado por fuera: guarda o deshaz para verlo."; PROF.cambiado = m.cambiado; return; }
+  paintMemory(m, true); $("#profMsg").textContent = "";
+}), 3000);
+$("#btnClearFacts").addEventListener("click", safe(async () => {
+  if (confirm(`¿Borrar todo lo que ${S.nombre_asistente || "Nova"} sabe de ti? El archivo vuelve a quedar en blanco.`)) {
+    paintMemory(await api("clear_facts"), true); toast("Borrado", "ok");
+  }
+}));
 $("#btnClearHist").addEventListener("click", safe(async () => { await api("clear_history"); $("#chat").innerHTML = ""; toast("Conversación borrada", "ok"); }));
 $$("[data-open]").forEach((b) => b.addEventListener("click", safe(() => api("open", { what: b.dataset.open }))));
 

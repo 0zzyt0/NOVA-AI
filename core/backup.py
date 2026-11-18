@@ -19,7 +19,7 @@ EXT = ".novacopia"
 PARTS: dict[str, tuple[str, list[str]]] = {
     "ajustes": ("Ajustes", ["ajustes.json", "logo_overlay.png", "sonidos"]),
     "comandos": ("Comandos de voz", ["comandos_personales.json"]),
-    "memoria": ("Memoria y diccionario", ["memoria.json", "Diccionario_de_consultas.txt", "temporizadores.json"]),
+    "memoria": ("Memoria y diccionario", ["memoria.json", "lo_que_sabe_de_ti.txt", "Diccionario_de_consultas.txt", "temporizadores.json"]),
     "bitacora": ("Bitácora", ["diario"]),
 }
 # Ajustes que dependen de este PC: al importar se conservan los de aquí
