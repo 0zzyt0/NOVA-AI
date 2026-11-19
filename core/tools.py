@@ -36,6 +36,22 @@ def _fmt(n: Any) -> str:
         return str(n)
 
 
+def _clean_args(fn, args) -> dict:
+    """v2.0.2: algunos modelos (gpt-oss en Groq) mandan {'': {}} o campos inventados: se quitan los que
+    la herramienta no admite en vez de fallar con «Argumentos no válidos»."""
+    import inspect
+
+    if not isinstance(args, dict):
+        return {}
+    try:
+        params = inspect.signature(fn).parameters
+    except (TypeError, ValueError):
+        return args
+    if any(p.kind is p.VAR_KEYWORD for p in params.values()):
+        return {k: v for k, v in args.items() if k}
+    return {k: v for k, v in args.items() if k in params}
+
+
 class Tools:
     def __init__(self, settings, commands, memory, gamelog) -> None:
         self.settings, self.commands, self.memory, self.gamelog = settings, commands, memory, gamelog
@@ -264,8 +280,9 @@ class Tools:
         if not fn:
             return f"Herramienta desconocida: {name}"
         self.on_tool(name, True)
+        args = _clean_args(fn, args)
         try:
-            out = fn(**(args or {}))
+            out = fn(**args)
         except TypeError as e:
             out = f"Argumentos no válidos: {e}"
         except requests.RequestException as e:

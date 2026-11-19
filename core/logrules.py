@@ -27,11 +27,11 @@ CONST = {
 
 RULE_KEYS: list[tuple[str, str, tuple[str, ...], tuple[str, ...], str]] = [
     # ------------------------------------------------------------ ubicación y zonas
-    ("zona_armisticio_entra", "ubicacion", ("hud_enter_green_zone",), (), "title"),
-    ("zona_armisticio_sale", "ubicacion", ("hud_leave_green_zone",), (), "title"),
+    ("zona_armisticio_entra", "zonas", ("hud_enter_green_zone",), (), "title"),
+    ("zona_armisticio_sale", "zonas", ("hud_leave_green_zone",), (), "title"),
     ("espacio_vigilado_entra", "", ("hud_monitored_space_enter", "text_hostility_EnterMonitoredArea"), (), "title"),
     ("espacio_vigilado_sale", "", ("hud_monitored_space_leave", "text_hostility_LeaveMonitoredArea"), (), "title"),
-    ("jurisdiccion", "ubicacion", ("hud_law_EnteredJurisdiction",), ("x",), "tpl"),
+    ("jurisdiccion", "zonas", ("hud_law_EnteredJurisdiction",), ("x",), "tpl"),
     ("territorio_hostil_entra", "ley", ("hud_enter_hostile_territory", "hud_law_GenericHostileWarning"), (), "title"),
     ("territorio_hostil_sale", "", ("hud_leave_hostile_territory",), (), "title"),
     ("zona_neutral_entra", "", ("hud_enter_neutral_territory",), (), "title"),

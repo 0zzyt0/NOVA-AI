@@ -554,6 +554,10 @@ class Nova:
         hit = resolve_body(raw) or resolve_body(place_name)
         if not hit:
             return
+        here = (getattr(self.gamelog, "system", "") or "").upper()
+        if here and hit[0] and hit[0].upper() != here:
+            log.info("Holograma omitido: %s está en %s y usted en %s", hit[2], hit[0], here)
+            return
         body_key = f"body:{hit[0]}/{hit[1]}"
         if ev.kind == "cerca_de_cuerpo" and body_key in self._holo_seen:
             return
@@ -955,8 +959,8 @@ class Nova:
         if not ev.replay and not self.training:
             if ev.kind in ("contrato_aceptado", "objetivo_nuevo"):
                 self._check_bounty(ev)
-            elif ev.kind in ("llegada_cuantica", "ubicacion", "jurisdiccion", "cerca_de_cuerpo"):
-                self._check_body(ev)
+            elif ev.kind in ("llegada_cuantica", "ubicacion", "cerca_de_cuerpo"):
+                self._check_body(ev)  # v2.0.2: ya no por «jurisdicción de MicroTech» (salía estando en Nyx)
         if self.paused or self.training or not ev.category or not self.settings.get("gamelog_comentarios"):
             return
         # Perfil de la nave en la que vas: cada nave puede tener sus propios avisos.
@@ -1015,8 +1019,17 @@ class Nova:
         if len(heard) < 6:
             return False
         now = time.time()
+        speaking = self.tts.busy() or now - getattr(self.tts, "ended_at", 0.0) < 3
         for when, said in list(self._spoken):
-            if now - when < 45 and _partial(heard, said) >= 78:
+            if now - when > 45:
+                continue
+            # v2.0.2: antes bastaba con que una palabra suelta («Levski», «Microtech») estuviera en algo que
+            # Nova dijo hace 45 s, y se tiraban órdenes buenas. Ahora tiene que ser buena parte de la frase
+            # y haberse oído mientras Nova hablaba (o justo después).
+            covers = len(heard) >= 0.5 * len(said) or len(heard.split()) >= 5
+            if speaking and covers and _partial(heard, said) >= 80:
+                return True
+            if _similarity(heard, said) >= 85:
                 return True
         return False
 
@@ -1050,6 +1063,9 @@ class Nova:
             text = rest
         self._follow_up_until = 0
         self.touch()
+        if getattr(self, "_chatter", False) and self.tts.busy():
+            self.tts.stop()  # v2.0.2: una orden tuya corta los comentarios del Game.log pendientes
+            self._chatter = False
         norm = normalize(text, tuple(self._wake_names()))
 
         if self.paused:  # en pausa solo se escucha la orden de volver
@@ -1610,6 +1626,7 @@ class Nova:
             text = comment_for(ev, t)
         if text:
             self._say(text)
+            self._chatter = True
 
     def _say(self, text: str, model: str = "", spoken: str | None = None, translated: bool = False) -> None:
         """text: lo que sale en la cabina; spoken: lo que se dice en voz alta, si es distinto.
@@ -1620,6 +1637,7 @@ class Nova:
             text = self._loc(text)
             spoken = self._loc(spoken) if spoken else None
         self._spoken.append((time.time(), simplify(spoken or text)))
+        self._chatter = False
         if self._tint != "base" and time.time() < self._tint_until:
             self._tint_hold = True
         self.on_message(self.settings.get("nombre_asistente"), text + (f"   ·{model}" if model else ""))

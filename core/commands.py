@@ -84,6 +84,57 @@ def lang_overlay(lang: str) -> dict:
     return _OVERLAYS[lang]
 
 
+# ---------------------------------------------------------- v2.0.2: frases dichas de otra forma
+# «enciende los propulsores» = «activa propulsores», «bájate del asiento» = «levántate». Se compara la
+# frase reducida (sin artículos y con el verbo en su forma base) para no mandar a la IA lo que es una orden.
+_STOP = {"el", "la", "los", "las", "lo", "un", "una", "unos", "unas", "de", "del", "al", "a", "mi", "mis", "tu",
+         "tus", "su", "sus", "nuestra", "nuestro", "nuestras", "nuestros", "me", "te", "nos", "le", "les", "se",
+         "y", "en", "con", "para"}
+_SYN = {}
+for _canon, _words in {
+    "activa": "activa activar active actives activame activalo activala activalos activalas enciende encender "
+              "enciendas enciendeme enciendelo enciendela enciendelos enciendelas conecta conectar pon poner ponme",
+    "desactiva": "desactiva desactivar desactive desactives desactivalo desactivala desactivalos desactivalas "
+                 "apaga apagar apague apagalo apagala apagalos apagalas desconecta desconectar quita quitar quitame "
+                 "corta cortar",
+    "abre": "abre abrir abra abreme abrelo abrela abrelas abrelos",
+    "cierra": "cierra cerrar cierre cierralo cierrala cierralas cierralos",
+    "baja": "baja bajar despliega desplegar saca sacar",
+    "sube": "sube subir recoge recoger retrae retraer mete meter",
+    "lanza": "lanza lanzar lanzame suelta soltar",
+    "inicia": "inicia iniciar inicie empieza empezar comienza comenzar",
+    "levantate": "levantate levantarse bajate salte sal salir",
+    "propulsores": "propulsores propulsor motores motor",
+    "puertas": "puertas puerta",
+    "escudos": "escudos escudo",
+    "luces": "luces luz",
+    "armas": "armas arma",
+    "bengalas": "bengalas bengala",
+}.items():
+    for _w in _words.split():
+        _SYN[_w] = _canon
+_VERBS = {"activa", "desactiva", "abre", "cierra", "baja", "sube", "lanza", "inicia", "levantate"}
+_OPPOSITE = (("activa", "desactiva"), ("sube", "baja"), ("abre", "cierra"))
+_GENERIC = {"activa", "inicia", "lanza", "abre"}  # «activa el radar» = «radar»
+_NEGATIONS = {"no", "nunca", "jamas", "ni", "tampoco"}
+
+
+def canonical(norm: str) -> str:
+    """'enciende los motores' -> 'activa propulsores' (sobre un texto ya pasado por normalize)."""
+    return " ".join(_SYN.get(w, w) for w in norm.split() if w not in _STOP)
+
+
+def _opposed(a: set, b: set) -> bool:
+    for x, y in _OPPOSITE:
+        if (x in a and y in b and y not in a) or (y in a and x in b and x not in a):
+            return True
+    return False
+
+
+def _token_sort(a: str, b: str) -> float:
+    return _similarity(" ".join(sorted(a.split())), " ".join(sorted(b.split())))
+
+
 def normalize(text: str, extra_names: tuple[str, ...] = ()) -> str:
     """Además quita muletillas y el nombre: '¡Oye Nova, BAJA el tren, por favor!' -> 'baja el tren'"""
     from .i18n import lang
@@ -423,18 +474,40 @@ class CommandBook:
             phrases, commands = dict(self._phrases), dict(self.commands)
         if n in phrases:
             return _pick_for_ship([commands[c] for c in phrases[n]], ship)
+        cn = canonical(n)
+        toks = set(cn.split())
+        words = n.split()
+        negated = bool(set(words) & _NEGATIONS)
         best, score = None, 0.0
         for phrase, ids in phrases.items():
-            cand = _pick_for_ship([commands[c] for c in ids if not commands[c].solo_frase_exacta], ship)
+            exact_ok = [commands[c] for c in ids]
+            cp = canonical(phrase)
+            if cn and cn == cp and not negated:  # misma orden dicha con otras palabras
+                cand = _pick_for_ship(exact_ok, ship)
+                if cand:
+                    return cand
+            cand = _pick_for_ship([c for c in exact_ok if not c.solo_frase_exacta], ship)
             if not cand:
                 continue
-            # Nunca confundir "activa" con "desactiva" por parecido.
+            # Nunca confundir "activa" con "desactiva" (ni «sube» con «baja», «abre» con «cierra»).
             if n.startswith("des") != phrase.startswith("des"):
                 continue
-            s = _similarity(n, phrase)
+            ptoks = set(cp.split())
+            if _opposed(toks, ptoks):
+                continue
+            s = _similarity(n, phrase)  # como antes: casi la misma frase
+            if not negated and cp and len(words) <= 7:
+                if (ptoks & _VERBS) == (toks & _VERBS):  # el verbo ha de coincidir; el resto puede variar
+                    s = max(s, _similarity(cn, cp) + 2)
+                    if len(ptoks) >= 2 and len(toks) >= 2:
+                        s = max(s, _token_sort(cn, cp))  # «tren abajo» / «abajo el tren»
+                extra = toks - ptoks
+                # La frase entera más una palabra: «activa el radar», «abre las puertas de la nave»
+                if ptoks <= toks and len(extra) <= 1 and (len(ptoks) >= 2 or extra <= _GENERIC):
+                    s = max(s, 92 + len(ptoks) * 0.5)
             if s > score:
                 best, score = cand, s
-        if best and score >= 90 and len(n.split()) <= 6:
+        if best and score >= 90 and len(words) <= 7:
             return best
         return None
 

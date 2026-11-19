@@ -146,11 +146,21 @@ class Cancelled(Exception):
     """Se pidió detener a Nova mientras pensaba."""
 
 
+# v2.0.2: antes 25 s. Gemini saturado (503) o colgado hacía esperar 25 s + 25 s antes de probar Groq/OpenRouter.
+REQUEST_TIMEOUT = 12
+
+
+def _provider_of(tag: str) -> str:
+    return tag.split(":", 1)[0]
+
+
 class Brain:
     def __init__(self, settings, tools, memory, gamelog) -> None:
         self.settings, self.tools, self.memory, self.gamelog = settings, tools, memory, gamelog
         self._clients: dict = {}
         self._cooldown: dict[str, float] = {}
+        self._provider_down: dict[str, float] = {}  # v2.0.2: proveedor saturado/colgado -> hasta cuándo saltarlo
+        self._strikes: dict[str, int] = {}
         self.last_model = ""
         self.last_ok = True  # False si no hubo motor disponible o todos fallaron
         self.last_tools: list[str] = []  # herramientas que usó la última respuesta
@@ -185,7 +195,7 @@ class Brain:
             headers = {"HTTP-Referer": "https://github.com/nova-copiloto", "X-Title": "Nova Copiloto"} \
                 if provider == "openrouter" else None
             self._clients[cache_key] = OpenAI(base_url=PROVIDERS[provider]["base_url"], api_key=key,
-                                              timeout=25, max_retries=0, default_headers=headers)
+                                              timeout=REQUEST_TIMEOUT, max_retries=0, default_headers=headers)
         return self._clients[cache_key]
 
     def chain(self) -> list[dict]:
@@ -197,9 +207,12 @@ class Brain:
             if p != "ollama" and not self.settings.key_for(p):
                 continue
             tag = f"{p}:{entry.get('modelo')}"
-            if time.time() < self._cooldown.get(tag, 0):
+            if time.time() < self._cooldown.get(tag, 0) or time.time() < self._provider_down.get(p, 0):
                 continue
             out.append(entry)
+        if not out:  # todo en pausa: mejor reintentar el primero que contestar que no hay IA
+            out = [e for e in self.settings.get("ia_cadena") if e.get("proveedor") in PROVIDERS
+                   and (e.get("proveedor") == "ollama" or self.settings.key_for(e.get("proveedor")))][:1]
         return out
 
     def _create(self, entry: dict, messages: list, tools: list | None):
@@ -239,6 +252,8 @@ class Brain:
                 last_error = last_error or "tiempo agotado"
                 break
             tag = f"{entry['proveedor']}:{entry['modelo']}"
+            if len(chain) > 1 and time.time() < self._provider_down.get(entry["proveedor"], 0):
+                continue  # el mismo proveedor acaba de fallar con otro modelo en esta misma orden
             messages = list(base)
             if executed:  # un proveedor anterior falló a medias: no repetir teclas
                 messages.append({"role": "system", "content":
@@ -251,6 +266,7 @@ class Brain:
             except Exception as e:  # noqa: BLE001 — cualquier fallo pasa al siguiente
                 last_error = self._handle_error(tag, e)
                 continue
+            self._strikes.pop(entry["proveedor"], None)
             if gen != self._cancel_gen:
                 return ""
             self.last_tools = used
@@ -335,9 +351,19 @@ class Brain:
         elif status == 404:
             self._cooldown[tag] = time.time() + 3600
             log.warning("%s: modelo no encontrado", tag)
+        elif status == 400:  # petición rechazada por ese modelo (no es que el proveedor esté caído)
+            self._cooldown[tag] = time.time() + 300
+            log.warning("%s rechazó la petición: %s", tag, text)
         else:
-            self._cooldown[tag] = time.time() + 20
-            log.warning("%s falló: %s", tag, text)
+            # 503 (saturado), 5xx o tiempo agotado: el proveedor entero suele estar igual. Se salta un rato
+            # (2, 4, 8… hasta 10 min) para no esperar otra vez en cada orden.
+            prov = _provider_of(tag)
+            n = self._strikes.get(prov, 0) + 1
+            self._strikes[prov] = n
+            pause = min(600, 60 * 2 ** min(n, 4))
+            self._cooldown[tag] = time.time() + pause
+            self._provider_down[prov] = time.time() + pause
+            log.warning("%s falló: %s (salto %s durante %d s)", tag, text, prov, pause)
         self.on_status(f"{tag} no responde; probando el siguiente…")
         return f"{tag}: {text}"
 

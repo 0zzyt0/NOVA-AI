@@ -138,13 +138,15 @@ class SpeechToText:
     def _transcribe_groq(self, audio: np.ndarray) -> str:
         import requests
 
-        r = requests.post(
+        if getattr(self, "_http", None) is None:  # v2.0.2: conexión reutilizada (sin TLS nuevo en cada orden)
+            self._http = requests.Session()
+        r = self._http.post(
             "https://api.groq.com/openai/v1/audio/transcriptions",
             headers={"Authorization": f"Bearer {self.settings.key_for('groq')}"},
             files={"file": ("voz.wav", to_wav_bytes(audio), "audio/wav")},
             data={"model": "whisper-large-v3-turbo", "language": _stt_lang(self.settings), "prompt": prompt_for(self.settings),
                   "temperature": "0", "response_format": "json"},
-            timeout=20,
+            timeout=(4, 10),
         )
         if r.status_code != 200:
             raise RuntimeError(f"Groq Whisper {r.status_code}: {r.text[:200]}")
@@ -158,6 +160,7 @@ class SpeechToText:
         except Exception as e:
             if mode == "groq":
                 log.warning("Groq falló (%s); pruebo Whisper local", e)
+                self._http = None
                 try:
                     text = self._transcribe_local(audio)
                 except Exception as e2:

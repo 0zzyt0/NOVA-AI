@@ -145,6 +145,48 @@ def split_camel(text: str) -> str:
 JUMP = re.compile(r"(?i)^(?:loc_)?rs_ext_([a-z]+)-([a-z]+)_jp\d*$")
 JUMP_STATION = re.compile(r"(?i)^rr_jp_([a-z]+?)(stanton|pyro|nyx|castra|magnus|terra)$")
 SYS_SHORT = {"stan": "Stanton", "pyro": "Pyro", "nyx": "Nyx", "cast": "Castra", "magn": "Magnus", "terr": "Terra"}
+# v2.0.2: el salto Stanton-Nyx usa en el juego códigos heredados de otros sistemas (comprobado en Game.log
+# 4.10: microTech -> rs_ext_stan-magnus_jp1 -> RR_JP_StantonMagnus -> RR_JP_NyxCastra «P.S. Stanton» -> Levski,
+# y a la vuelta Levski -> rs_ext_nyx-castra_jp1). Mientras Magnus y Castra no estén en el juego, se corrigen.
+JUMP_ALIASES = {("Stanton", "Magnus"): ("Stanton", "Nyx"), ("Nyx", "Castra"): ("Nyx", "Stanton")}
+SYSTEM_RX = re.compile(r"(?i)(?:^|[^a-z])(stanton|pyro|nyx)(?=[^a-z]|\d|$)")
+STANTON_HINTS = ("rrhur", "rrcru", "rrarc", "rrmic", "grimhex", "lorville", "orison", "area18", "newbabbage",
+                 "hurston", "crusader", "arccorp", "microtech")
+
+
+# Jurisdicciones con sistema conocido: el juego a veces dice «jurisdicción de MicroTech» estando en Levski.
+JURIS_SYSTEM = {"microtech": "Stanton", "hurston": "Stanton", "crusader": "Stanton", "arccorp": "Stanton",
+                "people's alliance": "Nyx", "alianza del pueblo": "Nyx"}
+
+
+def _jump_pair(a: str, b: str) -> tuple[str, str]:
+    return JUMP_ALIASES.get((a, b), (a, b))
+
+
+def system_of(raw: str) -> str:
+    """Código interno o nombre de un sitio -> sistema («Stanton», «Pyro», «Nyx») o "" si no se sabe."""
+    t = (raw or "").strip()
+    if not t:
+        return ""
+    low = t.lower()
+    if re.search(r"(?i)^p\.\s?s\.|gateway|^puerta", t):
+        return ""  # «P.S. Stanton» / «Stanton Gateway»: la puerta HACIA Stanton, que está en otro sistema
+    m = JUMP.match(t)
+    if m:
+        return _jump_pair(*(SYS_SHORT.get(x[:4], x.capitalize()) for x in m.groups()))[0]
+    m = JUMP_STATION.match(t)
+    if m:
+        return _jump_pair(*(SYS_SHORT.get(x[:4], x.capitalize()) for x in m.groups()))[0]
+    if re.match(r"(?i)^rr_p\d", t) or low.startswith("pyro"):
+        return "Pyro"
+    if "levski" in low or low.startswith("nyx"):
+        return "Nyx"
+    m = SYSTEM_RX.search(t)
+    if m:
+        return m.group(1).capitalize()
+    if any(h in low.replace("_", "").replace(" ", "") for h in STANTON_HINTS):
+        return "Stanton"
+    return ""
 
 
 def _tr(text: str, **kw) -> str:
@@ -163,11 +205,11 @@ def pretty_loc(raw: str, text=None) -> str:
     low = t.lower()
     m = JUMP.match(t)
     if m:
-        a, b = (SYS_SHORT.get(x[:4], x.capitalize()) for x in m.groups())
+        a, b = _jump_pair(*(SYS_SHORT.get(x[:4], x.capitalize()) for x in m.groups()))
         return _tr("punto de salto {a} → {b}", a=a, b=b)
     m = JUMP_STATION.match(t)
     if m:
-        a, b = (SYS_SHORT.get(x[:4], x.capitalize()) for x in m.groups())
+        a, b = _jump_pair(*(SYS_SHORT.get(x[:4], x.capitalize()) for x in m.groups()))
         return _tr("estación del salto {a}-{b} (lado {a})", a=a, b=b)
     if text is not None:
         local = text.local(t) or text.local(re.sub(r"^(?:LOC_|OOC_)", "", t))
@@ -276,9 +318,9 @@ RULES: list[tuple[str, str, str, tuple[str, ...]]] = [
     ("atc_cola_hangar", "atc", r"^Joined hangar queue\.?\s*(?:Your place:\s*(\d+))?", ("puesto",)),
     ("atc_incautada", "atc", r"^Vehicle Impounded:\s*(.*)", ("x",)),
     # --- zonas y ley
-    ("zona_armisticio_entra", "ubicacion", r"^(?:Entering|Entered) Armistice Zone", ()),
-    ("zona_armisticio_sale", "ubicacion", r"^(?:Leaving|Exiting|Exited) Armistice Zone", ()),
-    ("jurisdiccion", "ubicacion", r"^Entered (.+?) Jurisdiction", ("x",)),
+    ("zona_armisticio_entra", "zonas", r"^(?:Entering|Entered) Armistice Zone", ()),
+    ("zona_armisticio_sale", "zonas", r"^(?:Leaving|Exiting|Exited) Armistice Zone", ()),
+    ("jurisdiccion", "zonas", r"^Entered (.+?) Jurisdiction", ("x",)),
     ("propiedad_privada", "ubicacion", r"^Entering Private Property", ()),
     ("zona_restringida", "ley", r"^Restricted Area", ()),
     ("espacio_vigilado_sale", "", r"^Exited Monitored Space", ()),
@@ -298,6 +340,7 @@ RULES: list[tuple[str, str, str, tuple[str, ...]]] = [
 RULES_RX = [(k, c, re.compile(p, re.I), f) for k, c, p, f in RULES]
 CATEGORIES = {
     "ubicacion": "Llegadas y cambios de ubicación",
+    "zonas": "Zonas de armisticio y jurisdicciones",
     "grupo": "Grupo: invitaciones, quién entra y sale",
     "dinero": "Dinero recibido y enviado, y compras en tiendas",
     "amistad": "Peticiones de amistad y llamadas",
@@ -467,8 +510,20 @@ class GameLog(threading.Thread):
         self.status = "inactivo"
         self._record = ""
         self._seen: dict[str, float] = {}
-        self._armistice: bool | None = None  # v2.0: dentro o fuera de la zona de armisticio
-        self._armistice_t = -1e9
+        # v2.0.2: armisticio con «asentamiento»: el juego dice entrar/salir varias veces en el borde de la zona
+        self._arm_said: bool | None = None  # último estado anunciado (o dado por bueno en silencio)
+        self._arm_said_t = -1e9
+        self._arm_pending: tuple[bool, float] | None = None
+        self._arm_emitting = False
+        # v2.0.2: jurisdicción: se espera unos segundos por si llega a la vez que una llegada o la zona
+        self._juris_pending: tuple[dict, float] | None = None
+        self._juris_last = ""
+        self._juris_said: dict[str, float] = {}
+        self._juris_emitting = False
+        self._place_said_t = -1e9  # último aviso hablado de llegada / ubicación / armisticio
+        self._qt_vid = ""  # id de la nave con la que TÚ elegiste el destino cuántico
+        self._own_vids: dict[str, float] = {}  # naves que controla este cliente (las tuyas)
+        self.system = ""  # sistema en el que estás (Stanton, Pyro, Nyx), si se sabe
         self._replaying = False
         self._qt_target = ""
         self._qt_raw = ""
@@ -517,16 +572,13 @@ class GameLog(threading.Thread):
         detail = detail or " · ".join(str(v) for k, v in data.items() if v and k != "raw")
         key = f"{kind}|{detail}"
         now = self._now or time.time()
-        if kind in ("zona_armisticio_entra", "zona_armisticio_sale"):
-            # v2.0: un solo aviso al entrar y otro al salir. El juego lo repite (y llega por dos vías: texto
-            # en inglés y clave del global.ini); en el borde de la zona entra y sale en segundos.
-            inside = kind == "zona_armisticio_entra"
-            quick = now - self._armistice_t < 20
-            if self._armistice is inside:
-                return
-            self._armistice, self._armistice_t = inside, now
-            if quick:
-                return
+        if kind in ("zona_armisticio_entra", "zona_armisticio_sale") and not self._arm_emitting:
+            # v2.0.2: no se avisa al momento: se espera a que el estado se asiente (ver _tick).
+            self._arm_pending = (kind == "zona_armisticio_entra", now)
+            return
+        if kind == "jurisdiccion" and not getattr(self, "_juris_emitting", False):
+            self._juris_pending = (dict(data), now)
+            return
         if abs(now - self._seen.get(key, -1e9)) < 3:  # el juego repite el mismo aviso varias veces
             return
         self._seen[key] = now
@@ -534,6 +586,8 @@ class GameLog(threading.Thread):
             self._seen = {k: v for k, v in self._seen.items() if now - v < 60}
         ev = GameEvent(kind, detail, category, now, data, self._replaying)
         self.events.append(ev)
+        if category in ("ubicacion", "zonas"):
+            self._place_said_t = now
         x = data.get("x", "")
         if kind == "contrato_aceptado":
             self.contracts[x] = now
@@ -558,6 +612,73 @@ class GameLog(threading.Thread):
         if self.on_event and not self._replaying:
             self.on_event(ev)
 
+    ARM_SETTLE = 10.0  # s que debe mantenerse dentro/fuera antes de avisar
+    ARM_MIN_GAP = 90.0  # s mínimos entre dos avisos de armisticio en voz
+    JURIS_SETTLE = 12.0  # > ARM_SETTLE: así ve si ya se habló de la zona o de la llegada
+    JURIS_REPEAT = 1800.0  # no repetir la misma jurisdicción en voz antes de 30 min
+
+    def _tick(self, now: float) -> None:
+        if self._arm_pending and now - self._arm_pending[1] >= self.ARM_SETTLE:
+            inside, _t = self._arm_pending
+            self._arm_pending = None
+            if inside is not self._arm_said:
+                speak = self._arm_said is not None and now - self._arm_said_t >= self.ARM_MIN_GAP
+                if self._arm_said is None and not self._replaying:
+                    speak = True
+                self._arm_said = inside
+                if speak:
+                    self._arm_said_t = now
+                kind = "zona_armisticio_entra" if inside else "zona_armisticio_sale"
+                self._arm_emitting = True
+                try:
+                    self._emit(kind, "zonas" if speak else "", {}, detail="entra" if inside else "sale")
+                finally:
+                    self._arm_emitting = False
+        if self._juris_pending and now - self._juris_pending[1] >= self.JURIS_SETTLE:
+            data, t0 = self._juris_pending
+            self._juris_pending = None
+            name = (data.get("x") or "").strip()
+            cat = "zonas"
+            home = next((sysname for key, sysname in JURIS_SYSTEM.items() if key in name.lower()), "")
+            if not name or name == self._juris_last or now - self._juris_said.get(name, -1e9) < self.JURIS_REPEAT \
+                    or now - self._place_said_t < 20 or abs(self._place_said_t - t0) < 20 \
+                    or (home and self.system and home != self.system):
+                cat = ""  # repetida, de otro sistema o ya se habló de la llegada/zona: solo al diario
+            self._juris_last = name or self._juris_last
+            if cat:
+                self._juris_said[name] = now
+            self._juris_emitting = True
+            try:
+                self._emit("jurisdiccion", cat, data)
+            finally:
+                self._juris_emitting = False
+
+    def settle(self) -> None:
+        """Tras releer el log al arrancar: lo pendiente se da por bueno sin hablar."""
+        if self._arm_pending:
+            self._arm_said = self._arm_pending[0]
+            self._arm_pending = None
+        if self._juris_pending:
+            self._juris_last = (self._juris_pending[0].get("x") or "").strip()
+            self._juris_pending = None
+
+    def _note_own_vehicle(self, rec: str) -> str:
+        """Naves que maneja este cliente (selección de destino, combustible, control): son las tuyas."""
+        m = VEHICLE_ID.search(rec)
+        if not m:
+            return ""
+        vid = m.group(2)
+        self._own_vids[vid] = self._now or time.time()
+        if len(self._own_vids) > 50:
+            for k in sorted(self._own_vids, key=self._own_vids.get)[:25]:
+                self._own_vids.pop(k, None)
+        return vid
+
+    def _set_system(self, raw: str) -> None:
+        sysname = system_of(raw)
+        if sysname:
+            self.system = sysname
+
     def _set_location(self, place: str, source: str, raw: str = "") -> None:
         if not place or place == self.location:
             return
@@ -566,7 +687,9 @@ class GameLog(threading.Thread):
         if place == self._last_announced:
             return
         self._last_announced = place
-        self._emit("ubicacion", "ubicacion", {"lugar": place, "raw": raw})
+        now = self._now or time.time()
+        recent_arrival = now - getattr(self, "_arrival_t", -1e9) < 30
+        self._emit("ubicacion", "" if recent_arrival else "ubicacion", {"lugar": place, "raw": raw})
 
     def _ship(self, cls: str) -> str:
         """Nombre bonito de una nave a partir de su clase interna; prefiere el que muestra el HUD."""
@@ -625,6 +748,7 @@ class GameLog(threading.Thread):
         t = log_time(rec)
         if t:
             self._now = t
+        self._tick(self._now or time.time())
         if self._equip:
             self._flush_equip()
         if "<EquipItem>" in rec:
@@ -659,6 +783,7 @@ class GameLog(threading.Thread):
         if "RequestLocationInventory" in rec:
             m = LOCINV.search(rec) or LOCATION.search(rec)
             if m:
+                self._set_system(m.group(1))
                 self._set_location(self._pretty(m.group(1)), "inventario", m.group(1))
             return
         if "Log started on" in rec:
@@ -683,12 +808,24 @@ class GameLog(threading.Thread):
                 self._in_pu = True
                 self._emit("servidor", "", {"x": self.shard})
             return
+        if "Player Requested Fuel to Quantum Target" in rec:
+            self._note_own_vehicle(rec)
+            return
         if "Player Selected Quantum Target" in rec:
             self._remember_vehicles(rec)
+            self._qt_vid = self._note_own_vehicle(rec)
             m = QT_DEST.search(rec)
             self._qt_target = pretty_dest(m.group(1), self.text) if m else ""
             self._qt_raw = m.group(1) if m else ""
             self._qt_fuel = ""
+            return
+        if "<Calculate Route>" in rec and "Projected Start Location is" in rec:
+            m = re.search(r"Projected Start Location is (.+?) for route", rec)
+            if m:  # nombre del juego (en tu idioma) del sitio desde el que sales
+                start = m.group(1).strip()
+                self._set_system(start)
+                if not re.match(r"(?i)^(sistema |system )?(stanton|pyro|nyx)$", start):
+                    self.location = start
             return
         if "<Calculate Route>" in rec and "fuel estimate" in rec:
             m = re.search(r"fuel estimate ([\d.]+)", rec)
@@ -697,6 +834,17 @@ class GameLog(threading.Thread):
             return
         if any(k in rec for k in QT_ARRIVE):
             self._remember_vehicles(rec)
+            vm = VEHICLE_ID.search(rec)
+            vid = vm.group(2) if vm else ""
+            # v2.0.2: el juego escribe también las llegadas de las naves de OTROS jugadores que tienes cerca
+            # («NOT AUTH»). Solo cuenta la nave con la que tú elegiste destino o que controlas tú.
+            if vid and vid != self._qt_vid and vid not in self._own_vids:
+                log.debug("Llegada cuántica de otra nave (%s): no es tuya", vm.group(0))
+                return
+            self._arrival_t = self._now or time.time()
+            self._qt_vid = ""
+            if self._qt_raw:
+                self._set_system(self._qt_raw)
             dest, self._qt_target = self._qt_target, ""
             raw, self._qt_raw = self._qt_raw, ""
             if dest and raw.lower().startswith("partymembermarker"):
@@ -712,7 +860,7 @@ class GameLog(threading.Thread):
         if "<Trying to QT when not in Idle>" in rec:
             # 1.5: «User:» es quien pidió el salto. Si es otro (vas de tripulante en su nave), no es cosa tuya.
             m = re.search(r"\bUser:\s*([\w.\-]+)", rec)
-            if m and self.player and m.group(1).lower() != self.player.lower():
+            if m and (not self.player or m.group(1).lower() != self.player.lower()):
                 return
             self._emit("salto_error", "", {}, detail="el motor cuántico no estaba listo")
             return
@@ -720,6 +868,8 @@ class GameLog(threading.Thread):
             m = CONTROL_TOKEN.search(rec)
             if m:
                 self._remember_vehicles(rec)
+                if "Local client" in rec:
+                    self._note_own_vehicle(rec)
                 ship = self._ship(m.group(2))
                 kind = "piloto_suelta" if m.group(1).lower().startswith("releas") else "piloto_toma"
                 self._emit(kind, "", {"nave": ship})
@@ -946,6 +1096,7 @@ class GameLog(threading.Thread):
         if self._record:
             self.parse_record(self._record)
             self._record = ""
+        self._tick(time.time())
         if self._equip and time.time() - self._equip_last >= EQUIP_GAP:
             self._flush_equip(force=True)
 
@@ -1006,6 +1157,7 @@ class GameLog(threading.Thread):
                 for line in f:
                     self.feed_line(line.rstrip("\n"))
                 self.flush()
+                self.settle()
             finally:
                 self._replaying = False
                 self._replayed()
@@ -1028,6 +1180,7 @@ class GameLog(threading.Thread):
             for line in f:
                 self.feed_line(line.rstrip("\n"))
             self.flush()
+            self.settle()
             self._replaying = False
             self._replayed()
             self._seen.clear()

@@ -14,7 +14,7 @@ import os
 import threading
 from pathlib import Path
 
-VERSION = "2.0.1"
+VERSION = "2.0.2"
 APP_NAME = "NOVA AI"
 APP_DIR = Path(__file__).resolve().parent.parent
 FACTORY_DIR = APP_DIR / "datos"  # archivos de fábrica que vienen con el programa (solo lectura)
