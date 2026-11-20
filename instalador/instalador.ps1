@@ -1545,10 +1545,11 @@ $worker = {
                     $mods = 'openai edge_tts miniaudio sounddevice numpy PIL requests rapidfuzz ddgs pygame faster_whisper pyttsx3'
                     if ($opts.Piper) { $mods += ' piper' }
                     $pst.Fails.Clear()
-                    $codeLine = "import importlib`nfor m in '$mods'.split():`n    try:`n        importlib.import_module(m); print('OK', m)`n    except Exception as e:`n        print((T 'FALLO'), m, type(e).__name__, str(e)[:120])"
+                    $codeLine = "import importlib`nfor m in '$mods'.split():`n    try:`n        importlib.import_module(m); print('OK', m)`n    except Exception as e:`n        print('FALLO', m, type(e).__name__, str(e)[:120])"
                     $tmp = Join-Path $env:TEMP 'nova_verificar.py'
                     [IO.File]::WriteAllText($tmp, $codeLine, (New-Object Text.UTF8Encoding($false)))
-                    $null = Invoke-Proc $venvPy ('"' + $tmp + '"') { param($l) if ($l -match '^FALLO (\S+)') { [void]$pst.Fails.Add($Matches[1]) } }
+                    $c = Invoke-Proc $venvPy ('"' + $tmp + '"') { param($l) if ($l -match '^FALLO (\S+)') { [void]$pst.Fails.Add($Matches[1]) } }
+                    if ($c -ne 0) { throw "El script Python de verificación terminó con el código $c. Consulta el registro de instalación." }
                     $essential = @('openai', 'edge_tts', 'miniaudio', 'sounddevice', 'numpy', 'PIL', 'requests', 'rapidfuzz')
                     $bad = @($pst.Fails | Where-Object { $essential -contains $_ })
                     if ($bad.Count -gt 0) { throw ((T 'Módulos imprescindibles que no cargan: ') + ($bad -join ', ')) }
