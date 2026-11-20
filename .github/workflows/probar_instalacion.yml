@@ -67,6 +67,22 @@ jobs:
           Write-Output ("Registrada: {0} {1}" -f $reg.DisplayName, $reg.DisplayVersion)
           if (-not $reg.QuietUninstallString) { throw 'Sin desinstalador silencioso' }
 
+      - name: Comprobar que un fallo del verificador detiene la instalación
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # El verificador se ejecuta desde TEMP. Solo este paso usa un módulo de prueba
+          # junto al script generado, sin alterar Python ni las dependencias instaladas.
+          $env:TEMP = (New-Item -ItemType Directory -Path (Join-Path $env:RUNNER_TEMP ([guid]::NewGuid().ToString()))).FullName
+          Set-Content -LiteralPath (Join-Path $env:TEMP 'openai.py') -Encoding ASCII -Value 'raise SystemExit(37)'
+          $salida = @(powershell -NoProfile -ExecutionPolicy Bypass -STA -File instalador\instalador.ps1 -Origen "$PWD" -Desatendido)
+          $codigo = $LASTEXITCODE
+          $salida | Write-Output
+          if ($codigo -ne 1 -or -not ($salida -match '^FALLO: .*script Python .* 37\.')) {
+            throw "Se esperaba que el verificador devolviera 37 y el instalador 1. Código recibido: $codigo"
+          }
+          exit 0
+
       - name: Desinstalar sin preguntas
         shell: powershell
         run: |
