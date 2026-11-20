@@ -12,7 +12,7 @@ on:
     tags: ['v*']
     paths: ['instalador/**', 'requirements.txt', '.github/workflows/probar_instalacion.yml']
   pull_request:
-    paths: ['instalador/**', 'requirements.txt']
+    paths: ['instalador/**', 'requirements.txt', '.github/workflows/probar_instalacion.yml']
 
 permissions:
   contents: read
@@ -40,9 +40,23 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $root = Join-Path $env:ProgramFiles 'NOVA AI'
-          foreach ($f in 'nova.py', 'NOVA AI.exe', 'core\config.py', 'gui\web\index.html', '.venv\Scripts\python.exe') {
+          foreach ($f in 'nova.py', 'NOVA AI.lnk', 'core\config.py', 'gui\web\index.html', '.venv\Scripts\python.exe') {
             if (-not (Test-Path (Join-Path $root $f))) { throw "Falta $f" }
           }
+          # El ejecutable compilado puede no estar presente en una instalación desde el código fuente.
+          $exe = Join-Path $root 'NOVA AI.exe'
+          $wsh = New-Object -ComObject WScript.Shell
+          $launcher = $wsh.CreateShortcut((Join-Path $root 'NOVA AI.lnk'))
+          if (Test-Path -LiteralPath $exe -PathType Leaf) {
+            $expectedTarget = $exe
+            $expectedArgs = ''
+          } else {
+            $expectedTarget = Join-Path $root '.venv\Scripts\pythonw.exe'
+            $expectedArgs = '"' + (Join-Path $root 'nova.py') + '"'
+          }
+          if (-not (Test-Path -LiteralPath $expectedTarget -PathType Leaf)) { throw "Falta el destino del lanzador: $expectedTarget" }
+          if ($launcher.TargetPath -ne $expectedTarget -or $launcher.Arguments -ne $expectedArgs) { throw 'El lanzador NOVA AI.lnk no apunta al programa esperado' }
+          if ($launcher.WorkingDirectory -ne $root) { throw 'Directorio de trabajo incorrecto en NOVA AI.lnk' }
           $py = Join-Path $root '.venv\Scripts\python.exe'
           & $py -c "import sys; sys.path.insert(0, r'$root'); from core import config, i18n, voices, themes, backup, holo, overlay; print('NOVA', config.VERSION, 'módulos OK')"
           if ($LASTEXITCODE -ne 0) { throw 'Los módulos de NOVA no cargan' }
@@ -52,6 +66,22 @@ jobs:
           $reg = Get-ItemProperty $key
           Write-Output ("Registrada: {0} {1}" -f $reg.DisplayName, $reg.DisplayVersion)
           if (-not $reg.QuietUninstallString) { throw 'Sin desinstalador silencioso' }
+
+      - name: Comprobar que un fallo del verificador detiene la instalación
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # El verificador se ejecuta desde TEMP. Solo este paso usa un módulo de prueba
+          # junto al script generado, sin alterar Python ni las dependencias instaladas.
+          $env:TEMP = (New-Item -ItemType Directory -Path (Join-Path $env:RUNNER_TEMP ([guid]::NewGuid().ToString()))).FullName
+          Set-Content -LiteralPath (Join-Path $env:TEMP 'openai.py') -Encoding ASCII -Value 'raise SystemExit(37)'
+          $salida = @(powershell -NoProfile -ExecutionPolicy Bypass -STA -File instalador\instalador.ps1 -Origen "$PWD" -Desatendido)
+          $codigo = $LASTEXITCODE
+          $salida | Write-Output
+          if ($codigo -ne 1 -or -not ($salida -match '^FALLO: .*script Python .* 37\.')) {
+            throw "Se esperaba que el verificador devolviera 37 y el instalador 1. Código recibido: $codigo"
+          }
+          exit 0
 
       - name: Desinstalar sin preguntas
         shell: powershell
