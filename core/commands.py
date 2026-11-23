@@ -131,6 +131,13 @@ def _opposed(a: set, b: set) -> bool:
     return False
 
 
+def _objects_fit(said: set, phrase: set) -> bool:
+    """Cada palabra (que no sea el verbo) de lo que has dicho se parece a alguna de la frase del comando."""
+    if phrase and not said:
+        return False
+    return all(any(_similarity(w, x) >= 75 for x in phrase) for w in said)
+
+
 def _token_sort(a: str, b: str) -> float:
     return _similarity(" ".join(sorted(a.split())), " ".join(sorted(b.split())))
 
@@ -497,7 +504,9 @@ class CommandBook:
                 continue
             s = _similarity(n, phrase)  # como antes: casi la misma frase
             if not negated and cp and len(words) <= 7:
-                if (ptoks & _VERBS) == (toks & _VERBS):  # el verbo ha de coincidir; el resto puede variar
+                # el verbo ha de coincidir; el resto puede variar, pero lo que dices tiene que estar en la frase
+                # (2.0.3: «desactiva't» / «désactive-toi» ya no se parece a «desactiva vtol»)
+                if (ptoks & _VERBS) == (toks & _VERBS) and _objects_fit(toks - _VERBS, ptoks - _VERBS):
                     s = max(s, _similarity(cn, cp) + 2)
                     if len(ptoks) >= 2 and len(toks) >= 2:
                         s = max(s, _token_sort(cn, cp))  # «tren abajo» / «abajo el tren»

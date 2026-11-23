@@ -1314,3 +1314,19 @@ bindSettings();
 buildSpots();
 requestAnimationFrame(ovFrame);
 loadState().then(() => { connect(); loadCommands(); }).catch((e) => { toast("No puedo hablar con Nova: " + e.message, "bad"); document.body.classList.add("offline"); });
+
+// 2.0.3 · Motherlode (cryon.rocks): clave gratuita de su API
+(() => {
+  const chip = $("#mlChip"); if (!chip) return;
+  const paint = () => { const k = ($("#mlKey").value || "").trim(); chip.textContent = k ? "CLAVE PUESTA" : "SIN CLAVE"; };
+  $("#mlKey").addEventListener("input", paint);
+  setTimeout(paint, 1500);
+  $("#btnMlTest").addEventListener("click", safe(async () => {
+    const b = $("#btnMlTest"); b.disabled = true; $("#mlMsg").textContent = "…";
+    try {
+      const r = await api("motherlode_test", { clave: $("#mlKey").value });
+      $("#mlMsg").textContent = r.ok ? ("Funciona" + (r.nombre ? ` · ${r.nombre}` : "")) : r.texto;
+      chip.textContent = r.ok ? "FUNCIONA" : "NO FUNCIONA";
+    } finally { b.disabled = false; }
+  }));
+})();

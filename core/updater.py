@@ -55,6 +55,8 @@ PAGES = [
      "que": "Dónde comprar cada objeto, componente o arma (Nova te la abre)"},
     {"id": "schaulers", "nombre": "SC Haulers", "url": "https://schaulers.com/tools",
      "que": "Calculadoras de rutas, carga, misiones de transporte e industria (Nova te la abre)"},
+    {"id": "motherlode", "nombre": "Motherlode", "url": "https://cryon.rocks/mining",
+     "que": "Minería: dónde está cada mineral, rocas, calidad, láseres, refinerías y precios (API con tu clave gratuita)"},
     {"id": "juego", "nombre": "Textos de tu juego", "url": "",
      "que": "global.ini: naves, objetos, planetas, minerales, consejos y avisos del HUD en tu idioma"},
 ]

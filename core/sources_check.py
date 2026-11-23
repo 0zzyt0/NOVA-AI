@@ -21,6 +21,7 @@ CHECKS = [
     ("spviewer", "SC Ships Performances Viewer", "https://www.spviewer.eu/", None, "html"),
     ("cstone", "Universal Item Finder (CStone)", "https://finder.cstone.space/", None, "html"),
     ("schaulers", "SC Haulers", "https://schaulers.com/tools", None, "html"),
+    ("motherlode", "Motherlode (cryon.rocks)", "https://cryon.rocks/mining", None, "html"),
     ("rsi", "Roberts Space Industries", "https://robertsspaceindustries.com/en/", None, "html"),
     ("rsi_estado", "Estado de los servidores de RSI", "https://status.robertsspaceindustries.com/", None, "html"),
     ("google", "Google Translate", "https://translate.googleapis.com/translate_a/single",

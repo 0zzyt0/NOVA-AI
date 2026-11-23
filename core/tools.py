@@ -70,6 +70,7 @@ class Tools:
         self.starmap = None  # starmap.space (lo pone el asistente)
         self.shops = None  # tiendas de UEX (lo pone el asistente)
         self.allow_open = False  # abrir el navegador solo si el piloto lo ha pedido
+        self._motherlode = None  # 2.0.3: minería de cryon.rocks (se crea al usarla)
 
     # ---------------------------------------------------------------- utilidades
     def _get(self, url: str, params: dict | None = None, ttl: int = 0, timeout: int = 12) -> Any:
@@ -155,6 +156,17 @@ class Tools:
                 "description": "Lee el texto de una página web concreta (por ejemplo, un resultado de búsqueda).",
                 "parameters": {"type": "object", "properties": {"url": {"type": "string"}}, "required": ["url"]}}},
             {"type": "function", "function": {
+                "name": "mineria_motherlode",
+                "description": "Minería según Motherlode (cryon.rocks): 'mineral' = dónde se mina un mineral (lugares, % en la "
+                               "roca, calidad, resistencia, inestabilidad) y dónde se vende mejor; 'lugar' = qué minerales hay "
+                               "en un planeta, luna o cinturón; 'laseres' = láseres de minería (tamaño 0 ROC/vehículo, 1-2 nave); "
+                               "'refinerias' = refinerías con bonificación. Úsala para preguntas de minería.",
+                "parameters": {"type": "object", "properties": {
+                    "tipo": {"type": "string", "enum": ["mineral", "lugar", "laseres", "refinerias"]},
+                    "nombre": {"type": "string", "description": "Mineral o lugar en inglés ('Quantainium', 'Aaron Halo', "
+                                                                "'Keeger Belt'); para 'laseres', el tamaño (0, 1 o 2) o vacío"}},
+                    "required": ["tipo"]}}},
+            {"type": "function", "function": {
                 "name": "uex_precios_mercancia",
                 "description": "Precios actuales de compra y venta de una mercancía (comercio) en las terminales, según UEX Corp.",
                 "parameters": {"type": "object", "properties": {
@@ -226,10 +238,11 @@ class Tools:
                                "'cstone' (Universal Item Finder: DÓNDE COMPRAR objetos, armas, armaduras y "
                                "componentes), 'spviewer' (rendimiento de naves: combustible, autonomía, "
                                "componentes), 'schaulers' (calculadoras de rutas y carga de SC Haulers), "
-                               "'starmap' (mapas de planetas), 'uex', 'scmdb', 'wiki', 'verseguide'. Úsala cuando "
+                               "'starmap' (mapas de planetas), 'motherlode' (minería: busqueda = el mineral), 'uex', "
+                               "'scmdb', 'wiki', 'verseguide'. Úsala cuando "
                                "el piloto lo PIDA EXPRESAMENTE («ábremela», «sí, ábrela»). Si crees que le serviría, ofrécesela y espera a que diga que sí.",
                 "parameters": {"type": "object", "properties": {
-                    "pagina": {"type": "string", "enum": ["cstone", "spviewer", "schaulers", "starmap", "uex",
+                    "pagina": {"type": "string", "enum": ["cstone", "spviewer", "schaulers", "starmap", "motherlode", "uex",
                                                          "scmdb", "wiki", "verseguide"]},
                     "busqueda": {"type": "string", "description": "Lo que quiere ver (opcional)"}},
                     "required": ["pagina"]}}},
@@ -694,7 +707,8 @@ class Tools:
     PAGE_URLS = {"cstone": "https://finder.cstone.space", "spviewer": "https://www.spviewer.eu",
                  "schaulers": "https://schaulers.com/tools", "starmap": "https://starmap.space",
                  "uex": "https://uexcorp.space/?set_lang=es_ES", "scmdb": "https://scmdb.net",
-                 "wiki": "https://starcitizen.tools", "verseguide": "https://verseguide.com"}
+                 "wiki": "https://starcitizen.tools", "verseguide": "https://verseguide.com",
+                 "motherlode": "https://cryon.rocks/mining"}
 
     def t_donde_comprar(self, objeto: str) -> str:
         from . import shops as SH
@@ -709,6 +723,34 @@ class Tools:
         except LookupError as e:
             return f"SIN DATOS: {e}"
 
+    # ---------------------------------------------------------------- 2.0.3: Motherlode
+    def motherlode(self):
+        if self._motherlode is None:
+            from .knowledge import KNOW_DIR
+            from .motherlode import Motherlode
+            self._motherlode = Motherlode(self.settings, KNOW_DIR)
+        return self._motherlode
+
+    def t_mineria_motherlode(self, tipo: str, nombre: str = "") -> str:
+        from .motherlode import KEY_URL, SITE, MotherlodeError, NoKey, slug
+        ml = self.motherlode()
+        try:
+            if tipo == "mineral":
+                return ml.mineral(nombre)
+            if tipo == "lugar":
+                return ml.place(nombre)
+            if tipo == "laseres":
+                return ml.lasers(str(nombre or "").strip())
+            if tipo == "refinerias":
+                return ml.refineries()
+            return "Tipo desconocido: usa mineral, lugar, laseres o refinerias."
+        except NoKey:
+            page = f"{SITE}/data/ores/{slug(nombre)}" if tipo == "mineral" and nombre else f"{SITE}/mining"
+            return ("SIN CLAVE: para consultar Motherlode el piloto tiene que poner su clave gratuita en Información › "
+                    f"Fuentes (se crea en {KEY_URL}). Mientras, contesta con lo que sepas y ofrécele abrir {page}.")
+        except MotherlodeError as e:
+            return f"SIN DATOS de Motherlode: {e}"
+
     def t_abrir_pagina_consulta(self, pagina: str, busqueda: str = "") -> str:
         url = self.PAGE_URLS.get(str(pagina).lower())
         if not url:
@@ -719,6 +761,9 @@ class Tools:
         if pagina == "wiki" and busqueda:
             from urllib.parse import quote
             url = f"https://starcitizen.tools/index.php?search={quote(busqueda)}"
+        elif pagina == "motherlode" and busqueda:
+            from .motherlode import SITE, slug
+            url = f"{SITE}/data/ores/{slug(busqueda)}"
         elif pagina == "starmap" and busqueda:
             from urllib.parse import quote
             url = f"https://starmap.space/maps/index.php?planet={quote(busqueda)}"

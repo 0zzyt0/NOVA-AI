@@ -1254,6 +1254,18 @@ class UIServer:
                 "globalini": {"ruta": str(n.gamelog.text.path or ""), "idioma": n.gamelog.text.language,
                               "textos": len(n.gamelog.text.entries), "reglas": len(n.gamelog.text.rules)}}
 
+    def api_motherlode_test(self, clave: str = "") -> dict:
+        """2.0.3: prueba la clave de Motherlode (cryon.rocks) con /api/public/v1/me."""
+        from core.motherlode import MotherlodeError
+        if clave is not None and str(clave).strip():
+            self.nova.settings.set("motherlode_clave", str(clave).strip())
+        try:
+            return self.nova.tools.motherlode().test()
+        except MotherlodeError as e:
+            return {"ok": False, "texto": str(e)}
+        except Exception as e:  # noqa: BLE001
+            return {"ok": False, "texto": f"No responde: {e}"}
+
     def api_sources_check(self) -> list[dict]:
         """Comprueba (sin abrir el navegador) que cada página de consulta responde desde este PC."""
         from core import sources_check

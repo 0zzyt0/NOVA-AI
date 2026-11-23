@@ -14,7 +14,7 @@ import os
 import threading
 from pathlib import Path
 
-VERSION = "2.0.2"
+VERSION = "2.0.3"
 APP_NAME = "NOVA AI"
 APP_DIR = Path(__file__).resolve().parent.parent
 FACTORY_DIR = APP_DIR / "datos"  # archivos de fábrica que vienen con el programa (solo lectura)
@@ -124,7 +124,8 @@ DEFAULTS: dict = {
     "globalini_idioma_antes": "",  # g_language que había antes (para deshacerlo)
     "nombre_asistente": "Nova",  # se puede llamar como quieras: se entrena en la configuración inicial
     "nombre_piloto": "",
-    "perfil_auto": True,  # v2.0.1: anotar naves, misiones y planos en lo_que_sabe_de_ti.txt
+    "perfil_auto": True,
+    "motherlode_clave": "",  # 2.0.3: clave gratuita de cryon.rocks (minería); nunca va en las copias de seguridad  # v2.0.1: anotar naves, misiones y planos en lo_que_sabe_de_ti.txt
     "tratamiento": "señor",
     "asistente_completado": False,  # False = al abrir sale la ventana de configuración inicial
     "nombre_variantes": [],  # cómo escribe Whisper el nombre cuando TÚ lo dices (aprendido)
@@ -342,6 +343,8 @@ class Settings:
         with self._lock:
             keys = copy.deepcopy(self.data.get("claves") or {}) if keep_keys else {}
             kept = {k: self.data[k] for k in self.KEEP_ON_RESET if k in self.data}
+            if keep_keys and self.data.get("motherlode_clave"):
+                kept["motherlode_clave"] = self.data["motherlode_clave"]  # 2.0.3
             self.data = copy.deepcopy(DEFAULTS)
             self.data.update(kept)
             self.data["claves"].update(keys)

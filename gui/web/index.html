@@ -546,6 +546,13 @@
         </div>
       </div>
       <div class="panel">
+        <div class="panel-h"><span>MOTHERLODE · MINERÍA</span><span class="chip" id="mlChip">SIN CLAVE</span></div>
+        <p class="muted"><span class="ai-name">Nova</span> consulta la minería de cryon.rocks: dónde se mina cada mineral (porcentaje en la roca, calidad, resistencia e inestabilidad), qué hay en cada luna o cinturón, los láseres, las refinerías con bonificación y dónde venderlo. Pruébalo: «<span class="ai-name">Nova</span>, ¿dónde encuentro quantainium?».</p>
+        <p class="muted small">Su API pide una clave gratuita: entra con tu cuenta en cryon.rocks, crea la clave en «Developer» y pégala aquí. Se queda en tu PC y no va en las copias de seguridad. Sin clave, <span class="ai-name">Nova</span> puede abrirte la página en el navegador.</p>
+        <div class="toolbar"><input type="password" id="mlKey" data-set="motherlode_clave" placeholder="Clave de Motherlode" autocomplete="off" spellcheck="false"><button class="btn pri" id="btnMlTest">PROBAR</button><a class="btn" id="btnMlKey" href="https://cryon.rocks/profile/developer" target="_blank" rel="noopener">CREAR MI CLAVE</a></div>
+        <p class="muted small" id="mlMsg"></p>
+      </div>
+      <div class="panel">
         <div class="panel-h"><span>COMPROBAR LAS PÁGINAS</span><span class="chip" id="chkChip">—</span></div>
         <p class="muted">Comprueba desde tu PC, sin abrir el navegador, que cada página de consulta responde.</p>
         <div id="chkList" class="chk-list"></div>

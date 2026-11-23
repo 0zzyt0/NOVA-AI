@@ -108,7 +108,12 @@ SHOP_BUY = re.compile(r"SendShopBuyRequest>.*?client_price\[(?P<price>[\d.]+)\].
 SHOP_RESULT = re.compile(r"RmShopFlowResponse>.*?result\[(?P<res>\w+)\]\s*type\[(?P<type>\w+)\]")
 EQUIP = re.compile(r"<EquipItem> Request\[\d+\] equip from .*?Class\[(?P<cls>[^\]]+)\]")
 DOCK_TUBE = re.compile(r"<CSCItemDockingTube::OnSetTubeState> .*?Station_DockingTube\S* \[(?P<id>\d+)\] - Tube opened: "
-                       r"broadcasting OnShipCanDock")
+                       r"broadcasting OnShipCanDock(?: \(reserved vehicle \[(?P<vid>\d+)\]\))?")
+# 2.0.3: el id de tu personaje («Player 0zzyt0[877594123351]», «Local client node [877594123351]»)
+PLAYER_GEID = re.compile(r"\bPlayer (?P<name>[\w.\-]+)\[(?P<id>\d{9,})\]")
+LOCAL_NODE = re.compile(r"Local client node \[(?P<id>\d{9,})\]")
+SHIP_TRANSFORM = re.compile(r"Vehicle: (?P<cls>[A-Za-z0-9_]+?)_(?P<vid>\d{9,}), Interactor: (?P<who>\d{9,})")
+LOCINV_PLAYER = re.compile(r"Player\[(?P<name>[^\]]+)\] requested inventory")
 EQUIP_GAP = 4.0  # segundos sin equiparse nada más para dar el resumen
 # Nombres de reserva (juego en inglés sin global.ini) de lo que más se equipa
 ITEM_EN = {
@@ -128,6 +133,7 @@ BODIES = {
     "pyro1": "Pyro I", "pyro2": "Monox", "pyro3": "Bloom", "pyro4": "Pyro IV", "pyro5": "Pyro V",
     "pyro5a": "Ignis", "pyro5b": "Vatra", "pyro5c": "Adir", "pyro5d": "Fairo", "pyro5e": "Fuego",
     "pyro5f": "Vuur", "pyro6": "Terminus",
+    "nyx1": "Nyx I", "nyx2": "Nyx II", "nyx3": "Nyx III",  # 2.0.3: en 5.0 se puede bajar a Nyx I
 }
 STATIONS = {"hur_leo": "Everus Harbor", "cru_leo": "Seraphim Station", "arc_leo": "Baijini Point",
             "mic_leo": "Port Tressler", "p2_l4": "Checkmate", "p3_leo": "Orbituary", "p3_l1": "Starlight Service Station"}
@@ -179,8 +185,8 @@ def system_of(raw: str) -> str:
         return _jump_pair(*(SYS_SHORT.get(x[:4], x.capitalize()) for x in m.groups()))[0]
     if re.match(r"(?i)^rr_p\d", t) or low.startswith("pyro"):
         return "Pyro"
-    if "levski" in low or low.startswith("nyx"):
-        return "Nyx"
+    if "levski" in low or low.startswith("nyx") or re.match(r"(?:sector|cluster|location)_ht_a_", low):
+        return "Nyx"  # 2.0.3: «ht_a» son las regiones y asentamientos de Nyx I (5.0)
     m = SYSTEM_RX.search(t)
     if m:
         return m.group(1).capitalize()
@@ -217,6 +223,16 @@ def pretty_loc(raw: str, text=None) -> str:
             return local
     if low in BODIES:
         return BODIES[low]
+    # 2.0.3 (5.0): regiones y asentamientos de Nyx I traen su nombre entre paréntesis:
+    # «sector_ht_a_grass_001 (Planters Claim)», «cluster_ht_a_habitation_l_004_farming (Outward Branch)»
+    m = re.fullmatch(r"(?i)(?:sector|cluster|location)_\w+?\s*\(([^()]*[A-Za-z][^()]*)\)", t)
+    if m:
+        return m.group(1).strip()
+    if re.fullmatch(r"(?i)cluster_\w*meteorite\w*(?:\s*\([^()]*\))?", t):
+        return _tr("zona de meteorito")
+    m = re.fullmatch(r"(?i)asteroidclusterbase_(stanton|pyro|nyx)_(?:\w+_)?([a-z]+)(?:_\d+)?", t)
+    if m:
+        return _tr("base de asteroides {n} ({s})", n=m.group(2).capitalize(), s=SYSTEMS[m.group(1).lower()])
     m = re.fullmatch(r"rr_(hur|cru|arc|mic|p\d)_(leo|l\d)", low)
     if m:
         name = STATIONS.get(f"{m.group(1)}_{m.group(2)}")
@@ -523,6 +539,7 @@ class GameLog(threading.Thread):
         self._place_said_t = -1e9  # último aviso hablado de llegada / ubicación / armisticio
         self._qt_vid = ""  # id de la nave con la que TÚ elegiste el destino cuántico
         self._own_vids: dict[str, float] = {}  # naves que controla este cliente (las tuyas)
+        self.player_geid = ""  # 2.0.3: id de entidad de tu personaje en esta sesión
         self.system = ""  # sistema en el que estás (Stanton, Pyro, Nyx), si se sabe
         self._replaying = False
         self._qt_target = ""
@@ -667,7 +684,17 @@ class GameLog(threading.Thread):
         m = VEHICLE_ID.search(rec)
         if not m:
             return ""
-        vid = m.group(2)
+        return self._own_vid(m.group(2))
+
+    def _is_my_vehicle(self, vid: str) -> bool:
+        """2.0.3: ¿esta nave (por id) es tuya o la manejas tú?"""
+        if vid in self._own_vids:
+            return True
+        name = self._vehicles.get(vid, "")
+        mine = bool(self.player and self.ship_owner and self.ship_owner.lower() == self.player.lower())
+        return bool(name and mine and self.ship and name == self.ship)
+
+    def _own_vid(self, vid: str) -> str:
         self._own_vids[vid] = self._now or time.time()
         if len(self._own_vids) > 50:
             for k in sorted(self._own_vids, key=self._own_vids.get)[:25]:
@@ -689,7 +716,15 @@ class GameLog(threading.Thread):
         self._last_announced = place
         now = self._now or time.time()
         recent_arrival = now - getattr(self, "_arrival_t", -1e9) < 30
-        self._emit("ubicacion", "" if recent_arrival else "ubicacion", {"lugar": place, "raw": raw})
+        # 2.0.3: yendo y viniendo entre dos asentamientos cercanos (Nyx I, 5.0) no se repite el mismo sitio
+        # si ya se dijo hace menos de 15 minutos
+        said = getattr(self, "_place_times", None)
+        if said is None:
+            said = self._place_times = {}
+        recent_same = now - said.get(place, -1e9) < 900
+        if not recent_arrival and not recent_same:
+            said[place] = now
+        self._emit("ubicacion", "" if recent_arrival or recent_same else "ubicacion", {"lugar": place, "raw": raw})
 
     def _ship(self, cls: str) -> str:
         """Nombre bonito de una nave a partir de su clase interna; prefiere el que muestra el HUD."""
@@ -764,12 +799,18 @@ class GameLog(threading.Thread):
             m = DOCK_TUBE.search(rec)
             if m:
                 now = self._now or time.time()
+                vid = m.group("vid") or ""
+                if vid and not self._is_my_vehicle(vid):
+                    # 2.0.3: el juego escribe también los tubos que se abren para las naves de OTROS jugadores
+                    # (en la misma estación). Solo cuenta el reservado para tu nave.
+                    log.debug("Tubo de atraque para otra nave (%s): no es tuyo", vid)
+                    return
                 if now - self._tubes.get(m.group("id"), -1e9) > 120:
                     self._tubes[m.group("id")] = now
-                    own = bool(self.player and self.ship_owner and self.ship_owner.lower() == self.player.lower())
-                    # Solo se comenta en voz alta si vas en TU nave; si no, queda en la lista de eventos.
-                    self._emit("atraque_listo", "nave" if own else "", {"nave": self.ship},
-                               detail="tubo de atraque abierto" + (f" · {self.ship}" if self.ship else ""))
+                    own = bool(vid) or bool(self.player and self.ship_owner and self.ship_owner.lower() == self.player.lower())
+                    ship = self._vehicles.get(vid, "") or self.ship
+                    self._emit("atraque_listo", "nave" if own else "", {"nave": ship},
+                               detail="tubo de atraque abierto" + (f" · {ship}" if ship else ""))
             return
         if "Added notification" in rec:
             self._notification(rec)
@@ -781,6 +822,9 @@ class GameLog(threading.Thread):
                 self._emit("cerca_de_cuerpo", "", {"x": pretty_loc(m.group(2), self.text), "raw": m.group(2)})
             return
         if "RequestLocationInventory" in rec:
+            who = LOCINV_PLAYER.search(rec)
+            if who and self.player and who.group("name").lower() != self.player.lower():
+                return  # 2.0.3: el inventario de otro jugador no dice dónde estás tú
             m = LOCINV.search(rec) or LOCATION.search(rec)
             if m:
                 self._set_system(m.group(1))
@@ -864,8 +908,25 @@ class GameLog(threading.Thread):
                 return
             self._emit("salto_error", "", {}, detail="el motor cuántico no estaba listo")
             return
+        if "<Ship Transform Request>" in rec:
+            # 5.0: cambiar el modo de vuelo/tierra de la nave; «Interactor» es quien lo hace
+            m = SHIP_TRANSFORM.search(rec)
+            if m and self.player_geid and m.group("who") == self.player_geid:
+                self._vehicles.setdefault(m.group("vid"), self._ship(m.group("cls")))
+                self._own_vid(m.group("vid"))
+            return
+        if "[Instancing] Player" in rec or "[TRANSPORT] Player" in rec:
+            m = PLAYER_GEID.search(rec)
+            if m and self.player and m.group("name").lower() == self.player.lower():
+                self.player_geid = m.group("id")
+            return
         if "<Vehicle Control Flow>" in rec:
             m = CONTROL_TOKEN.search(rec)
+            node = LOCAL_NODE.search(rec)
+            if node and not self.player_geid:
+                self.player_geid = node.group("id")
+            if m and "Local client" not in rec:
+                return  # 2.0.3: el control de la nave de otro jugador no es cosa tuya
             if m:
                 self._remember_vehicles(rec)
                 if "Local client" in rec:
@@ -877,6 +938,7 @@ class GameLog(threading.Thread):
         if "SetVehicleSpawningInformations" in rec:
             m = SPAWN_INFO.search(rec)
             if m:
+                self._own_vid(m.group(1))  # 2.0.3: la pediste tú en el terminal de naves: es tuya
                 ship = self._vehicles.get(m.group(1), "")
                 place = m.group(2).strip()
                 self._emit("nave_entregada", "", {"nave": ship, "lugar": place},

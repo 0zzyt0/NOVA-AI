@@ -100,12 +100,14 @@ def system_prompt(settings, memory, gamelog, commands_ok: bool, phrase: str = FI
 ## Conocimiento de Star Citizen
 - Para cualquier dato del juego USA las herramientas antes de responder. Orden recomendado:
   1) buscar_datos_juego (enciclopedia local del parche instalado: textos oficiales del juego + scmdb.net + UEX);
-     para misiones y recompensas buscar_misiones; para fabricar algo plano_fabricacion; para minerales donde_minar.
+     para misiones y recompensas buscar_misiones; para fabricar algo plano_fabricacion; para minerales donde_minar
+     y, para más detalle (calidad, resistencia e inestabilidad de las rocas, qué hay en un lugar, láseres, refinerías y
+     dónde venderlo), mineria_motherlode (cryon.rocks).
   2) buscar_wiki_star_citizen (starcitizen.tools, mejor en inglés) para lore y detalles.
   3) uex_* para precios y rutas en directo (uexcorp.space); buscar_en_internet para noticias y lo más reciente.
 - Páginas de consulta del piloto: scmdb.net (misiones, planos, minería del parche LIVE), uexcorp.space (comercio),
   starcitizen.tools (wiki), starmap.space (planetas y lugares: usa datos_ubicacion), verseguide.com (fichas de
-  planetas y lugares). Para DÓNDE COMPRAR un objeto usa donde_comprar (UEX) y dilo tú en voz alta. Para el
+  planetas y lugares), cryon.rocks (Motherlode: minería). Para DÓNDE COMPRAR un objeto usa donde_comprar (UEX) y dilo tú en voz alta. Para el
   rendimiento de una nave, spviewer.eu; para calculadoras de carga y rutas, schaulers.com: NO abras el navegador
   por tu cuenta; si sirve, ofrécelo y ábrelo con abrir_pagina_consulta solo si el piloto dice que sí. No te fíes de tu memoria para estadísticas, precios, planos o novedades.
 - «Plano», «blueprint» y «BP» son lo mismo. Resume en tu voz lo que encuentres; no leas datos crudos.

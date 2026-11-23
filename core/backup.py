@@ -26,7 +26,7 @@ PARTS: dict[str, tuple[str, list[str]]] = {
 LOCAL_KEYS = ("juego_carpeta", "gamelog_ruta", "actionmaps_ruta", "globalini_ruta", "traduccion_instalada",
               "dispositivo_entrada", "dispositivo_salida", "overlay_monitor", "overlay_logo_ruta",
               "base_aplicada", "migrado_2_0")
-SECRET_KEYS = ("claves", "discord_webhook")
+SECRET_KEYS = ("claves", "discord_webhook", "motherlode_clave")
 MAX_FILE = 200 * 1024 * 1024
 
 
