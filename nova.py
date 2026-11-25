@@ -92,6 +92,11 @@ def main() -> None:
             pass
         return
 
+    # 2.1.6: si falta la carpeta de datos (Windows reinstalado, carpeta borrada…) y hay copia de NOVA en
+    # Documentos\NOVA AI\Copias de seguridad, se repone antes de leer los ajustes
+    from core.controls_backup import restore_nova_if_lost
+
+    restored_from = restore_nova_if_lost(DATA_DIR)
     settings = Settings()
     first_language(settings)
     from core.assistant import Nova
@@ -150,6 +155,16 @@ def main() -> None:
             nova.diary.flush()
             session.dirty = True
             save_all()
+            try:  # 2.1.6: copias que dejaste «al cerrar NOVA» y copia diaria de lo que NOVA ha aprendido
+                nova.controls.stop()
+                nova.controls.on_nova_exit()
+                if settings.get("copia_nova_auto", True) and time.time() - float(settings.get("copia_nova_ultima") or 0) > 20 * 3600:
+                    from core.controls_backup import nova_backup
+
+                    nova_backup(settings, "diaria")
+                    settings.save()
+            except Exception:
+                log.exception("Copias al cerrar")
             try:
                 nova.update_on_close()  # ¿versión nueva? (o la que dejaste «para al cerrar»)
             except Exception:
@@ -256,6 +271,18 @@ def main() -> None:
         log.exception("Bandeja")
     server.on_hide = hide_to_tray
     server.tray_ok = lambda: tray is not None and tray.ok
+
+    def controls_attention(title: str, text: str, show: bool) -> None:
+        """2.1.6: una pregunta sobre tus controles: aviso en la bandeja y, con el juego cerrado, la ventana."""
+        try:
+            if tray is not None and tray.ok:
+                tray.notify(title, text[:250])
+            if show and server.clients == 0:
+                show_window()
+        except Exception:
+            log.exception("Aviso de controles")
+
+    nova.controls.on_attention = controls_attention
     nova.request_quit = lambda: threading.Thread(target=shutdown, daemon=True, name="apagado").start()
 
     def check_sources() -> None:
@@ -312,6 +339,10 @@ def main() -> None:
                             "👋 Falta una clave de IA: ve a Nova › Inteligencia y pega una clave GRATIS de "
                             "Gemini y/o Groq (NOVA reconoce de cuál es). Sin clave funcionan los comandos de la nave "
                             "por frase directa, pero no la conversación ni las búsquedas.")
+        if restored_from:
+            nova.on_message("sistema", "🛟 Faltaba la carpeta de datos de NOVA: he repuesto lo que había aprendido "
+                                       "desde tu copia de seguridad (" + os.path.basename(restored_from) + "). "
+                                       "Las claves de IA no van en las copias: vuelve a pegarlas en Nova › Inteligencia.")
         from core.diary import last_location
 
         nova.greet(last_place=last_location() or session.get("ubicacion") or "")

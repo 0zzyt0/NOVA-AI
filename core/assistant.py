@@ -82,6 +82,13 @@ class Nova:
 
         self.telemetry = Telemetry(settings, self.gamelog, on_event=self._on_game_event, cache_dir=_DATA / "telemetria")
         self.gamelog.telemetry = self.telemetry
+        # 2.1.6: copias de seguridad de tus controles del juego (pregunta si cambian, repone tras actualizar)
+        from .controls_backup import ControlGuard
+
+        self.controls = ControlGuard(settings, self.gamelog)
+        self.controls.on_message = lambda text: self._on_message_raw("sistema", text)  # ya va traducido
+        self.controls.on_prompt = lambda p: self.on_ui({"t": "controles", "pregunta": p})
+        self.controls.on_restored = self._controls_restored
         self.commands = CommandBook(settings, gamelog_path_fn=lambda: self.gamelog.path or find_game_log())
         self.tools = Tools(settings, self.commands, self.memory, self.gamelog)
         # Enciclopedia local (juego + scmdb + UEX), diario de la sesión y comprobación de las fuentes al arrancar
@@ -221,6 +228,15 @@ class Nova:
             self.gamelog.start()
         if not self.telemetry.is_alive():
             self.telemetry.start()
+        self.controls.start()
+
+    def _controls_restored(self, ch) -> None:
+        """2.1.6: repuestos tus controles: NOVA vuelve a leer tus teclas para pulsar las buenas."""
+        try:
+            self.reload_commands()
+        except Exception:  # noqa: BLE001
+            log.exception("Releyendo las teclas tras reponer")
+        self.on_ui({"t": "comandos"})
 
     # ------------------------------------------------------------- estado
     def _mic_should_be_deaf(self) -> bool:

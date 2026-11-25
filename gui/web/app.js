@@ -238,6 +238,7 @@ function connect() {
     else if (ev.t === "trad") Trad.progress(ev);
     else if (ev.t === "trad_aviso") { STATE.traduccion_aviso = true; Trad.maybeAsk(); }
     else if (ev.t === "reset") afterReset();
+    else if (ev.t === "controles" || ev.t === "comandos") { if (window.V216) V216.onEvent(ev); if (ev.t === "comandos") loadCommands(); }
     else if (window.V11) {
       V11.onEvent(ev); if (window.V12) V12.onEvent(ev); if (window.V13) V13.onEvent(ev); if (window.V122) V122.onEvent(ev);
       if (window.V14) V14.onEvent(ev);

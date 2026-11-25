@@ -163,6 +163,24 @@
           <div class="field"><label>Modo prudente con las teclas<small>Secuencias sin pausas ni clics de ratón y teclas mantenidas 3 s como máximo. Recomendado por los Términos de RSI</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="teclas_prudentes"><i></i></span></div></div>
         </div>
       </div>
+      <div class="panel" id="ctlPanel">
+        <div class="panel-h"><span>COPIA DE SEGURIDAD DE TUS CONTROLES</span><span class="chip" id="ctlChip">—</span></div>
+        <p class="muted">Guarda tus teclas de teclado y ratón, mando y HOTAS/HOSAS, tus opciones de control y tus perfiles exportados de cada versión del juego (LIVE, PTU…). Si cambias los controles, <span class="ai-name">Nova</span> te pregunta al abrir o cerrar el juego si quieres guardar una copia; y si una actualización de Star Citizen los borra o los cambia, te pregunta si quieres reponerlos.</p>
+        <div class="ctl-chans" id="ctlChans"></div>
+        <div class="row gap wrap ctl-restore">
+          <label class="muted small" for="ctlCopy">Reponer desde</label>
+          <select id="ctlCopy"></select>
+          <span class="muted small">→</span>
+          <select id="ctlTarget"></select>
+          <button class="btn pri" id="btnCtlRestore">⟲ REPONER MIS CONTROLES</button>
+        </div>
+        <p class="muted small" id="ctlMsg"></p>
+        <div class="field"><label>Vigilar mis controles<small>Al abrir y cerrar el juego compara con la última copia y pregunta si han cambiado</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="controles_vigilar"><i></i></span></div></div>
+        <div class="field"><label>Hacer la copia sin preguntar<small>Si cambias los controles, la copia se hace sola (con el juego cerrado)</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="controles_copia_sin_preguntar"><i></i></span></div></div>
+        <div class="field"><label>Reponer sin preguntar tras una actualización<small>Desactivado: <span class="ai-name">Nova</span> pregunta «¿Quiere reponer sus controles personalizados?»</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="controles_reponer_auto"><i></i></span></div></div>
+        <p class="muted small">Las copias se guardan en <code id="ctlPath">Documentos\NOVA AI\Copias de seguridad</code>, fuera del juego y de <span class="ai-name">Nova</span>: sobreviven a las actualizaciones de los dos. Reponer <b>mezcla</b> tus teclas con lo nuevo del juego y antes guarda lo que había, así que siempre puedes volver atrás. Solo se repone con el juego cerrado.</p>
+        <div class="row gap wrap"><button class="btn" id="btnCtlOpen">ABRIR CARPETA DE COPIAS</button><button class="btn" id="btnCtlCheck">COMPROBAR AHORA</button></div>
+      </div>
       </div>
       <div class="subsec" data-sub="avisos">
       <div class="panel">
@@ -722,6 +740,8 @@
           <label class="check"><input type="checkbox" value="bitacora"> Bitácora</label>
         </div>
         <div class="row gap wrap" style="margin-top:10px"><button class="btn pri" id="btnBkExport">⤓ EXPORTAR COPIA…</button><button class="btn" id="btnBkImport">⤒ IMPORTAR COPIA…</button><span class="muted small" id="bkMsg"></span></div>
+        <div class="field" style="margin-top:12px"><label>Copia automática de lo que <span class="ai-name">Nova</span> ha aprendido<small>Antes de cada actualización de <span class="ai-name">Nova</span> y una vez al día al cerrarla, en Documentos\NOVA AI\Copias de seguridad\NOVA (se guardan las 10 últimas). Si algún día falta la carpeta de datos, <span class="ai-name">Nova</span> la repone sola y te avisa</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="copia_nova_auto"><i></i></span></div></div>
+        <div class="row gap wrap"><button class="btn" id="btnNovaBkNow">COPIA AHORA</button><button class="btn" id="btnNovaBkOpen">ABRIR CARPETA</button><span class="muted small" id="novaBkMsg"></span></div>
       </div>
             <div class="panel">
         <div class="panel-h"><span>ARCHIVOS</span></div>
@@ -769,6 +789,20 @@
     <p id="qnAskText">Hola, piloto. Llevas unos días con NOVA AI: ¿nos ayudas con un cuestionario anónimo de un minuto? Tu opinión decide las próximas mejoras.</p>
     <div class="modal-foot" id="qnAsk1"><button class="btn pri" id="qnAskYes">RELLENAR AHORA</button><button class="btn" id="qnAskNo">AHORA NO</button></div>
     <div class="modal-foot" id="qnAsk2" hidden><span>¿Te lo recuerdo dentro de 3 días?</span><button class="btn pri" id="qnRemind">SÍ, EN 3 DÍAS</button><button class="btn" id="qnNever">NO, GRACIAS</button></div>
+  </div>
+</div>
+<div class="modal" id="ctlModal" hidden>
+  <div class="modal-box panel ctl-box">
+    <div class="panel-h"><span>🎮 CONTROLES DE STAR CITIZEN</span><span class="hint" id="ctlAskChan"></span></div>
+    <p class="ctl-q" id="ctlAskText"></p>
+    <div class="ctl-facts" id="ctlAskFacts"></div>
+    <div class="ctl-news" id="ctlAskNews" hidden><b>Opciones nuevas en esta versión</b> <span class="muted small">(revísalas a mano en el juego)</span><ul id="ctlAskNewsList"></ul></div>
+    <div class="modal-foot">
+      <button class="btn pri" data-ctl="si">SÍ</button>
+      <button class="btn" data-ctl="no">NO</button>
+      <button class="btn" data-ctl="mas_tarde">MÁS TARDE</button>
+      <button class="btn" data-ctl="al_cerrar">AL CERRAR NOVA</button>
+    </div>
   </div>
 </div>
 <div class="modal" id="updModal" hidden>
@@ -962,6 +996,7 @@
 <script src="/v14.js"></script>
 <script src="/v20.js"></script>
 <script src="/v21.js"></script>
+<script src="/v216.js"></script>
 <script src="/tour.js"></script>
 </body>
 </html>

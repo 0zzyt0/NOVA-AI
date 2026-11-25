@@ -167,14 +167,14 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <div class="tl" data-cap="04"><span class="n">04</span>La ventana de Nova<span class="p">11</span></div>
     <div class="tl" data-cap="05"><span class="n">05</span>Cabina y cómo hablarle<span class="p">12</span></div>
     <div class="tl" data-cap="06"><span class="n">06</span>Juego SC<span class="p">15</span></div>
-    <div class="tl" data-cap="07"><span class="n">07</span>Nova: voz, escucha e inteligencia<span class="p">20</span></div>
-    <div class="tl" data-cap="08"><span class="n">08</span>Pantalla: overlay, hologramas y aspecto<span class="p">26</span></div>
-    <div class="tl" data-cap="09"><span class="n">09</span>Información<span class="p">31</span></div>
-    <div class="tl" data-cap="10"><span class="n">10</span>Ajustes, copias y modo reposo<span class="p">37</span></div>
-    <div class="tl" data-cap="11"><span class="n">11</span>Guía: tus propias API Keys<span class="p">41</span></div>
-    <div class="tl" data-cap="12"><span class="n">12</span>Problemas frecuentes<span class="p">44</span></div>
-    <div class="tl" data-cap="13"><span class="n">13</span>Privacidad y créditos<span class="p">45</span></div>
-    <div class="tl" data-cap="14"><span class="n">14</span>Gracias a la comunidad<span class="p">46</span></div>
+    <div class="tl" data-cap="07"><span class="n">07</span>Nova: voz, escucha e inteligencia<span class="p">21</span></div>
+    <div class="tl" data-cap="08"><span class="n">08</span>Pantalla: overlay, hologramas y aspecto<span class="p">27</span></div>
+    <div class="tl" data-cap="09"><span class="n">09</span>Información<span class="p">32</span></div>
+    <div class="tl" data-cap="10"><span class="n">10</span>Ajustes, copias y modo reposo<span class="p">38</span></div>
+    <div class="tl" data-cap="11"><span class="n">11</span>Guía: tus propias API Keys<span class="p">42</span></div>
+    <div class="tl" data-cap="12"><span class="n">12</span>Problemas frecuentes<span class="p">45</span></div>
+    <div class="tl" data-cap="13"><span class="n">13</span>Privacidad y créditos<span class="p">46</span></div>
+    <div class="tl" data-cap="14"><span class="n">14</span>Gracias a la comunidad<span class="p">47</span></div>
   </div>
   <h2>Cómo leer este manual</h2>
   <div class="g3">
@@ -560,6 +560,30 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   <p>El Game.log no anota cuándo fijas un objetivo («tarjetear» a un enemigo). Si se lo pides por voz (<span class="say">«Nova, fija el objetivo»</span>, <span class="say">«marca el objetivo»</span>), Nova pulsa la tecla y lo anota en la bitácora (etiqueta <b>OBJETIVO</b>) con la nave y el lugar.</p>
   <h2>Rutas de comercio</h2>
   <p><span class="say">«Nova, ¿qué ruta me da más con 100.000 aUEC?»</span>: con los precios de UEX calcula cuántas SCU comprar según la bodega de la nave en la que vas (o la que digas), el stock del origen, la demanda del destino y tu dinero, y ordena por <b>beneficio real</b>. Si no sabe tu nave usa la <b>Bodega por defecto</b> de <b>Información › Fuentes</b>.</p>
+  <div class="pf">NOVA AI · MANUAL DE USUARIO<span class="n"></span></div>
+</section>
+
+<!-- ======================================================= 06 JUEGO 3B: COPIAS DE LOS CONTROLES -->
+<section class="page">
+  <div class="ph"><img src="/logo.png">NOVA AI · Manual de usuario<span class="s">06 · Juego SC › Teclas y joystick</span></div>
+  <h2>Copia de seguridad de tus controles</h2>
+  <p>Nova guarda tus teclas de <b>teclado y ratón, mando y HOTAS/HOSAS</b>, tus opciones de control y los perfiles que exportaste desde el juego, de cada versión (LIVE, PTU…). Las copias van a <code>Documentos\NOVA AI\Copias de seguridad</code>, fuera del juego y de Nova: sobreviven a las actualizaciones de los dos.</p>
+  <figure class="c" style="width:100mm"><img src="img/c_juego_copias.webp"><figcaption><b>Juego SC › Teclas y joystick › Copia de seguridad de tus controles.</b></figcaption></figure>
+  <div class="g2">
+    <div class="card"><h3>Cuándo pregunta</h3><ul class="d small">
+      <li><b>Si cambias los controles</b>, al cerrar el juego (o al abrir Nova): <span class="say">«Veo que has realizado cambios en los controles. ¿Quieres realizar una copia de seguridad…?»</span> <b>SÍ</b> la hace, <b>NO</b> no vuelve a preguntar por esos cambios, <b>MÁS TARDE</b> pregunta dentro de 2 horas y <b>AL CERRAR NOVA</b> la hace al salir.</li>
+      <li><b>Si Star Citizen se actualiza</b> y tus controles ya no son los de la copia: <span class="say">«¿Quiere reponer sus controles personalizados?»</span>, con la lista de <b>opciones nuevas</b> de esa versión para que las revises a mano.</li>
+      <li>Mientras juegas no pregunta: espera a que cierres el juego.</li></ul></div>
+    <div class="card"><h3>Reponer</h3><ul class="d small">
+      <li><b>⟲ Reponer mis controles</b> elige la copia y la versión (por ejemplo, tus teclas de LIVE en el PTU).</li>
+      <li>Reponer <b>mezcla</b>: tus teclas de la copia + lo nuevo que traiga el juego. Antes guarda lo que había.</li>
+      <li>Solo con el juego cerrado (el juego reescribe sus archivos al salir). Después Nova vuelve a leer tus teclas.</li>
+      <li>Una copia dañada no se repone nunca.</li></ul></div>
+  </div>
+  <div class="g2">
+    <figure style="margin:0"><img src="img/c_juego_copias_pregunta.webp"><figcaption>La pregunta tras una actualización del juego.</figcaption></figure>
+    <div class="tip"><span class="t">LO QUE NOVA HA APRENDIDO, TAMBIÉN A SALVO</span>Antes de cada actualización de Nova y una vez al día al cerrarla se guarda una copia de sus ajustes, comandos, memoria, diccionario y bitácora en <code>Documentos\NOVA AI\Copias de seguridad\NOVA</code> (sin tus claves de IA). Si algún día falta la carpeta de datos, Nova la repone sola y te avisa. Está en <b>Ajustes › Copias y archivos</b>.</div>
+  </div>
   <div class="pf">NOVA AI · MANUAL DE USUARIO<span class="n"></span></div>
 </section>
 
