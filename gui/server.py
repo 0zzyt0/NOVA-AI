@@ -254,6 +254,7 @@ class UIServer:
         return {
             "settings": {k: s.get(k) for k in DEFAULTS if k != "claves"},
             "keys_set": {p: bool(s.key_for(p)) for p in PROVIDERS},
+            "motores": self.api_engines(),
             "providers": {k: {"nombre": v["nombre"], "modelos": v["modelos"], "url": v["clave_url"],
                               "oculto": bool(v.get("oculto"))} for k, v in PROVIDERS.items()},
             "piper_voices": piper_voices(i18n.norm(s.get("idioma"))),
@@ -261,6 +262,7 @@ class UIServer:
             "stt": {"mode": n.stt.mode(), "status": n.stt.status},
             "game": {"status": n.gamelog.status, "location": n.gamelog.location, "ship": n.gamelog.ship,
                      "contracts": list(n.gamelog.contracts)},
+            "telemetria": n.telemetry.info(),
             "arranque": {"comprobando": n.updater.running.is_set() and not self.update_skip.is_set(),
                          "informe": n.updater.report},
             "fuentes": self.api_sources(),
@@ -481,8 +483,8 @@ class UIServer:
                     raise ValueError(err)
         elif key in ("stt_modelo_local", "stt_motor"):
             n.stt.warm_up()
-        elif key == "ia_cadena":
-            n.brain._cooldown.clear()
+        elif key in ("ia_cadena", "ia_auto", "ia_orden", "ia_ollama"):
+            n.brain.engines.reset()
         elif key in RELOAD_COMMANDS:
             n.reload_commands()
         return s.get(key)
@@ -493,14 +495,59 @@ class UIServer:
         claves = dict(self.nova.settings.get("claves"))
         claves[provider] = value.strip()
         self.nova.settings.set("claves", claves)
-        # 1.3.2: si pones la clave de un proveedor que no está en tu cadena de motores, se añade al final
+        # 1.3.2: si pones la clave de un proveedor que no está en tu cadena manual de motores, se añade al final
         chain = list(self.nova.settings.get("ia_cadena") or [])
         if (value.strip() and provider != "ollama" and len(chain) < 5
                 and not any(e.get("proveedor") == provider for e in chain)):
             chain.append({"proveedor": provider, "modelo": PROVIDERS[provider]["modelos"][0]})
             self.nova.settings.set("ia_cadena", chain)
-        self.nova.brain._cooldown.clear()
+        if value.strip() and provider in (self.nova.settings.get("claves_fabrica_quitadas") or []):
+            self.nova.settings.set("claves_fabrica_quitadas",
+                                   [p for p in self.nova.settings.get("claves_fabrica_quitadas") if p != provider])
+        self.nova.brain.engines.reset(provider)
+        if provider == "groq":
+            try:
+                self.nova.stt.warm_up()  # el reconocimiento de voz también usa la clave de Groq
+            except Exception:  # noqa: BLE001
+                pass
         return bool(value.strip())
+
+    # --- 2.1.5: motores de IA fáciles
+    def api_engines(self) -> dict:
+        """Semáforo de cada servicio de IA (se pide cada pocos segundos con la pestaña abierta)."""
+        st = self.nova.brain.engines.status()
+        st["claves"] = {p: bool(self.nova.settings.key_for(p)) for p in PROVIDERS}
+        st["quitadas"] = list(self.nova.settings.get("claves_fabrica_quitadas") or [])
+        return st
+
+    def api_paste_key(self, value: str) -> dict:
+        """Pegas una clave cualquiera: NOVA reconoce de qué servicio es, la guarda y la prueba."""
+        from core.engines import detect_provider, provider_name
+        key = re.sub(r"\s+", "", value or "").strip("'\"")
+        if not key:
+            raise ValueError("Pega una clave.")
+        prov = detect_provider(key)
+        if not prov:
+            raise ValueError("No reconozco esta clave. Las de Gemini empiezan por «AIza» o «AQ.», las de Groq por «gsk_» "
+                             "y las de OpenRouter por «sk-or-».")
+        self.api_set_key(prov, key)
+        res = self.nova.brain.test(prov)
+        return {"proveedor": prov, "nombre": provider_name(prov), "ok": res.startswith("OK"), "texto": res,
+                "estado": self.api_engines()}
+
+    def api_engine_test(self, provider: str) -> dict:
+        if provider not in PROVIDERS:
+            raise ValueError("Proveedor desconocido")
+        if not self.nova.settings.key_for(provider) and provider != "ollama":
+            raise ValueError("Primero pega la clave.")
+        self.nova.brain.engines.reset(provider)
+        res = self.nova.brain.test(provider)
+        return {"ok": res.startswith("OK"), "texto": res, "estado": self.api_engines()}
+
+    def api_engines_reset(self) -> dict:
+        """Vuelve a probar todos los motores ya, sin esperar a que acaben sus pausas."""
+        self.nova.brain.engines.reset()
+        return self.api_engines()
 
     def api_test_provider(self, provider: str, model: str) -> str:
         return self.nova.brain.test(provider, model)
@@ -547,6 +594,7 @@ class UIServer:
         return {"stt": {"mode": n.stt.mode(), "status": n.stt.status},
                 "game": {"status": n.gamelog.status, "location": n.gamelog.location, "ship": n.gamelog.ship,
                          "contracts": list(n.gamelog.contracts)},
+                "telemetria": n.telemetry.info(),
                 "overlay": self._overlay_info()}
 
     def _overlay_info(self) -> dict:
@@ -746,6 +794,39 @@ class UIServer:
         from core.rsi import Citizen, Org
         from core.verseguide import Body, Place
         n = self.nova
+        if tipo.startswith("alerta:"):  # 2.1.1: alerta de telemetría de ejemplo (2.1.2: y estado, salto, tren, contrato)
+            from core.gamelog import GameEvent
+            from core.telemetry import ALERT_HOLO, HOLO_KINDS, holo_card, status_card
+            kind = tipo.split(":", 1)[1]
+            tel = n.telemetry
+            live = tel.live()
+            demo = {
+                "actor": {"health": 0.82, "thirst": 0.09, "hunger": 0.22, "oxygen": 0.18, "player": "Nebula_Rider",
+                          "location": "Stanton › microTech › New Babbage",
+                          "contract": {"titulo": "Entrega urgente en Levski", "de": "Covalex Shipping",
+                                       "objetivo": "Recoge la carga y llévala al hangar 04", "hechos": 2, "total": 5,
+                                       "fin": time.time() + 262}},
+                "vehicle": {"label": "Drake Cutlass Black", "health": 0.41, "shields": 0.0, "hydrogen": 0.16,
+                            "quantum": 0.12, "annunciators": {"cool": "MAJOR_FLASHING", "pwr": "MINOR_ON"},
+                            "speed": 38, "radar_alt": 46, "vsi": -3.4, "gear": "RETRACTED", "landed": False,
+                            "qt": {"state": "TRAVELING", "dest": "Levski", "eta": 95, "dist": 4.2e9}},
+                "weapons": {"contramedidas": {"señuelos": 12, "ruido": 6}}}
+            snap = tel.snap if live else demo
+            note = "Con tus valores en directo" if live else "Ejemplo con valores ficticios"
+            if kind == "estado":
+                return status_card(snap), note
+            if kind not in HOLO_KINDS:
+                kind = "hidrogeno_bajo"
+            cat = ""
+            if kind in ALERT_HOLO:
+                src = ALERT_HOLO[kind][3]
+                cat = "cuerpo" if src and src[0] == "actor" else "sistemas"
+            ev = GameEvent(kind, "", cat, time.time(), {"x": "refrigeración" if kind == "averia_grave" else None,
+                                                         "nave": "Drake Cutlass Black", "eta": 240}, False)
+            card = holo_card(ev, snap, None)
+            if card is None:  # en directo pero sin salto, tren o contrato ahora mismo: el ejemplo
+                card, note = holo_card(ev, demo, None), "Ejemplo con valores ficticios"
+            return card, note
         if tipo in ("jugador", "recompensa"):
             c = Citizen(apodo_juego="Kaelen Voss", handle="Nebula_Rider", expediente="#4872210", alta="Mar 14, 2019",
                         idiomas="Spanish, Portuguese", org=Org(sid="ORIONVG", nombre="Orión Vanguard", rango="Navegante",
@@ -945,7 +1026,7 @@ class UIServer:
                 "piloto": s.get("nombre_piloto"), "tratamiento": s.get("tratamiento"),
                 "variantes": s.get("nombre_variantes"), "frases": self._phrases(),
                 "mic": bool(n.listener and n.listener.ok), "stt": {"mode": n.stt.mode(), "status": n.stt.status},
-                "keys": {p: bool(s.key_for(p)) for p in ("groq", "gemini")},
+                "keys": {p: bool(s.key_for(p)) for p in ("groq", "gemini", "openrouter")},
                 "aviso": wake.name_warning(s.get("nombre_asistente"))}
 
     def api_setup_begin(self) -> dict:
@@ -1107,55 +1188,6 @@ class UIServer:
         st["preguntar"] = bool(self.nova.settings.get("traduccion_preguntar"))
         return st
 
-    def api_translation_install(self, origen: str = "boton") -> bool:
-        """Descarga la traducción de Google Drive y la descomprime en LIVE (en segundo plano)."""
-        from core import translation as T
-        if self._tr_busy.is_set():
-            return False
-        if i18n.norm(self.nova.settings.get("idioma")) != "es":
-            raise ValueError("La traducción de 0zzyt0 es solo para jugar en español. Usa «Añade el global.ini de tu idioma».")
-        live, _ = self._live()
-        if not live:
-            raise ValueError("No encuentro la carpeta de Star Citizen. Elígela con «Elegir carpeta del juego».")
-        self._tr_busy.set()
-
-        def run() -> None:
-            n = self.nova
-            prog = lambda text, pct: self.broadcast({"t": "trad", "estado": "progreso", "texto": text, "pct": pct,
-                                                     "origen": origen})
-            try:
-                res = T.install(n.settings, live, prog)
-                n.settings.set("traduccion_preguntar", True)
-                n.gamelog.load_texts(force=True)
-                threading.Thread(target=n.knowledge.load, daemon=True, name="enciclopedia").start()
-                msg = ("Traducción instalada" if res["nuevo"] else "Traducción actualizada" if res["cambio"]
-                       else "Ya tenías la versión más reciente; reinstalada igualmente")
-                self.broadcast({"t": "trad", "estado": "ok", "texto": f"{msg} ({res['idioma']}).", "pct": 100,
-                                "origen": origen, "resultado": res})
-                n.on_message("sistema", f"🌐 {msg} en {live}. Reinicia Star Citizen si está abierto para verla.")
-            except Exception as e:
-                log.exception("Traducción")
-                self.broadcast({"t": "trad", "estado": "error", "texto": str(e), "origen": origen})
-            finally:
-                self._tr_busy.clear()
-
-        threading.Thread(target=run, daemon=True, name="traduccion").start()
-        return True
-
-    def api_translation_answer(self, respuesta: str) -> bool:
-        """Aviso trimestral: si | no | luego. En el asistente inicial, 'rechazar' = no la quiere."""
-        from core import translation as T
-        s = self.nova.settings
-        self.tr_reminder = False
-        if respuesta == "rechazar":
-            s.set("traduccion_preguntar", False)
-            return True
-        if respuesta == "si":
-            T.answer_reminder(s, "no")  # el próximo aviso, dentro de 3 meses
-            return self.api_translation_install("aviso")
-        T.answer_reminder(s, "luego" if respuesta == "luego" else "no")
-        return True
-
     def api_pick_folder(self, titulo: str = "Elige la carpeta de Star Citizen") -> str:
         """Ventana de Windows para elegir carpeta. Devuelve la ruta o ''."""
         if sys.platform != "win32":
@@ -1265,6 +1297,56 @@ class UIServer:
             return {"ok": False, "texto": str(e)}
         except Exception as e:  # noqa: BLE001
             return {"ok": False, "texto": f"No responde: {e}"}
+
+    # --- 2.1: telemetría en directo del juego
+    def api_telemetry_status(self) -> dict:
+        from core import telemetry_setup
+        n = self.nova
+        st = telemetry_setup.status(n.settings, n.gamelog)
+        st["lector"] = n.telemetry.info()
+        return st
+
+    def api_telemetry_enable(self, on: bool = True) -> dict:
+        """Botón ACTIVAR / DESACTIVAR: user.cfg de cada canal y la variable de entorno (para la 4.10)."""
+        from core import telemetry_setup
+        n = self.nova
+        res = telemetry_setup.enable(n.settings, n.gamelog, bool(on))
+        if on:
+            n.settings.set("telemetria_activa", True)
+        n.telemetry.restart()
+        log.info("Telemetría %s: %s", "activada" if on else "desactivada", res.get("mensaje"))
+        res["lector"] = n.telemetry.info()
+        return res
+
+    def api_telemetry_install(self) -> dict:
+        """Instala el componente gRPC (grpcio + protobuf) en el entorno de NOVA."""
+        from core import telemetry_setup
+        res = telemetry_setup.install_component()
+        self.nova.telemetry.restart()
+        return res
+
+    def api_telemetry_sample(self) -> dict:
+        """Guarda el último fotograma (para comparar con el HUD o enviarlo si algo no cuadra)."""
+        tel = self.nova.telemetry
+        frame = tel.last_frame_raw
+        if frame is None:
+            return {"ok": False, "texto": i18n.tr("Todavía no ha llegado ningún dato del juego.")}
+        try:
+            from google.protobuf.json_format import MessageToDict
+            raw = MessageToDict(frame, preserving_proto_field_name=True)
+        except Exception as e:  # noqa: BLE001
+            raw = {"error": str(e)}
+        folder = DATA_DIR / "telemetria"
+        folder.mkdir(parents=True, exist_ok=True)
+        path = folder / f"muestra_{time.strftime('%Y%m%d_%H%M%S')}.json"
+        path.write_text(json.dumps({"build": tel.build, "canal": tel.channel, "fotograma": raw, "estado": tel.snap},
+                                   ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+        if sys.platform == "win32":
+            try:
+                subprocess.Popen(["explorer", "/select,", str(path)])
+            except OSError:
+                pass
+        return {"ok": True, "texto": i18n.tr("Guardada en {p}", p=path)}
 
     def api_sources_check(self) -> list[dict]:
         """Comprueba (sin abrir el navegador) que cada página de consulta responde desde este PC."""

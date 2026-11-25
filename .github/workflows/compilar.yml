@@ -5,7 +5,7 @@
 #        2) instalador todo en uno con esos .exe ya firmados dentro → firma
 # Firma: necesita el secreto SIGNPATH_API_TOKEN y la variable SIGNPATH_ORGANIZATION_ID
 # (Settings › Secrets and variables › Actions). Sin ellos compila igual, sin firmar.
-# Los compilados nunca llevan claves de fábrica (recursos/llave_claves.bin no está en el repositorio).
+# Los compilados nunca llevan claves de IA de fábrica (2.1.5: cada usuario pone las suyas).
 name: Compilar y firmar
 
 on:

@@ -173,6 +173,22 @@
           <div class="aviso-block"><div class="aviso-h">Qué te avisa en voz <small>lo que pasa en el juego según el Game.log</small></div><div class="avisos" id="avisos"></div></div>
           <div class="field"><label>Ruta del Game.log<small>Vacío = buscarlo solo</small></label><div class="ctl"><input type="text" data-set="gamelog_ruta"></div></div>
         </div>
+      <div class="panel" id="telePanel">
+        <div class="panel-h"><span>TELEMETRÍA EN DIRECTO</span><span class="chip" id="teleChip">—</span></div>
+        <p class="muted">Star Citizen puede dar a <span class="ai-name">Nova</span> el estado real de tu personaje y de tu nave (salud, sed, hambre, oxígeno, hidrógeno, cuántico, escudos, casco, viaje cuántico…). Con ella te avisa en voz y contesta al momento «¿cuánto hidrógeno me queda?» o «¿cómo voy de sed?». Solo se lee en tu PC: no toca el juego.</p>
+        <div class="toolbar">
+          <button class="btn pri" id="btnTeleOn">ACTIVAR EN STAR CITIZEN</button>
+          <button class="btn" id="btnTeleOff">DESACTIVAR</button>
+          <button class="btn" id="btnTeleInstall" hidden>INSTALAR COMPONENTE</button>
+          <button class="btn" id="btnTeleSample" title="Guarda lo último que ha llegado del juego en un archivo">GUARDAR MUESTRA</button>
+        </div>
+        <p class="muted small" id="teleMsg"></p>
+        <div class="tele-chans" id="teleChans"></div>
+        <div class="tele-grid" id="teleGrid"></div>
+        <div class="field"><label>Leer la telemetría<small>Se conecta sola cuando el juego la tiene abierta</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="telemetria_activa"><i></i></span></div></div>
+        <div class="field"><label>Responder sin IA<small>«¿Cuánto hidrógeno me queda?», «¿cómo están los escudos?», «¿cuánto falta para llegar?»</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="telemetria_respuestas"><i></i></span></div></div>
+        <p class="muted small">Qué hace «Activar»: en el user.cfg de cada versión del juego (con copia en user.cfg.nova_telemetria) pone las líneas <code>server.game.telemetry.enabled = 1</code> y <code>grpc.client.server.enabled = 1</code>, y en Windows la variable <code>GRPC_CLIENT_SERVER_ENABLED=true</code>, que es la que usa la 4.10 (LIVE).</p>
+        <p class="muted small">Después cierra el RSI Launcher del todo (también de la bandeja) y vuelve a abrir el juego. El servidor solo escucha en tu PC (127.0.0.1). Es una función nueva y sin documentar de CIG: puede cambiar con cualquier parche. La munición no la da el juego.</p>      </div>
             <div class="panel">
         <div class="panel-h"><span>PERFILES DE NAVE</span><span class="hint">Avisos distintos según la nave en la que vas</span></div>
         <p class="muted">Elige una nave y marca qué quieres que te avise en ella. Lo que no cambies sigue como en «Qué te avisa en voz». En el editor de comandos puedes además limitar un comando a ciertas naves («Solo en estas naves»).</p>
@@ -224,21 +240,14 @@
         <div class="field" style="margin-top:10px"><label>Carpeta de Star Citizen<small>Vacío = buscarla en todas las unidades</small></label><div class="ctl"><input type="text" data-set="juego_carpeta" placeholder="C:\Program Files\Roberts Space Industries\StarCitizen"></div></div>
       </div>
             <div class="panel es-only" id="trEsPanel">
-        <div class="panel-h"><span>TRADUCCIÓN AL ESPAÑOL</span><span class="chip" id="trChip">—</span></div>
-        <div class="tr-grid">
-          <div>
-            <p class="muted" id="trText">Comprobando…</p>
-            <div class="tr-bar" id="trBar" hidden><i></i><span></span></div>
-            <div class="row gap wrap" style="margin-top:10px">
-              <button class="btn pri" id="btnTrUpdate">⬇ ACTUALIZAR TRADUCCIÓN</button>
-              <button class="btn" id="btnTrFolder">ELEGIR CARPETA DEL JUEGO</button>
-            </div>
-          </div>
-          <div>
-            <div class="field"><label>Carpeta de Star Citizen<small id="trLive">Vacío = buscarla en todas las unidades</small></label><div class="ctl"><input type="text" data-set="juego_carpeta" placeholder="C:\Program Files\Roberts Space Industries\StarCitizen"></div></div>
-            <div class="field"><label>Enlace de la traducción<small>Oculto. Pega otro enlace de Google Drive para cambiarlo; vacío = el de 0zzyt0</small></label><div class="ctl"><input type="text" id="trUrl" class="masked" autocomplete="off" spellcheck="false" placeholder="vacío = enlace de 0zzyt0"></div></div>
-          </div>
+        <div class="panel-h"><span>GESTOR DE TRADUCCIÓN AUTOMÁTICO - SOLO ESPAÑOL</span><span class="chip" id="trChip">—</span></div>
+        <p class="muted">Para jugar a Star Citizen en español usa el <b>Gestor de traducción</b> de 0zzyt0: un programa aparte que instala la traducción de la comunidad en LIVE, PTU, EPTU, HOTFIX y TECH-PREVIEW y la mantiene actualizada sola. Solo hay que descargarlo una vez.</p>
+        <div class="row gap wrap" style="margin-top:10px">
+          <button class="btn pri" data-url="https://github.com/0zzyt0/StarCitizen-Traduccion-ES/releases/latest/download/StarCitizen_Traduccion_ES_Setup.exe">⬇ DESCARGAR EL INSTALADOR (WINDOWS 10/11)</button>
+          <button class="btn" data-url="https://github.com/0zzyt0/StarCitizen-Traduccion-ES">PÁGINA DEL PROYECTO EN GITHUB</button>
         </div>
+        <p class="muted small" id="trText"></p>
+        <p class="muted small">Si Windows muestra «Windows protegió su PC», pulsa «Más información» y «Ejecutar de todas formas»: el instalador no lleva firma de pago, pero su código es público. Proyecto no oficial, sin relación con Cloud Imperium Games.</p>
       </div>
       </div>
     </section>
@@ -334,12 +343,26 @@
       </div>
       <div class="subsec" data-sub="ia">
             <div class="panel">
-        <div class="panel-h"><span>CLAVES GRATUITAS</span><span class="hint">Con una basta · recomendado: Gemini + Groq</span></div>
-        <div id="provList"></div>
-      </div>
-      <div class="panel">
-        <div class="panel-h"><span>CADENA DE MOTORES</span><span class="hint">Si uno se queda sin cuota, <span class="ai-name">Nova</span> salta al siguiente</span></div>
-        <div id="chainList"></div>
+        <div class="panel-h"><span>MOTORES DE IA</span><span class="chip" id="engChip">—</span></div>
+        <div class="eng-warn" id="engWarn" hidden>🔑 <b>NOVA ya no trae claves de IA de serie</b>: eran las mismas para todos los usuarios y el cupo gratuito se agotaba entre todos. Consigue las tuyas (gratis, 2 minutos) y pégalas aquí.</div>
+        <p class="muted"><span class="ai-name">Nova</span> piensa con servicios de IA gratuitos. Cada uno necesita una clave tuya: es gratis y no pide tarjeta. <b>Pon al menos dos</b>: si uno se queda sin cupo, <span class="ai-name">Nova</span> salta sola al siguiente.</p>
+        <div class="eng-paste">
+          <input type="text" class="secret" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore id="engPaste" placeholder="Pega aquí cualquier clave: NOVA reconoce de qué servicio es">
+          <button class="btn pri" id="engPasteBtn">PEGAR Y PROBAR</button>
+        </div>
+        <div class="eng-res muted small" id="engRes"></div>
+        <div class="eng-cards" id="engCards"></div>
+        <details class="eng-adv" id="engAdv">
+          <summary>AVANZADO: otros motores y orden</summary>
+          <div id="provList"></div>
+          <div class="field"><label>Ollama en mi PC como último recurso<small>Solo si tienes Ollama instalado y funcionando</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="ia_ollama"><i></i></span></div></div>
+          <div class="field"><label>Elegir yo el orden de los motores<small>Desactivado (recomendado): <span class="ai-name">Nova</span> usa todos los modelos gratis de cada servicio con clave</small></label><div class="ctl"><span class="switch"><input type="checkbox" id="engManual"><i></i></span></div></div>
+          <div id="chainWrap" hidden>
+            <div class="panel-h sub"><span>CADENA DE MOTORES</span><span class="hint">Si uno se queda sin cuota, <span class="ai-name">Nova</span> salta al siguiente</span></div>
+            <div id="chainList"></div>
+          </div>
+          <div class="row gap" style="margin-top:10px"><button class="btn sm" id="engRetry">VOLVER A PROBAR TODOS YA</button><span class="muted small">Quita las pausas y prueba de nuevo en la próxima pregunta</span></div>
+        </details>
         <datalist id="modelsList"></datalist>
       </div>
       <div class="panel">
@@ -436,6 +459,17 @@
             <button class="btn" data-holo-test="recompensa">Objetivo de recompensa</button>
             <button class="btn" data-holo-test="planeta">Planeta</button>
             <button class="btn" data-holo-test="lugar">Lugar planetario</button>
+            <select id="holoAlertKind" title="Alertas de la telemetría del juego">
+              <option value="sed_critica">Alerta: deshidratación</option><option value="hambre_baja">Alerta: hambre</option>
+              <option value="oxigeno_critico">Alerta: oxígeno</option><option value="salud_baja">Alerta: salud</option>
+              <option value="hidrogeno_bajo" selected>Alerta: hidrógeno</option><option value="cuantico_bajo">Alerta: cuántico</option>
+              <option value="escudos_caidos">Alerta: escudos caídos</option><option value="casco_critico">Alerta: casco</option>
+              <option value="averia_grave">Alerta: avería grave</option><option value="alerta_misil">Alerta: misil</option>
+              <option value="estado">Ficha de estado</option><option value="viaje_cuantico">Viaje cuántico</option>
+              <option value="tren_recogido">Tren recogido</option><option value="contrato_objetivo">Contrato seguido</option>
+              <option value="contrato_caduca">Contrato a punto de caducar</option>
+            </select>
+            <button class="btn" id="btnHoloAlert">Probar alerta</button>
             <button class="btn" id="btnHoloHide">Ocultar</button>
           </div>
           <div class="note">Fichas sobre el juego con estilo de holograma: <b>ficha policial UEE</b> de un jugador (foto y logotipo de su organización, de robertsspaceindustries.com) y <b>fichas de planetas, lunas y lugares</b> (cuevas, puestos, bases…) de <b>verseguide.com</b>. Se ven con Star Citizen en «Ventana sin bordes», como el logo.</div>
@@ -456,6 +490,10 @@
           <div class="field"><label>Al pedir información de un planeta o lugar</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_planetas"><i></i></span></div></div>
           <div class="field"><label>Al llegar cerca de un planeta o luna</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_llegadas"><i></i></span></div></div>
           <div class="field"><label>Al llegar a un lugar planetario<small>Cuevas, puestos avanzados, bases…</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_lugares"><i></i></span></div></div>
+          <div class="field"><label>Viaje cuántico<small>Destino y cuenta atrás hasta la llegada, en directo</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_cuantico"><i></i></span></div></div>
+          <div class="field"><label>Aterrizaje con el tren recogido<small>Por debajo de 100 m bajando: altitud y velocidad vertical en directo</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_aterrizaje"><i></i></span></div></div>
+          <div class="field"><label>Contrato seguido<small>Objetivo nuevo y aviso cuando le quedan 5 minutos</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_contrato"><i></i></span></div></div>
+          <div class="field"><label>Alertas de la telemetría<small>Sed, hambre, oxígeno, salud, hidrógeno, escudos, casco, averías y misiles, con su icono · ámbar: aviso · rojo: grave</small></label><div class="ctl"><select data-set="holo_telemetria"><option value="todos">Todas</option><option value="graves">Solo las graves</option><option value="nunca">Nunca</option></select></div></div>
           <div class="field"><label>Traducir las descripciones<small>Vienen en inglés; con Google Translate, gratis (una vez por lugar)</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_traducir"><i></i></span></div></div>
           <div class="field"><label>Buscar el objetivo de cada recompensa<small>Ficha si es un jugador · aviso si es un piloto NPC</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="recompensas_buscar"><i></i></span></div></div>
           <div class="panel-h sub"><span>SONIDO</span><span class="hint">Jugador: azul · Objetivo de captura: rojo y alerta</span></div>
@@ -797,20 +835,6 @@
     <div class="su-foot"><span class="muted small" id="bootFoot">Sin internet se usan los datos guardados.</span><span class="grow"></span><button class="btn" id="btnBootSkip">CONTINUAR SIN ESPERAR</button></div>
   </div>
 </div>
-<!-- ====================== PREGUNTA: ACTUALIZAR TRADUCCIÓN ====================== -->
-<div class="boot" id="ask" hidden>
-  <div class="boot-box ask-box">
-    <div class="boot-head"><div class="su-core"><div class="halo"></div><img src="/logo.png" alt=""></div>
-      <div><div class="su-kicker">TRADUCCIÓN AL ESPAÑOL</div><h2 id="askTitle">¿Comprobar y reinstalar la traducción?</h2></div></div>
-    <p class="su-lead" id="askText"></p>
-    <div class="tr-bar" id="askBar" hidden><i></i><span></span></div>
-    <div class="ask-btns" id="askBtns">
-      <button class="btn pri" data-ans="si">SÍ, COMPROBAR Y REINSTALAR</button>
-      <button class="btn" data-ans="no">NO</button>
-      <button class="btn" data-ans="luego">RECUÉRDAMELO EN LA SIGUIENTE SESIÓN</button>
-    </div>
-  </div>
-</div>
 <!-- ====================== CONFIGURACIÓN INICIAL ====================== -->
 <div class="setup" id="setup" hidden>
   <div class="setup-box">
@@ -842,9 +866,8 @@
         <div class="su-answer" style="align-items:flex-start">
           <div style="flex:1">
             <div class="su-note" id="trWizText">Buscando…</div>
-            <div class="tr-bar" id="trWizBar" hidden><i></i><span></span></div>
             <div class="row gap wrap" id="trWizAsk" hidden style="margin-top:12px">
-              <button class="btn pri" id="trWizYes">SÍ, DESCÁRGALA E INSTÁLALA</button>
+              <button class="btn pri" data-url="https://github.com/0zzyt0/StarCitizen-Traduccion-ES/releases/latest/download/StarCitizen_Traduccion_ES_Setup.exe">⬇ DESCARGAR EL GESTOR DE TRADUCCIÓN</button>
               <button class="btn" id="trWizNo">NO, GRACIAS</button>
             </div>
             <div class="row gap wrap" id="trWizFolder" hidden style="margin-top:12px">
@@ -913,7 +936,13 @@
         <div class="su-kicker">PASO 7 · TODO LISTO</div>
         <h2>Sistemas en línea</h2>
         <div class="su-summary" id="suSum"></div>
-        <div class="field" id="suKeyRow"><label>Inteligencia artificial<small>Para conversar y buscar información necesito una clave gratis</small></label><div class="ctl"><input type="text" class="secret" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore id="suGemini" placeholder="Opcional: clave gratis de Google Gemini"><button class="btn sm" data-url="https://aistudio.google.com/apikey">CONSEGUIR</button></div></div>
+        <div class="su-keys" id="suKeyRow">
+          <div class="su-kicker">INTELIGENCIA ARTIFICIAL</div>
+          <p class="su-lead small">Para conversar y buscar información necesito claves gratis de IA (sin tarjeta). Consigue la de <b>Gemini</b> y la de <b>Groq</b> y pégalas aquí: sé de cuál es cada una y la pruebo.</p>
+          <div class="row gap wrap"><button class="btn sm" data-url="https://aistudio.google.com/apikey">① CONSEGUIR CLAVE DE GEMINI</button><button class="btn sm" data-url="https://console.groq.com/keys">② CONSEGUIR CLAVE DE GROQ</button></div>
+          <div class="eng-paste" style="margin-top:10px"><input type="text" class="secret" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore id="suKey" placeholder="Pega aquí la clave"><button class="btn pri" id="suKeyBtn">PEGAR Y PROBAR</button></div>
+          <div class="su-note" id="suKeyState"></div>
+        </div>
         <div class="su-foot"><button class="btn" data-prev>◂ ATRÁS</button><span class="grow"></span><button class="btn pri" id="suFinish">◆ TERMINAR Y DESPEGAR</button></div>
       </div>
     </section>
@@ -932,6 +961,7 @@
 <script src="/mic.js"></script>
 <script src="/v14.js"></script>
 <script src="/v20.js"></script>
+<script src="/v21.js"></script>
 <script src="/tour.js"></script>
 </body>
 </html>

@@ -8,7 +8,9 @@ import re
 import time
 import unicodedata
 
+from . import i18n
 from .config import FINAL_PHRASE, PROVIDERS
+from .engines import SHORT_WAIT
 
 log = logging.getLogger("nova.llm")
 
@@ -94,7 +96,10 @@ def system_prompt(settings, memory, gamelog, commands_ok: bool, phrase: str = FI
 
 ## Control de la nave
 - Si el piloto pide hacer algo con la nave, LLAMA a ejecutar_comando_nave (puedes pasar varios en orden).
-- Las teclas son interruptores y no ves el estado real: si algo no cambió como esperaba, ofrece repetirlo.
+- Las teclas son interruptores: si algo no cambió como esperaba, ofrece repetirlo.
+- Si en el estado del juego aparece «Telemetría EN DIRECTO», esos valores (salud, sed, hambre, oxígeno, hidrógeno,
+  cuántico, escudos, casco, velocidad, viaje cuántico, contrato, saldo) son REALES y actuales: úsalos tal cual,
+  redondeados, sin decir que no puedes verlos. Sin ese bloque, no sabes el estado real de la nave ni del piloto.
 - Confirma lo hecho en pocas palabras. No inventes comandos que no existen; si no hay comando, dilo con gracia.
 
 ## Conocimiento de Star Citizen
@@ -150,19 +155,60 @@ class Cancelled(Exception):
 
 # v2.0.2: antes 25 s. Gemini saturado (503) o colgado hacía esperar 25 s + 25 s antes de probar Groq/OpenRouter.
 REQUEST_TIMEOUT = 12
+ASK_BUDGET = 60  # segundos como mucho probando motores en una misma pregunta
+
+# 2.1.5: motores con poco margen por minuto (Groq gratis: 8000 tokens/min por modelo). Con ellos, si la petición
+# es grande, solo se mandan las herramientas que tienen que ver con lo que has preguntado.
+SMALL_TPM = {"groq"}
+LEAN_TOKENS = 5000
+LEAN_CORE = {"ejecutar_comando_nave", "buscar_datos_juego", "estado_del_juego", "recordar", "buscar_wiki_star_citizen"}
+LEAN_GROUPS = [
+    (r"temporiz|timer|alarm|av[ií]s|recu[eé]rd|minut|cancel|erinner|rappel", {"crear_temporizador", "cancelar_temporizador", "listar_temporizadores"}),
+    (r"min(a|ar|er|ing|eri|ería)|roca|mineral|\bore\b|quantan|motherlode|bergbau|minage", {"donde_minar", "mineria_motherlode"}),
+    (r"precio|preu|vend|compr|comer[cç]|ruta|carga|benefic|price|sell|buy|trade|uex|cargo|prix|preis|handel|kauf", {"uex_precios_mercancia", "uex_rutas_comercio", "donde_comprar"}),
+    (r"misi|contrat|contract|mission|auftrag", {"buscar_misiones"}),
+    (r"plano|fabric|crafte|blueprint|craft|plan", {"plano_fabricacion"}),
+    (r"internet|web|google|busca|cerca|search|p[aà]gin|enlace|link|notici|news|cherche|such", {"buscar_en_internet", "leer_pagina_web"}),
+    (r"chat|escrib|escriu|mensaje|missatge|message|dile|digues|write|[eé]cri|schreib", {"enviar_chat_juego"}),
+    (r"d[oó]nde|on [eé]s|lugar|lloc|planeta|planet|luna|lluna|moon|lune|mond|estaci|station|ciudad|ciutat|city|ville|ubicaci|where|o[uù] |wo |ficha", {"datos_ubicacion", "ficha_lugar"}),
+    (r"servidor|server|serveur|ca[ií]d|rsi", {"estado_servidores"}),
+    (r"estad[ií]stic|stats|statist|kills|muert|morts|cu[aá]nt", {"estadisticas_piloto"}),
+    (r"olvid|oblid|forget|oubli|vergiss", {"olvidar"}),
+    (r"abre|obre|abrir|open|ouvr|[oö]ffne|erkul|spviewer|cstone|consulta", {"abrir_pagina_consulta"}),
+]
 
 
 def _provider_of(tag: str) -> str:
     return tag.split(":", 1)[0]
 
 
+def _estimate_tokens(messages: list, schemas) -> int:
+    try:
+        n = len(json.dumps(messages, ensure_ascii=False, default=str)) + len(json.dumps(schemas or [], ensure_ascii=False))
+    except (TypeError, ValueError):
+        return 0
+    return int(n / 3.2)
+
+
+def lean_tools(user_text: str, schemas: list | None) -> list | None:
+    """Solo las herramientas que tienen que ver con la pregunta (para motores con poco margen por minuto)."""
+    if not schemas:
+        return schemas
+    low = (user_text or "").lower()
+    keep = set(LEAN_CORE)
+    for rx, names in LEAN_GROUPS:
+        if re.search(rx, low):
+            keep |= names
+    out = [s for s in schemas if s.get("function", {}).get("name") in keep]
+    return out or schemas
+
+
 class Brain:
     def __init__(self, settings, tools, memory, gamelog) -> None:
+        from .engines import Engines
         self.settings, self.tools, self.memory, self.gamelog = settings, tools, memory, gamelog
         self._clients: dict = {}
-        self._cooldown: dict[str, float] = {}
-        self._provider_down: dict[str, float] = {}  # v2.0.2: proveedor saturado/colgado -> hasta cuándo saltarlo
-        self._strikes: dict[str, int] = {}
+        self.engines = Engines(settings)  # 2.1.5: estado de cada motor y lista automática
         self.last_model = ""
         self.last_ok = True  # False si no hubo motor disponible o todos fallaron
         self.last_tools: list[str] = []  # herramientas que usó la última respuesta
@@ -194,28 +240,15 @@ class Brain:
         key = self.settings.key_for(provider) or ("ollama" if provider == "ollama" else "")
         cache_key = f"{provider}|{key}"
         if cache_key not in self._clients:
-            headers = {"HTTP-Referer": "https://github.com/nova-copiloto", "X-Title": "Nova Copiloto"} \
+            headers = {"HTTP-Referer": "https://github.com/0zzyt0/NOVA-AI", "X-Title": "NOVA AI"} \
                 if provider == "openrouter" else None
             self._clients[cache_key] = OpenAI(base_url=PROVIDERS[provider]["base_url"], api_key=key,
                                               timeout=REQUEST_TIMEOUT, max_retries=0, default_headers=headers)
         return self._clients[cache_key]
 
     def chain(self) -> list[dict]:
-        out = []
-        for entry in self.settings.get("ia_cadena"):
-            p = entry.get("proveedor")
-            if p not in PROVIDERS:
-                continue
-            if p != "ollama" and not self.settings.key_for(p):
-                continue
-            tag = f"{p}:{entry.get('modelo')}"
-            if time.time() < self._cooldown.get(tag, 0) or time.time() < self._provider_down.get(p, 0):
-                continue
-            out.append(entry)
-        if not out:  # todo en pausa: mejor reintentar el primero que contestar que no hay IA
-            out = [e for e in self.settings.get("ia_cadena") if e.get("proveedor") in PROVIDERS
-                   and (e.get("proveedor") == "ollama" or self.settings.key_for(e.get("proveedor")))][:1]
-        return out
+        """Motores libres ahora mismo, en orden (2.1.5: lista automática con todos los modelos gratis)."""
+        return self.engines.available()
 
     def _create(self, entry: dict, messages: list, tools: list | None):
         p, model = entry["proveedor"], entry["modelo"]
@@ -226,7 +259,47 @@ class Brain:
         if p == "gemini":
             kwargs["reasoning_effort"] = self.settings.get("ia_razonamiento", "low")
             kwargs.pop("temperature")  # Gemini 3 recomienda la temperatura por defecto
+        elif p == "groq":
+            # 2.1.5: Groq cuenta en su límite por minuto lo que pides de respuesta; las de Nova son cortas
+            kwargs["max_completion_tokens"] = 1500
+            if model.startswith("openai/gpt-oss"):
+                kwargs["reasoning_effort"] = "low"
         return self._client(p).chat.completions.create(**kwargs)
+
+    def _no_engine_text(self) -> str:
+        t = self.settings.get("tratamiento") or "señor"
+        if not self.engines.configured():
+            return i18n.tr("No tengo ningún motor de IA configurado, {t}. Ponga al menos una clave gratuita de "
+                           "Gemini o Groq en Nova › Inteligencia: se pega y yo sé de cuál es.", t=t)
+        why = self.engines.explain()
+        if why:
+            return i18n.tr("{T}, ahora mismo no tengo ningún motor de IA libre: {why}. Las órdenes de la nave por "
+                           "frase directa siguen funcionando.", T=t[:1].upper() + t[1:], why=why)
+        return i18n.tr("{T}, todos mis motores de IA están fuera de servicio o sin cuota ahora mismo. Puedo seguir "
+                       "ejecutando órdenes de la nave por frase directa.", T=t[:1].upper() + t[1:])
+
+    def _sleep(self, seconds: float, gen: int) -> bool:
+        """Espera corta antes de reintentar; False si mientras tanto se canceló la pregunta."""
+        end = time.time() + seconds
+        while time.time() < end:
+            if gen != self._cancel_gen:
+                return False
+            time.sleep(min(0.2, max(0.0, end - time.time())))
+        return gen == self._cancel_gen
+
+    def _pick(self, t0: float, gen: int, tried: set[str]) -> dict | None:
+        """El siguiente motor libre; si no hay ninguno pero uno vuelve en unos segundos, lo espera."""
+        for e in self.chain():
+            if f"{e['proveedor']}:{e['modelo']}" not in tried:
+                return e
+        soon = self.engines.soonest(exclude=tried)
+        if soon:
+            left = soon[1].until - time.time()
+            if 0 < left <= SHORT_WAIT and time.time() - t0 + left < ASK_BUDGET:
+                self.on_status(i18n.tr("Esperando {n} s a {m}…", n=int(left + 0.99), m=soon[0]["modelo"]))
+                if self._sleep(left + 0.3, gen):
+                    return soon[0]
+        return None
 
     # ----------------------------------------------------------------- charla
     def ask(self, user_text: str, extra_system: str = "", use_tools: bool = True,
@@ -239,36 +312,53 @@ class Brain:
         base = [{"role": "system", "content": sys_msg}, *history, {"role": "user", "content": user_text}]
         schemas = self.tools.schemas() if use_tools else None
 
-        chain = self.chain()
         self.last_ok = False
         self.last_tools, self.last_invented = [], False
         gen = self._cancel_gen
-        if not chain:
-            return ("No tengo ningún motor de IA configurado, señor. Ponga al menos una clave gratuita "
-                    "de Gemini o Groq en Ajustes y le prometo ser brillante.")
+        if not self.engines.configured():
+            self.last_model = "NOVA"
+            return self._no_engine_text()
         executed: list[str] = []
         last_error = ""
         t0 = time.time()
-        for entry in chain:
-            if time.time() - t0 > 60:  # ya se ha esperado bastante: no seguir probando motores
+        tried: set[str] = set()
+        waited: set[str] = set()
+        entry = self._pick(t0, gen, tried)
+        while entry is not None:
+            if gen != self._cancel_gen:
+                return ""
+            if time.time() - t0 > ASK_BUDGET:  # ya se ha esperado bastante: no seguir probando motores
                 last_error = last_error or "tiempo agotado"
                 break
             tag = f"{entry['proveedor']}:{entry['modelo']}"
-            if len(chain) > 1 and time.time() < self._provider_down.get(entry["proveedor"], 0):
-                continue  # el mismo proveedor acaba de fallar con otro modelo en esta misma orden
             messages = list(base)
-            if executed:  # un proveedor anterior falló a medias: no repetir teclas
+            if executed:  # un motor anterior falló a medias: no repetir teclas
                 messages.append({"role": "system", "content":
                                  "YA se ejecutó esto (NO lo repitas): " + "; ".join(executed)})
+            use = schemas
+            if schemas and entry["proveedor"] in SMALL_TPM and _estimate_tokens(messages, schemas) > LEAN_TOKENS:
+                use = lean_tools(user_text, schemas)
             try:
-                reply, info_results, used = self._loop(entry, messages, schemas, executed, gen)
+                reply, info_results, used = self._loop(entry, messages, use, executed, gen, lean=use is not schemas)
             except Cancelled:
                 self.last_ok = False
                 return ""
             except Exception as e:  # noqa: BLE001 — cualquier fallo pasa al siguiente
-                last_error = self._handle_error(tag, e)
+                v = self.engines.failed(entry, e)
+                last_error = f"{tag}: {str(e)[:200]}"
+                wait = (v.until - time.time()) if v.reason == "minuto" else None
+                if (wait is not None and wait <= SHORT_WAIT and tag not in waited
+                        and time.time() - t0 + wait < ASK_BUDGET):
+                    waited.add(tag)  # «reintenta en 3 s»: mejor esperar que cambiar de motor
+                    self.on_status(i18n.tr("{m} pide esperar {n} s…", m=entry["modelo"], n=int(wait + 0.99)))
+                    if not self._sleep(wait + 0.3, gen):
+                        return ""
+                    continue
+                tried.add(tag)
+                self.on_status(i18n.tr("{m} no responde; probando el siguiente…", m=tag))
+                entry = self._pick(t0, gen, tried)
                 continue
-            self._strikes.pop(entry["proveedor"], None)
+            self.engines.ok(entry)
             if gen != self._cancel_gen:
                 return ""
             self.last_tools = used
@@ -284,30 +374,31 @@ class Brain:
                 self.memory.add_turn("assistant", reply)
                 self.memory.save()
             return reply
-        log.error("Todos los motores fallaron: %s", last_error)
-        return ("Señor, todos mis motores de IA están fuera de servicio o sin cuota ahora mismo. "
-                "Puedo seguir ejecutando órdenes de la nave por frase directa.")
+        log.error("Ningún motor respondió: %s", last_error or self.engines.explain() or "todos en pausa")
+        self.last_model = "NOVA"  # ya va traducido: que no se vuelva a traducir ni se atribuya a otro motor
+        return self._no_engine_text()
 
     def quick(self, prompt: str, system: str = "Eres un traductor. Responde solo con el resultado.") -> str:
         """Petición suelta (sin herramientas, sin memoria ni personalidad): p. ej. traducir un texto.
         '' si no hay motor disponible."""
-        for entry in self.chain():
+        for entry in self.chain()[:6]:
             try:
                 r = self._create(entry, [{"role": "system", "content": system},
                                          {"role": "user", "content": prompt}], None)
                 text = (r.choices[0].message.content or "").strip()
+                self.engines.ok(entry)
                 if text:
                     return text
             except Exception as e:  # noqa: BLE001
-                self._handle_error(f"{entry['proveedor']}:{entry['modelo']}", e)
+                self.engines.failed(entry, e)
         return ""
 
     def _loop(self, entry: dict, messages: list, schemas, executed: list[str],
-              gen: int | None = None) -> tuple[str, list[str], list[str]]:
+              gen: int | None = None, lean: bool = False) -> tuple[str, list[str], list[str]]:
         info_results: list[str] = []
         used: list[str] = []
         saving = self.settings.get("ahorro_tokens", True)
-        cap = 3500 if saving else 6000  # cada resultado se reenvía en cada vuelta: mejor corto
+        cap = 2000 if lean else (3500 if saving else 6000)  # cada resultado se reenvía en cada vuelta: mejor corto
         for _ in range(5 if saving else 7):
             if gen is not None and gen != self._cancel_gen:
                 raise Cancelled()
@@ -341,34 +432,6 @@ class Brain:
         resp = self._create(entry, messages + [{"role": "system", "content": "Responde ya al piloto con lo que tienes."}], None)
         return (resp.choices[0].message.content or "").strip(), info_results, used
 
-    def _handle_error(self, tag: str, e: Exception) -> str:
-        status = getattr(e, "status_code", None)
-        text = str(e)[:200]
-        if status == 429 or "quota" in text.lower() or "rate" in text.lower():
-            self._cooldown[tag] = time.time() + 120
-            log.warning("%s sin cuota/limitado; paso al siguiente", tag)
-        elif status in (401, 403):
-            self._cooldown[tag] = time.time() + 3600
-            log.warning("%s: clave no válida", tag)
-        elif status == 404:
-            self._cooldown[tag] = time.time() + 3600
-            log.warning("%s: modelo no encontrado", tag)
-        elif status == 400:  # petición rechazada por ese modelo (no es que el proveedor esté caído)
-            self._cooldown[tag] = time.time() + 300
-            log.warning("%s rechazó la petición: %s", tag, text)
-        else:
-            # 503 (saturado), 5xx o tiempo agotado: el proveedor entero suele estar igual. Se salta un rato
-            # (2, 4, 8… hasta 10 min) para no esperar otra vez en cada orden.
-            prov = _provider_of(tag)
-            n = self._strikes.get(prov, 0) + 1
-            self._strikes[prov] = n
-            pause = min(600, 60 * 2 ** min(n, 4))
-            self._cooldown[tag] = time.time() + pause
-            self._provider_down[prov] = time.time() + pause
-            log.warning("%s falló: %s (salto %s durante %d s)", tag, text, prov, pause)
-        self.on_status(f"{tag} no responde; probando el siguiente…")
-        return f"{tag}: {text}"
-
     @staticmethod
     def _guard_invention(reply: str, info_results: list[str], phrase: str = FINAL_PHRASE,
                          phrases: list[str] | None = None) -> str:
@@ -380,13 +443,22 @@ class Brain:
             reply = reply.rstrip() + " " + phrase
         return reply
 
-    def test(self, provider: str, model: str) -> str:
-        try:
-            r = self._create({"proveedor": provider, "modelo": model},
-                             [{"role": "user", "content": "Di 'sistemas en línea' y nada más."}], None)
-            return f"OK: {r.choices[0].message.content.strip()[:80]}"
-        except Exception as e:
-            return f"Error: {str(e)[:200]}"
+    def test(self, provider: str, model: str = "") -> str:
+        """Prueba un motor (2.1.5: si no dices modelo, el primero libre de ese servicio)."""
+        models = [model] if model else (PROVIDERS.get(provider, {}).get("modelos") or [])
+        last = "Error: sin modelos"
+        for m in models[:4]:
+            entry = {"proveedor": provider, "modelo": m}
+            try:
+                r = self._create(entry, [{"role": "user", "content": "Di 'sistemas en línea' y nada más."}], None)
+                self.engines.ok(entry)
+                return f"OK ({m}): {(r.choices[0].message.content or '').strip()[:80]}"
+            except Exception as e:  # noqa: BLE001
+                v = self.engines.failed(entry, e)
+                last = f"Error: {str(e)[:200]}"
+                if v.scope == "prov" or model:
+                    break
+        return last
 
     def list_models(self, provider: str) -> list[str]:
         try:

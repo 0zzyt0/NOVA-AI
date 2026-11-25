@@ -92,7 +92,7 @@ Antes de usar nada, Nova abre una ventana para terminar de configurarse. Puedes 
 
 ## 2. Claves gratuitas (Nova › Inteligencia)
 
-**Claves de serie:** algunas versiones del instalador traen claves gratuitas de prueba (cifradas) para Gemini, Groq y OpenRouter, puestas en su sitio al instalar. La versión pública de GitHub **no las trae**: consigue las tuyas, gratis y en 2 minutos (pasos abajo y en el manual). Si tu versión sí las trae, tienen un límite diario compartido; tus claves nunca se sustituyen por las de fábrica.
+**Sin claves de serie (desde la 2.1.5):** NOVA ya no trae claves de IA de fábrica (eran las mismas para todos y el cupo gratis se agotaba entre todos). Consigue las tuyas, gratis y en 2 minutos (pasos abajo y en el manual), y pégalas en la casilla *Pega aquí cualquier clave*: NOVA reconoce de qué servicio es, la guarda y la prueba. Con la clave de un servicio usa todos sus modelos gratuitos y, si uno se queda sin cupo, salta sola al siguiente.
 
 Sin ninguna clave, Nova ya ejecuta comandos por frase directa. **Para conversar y buscar** necesita al menos una.
 
@@ -101,7 +101,7 @@ Sin ninguna clave, Nova ya ejecuta comandos por frase directa. **Para conversar 
 | **Gemini** (Google) | El cerebro más listo | aistudio.google.com/apikey | Gratis, sin tarjeta, con límite diario |
 | **Groq** | Respaldo ultrarrápido **y** reconocimiento de voz en la nube | console.groq.com/keys | Gratis, sin tarjeta |
 | OpenRouter | Más modelos gratis (`:free`) | openrouter.ai/keys | Gratis, unas 50 peticiones al día |
-| Mistral | Europeo, muy bueno en español, francés y alemán. **Opcional** | console.mistral.ai/api-keys | **De pago** desde agosto de 2026 (ya no está en la cadena de fábrica) |
+| Mistral | Europeo, muy bueno en español, francés y alemán. **Opcional** | console.mistral.ai/api-keys | **De pago** desde agosto de 2026 (va en *Avanzado*) |
 | Ollama | IA en tu propio PC, sin internet | ollama.com | Gratis (necesita buena GPU) |
 
 **Recomendado: Gemini + Groq.** Pulsa «Conseguir clave», copia la clave y pégala.

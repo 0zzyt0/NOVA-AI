@@ -396,28 +396,140 @@ $("#btnAssign").addEventListener("click", safe(async () => {
 $("#btnClearJoy").addEventListener("click", safe(async () => { await api("clear_joystick"); S.ptt_joystick = null; updatePttHint(); }));
 
 // ------------------------------------------------------------- IA
-let iaLoaded = false;
+// 2.1.5: MOTORES DE IA fáciles: se pega cualquier clave (NOVA sabe de qué servicio es), semáforo en directo
+const ENG_MAIN = ["gemini", "groq", "openrouter"];
+const ENG_INFO = {
+  gemini: { tag: "PRINCIPAL", desc: "Gratis · el más completo · con tu cuenta de Google",
+            how: "Entra con tu cuenta de Google, pulsa «Create API key» y copia la clave (empieza por AIza)." },
+  groq: { tag: "RESPALDO RÁPIDO", desc: "Gratis · muy rápido · también hace instantáneo el reconocimiento de voz",
+          how: "Crea una cuenta (con Google o con tu correo), pulsa «Create API Key» y copia la clave (empieza por gsk_)." },
+  openrouter: { tag: "RESERVA", desc: "Gratis · 50 preguntas al día · para cuando los otros dos descansan",
+                how: "Crea una cuenta, ve a «Keys», pulsa «Create Key» y copia la clave (empieza por sk-or-)." },
+};
+let iaLoaded = false, ENG = null, engTimer = 0;
 function loadIA() {
-  if (iaLoaded) return;
-  iaLoaded = true;
-  // 1.3.2: los proveedores de pago (DeepSeek) solo se ven si ya tenías su clave puesta
-  const provs = Object.entries(STATE.providers).filter(([k, p]) => k !== "ollama" && (!p.oculto || STATE.keys_set[k]));
-  $("#provList").innerHTML = provs.map(([k, p]) => `
-    <div class="prov"><div class="nm"><span class="dot ${STATE.keys_set[k] ? "on" : ""}" id="dot-${k}"></span>${esc(p.nombre)}</div>
-    <input type="text" class="secret" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-key="${k}" placeholder="${esc(STATE.keys_set[k] ? T("•••••••• configurada (escribe para cambiarla)") : T("pega aquí tu clave"))}">
-    <button class="btn sm" data-url="${esc(p.url)}">CONSEGUIR CLAVE</button>
-    <span class="hint" id="kst-${k}">${STATE.keys_set[k] ? "lista" : "sin clave"}</span></div>`).join("");
-  $$("#provList input").forEach((inp) => inp.addEventListener("change", safe(async () => {
-    const ok = await api("set_key", { provider: inp.dataset.key, value: inp.value });
-    STATE.keys_set[inp.dataset.key] = ok;
-    $("#dot-" + inp.dataset.key).classList.toggle("on", ok);
-    $("#kst-" + inp.dataset.key).textContent = ok ? "lista" : "sin clave";
-    inp.value = ""; inp.placeholder = ok ? "•••••••• configurada" : "pega aquí tu clave";
-    toast(ok ? "Clave guardada" : "Clave borrada", "ok");
-    try { const st = await api("state"); S.ia_cadena = st.settings.ia_cadena; renderChain(); } catch { /* sin cambios */ }
-  })));
-  $$("#provList [data-url]").forEach((b) => b.addEventListener("click", () => window.open(b.dataset.url, "_blank")));
-  renderChain();
+  if (!iaLoaded) {
+    iaLoaded = true;
+    // Otros motores (avanzado): Mistral de pago, DeepSeek solo si ya tenías su clave
+    const provs = Object.entries(STATE.providers).filter(([k, p]) => k !== "ollama" && !ENG_MAIN.includes(k) && (!p.oculto || STATE.keys_set[k]));
+    $("#provList").innerHTML = provs.map(([k, p]) => `
+      <div class="prov"><div class="nm"><span class="dot ${STATE.keys_set[k] ? "on" : ""}" id="dot-${k}"></span>${esc(p.nombre)}</div>
+      <input type="text" class="secret" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-key="${k}" placeholder="${esc(STATE.keys_set[k] ? T("•••••••• configurada (escribe para cambiarla)") : T("pega aquí tu clave"))}">
+      <button class="btn sm" data-url="${esc(p.url)}">${T("CONSEGUIR CLAVE")}</button>
+      <span class="hint" id="kst-${k}">${STATE.keys_set[k] ? T("lista") : T("sin clave")}</span></div>`).join("");
+    $$("#provList input").forEach((inp) => inp.addEventListener("change", safe(async () => {
+      const ok = await api("set_key", { provider: inp.dataset.key, value: inp.value });
+      STATE.keys_set[inp.dataset.key] = ok;
+      $("#dot-" + inp.dataset.key).classList.toggle("on", ok);
+      $("#kst-" + inp.dataset.key).textContent = ok ? T("lista") : T("sin clave");
+      inp.value = ""; inp.placeholder = ok ? T("•••••••• configurada") : T("pega aquí tu clave");
+      toast(ok ? T("Clave guardada") : T("Clave borrada"), "ok");
+      try { const st = await api("state"); S.ia_cadena = st.settings.ia_cadena; renderChain(); } catch { /* sin cambios */ }
+      engRefresh();
+    })));
+    $$("#provList [data-url]").forEach((b) => b.addEventListener("click", () => window.open(b.dataset.url, "_blank")));
+    $("#engManual").checked = S.ia_auto === false;
+    $("#chainWrap").hidden = S.ia_auto !== false;
+    $("#engManual").addEventListener("change", safe(async () => {
+      S.ia_auto = await api("set", { key: "ia_auto", value: !$("#engManual").checked });
+      $("#chainWrap").hidden = S.ia_auto !== false;
+      if (S.ia_auto === false) renderChain();
+      engRefresh();
+    }));
+    $("#engPasteBtn").addEventListener("click", () => engPaste($("#engPaste"), $("#engRes")));
+    $("#engPaste").addEventListener("keydown", (e) => { if (e.key === "Enter") engPaste($("#engPaste"), $("#engRes")); });
+    $("#engPaste").addEventListener("paste", () => setTimeout(() => engPaste($("#engPaste"), $("#engRes")), 30));
+    $("#engRetry").addEventListener("click", safe(async () => { ENG = await api("engines_reset"); paintEngines(); toast(T("Pausas quitadas: se vuelven a probar todos"), "ok"); }));
+    if (S.ia_auto === false) renderChain();
+    ENG = STATE.motores || null;
+    buildEngineCards();
+    setInterval(() => { if (secOn("nova", "ia") && !document.hidden) engRefresh(); }, 4000);
+  }
+  engRefresh();
+}
+async function engRefresh() {
+  try { ENG = await api("engines"); paintEngines(); } catch { /* la ventana se está cerrando */ }
+}
+// Pega una clave en cualquier casilla: el servidor reconoce de qué servicio es, la guarda y la prueba
+let engBusy = false;
+async function engPaste(input, out) {
+  const v = (input.value || "").trim();
+  if (!v || engBusy) return;
+  engBusy = true;
+  out.className = (out.className || "").replace(/\b(ok|bad)\b/g, "").trim();
+  out.textContent = T("Comprobando la clave…");
+  try {
+    const r = await api("paste_key", { value: v });
+    input.value = "";
+    STATE.keys_set[r.proveedor] = true;
+    ENG = r.estado; paintEngines();
+    out.textContent = r.ok ? T("✓ Clave de {n} guardada y funcionando.").replace("{n}", r.nombre)
+      : T("Clave de {n} guardada, pero el servicio responde: {e}").replace("{n}", r.nombre).replace("{e}", r.texto.replace(/^Error:\s*/, "").slice(0, 160));
+    out.classList.add(r.ok ? "ok" : "bad");
+    toast(r.ok ? T("Clave de {n} lista").replace("{n}", r.nombre) : T("Clave guardada con aviso"), r.ok ? "ok" : "bad");
+  } catch (e) {
+    out.textContent = e.message; out.classList.add("bad");
+  } finally { engBusy = false; }
+  return true;
+}
+function buildEngineCards() {
+  $("#engCards").innerHTML = ENG_MAIN.filter((k) => STATE.providers[k]).map((k) => `
+    <div class="eng-card" data-p="${k}">
+      <div class="eng-top"><span class="eng-dot"></span><b>${esc((STATE.providers[k].nombre || k).replace(/\s*\(.*\)\s*$/, ""))}</b><span class="eng-tag">${T(ENG_INFO[k].tag)}</span></div>
+      <div class="eng-desc">${T(ENG_INFO[k].desc)}</div>
+      <div class="eng-state">—</div>
+      <div class="eng-models"></div>
+      <div class="eng-how">${T(ENG_INFO[k].how)}</div>
+      <div class="eng-btns">
+        <button class="btn sm pri eng-get" data-href="${esc(STATE.providers[k].url)}">${T("CONSEGUIR CLAVE GRATIS")}</button>
+        <button class="btn sm eng-test">${T("PROBAR")}</button>
+        <button class="btn sm eng-del">${T("QUITAR")}</button>
+      </div>
+    </div>`).join("");
+  $$("#engCards .eng-card").forEach((card) => {
+    const k = card.dataset.p;
+    $(".eng-get", card).addEventListener("click", () => window.open($(".eng-get", card).dataset.href, "_blank"));
+    $(".eng-test", card).addEventListener("click", safe(async () => {
+      $(".eng-state", card).textContent = T("Probando…");
+      const r = await api("engine_test", { provider: k });
+      ENG = r.estado; paintEngines();
+      toast(r.ok ? T("Funciona ✓") : r.texto.slice(0, 180), r.ok ? "ok" : "bad");
+    }));
+    $(".eng-del", card).addEventListener("click", safe(async () => {
+      if (!confirm(T("¿Quitar la clave de este servicio?"))) return;
+      await api("set_key", { provider: k, value: "" });
+      STATE.keys_set[k] = false;
+      engRefresh();
+    }));
+  });
+  paintEngines();
+}
+const ENG_CLASS = { listo: "ok", pausa: "warn", clave_mal: "bad", sin_clave: "off", fuera: "off" };
+function paintEngines() {
+  if (!ENG || !ENG.servicios) return;
+  const sv = ENG.servicios;
+  for (const card of $$("#engCards .eng-card")) {
+    const k = card.dataset.p, st = sv[k] || {};
+    card.className = "eng-card st-" + (ENG_CLASS[st.estado] || "off");
+    $(".eng-state", card).textContent = st.texto || "—";
+    const has = st.estado !== "sin_clave";
+    $(".eng-how", card).hidden = has;
+    $(".eng-del", card).hidden = !has;
+    $(".eng-test", card).hidden = !has;
+    $(".eng-get", card).hidden = has;
+    $(".eng-models", card).innerHTML = has ? (st.modelos || []).map((m) =>
+      `<span class="eng-m ${m.libre ? "ok" : (m.motivo === "clave" ? "bad" : "warn")}" title="${esc(m.libre ? T("Libre") : (m.texto + (m.detalle ? "\n" + m.detalle : "")))}">${esc(m.modelo.replace(/^openai\//, "").replace(/^qwen\//, ""))}</span>`).join("") : "";
+  }
+  const ready = ENG.listos || 0, keys = ENG_MAIN.filter((k) => sv[k] && sv[k].estado !== "sin_clave").length;
+  const chip = $("#engChip");
+  chip.textContent = T("{a} de {b} listos").replace("{a}", ready).replace("{b}", ENG_MAIN.length);
+  chip.className = "chip " + (ready >= 2 ? "ok" : ready === 1 ? "warn" : "bad");
+  $("#engWarn").hidden = !((ENG.quitadas || []).length && keys === 0);
+  const other = Object.entries(sv).filter(([k]) => !ENG_MAIN.includes(k));
+  for (const [k, st] of other) {
+    const h = $("#kst-" + k);
+    if (h && st.estado !== "sin_clave") h.textContent = st.texto;
+  }
 }
 function renderChain() {
   const chain = [...(S.ia_cadena || [])];
@@ -925,129 +1037,49 @@ const Boot = (() => {
 })();
 
 // ============================================================ traducción al español
+// 2.1.4: la instala y actualiza el Gestor de traducción de 0zzyt0 (programa aparte, en GitHub).
+// Aquí solo se mira si el juego ya la tiene y se enlaza el instalador.
 const Trad = (() => {
   let st = {};
   const fmtDate = (t) => (t ? new Date(t * 1000).toLocaleDateString(LOCALE) : "—");
-  function bar(el, ev) {
-    if (!el) return;
-    el.hidden = false;
-    const pct = ev.pct == null || ev.pct < 0 ? null : ev.pct;
-    el.classList.toggle("indet", pct == null);
-    $("i", el).style.width = (pct ?? 0) + "%";
-    $("span", el).textContent = ev.texto || "";
-  }
+  const F = (k, ...a) => { let i = 0; return T(k).replace(/\{\}/g, () => a[i++] ?? ""); };
   function paint() {
     let txt, chip;
-    if (!st.live) { txt = "No encuentro la carpeta de Star Citizen en ninguna unidad. Elígela con «Elegir carpeta del juego»."; chip = "SIN JUEGO"; }
-    else if (st.encontrado) {
-      const F = (k, ...a) => { let i = 0; return T(k).replace(/\{\}/g, () => a[i++] ?? ""); };
-      txt = F("Instalada en {}\\data\\Localization\\{} · archivo del {}", st.live, st.idioma, fmtDate(st.fecha)) +
-            (st.instalada_por_nova ? F(" · instalada por Nova el {}", fmtDate(st.instalada_por_nova)) : "") +
-            F(" · próximo aviso de actualización: {}", fmtDate(st.aviso)) + (st.activo === false ? T(" · ⚠ user.cfg no la tiene activada") : "");
-      chip = st.espanol ? "ESPAÑOL ✓" : st.idioma.toUpperCase();
-    } else { txt = `Veo que no dispones de una traducción al español de Star Citizen (${st.live}). Pulsa «Actualizar traducción» para descargar la versión más actual de 0zzyt0.`; chip = "SIN TRADUCCIÓN"; }
-    $("#trText").textContent = txt; $("#trChip").textContent = chip;
-    $("#trLive").textContent = st.carpetas && st.carpetas.length ? T("Encontrada:") + " " + st.carpetas.join(" · ") : "Vacío = buscarla en todas las unidades";
-    $("#btnTrUpdate").disabled = !!st.instalando || !st.live;
+    if (!st.live) { txt = T("No encuentro la carpeta de Star Citizen. El gestor te deja elegirla."); chip = "SIN JUEGO"; }
+    else if (st.encontrado && st.espanol) { txt = F("Traducción al español detectada en {} (archivo del {}).", st.live, fmtDate(st.fecha)); chip = "ESPAÑOL ✓"; }
+    else { txt = F("Star Citizen no tiene la traducción al español en {}. Descarga el gestor para instalarla.", st.live); chip = "SIN TRADUCCIÓN"; }
+    $("#trText").textContent = txt; $("#trChip").textContent = T(chip);
   }
-  async function load() { st = await api("translation_status"); paint(); paintUrl(); return st; }
-  // El enlace de descarga se enseña tapado con asteriscos; al escribir otro se guarda (vacío = el de 0zzyt0).
-  function paintUrl() {
-    const el = $("#trUrl");
-    if (!el || el === document.activeElement) return;
-    const v = S.traduccion_url || "";
-    el.value = v ? "*".repeat(Math.min(Math.max(v.length, 8), 28)) : "";
-  }
-  const urlEl = $("#trUrl");
-  if (urlEl) {
-    urlEl.addEventListener("focus", () => urlEl.select());
-    urlEl.addEventListener("blur", () => setTimeout(paintUrl, 50));
-    urlEl.addEventListener("change", safe(async () => {
-      const v = urlEl.value.trim();
-      if (/^\*+$/.test(v) || v === (S.traduccion_url || "")) return;  // sin cambios
-      S.traduccion_url = await api("set", { key: "traduccion_url", value: v });
-      toast(v ? "Enlace de la traducción cambiado" : "Se usará el enlace de 0zzyt0");
-      urlEl.blur(); paintUrl();
-    }));
-  }
-  async function install(origen) { if (await api("translation_install", { origen })) bar($("#trBar"), { texto: "Conectando con Google Drive…", pct: -1 }); }
-  function progress(ev) {
-    const targets = [$("#trBar")];
-    if (ev.origen === "asistente") targets.push($("#trWizBar"));
-    if (ev.origen === "aviso") targets.push($("#askBar"));
-    targets.forEach((el) => bar(el, ev));
-    if (ev.estado === "ok" || ev.estado === "error") {
-      toast(ev.texto, ev.estado === "ok" ? "ok" : "bad");
-      load().catch(() => {});
-      if (ev.origen === "asistente") wizardDone(ev);
-      if (ev.origen === "aviso") { $("#askText").textContent = ev.texto; $("#askBtns").innerHTML = `<button class="btn pri" id="askClose">CERRAR</button>`; $("#askClose").onclick = () => ($("#ask").hidden = true); }
-    }
-  }
+  async function load() { st = await api("translation_status"); paint(); return st; }
   // --- en la configuración inicial
   async function wizard() {
     const t = $("#trWizText"), v = $("#vTr");
-    $("#trWizAsk").hidden = $("#trWizFolder").hidden = true; $("#trWizBar").hidden = true;
-    t.className = "su-note"; t.textContent = "Buscando tu carpeta de Star Citizen…"; v.className = "verdict";
+    $("#trWizAsk").hidden = $("#trWizFolder").hidden = true;
+    t.className = "su-note"; t.textContent = T("Buscando tu carpeta de Star Citizen…"); v.className = "verdict";
     const s2 = await load();
     if (!s2.live) {
-      t.className = "su-note bad"; t.textContent = "No encuentro la carpeta de Star Citizen en ninguna unidad. Dime dónde está.";
+      t.className = "su-note bad"; t.textContent = T("No encuentro la carpeta de Star Citizen en ninguna unidad. Dime dónde está.");
       $("#trWizFolder").hidden = false; v.className = "verdict bad";
       api("setup_say", { text: "No encuentro la carpeta de Star Citizen. Dime dónde está." });
     } else if (s2.encontrado && s2.espanol) {
-      t.className = "su-note ok"; t.textContent = `Tienes la traducción al español instalada (${s2.idioma}, ${fmtDate(s2.fecha)}). La usaré para entender el juego.`;
+      t.className = "su-note ok"; t.textContent = F("Tienes la traducción al español instalada ({}, {}). La usaré para entender el juego.", s2.idioma, fmtDate(s2.fecha));
       v.className = "verdict ok";
       api("setup_say", { text: "Perfecto, ya tienes Star Citizen en español." });
     } else {
-      const q = "Veo que no dispones de una traducción al Español de Star Citizen. ¿Quieres que te descargue la versión más actual de 0zzyt0?";
-      t.className = "su-note"; t.textContent = q + (s2.encontrado ? ` (Ahora tienes: ${s2.idioma}.)` : "");
+      const q = "No tienes la traducción al español de Star Citizen. Puedes instalarla con el Gestor de traducción automático de 0zzyt0: descárgalo, ábrelo y pulsa Actualizar.";
+      t.className = "su-note"; t.textContent = T(q);
       $("#trWizAsk").hidden = false;
       api("setup_say", { text: q });
     }
   }
-  function wizardDone(ev) {
-    const ok = ev.estado === "ok";
-    $("#trWizText").className = "su-note " + (ok ? "ok" : "bad");
-    $("#trWizText").textContent = ok ? "¡Traducción instalada! Star Citizen ya está en español (reinicia el juego si estaba abierto)." : ev.texto;
-    $("#vTr").className = "verdict " + (ok ? "ok" : "bad");
-    $("#trWizAsk").hidden = ok; $("#trWizYes").disabled = false;
-    api("setup_say", { text: ok ? "Traducción instalada." : "No he podido instalar la traducción." });
-  }
-  $("#trWizYes").addEventListener("click", safe(async () => {
-    $("#trWizYes").disabled = true;
-    if (!(await api("translation_install", { origen: "asistente" }))) $("#trWizYes").disabled = false;
-    else bar($("#trWizBar"), { texto: "Conectando con Google Drive…", pct: -1 });
-  }));
-  $("#trWizNo").addEventListener("click", safe(async () => {
-    await api("translation_answer", { respuesta: "rechazar" });
-    $("#trWizAsk").hidden = true; $("#trWizText").textContent = "De acuerdo, sin traducción. Puedes instalarla cuando quieras en Fuentes de datos.";
-  }));
+  $("#trWizNo").addEventListener("click", () => {
+    $("#trWizAsk").hidden = true;
+    $("#trWizText").textContent = T("De acuerdo. El enlace al gestor está en Juego › Idioma del juego.");
+  });
   const pick = safe(async () => { if (await api("pick_folder", {})) { S.juego_carpeta = (await api("state")).settings.juego_carpeta; showSetting("juego_carpeta"); } wizard(); });
   $("#trWizPick").addEventListener("click", pick);
   $("#trWizRetry").addEventListener("click", () => wizard());
-  // --- en Fuentes de datos
-  $("#btnTrUpdate").addEventListener("click", safe(() => install("boton")));
-  $("#btnTrFolder").addEventListener("click", safe(async () => {
-    const p = await api("pick_folder", {});
-    if (p) { S.juego_carpeta = p; showSetting("juego_carpeta"); toast("Carpeta del juego: " + p, "ok"); }
-    load();
-  }));
-  // --- aviso cada 3 meses
-  function maybeAsk() {
-    if (!STATE.traduccion_aviso || !$("#boot").hidden || !$("#setup").hidden || !$("#ask").hidden) return;
-    STATE.traduccion_aviso = false;
-    load().then((s2) => {
-      $("#askText").textContent = `Han pasado 3 meses desde que se instaló la traducción al español (${s2.idioma || "global.ini"}, ${fmtDate(s2.instalada_por_nova || s2.fecha)}). Puede que haya una versión nueva de 0zzyt0. ¿Comprobar y reinstalar?`;
-      $("#ask").hidden = false;
-      api("setup_say", { text: "Han pasado tres meses desde la última traducción. ¿Quiere que compruebe si hay una versión nueva?" });
-    }).catch(() => {});
-  }
-  $$("#askBtns [data-ans]").forEach((b) => b.addEventListener("click", safe(async () => {
-    const ans = b.dataset.ans;
-    await api("translation_answer", { respuesta: ans });
-    if (ans === "si") { $$("#askBtns button").forEach((x) => (x.disabled = true)); bar($("#askBar"), { texto: "Conectando con Google Drive…", pct: -1 }); }
-    else { $("#ask").hidden = true; toast(ans === "luego" ? "Te lo recordaré la próxima vez que abras Nova." : "De acuerdo. Te volveré a avisar dentro de 3 meses.", "ok"); }
-  })));
-  return { load, progress, wizard, maybeAsk };
+  return { load, progress() {}, wizard, maybeAsk() {} };
 })();
 
 // ============================================================ empezar de cero
@@ -1257,15 +1289,23 @@ const Setup = (() => {
       <span>Ejercicios de sonido</span><b class="${okEx === 3 ? "ok" : ""}">${okEx} de 3 ✓</b>
       <span>Frases de entrenamiento</span><b class="${okPh === results.ph.length ? "ok" : ""}">${okPh} de ${results.ph.length} ✓</b>
       <span>Cómo oigo mi nombre en tu voz</span><b>${vars.length ? esc([name().toLowerCase(), ...vars].join(" · ")) : esc(name().toLowerCase()) + " (tal cual)"}</b>`;
-    $("#suKeyRow").hidden = !!(info.keys && info.keys.gemini);
+    suKeyState();
     say(`Todo listo, ${trat()}. Pulsa terminar y despegamos.`);
   }
-  $("#suGemini").addEventListener("change", safe(async () => {
-    const ok = await api("set_key", { provider: "gemini", value: $("#suGemini").value });
-    $("#suGemini").value = ""; $("#suGemini").placeholder = ok ? "•••••••• clave de Gemini guardada" : "Opcional: clave gratis de Google Gemini";
-    if (STATE.keys_set) STATE.keys_set.gemini = ok;
-    toast(ok ? "Clave de Gemini guardada" : "Clave borrada", "ok");
-  }));
+  // 2.1.5: claves de IA en el último paso: se pegan en una sola casilla y NOVA sabe de cuál es
+  function suKeyState() {
+    const k = info.keys || {};
+    const names = [["gemini", "Gemini"], ["groq", "Groq"], ["openrouter", "OpenRouter"]].filter(([p]) => k[p]).map(([, n]) => n);
+    $("#suKeyState").textContent = names.length ? T("Claves listas: {n}.").replace("{n}", names.join(", ")) + (names.length < 2 ? " " + T("Con una segunda clave nunca me quedaré callada.") : "")
+      : T("Aún no hay ninguna clave. Sin ellas funcionan las órdenes de la nave, pero no la conversación.");
+  }
+  const suPaste = safe(async () => {
+    const r = await engPaste($("#suKey"), $("#suKeyState"));
+    if (r) { info = await api("setup_begin"); setTimeout(suKeyState, 2500); }
+  });
+  $("#suKeyBtn").addEventListener("click", suPaste);
+  $("#suKey").addEventListener("keydown", (e) => { if (e.key === "Enter") suPaste(); });
+  $("#suKey").addEventListener("paste", () => setTimeout(suPaste, 30));
 
   // --- navegación
   $$("[data-prev]", box).forEach((b) => b.addEventListener("click", () => show(page - 1)));

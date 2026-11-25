@@ -13,7 +13,7 @@ param([string]$Destino = '', [string]$Origen = '', [switch]$Actualizar, [switch]
 # -Desatendido (2.0): instala sin ventana ni preguntas y sale con 0 si todo fue bien (pruebas automáticas en GitHub).
 $ErrorActionPreference = 'Continue'
 $AppName = 'NOVA AI'
-$AppVersion = '2.0.3'
+$AppVersion = '2.1.5'
 # Origen: carpeta con el programa a instalar. «NOVA AI Setup.exe» la pasa (la descomprime en TEMP);
 # con INSTALAR.bat es la carpeta padre de este script.
 $Src = if ($Origen) { $Origen } elseif ($PSScriptRoot) { Split-Path -Parent $PSScriptRoot } else { (Get-Location).Path }
@@ -110,6 +110,7 @@ $h['Voz de Windows (respaldo)'] = 'Windows voice (backup)'
 $h['Interfaz y overlay'] = 'Interface and overlay'
 $h['Soporte de joystick y HOTAS'] = 'Joystick and HOTAS support'
 $h['Búsqueda en internet'] = 'Internet search'
+$h['Telemetría del juego en directo'] = 'Live game telemetry'
 $h['Reconocimiento de voz local (Whisper)'] = 'Local speech recognition (Whisper)'
 $h['Aceleración NVIDIA CUDA'] = 'NVIDIA CUDA acceleration'
 $h['Configuración inicial'] = 'Initial setup'
@@ -225,6 +226,7 @@ $h['Voz de Windows (respaldo)'] = 'Veu de Windows (recurs)'
 $h['Interfaz y overlay'] = 'Interfície i overlay'
 $h['Soporte de joystick y HOTAS'] = 'Suport de joystick i HOTAS'
 $h['Búsqueda en internet'] = 'Cerca a internet'
+$h['Telemetría del juego en directo'] = 'Telemetria del joc en directe'
 $h['Reconocimiento de voz local (Whisper)'] = 'Reconeixement de veu local (Whisper)'
 $h['Aceleración NVIDIA CUDA'] = 'Acceleració NVIDIA CUDA'
 $h['Configuración inicial'] = 'Configuració inicial'
@@ -340,6 +342,7 @@ $h['Voz de Windows (respaldo)'] = 'Voix de Windows (secours)'
 $h['Interfaz y overlay'] = 'Interface et overlay'
 $h['Soporte de joystick y HOTAS'] = 'Prise en charge joystick et HOTAS'
 $h['Búsqueda en internet'] = 'Recherche sur internet'
+$h['Telemetría del juego en directo'] = 'Télémétrie du jeu en direct'
 $h['Reconocimiento de voz local (Whisper)'] = 'Reconnaissance vocale locale (Whisper)'
 $h['Aceleración NVIDIA CUDA'] = 'Accélération NVIDIA CUDA'
 $h['Configuración inicial'] = 'Configuration initiale'
@@ -455,6 +458,7 @@ $h['Voz de Windows (respaldo)'] = 'Windows-Stimme (Ersatz)'
 $h['Interfaz y overlay'] = 'Oberfläche und Overlay'
 $h['Soporte de joystick y HOTAS'] = 'Joystick- und HOTAS-Unterstützung'
 $h['Búsqueda en internet'] = 'Internetsuche'
+$h['Telemetría del juego en directo'] = 'Live-Spieltelemetrie'
 $h['Reconocimiento de voz local (Whisper)'] = 'Lokale Spracherkennung (Whisper)'
 $h['Aceleración NVIDIA CUDA'] = 'NVIDIA-CUDA-Beschleunigung'
 $h['Configuración inicial'] = 'Ersteinrichtung'
@@ -1399,7 +1403,7 @@ $worker = {
         $pst.Start = [DateTime]::Now
         $quoted = ($pkgs | ForEach-Object { '"' + $_ + '"' }) -join ' '
         $bar = if ($sync.RawProgress) { '--progress-bar raw ' } else { '' }
-        $bin = '--prefer-binary --only-binary=numpy,pillow,pygame,ctranslate2,onnxruntime,av,tokenizers,rapidfuzz,miniaudio,sounddevice '
+        $bin = '--prefer-binary --only-binary=numpy,pillow,pygame,ctranslate2,onnxruntime,av,tokenizers,rapidfuzz,miniaudio,sounddevice,grpcio '
         $code = Invoke-Proc $venvPy ("-m pip install --no-input --upgrade-strategy only-if-needed $bin$bar$quoted") $pipLine
         if ($code -ne 0) {
             $tail = ($pst.Lines | Select-Object -Last 4) -join ' | '
@@ -1443,6 +1447,19 @@ $worker = {
                         Write-Log 'Instalando desde la propia carpeta de destino: no hace falta copiar'
                     } else {
                         [void](New-Item -ItemType Directory -Force -Path $Root)
+                        # 2.1.5: NOVA ya no trae claves de IA de fábrica. Antes de borrar «recursos», se guardan solo las
+                        # huellas (SHA-256) de las antiguas para que NOVA las quite de los ajustes; las del usuario se quedan.
+                        $factoryHashes = $null
+                        try {
+                            $oldKey = Join-Path $Root 'recursos\llave_claves.bin'
+                            $oldEnc = Join-Path $Root 'recursos\claves_iniciales.enc'
+                            $oldPy = Join-Path $Root '.venv\Scripts\python.exe'
+                            if ((Test-Path $oldKey) -and (Test-Path $oldEnc) -and (Test-Path $oldPy)) {
+                                $code = 'import sys,json,hashlib;sys.path.insert(0,sys.argv[1]);from pathlib import Path;from core import keyvault;k=keyvault.load(Path(sys.argv[2]),Path(sys.argv[3]));print(json.dumps({p:hashlib.sha256(str(v).strip().encode()).hexdigest() for p,v in k.items() if v}))'
+                                $factoryHashes = (& $oldPy -c $code $Root $oldEnc $oldKey 2>$null | Select-Object -Last 1)
+                                if ($factoryHashes -and $factoryHashes.Trim().StartsWith('{')) { Write-Log 'Huellas de las claves de fábrica guardadas' } else { $factoryHashes = $null }
+                            }
+                        } catch { $factoryHashes = $null }
                         foreach ($d in @('core', 'gui', 'recursos', 'instalador')) {
                             $t = Join-Path $Root $d
                             if (Test-Path $t) { Remove-Item -LiteralPath $t -Recurse -Force -ErrorAction SilentlyContinue }
@@ -1459,6 +1476,9 @@ $worker = {
                         Get-ChildItem -LiteralPath $Root -Recurse -Directory -Filter '__pycache__' -ErrorAction SilentlyContinue |
                             Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
                         Write-Log "Programa copiado a $Root"
+                        if ($factoryHashes) {
+                            try { [IO.File]::WriteAllText((Join-Path $Root 'recursos\claves_fabrica.sha256'), $factoryHashes.Trim()) } catch {}
+                        }
                     }
                     # Los ejecutables (con su icono) van a la raíz: «NOVA AI.exe» y «Desinstalar NOVA AI.exe»
                     foreach ($e in @(Get-ChildItem -LiteralPath (Join-Path $Root 'instalador\bin') -Filter '*.exe' -ErrorAction SilentlyContinue)) {
@@ -1542,7 +1562,7 @@ $worker = {
                 }
                 'verify' {
                     $sync.Detail = (T 'Comprobando que todo arranca…')
-                    $mods = 'openai edge_tts miniaudio sounddevice numpy PIL requests rapidfuzz ddgs pygame faster_whisper pyttsx3'
+                    $mods = 'openai edge_tts miniaudio sounddevice numpy PIL requests rapidfuzz ddgs pygame faster_whisper pyttsx3 grpc google.protobuf'
                     if ($opts.Piper) { $mods += ' piper' }
                     $pst.Fails.Clear()
                     $codeLine = "import importlib`nfor m in '$mods'.split():`n    try:`n        importlib.import_module(m); print('OK', m)`n    except Exception as e:`n        print('FALLO', m, type(e).__name__, str(e)[:120])"
@@ -1678,6 +1698,7 @@ function New-Plan {
     Add-Step 'pkg' (T 'Interfaz y overlay') 8 10 @('pillow>=10.0')
     Add-Step 'pkg' (T 'Soporte de joystick y HOTAS') 12 12 @('pygame>=2.5') $true
     Add-Step 'pkg' (T 'Búsqueda en internet') 14 15 @('ddgs>=9.0') $true
+    Add-Step 'pkg' (T 'Telemetría del juego en directo') 10 12 @('grpcio>=1.60', 'protobuf>=5.26') $true
     Add-Step 'pkg' (T 'Reconocimiento de voz local (Whisper)') 55 110 @('faster-whisper>=1.1') $true
     if ($ui.ChkPiper.IsChecked) { Add-Step 'pkg' (T 'Voz sin internet (Piper)') 20 25 @('piper-tts') $true }
     if ($ui.ChkCuda.IsChecked) { Add-Step 'pkg' (T 'Aceleración NVIDIA CUDA') 260 1100 @('nvidia-cublas-cu12', 'nvidia-cudnn-cu12==9.*') $true }

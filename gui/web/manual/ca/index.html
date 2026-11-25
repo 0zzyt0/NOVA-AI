@@ -273,7 +273,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <tr><td>Connexió a internet</td><td>Per a la IA, les veus neuronals i les dades del joc. Les ordres de tecles funcionen sense connexió.</td></tr>
     <tr><td>Python</td><td>No el necessites: si falta, l'instal·lador descarrega Python 3.12 només per a la Nova.</td></tr>
     <tr><td>Targeta NVIDIA <span class="dim">(opcional)</span></td><td>Accelera el reconeixement de veu local (Whisper). Sense targeta, es fa servir el processador o el núvol.</td></tr>
-    <tr><td>Claus d'IA</td><td>Gratuïtes i en 2 minuts (secció 11). Algunes versions de l'instal·lador ja porten claus de prova.</td></tr>
+    <tr><td>Claus d'IA</td><td>Gratuïtes i en 2 minuts (secció 11). Des de la 2.1.5 cada pilot posa les seves: NOVA ja no porta claus de sèrie.</td></tr>
   </table>
   <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
 </section>
@@ -593,16 +593,13 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   <figure class="c" style="width:136mm"><img src="img/c_datos_enciclopedia.webp"><figcaption><b>Joc SC › Idioma del joc:</b> el global.ini del teu idioma i el tauler <b>Traducció al castellà</b> (només amb NOVA AI en castellà).</figcaption></figure>
   <div class="g2">
     <div class="card"><h3>Què pots fer</h3><ul class="d small">
-      <li><b>Instal·lar o actualitzar la traducció:</b> en castellà descarrega l'última versió de 0zzyt0; en altres idiomes, el <code>global.ini</code> de la comunitat que triïs. Sobreescriu els fitxers de <code>LIVE</code> després de fer-ne una còpia de seguretat.</li>
-      <li><b>Triar carpeta del joc</b> si la Nova no la troba.</li>
-      <li><b>Enllaç de la traducció</b> (només en castellà): es mostra amagat amb asteriscos. Enganxa un altre enllaç de Google Drive per canviar-lo; buit = el de 0zzyt0.</li></ul></div>
-    <div class="card"><h3>Cada 3 mesos</h3><p class="small">La Nova et pregunta <b>«Comprovar i reinstal·lar?»</b>:</p><ul class="d small">
-      <li><b>Sí:</b> la torna a descarregar i sobreescriu.</li>
-      <li><b>No:</b> no fa res durant 3 mesos més.</li>
-      <li><b>Recorda-m'ho a la següent sessió:</b> t'ho torna a preguntar quan la tornis a obrir.</li></ul></div>
+      <li><b>Instal·lar la traducció:</b> en altres idiomes, el <code>global.ini</code> de la comunitat que triïs. Sobreescriu els fitxers de <code>LIVE</code> després de fer-ne una còpia.</li>
+      <li><b>Castellà:</b> el <b>Gestor de traducció automàtic</b> de 0zzyt0 (<a href="https://github.com/0zzyt0/StarCitizen-Traduccion-ES">GitHub</a>) instal·la i actualitza sol la traducció al castellà. La Nova només enllaça el seu instal·lador.</li>
+      <li><b>Triar carpeta del joc</b> si la Nova no la troba.</li></ul></div>
+    <div class="card"><h3>Sense recordatoris</h3><ul class="d small">
+      <li>La Nova ja no descarrega la traducció al castellà de Google Drive ni pregunta cada 3 mesos: se n'encarrega el gestor.</li></ul></div>
   </div>
-  <div class="row" style="grid-template-columns:90mm 1fr"><figure><img src="../img/aviso.webp"><figcaption><b>El recordatori dels 3 mesos.</b></figcaption></figure>
-    <div class="warnb"><span class="t">REINICIA EL JOC</span>Si Star Citizen està obert mentre s'instal·la la traducció, reinicia'l per veure els textos nous. La Nova recarrega els textos sola per entendre el Game.log en el teu idioma.</div></div>
+  <div class="warnb"><span class="t">REINICIA EL JOC</span>Si Star Citizen està obert mentre s'instal·la la traducció, reinicia'l per veure els textos nous. La Nova recarrega sola els textos per entendre el Game.log en el teu idioma.</div>
   <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
 </section>
 
@@ -686,10 +683,10 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   <div class="row"><figure><img src="img/c_ia.webp"></figure><div>
     <h3>Identitat</h3>
     <p><b>Nom de la IA</b>, <b>el teu nom</b> i <b>com et diu</b>. Si li canvies el nom, repeteix l'entrenament amb <b>◆ Repetir configuració</b> perquè el reconegui amb la teva veu.</p>
-    <h3>Claus gratuïtes</h3>
-    <p>Enganxa aquí les teves claus (secció 11). Si el teu instal·lador inclou claus de prova, ja hi seran. Un punt <span class="ok">verd</span> vol dir que hi ha clau. Per fer servir la teva, prem el camp i enganxa-la a sobre (secció 11).</p></div></div>
-  <h2>Cadena de motors</h2>
-  <figure class="c" style="width:140mm"><img src="img/c_ia_claves.webp"><figcaption><b>Claus i cadena de motors.</b> PROVAR comprova la clau; MODELS descarrega la llista actual de models.</figcaption></figure>
+    <h3>Motors d'IA</h3>
+    <p>Des de la 2.1.5 NOVA <b>no porta claus de sèrie</b>: cada pilot posa les seves (gratis, capítol 11). Enganxa <b>qualsevol clau</b> a la casella de dalt i NOVA reconeix de quin servei és, la desa i la prova. Cada servei té la seva targeta amb un semàfor: <span class="ok">verd</span> a punt, <span class="warn">ambre</span> en pausa (amb l'hora a què torna) i <span class="bad">vermell</span> clau no vàlida.</p></div></div>
+  <h2>Com tria el motor</h2>
+  <figure class="c" style="width:140mm"><img src="img/c_ia_claves.webp"><figcaption><b>Motors d'IA.</b> Una casella per enganxar qualsevol clau i una targeta per servei amb els seus models: en verd els lliures i en ambre els que descansen.</figcaption></figure>
 
   <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
 </section>
@@ -697,15 +694,15 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
 <!-- ======================================================= 09 INTELIGENCIA 2 -->
 <section class="page">
   <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">07 · Nova</span></div>
-  <p>La Nova prova els motors <b>per ordre</b>: si un es queda sense quota o falla, salta al següent sense que te n'adonis. L'ordre de fàbrica és:</p>
+  <p>Amb la clau d'un servei, la Nova fa servir <b>tots els seus models gratuïts</b>, l'un darrere l'altre, i després passa al servei següent: <b>Gemini</b> (5 models) › <b>Groq</b> (3) › <b>OpenRouter</b>. A Gemini i a Groq cada model té la seva pròpia quota, així que si un s'omple el següent sol estar lliure. Cada error es tracta segons la seva causa:</p>
   <table class="small">
-    <tr><th style="width:10mm">#</th><th style="width:34mm">Proveïdor</th><th>Model</th></tr>
-    <tr><td>01</td><td>Gemini</td><td><code>gemini-flash-lite-latest</code> · ràpid, moltes peticions gratuïtes</td></tr>
-    <tr><td>02</td><td>Gemini</td><td><code>gemini-3.5-flash-lite</code></td></tr>
-    <tr><td>03</td><td>Groq</td><td><code>openai/gpt-oss-120b</code> · reserva ultraràpida</td></tr>
-    <tr><td>04</td><td>OpenRouter</td><td><code>openrouter/free</code> · models gratuïts variats</td></tr>
+    <tr><th style="width:46mm">Què passa</th><th>Què fa la Nova</th></tr>
+    <tr><td>Límit per minut</td><td>Si el servei demana esperar uns segons, espera i torna a provar; si és més, aquell model descansa just aquest temps i prova el següent.</td></tr>
+    <tr><td>Quota del dia esgotada</td><td>Aparta aquell model fins que es renova la quota (a Gemini, a mitjanit de Califòrnia: les 9:00 a Catalunya).</td></tr>
+    <tr><td>Servidor saturat o sense resposta</td><td>Pausa curta i prova el següent; si continua fallant, la pausa creix (fins a 10 min).</td></tr>
+    <tr><td>Clau no vàlida</td><td>La targeta es posa en <span class="bad">vermell</span> fins que n'enganxis una altra.</td></tr>
   </table>
-  <p class="small dim">Mistral és de pagament des de l'agost de 2026, així que la 2.0 el treu de la cadena de fàbrica. Si tens la teva pròpia clau de pagament, posa-la i la Nova l'afegeix (capítol 11).</p>
+  <p class="small dim">Si no en queda cap de lliure, la Nova et diu quin falla i quan torna. A <b>Avançat</b> pots posar Mistral (de pagament), fer servir Ollama al teu PC com a últim recurs, triar tu l'ordre dels motors o treure totes les pauses amb <b>Torna-los a provar tots ara</b>.</p>
   <h2>Personalitat</h2>
   <figure class="c" style="width:122mm"><img src="img/c_ia_personalidad.webp"><figcaption><b>Personalitat:</b> humor, raonament, memòria de la conversa i frases de confessió.</figcaption></figure>
   <table class="small">
@@ -1005,7 +1002,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <li><b>«Afegeix el global.ini del teu idioma de Star Citizen [AQUÍ]»</b>: tries el fitxer de la comunitat i la Nova el copia a <code>LIVE\data\Localization\&lt;idioma&gt;\global.ini</code>.</li>
     <li>Abans desa el que hi havia (<code>global.ini.antes_de_nova</code>), posa <code>g_language</code> a <code>user.cfg</code> i el fa servir per entendre els avisos del joc en el teu idioma.</li>
     <li><b>↶ Treure i restaurar la còpia</b> ho deixa tot com estava.</li></ul>
-  <div class="warnb"><span class="t">NOMÉS EN CASTELLÀ</span>La traducció de 0zzyt0 i la seva descàrrega des de Google Drive només s'ofereixen amb NOVA AI en castellà. Star Citizen només accepta els seus propis codis d'idioma: el català fa servir la plaça <code>spanish_(latin_america)</code>.</div>
+  <div class="warnb"><span class="t">NOMÉS EN CASTELLÀ</span>L'enllaç al Gestor de traducció de 0zzyt0 només s'ofereix amb NOVA AI en castellà. Star Citizen només accepta els seus propis codis d'idioma: el català fa servir la plaça <code>spanish_(latin_america)</code>.</div>
   <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
 </section>
 
@@ -1081,7 +1078,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
 <section id="cap-11" class="page">
   <div class="ph"><img src="/logo.png">NOVA AI · Manual d'usuari<span class="s">11 · Les teves claus d'API</span></div>
   <h1><span class="num">11</span>Les teves pròpies claus d'API</h1>
-  <p class="lead">Una <b>clau d'API</b> és com una contrasenya que permet a la Nova fer servir un servei d'intel·ligència artificial en nom teu. Algunes versions de NOVA AI inclouen claus de prova (la de GitHub no), però tenen un <b>límit diari compartit</b> entre tots els que fan servir el programa. Amb la teva tindràs tota la quota per a tu. Són gratuïtes i s'aconsegueixen en un parell de minuts.</p>
+  <p class="lead">Una <b>API Key</b> (clau) és com una contrasenya que deixa la Nova fer servir un servei d'intel·ligència artificial en nom teu. Des de la 2.1.5 NOVA AI <b>no porta claus de sèrie</b>: les de fàbrica eren les mateixes per a tothom i la quota gratuïta (que va per compte, no per persona) s'esgotava entre tots. Amb les teves tens tota la quota per a tu. Són gratis, no demanen targeta i s'aconsegueixen en un parell de minuts.</p>
   <table class="small">
     <tr><th style="width:26mm">Servei</th><th>Per a què</th><th style="width:40mm">Cost</th><th style="width:30mm">Comença per</th></tr>
     <tr><td>Gemini</td><td>El cervell principal de la Nova.</td><td class="ok">Gratuït, sense targeta</td><td><code>AIza…</code> o <code>AQ.…</code></td></tr>
@@ -1093,13 +1090,13 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   <h2>Com posar una clau a la Nova</h2>
   <div class="row"><figure><img src="img/c_ia.webp"></figure><div>
     <ol class="small" style="padding-left:6mm;margin:0">
-      <li>Aconsegueix la clau a la web del servei (pàgines següents) i <b>copia-la</b>.</li>
-      <li>A la Nova, obre <b>Nova › Intel·ligència › Claus gratuïtes</b>.</li>
-      <li>Prem el camp del servei i <b>enganxa la clau</b> amb <kbd>Ctrl</kbd>+<kbd>V</kbd>. Es desa sola i el punt es posa <span class="ok">verd</span>.</li>
-      <li>A <b>Cadena de motors</b>, prem <b>PROVAR</b> en un motor d'aquell servei: si respon, ja està!</li>
+      <li>A la Nova, obre <b>Nova › Intel·ligència</b> i prem <b>ACONSEGUEIX CLAU GRATIS</b> a la targeta del servei: s'obre la seva pàgina de claus.</li>
+      <li>Crea la clau (pàgines següents) i <b>copia-la</b>.</li>
+      <li>Torna a la Nova i enganxa-la amb <kbd>Ctrl</kbd>+<kbd>V</kbd> a la casella <b>Enganxa aquí qualsevol clau</b>. NOVA reconeix de quin servei és, la desa i la prova.</li>
+      <li>La targeta es posa en <span class="ok">verd</span>: ja està! Repeteix-ho amb el segon servei.</li>
     </ol>
-    <p class="small dim" style="margin-top:2mm">El botó <b>OBTENIR CLAU</b> de cada servei obre directament la seva pàgina de claus.</p></div></div>
-  <div class="warnb"><span class="t">TRACTA LES CLAUS COM CONTRASENYES</span>No les comparteixis ni les publiquis en fòrums o captures. La majoria de serveis <b>només te la mostren una vegada</b>: si la perds, esborra-la i crea'n una altra. Les teves claus es queden al teu PC i mai no se substitueixen per les de fàbrica.</div>
+    <p class="small dim" style="margin-top:2mm">També les pots enganxar a l'últim pas de la configuració inicial.</p></div></div>
+  <div class="warnb"><span class="t">TRACTA LES CLAUS COM CONTRASENYES</span>No les comparteixis ni les publiquis en fòrums o captures. La majoria de serveis <b>només te la mostren un cop</b>: si la perds, esborra-la i crea'n una altra. Les teves claus es queden al teu PC i no van a les còpies de seguretat.</div>
   <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
 </section>
 
@@ -1113,7 +1110,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
       <li>La primera vegada, accepta les condicions de Google AI Studio.</li>
       <li>Prem <b>Create API key</b>. Si et pregunta per un projecte, deixa que en creï un de nou.</li>
       <li>Apareix la teva clau: prem el botó de <b>copiar</b>.</li>
-      <li>Enganxa-la a la Nova: <b>Nova › Intel·ligència › Claus gratuïtes › Google Gemini</b>.</li>
+      <li>Enganxa-la a la Nova: <b>Nova › Intel·ligència</b>, casella <b>Enganxa aquí qualsevol clau</b>.</li>
     </ol>
     <div class="foot"><span><b>Targeta de crèdit:</b> no cal</span><span><b>Límit:</b> per minut i per dia, segons el model</span></div>
     <p class="small dim" style="margin:2mm 0 0">Google indica que al pla gratuït pot fer servir el que envies per millorar els seus productes.</p>
@@ -1126,7 +1123,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
       <li>Ves a <b>console.groq.com/keys</b> i prem <b>Create API Key</b>.</li>
       <li>Posa-li un nom (per exemple «Nova») i prem <b>Submit</b>.</li>
       <li><b>Copia la clau ara</b> (<code>gsk_…</code>): només es mostra una vegada.</li>
-      <li>Enganxa-la a la Nova: <b>Nova › Intel·ligència › Claus gratuïtes › Groq</b>. També serveix el camp del pas 1 de la configuració inicial.</li>
+      <li>Enganxa-la a la Nova: <b>Nova › Intel·ligència</b>, casella <b>Enganxa aquí qualsevol clau</b>. També serveix el camp del pas 1 de la configuració inicial.</li>
     </ol>
     <div class="foot"><span><b>Targeta de crèdit:</b> no cal</span><span><b>Límit:</b> unes 1.000 peticions al dia amb <code>gpt-oss-120b</code></span></div>
     <p class="small dim" style="margin:3mm 0 0">Amb Groq també tindràs el reconeixement de veu més ràpid (motor «Automàtic» a Nova › Escolta).</p>
@@ -1145,7 +1142,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
       <li>Ves a <b>openrouter.ai/keys</b> (menú del teu compte › <b>Keys</b>).</li>
       <li>Prem <b>Create Key</b>, posa-li un nom («Nova») i crea-la. No cal posar límit de crèdit.</li>
       <li><b>Copia la clau</b> (<code>sk-or-v1-…</code>) abans de tancar la finestra.</li>
-      <li>Enganxa-la a la Nova: <b>Nova › Intel·ligència › Claus gratuïtes › OpenRouter</b>.</li>
+      <li>Enganxa-la a la Nova: <b>Nova › Intel·ligència</b>, casella <b>Enganxa aquí qualsevol clau</b>.</li>
     </ol>
     <div class="foot"><span><b>Targeta de crèdit:</b> no cal</span><span><b>Límit:</b> 50 peticions gratuïtes al dia (1.000 si algun dia compres 10 $ de crèdit)</span></div>
     <p class="small dim" style="margin:2mm 0 0">Fes servir els models acabats en <code>:free</code> o <code>openrouter/free</code>, que en tria un de gratuït disponible.</p>
@@ -1156,12 +1153,12 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <ol class="small">
       <li>A <b>console.mistral.ai</b>, amb el teu compte de pagament, ves a <b>API Keys</b> i prem <b>Create new key</b>.</li>
       <li><b>Copia la clau</b>: no es tornarà a mostrar.</li>
-      <li>Enganxa-la a <b>Nova › Intel·ligència › Claus gratuïtes › Mistral (de pagament)</b>. La Nova l'afegeix sola a la cadena de motors (model <code>mistral-small-latest</code>).</li>
+      <li>Enganxa-la a <b>Nova › Intel·ligència › Avançat › Mistral (de pagament)</b>: la seva clau no té un prefix fix, així que va al seu propi camp. La Nova la fa servir després dels serveis gratuïts (model <code>mistral-small-latest</code>).</li>
     </ol>
     <div class="foot"><span><b>Targeta de crèdit:</b> sí (pla de pagament)</span><span><b>Si actualitzes des de la 1.x:</b> la Nova treu la clau de fàbrica de Mistral i respecta la teva</span></div>
     <p class="small dim" style="margin:2mm 0 0">Si ja tenies una clau de <b>DeepSeek</b> (de pagament), la Nova la continua fent servir.</p>
   </div>
-  <div class="tip"><span class="t">I SI UNA CLAU DEIXA DE FUNCIONAR?</span>Prem <b>PROVAR</b> a la cadena de motors. Els errors més habituals: una clau mal copiada (amb un espai de més), una clau esborrada a la web del servei, o la quota del dia esgotada (espera fins demà; mentrestant la Nova fa servir el motor següent).</div>
+  <div class="tip"><span class="t">I SI UNA CLAU DEIXA DE FUNCIONAR?</span>Mira la seva targeta a <b>Nova › Intel·ligència</b>: <span class="bad">vermell</span> = clau no vàlida (mal copiada, amb un espai de més o esborrada al web del servei: enganxa'n una altra); <span class="warn">ambre</span> = en pausa, amb l'hora a què torna (mentrestant la Nova fa servir el motor següent). <b>PROVA</b> la comprova al moment.</div>
   <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
 </section>
 
@@ -1211,7 +1208,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <li><b>Reconeixement de veu:</b> només amb Groq s'envia l'àudio de cada frase per passar-lo a text. Amb Whisper local no en surt res.</li>
     <li><b>Veu de la Nova:</b> amb les veus d'Edge, el text de la resposta va a Microsoft per generar l'àudio.</li>
     <li><b>Dades del joc:</b> consultes a la wiki, UEX, scmdb.net i DuckDuckGo, com faries a Google.</li>
-    <li><b>Traducció:</b> només si l'acceptes, es descarrega de Google Drive o de GitHub.</li>
+    <li><b>Traducció:</b> la Nova no la descarrega; la instal·la el Gestor de traducció de 0zzyt0 (GitHub) si el fas servir.</li>
     <li><b>Fitxes de jugadors i estat dels servidors:</b> lectura de les pàgines públiques de robertsspaceindustries.com (la fitxa que demanes i la seva organització) i status.robertsspaceindustries.com.</li>
     <li><b>Actualitzacions:</b> en arrencar i en sortir, pregunta a GitHub quina és l'última versió de NOVA AI (es pot desactivar).</li>
     <li><b>Hologrames:</b> fitxes de planetes, llunes i llocs de verseguide.com (es guarden 3 dies al teu ordinador); fotos i logos de robertsspaceindustries.com.</li>
@@ -1222,7 +1219,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   </ul>
   <p class="small">El text complet és a <b>NORMAS_Y_PRIVACIDAD.ca.md</b>, que vas acceptar en instal·lar.</p>
   <h2>Normes bàsiques</h2>
-  <p class="small"><b>Joc net:</b> la Nova prem tecles com VoiceAttack; tu ets responsable de complir les condicions de Star Citizen. <b>La IA es pot equivocar</b> (i si s'inventa alguna cosa, ho confessa). Les <b>claus de prova</b> (si la teva versió en porta) són compartides: no les copiïs a altres programes.</p>
+  <p class="small"><b>Joc net:</b> la Nova prem tecles com VoiceAttack; tu ets responsable de complir les condicions de Star Citizen. <b>La IA es pot equivocar</b> (i si s'inventa alguna cosa, ho confessa). Les teves <b>claus d'IA</b> són teves: no les comparteixis.</p>
   <h2>Crèdits</h2>
   <table class="tight small">
     <tr><td style="width:52mm">Desenvolupament</td><td>Aaron B. Roldan · gametag <b>0zzyt0</b> · amb el motor d'IA Claude Opus 5.5 (Anthropic)</td></tr>

@@ -27,10 +27,11 @@ Te escucha, te responde con voz natural, pulsa las teclas del juego por ti y sab
 - **Conversa y busca** (con tu clave gratuita de IA): lore, naves, minería, planos de fabricación, misiones y precios con datos del parche LIVE (scmdb.net, UEX Corp, Star Citizen Wiki, VerseGuide, StarMap…).
 - **Te dice dónde comprar:** *«¿Dónde compro un P4-AR?»* y te contesta por voz con las tiendas y los precios, sin abrir el navegador.
 - **Sigue tu partida:** lee el `Game.log` en directo: dónde estás, quién entra en tu nave, la torre, contratos, combate, curas en camilla médica, cargas…
+- **Telemetría en directo (2.1):** con la telemetría local del juego (4.10.2 LIVE y 5.0) sabe tu salud, sed, hambre, oxígeno, hidrógeno, combustible cuántico, escudos, casco y viaje cuántico reales: te avisa en voz y contesta al momento «¿cuánto hidrógeno me queda?». Se activa con un botón en *Juego › Avisos del juego*. Cada alerta sale también en holograma con su icono (ámbar: aviso, rojo: grave). En la 5.0, además: cuenta atrás del viaje cuántico, aviso de tren recogido al acercarte al suelo, objetivo del contrato seguido y, al decir «Nova, muéstrame el estado», una ficha con todos tus valores.
 - **Hologramas sobre el juego:** fichas de jugadores (con su organización), objetivos de recompensa, planetas, lunas y lugares, con efectos cinematográficos, ligeros o ninguno.
 - **Chat del juego y Discord:** *«Nova, envía mensaje al chat…»* lo traduce y lo escribe por ti; las fichas pueden llegar a tu canal de Discord si dices «sí».
 - **Recuerda:** un Diccionario de consultas con unas 7.000 entradas que contesta sin gastar IA, lo que le cuentas y un cuaderno de bitácora de cada sesión.
-- **Star Citizen en tu idioma:** en español instala y mantiene al día la traducción de la comunidad (0zzyt0); en los demás idiomas instala el `global.ini` que elijas.
+- **Star Citizen en tu idioma:** en español enlaza el [Gestor de traducción automático](https://github.com/0zzyt0/StarCitizen-Traduccion-ES) de 0zzyt0, que instala y mantiene al día la traducción de la comunidad; en los demás idiomas instala el `global.ini` que elijas.
 - **Brilla en el juego:** un overlay con su logo que cambia de color según lo que hace: escuchando, entendido, buscando o hablando.
 
 ## Accesibilidad: juega con la voz
@@ -176,7 +177,7 @@ Un ejemplo: con una sola mano en la palanca, *«Nova, listo para volar»*, *«pi
 | | |
 |---|---|
 | ![Juego SC: comandos de voz](docs/img/juego.jpg)<br><sub>**Juego SC:** tus comandos de voz y sus teclas</sub> | ![Juego SC: teclas y joystick](docs/img/lectura.jpg)<br><sub>**Teclas y joystick:** tus teclas de Star Citizen y cómo las pulsa Nova</sub> |
-| ![Nova: inteligencia](docs/img/ia.jpg)<br><sub>**Nova › Inteligencia:** claves gratuitas y cadena de motores</sub> | ![Información: fuentes](docs/img/datos.jpg)<br><sub>**Información › Fuentes:** páginas de consulta y su comprobación</sub> |
+| ![Nova: inteligencia](docs/img/ia.jpg)<br><sub>**Nova › Inteligencia:** motores de IA (pega cualquier clave)</sub> | ![Información: fuentes](docs/img/datos.jpg)<br><sub>**Información › Fuentes:** páginas de consulta y su comprobación</sub> |
 | ![Diccionario de consultas](docs/img/diccionario.jpg)<br><sub>**Diccionario de consultas:** contesta sin gastar IA</sub> | ![Bitácora y estadísticas](docs/img/bitacora.jpg)<br><sub>**Bitácora y estadísticas** de tus sesiones</sub> |
 
 ## Instalación
@@ -212,9 +213,9 @@ NOVA AI usa servicios gratuitos, en una **cadena de motores**: si uno se queda s
 
 *Mistral* (de pago desde agosto de 2026) y *DeepSeek* son opcionales: solo entran en la cadena si pones tu propia clave.
 
-El instalador de *Releases* **no trae claves de IA**: Nova obedece los comandos de voz desde el primer momento, y para conversar y buscar necesita al menos una clave gratuita. Se consiguen en 2 minutos y sin tarjeta (Gemini y Groq son las recomendadas): el capítulo 11 del manual, *Tus propias API Keys*, lo explica paso a paso. Después se pegan en ***Nova › Inteligencia › Claves gratuitas***. Nova contesta siempre en el idioma que hayas elegido.
+El instalador de *Releases* **no trae claves de IA**: Nova obedece los comandos de voz desde el primer momento, y para conversar y buscar necesita al menos una clave gratuita. Se consiguen en 2 minutos y sin tarjeta (Gemini y Groq son las recomendadas): el capítulo 11 del manual, *Tus propias API Keys*, lo explica paso a paso. Después se pegan en ***Nova › Inteligencia***, en la casilla *Pega aquí cualquier clave*: NOVA reconoce de qué servicio es, la guarda y la prueba. Con la clave de un servicio, Nova usa todos sus modelos gratuitos y, si uno se queda sin cupo, salta sola al siguiente (y te dice cuándo vuelve cada uno). Nova contesta siempre en el idioma que hayas elegido.
 
-**Sobre las claves en este repositorio:** el programa admite claves de fábrica **cifradas** (`recursos/claves_iniciales.enc`, ver [`core/keyvault.py`](core/keyvault.py)), pero la llave maestra **no está en el repositorio ni en la versión pública**, así que esas claves no se pueden usar ni leer. Si compilas tu propia versión, usa tus claves con [`build/cifrar_claves.py`](build/cifrar_claves.py), o no pongas ninguna y cada usuario pondrá las suyas.
+**Sin claves de fábrica (desde la 2.1.5):** las versiones anteriores podían traer claves de IA de serie, pero eran las mismas para todos y los cupos gratuitos (que van por proyecto u organización, no por usuario) se agotaban entre todos. Ahora cada piloto pone las suyas. Al actualizar, NOVA quita de tus ajustes solo las claves que coincidan con las antiguas de fábrica; las tuyas se quedan.
 
 **Servicio del cuestionario anónimo:** el cuestionario se envía a un pequeño Cloudflare Worker que guarda el token de GitHub y crea el issue, así que el programa no lleva ningún token. Su código y los pasos para desplegarlo están en [`servicios/cuestionario`](servicios/cuestionario). Si compilas tu propia versión, pon la dirección de tu servicio en `core/survey.py` o déjala vacía para ocultar el cuestionario.
 

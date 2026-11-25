@@ -366,6 +366,9 @@ CATEGORIES = {
     "ley": "CrimeStat, multas y zonas restringidas",
     "avisos": "Combustible, refinería, planos, llamaradas solares y compras fallidas",
     "nave": "Tu nave: quién sube y baja, daños y tubo de atraque listo",
+    # 2.1: avisos de la telemetría en directo del juego (no del Game.log)
+    "cuerpo": "Telemetría · tu personaje: sed, hambre, oxígeno y salud bajos",
+    "sistemas": "Telemetría · tu nave: hidrógeno, cuántico, escudos, casco, averías y misiles",
 }
 
 # Comentarios (se elige uno al azar). {t} = tratamiento; {nombre}, {cantidad}, {lugar}, {x}, {puesto}, {parte}
@@ -442,6 +445,25 @@ COMMENTS = {
     "muerte": ["Ha caído, {t}. Lo apunto en la bitácora.", "Ha caído, {t}. Que no se repita."],
     "regeneracion": ["Bienvenido de vuelta al mundo de los vivos, {t}."],
     "salto_error": ["El motor cuántico no estaba listo para el salto, {t}. Inténtelo otra vez."],
+    # 2.1: telemetría en directo ({x} = porcentaje)
+    "sed_baja": ["{t}, hidratación al {x} por ciento. Convendría beber algo.", "Tiene sed, {t}: hidratación al {x} por ciento."],
+    "sed_critica": ["{t}, hidratación al {x} por ciento. Beba algo cuanto antes.", "Deshidratación seria, {t}: {x} por ciento. Necesita agua ya."],
+    "hambre_baja": ["{t}, nutrición al {x} por ciento. Buen momento para comer algo.", "Empieza a tener hambre, {t}: {x} por ciento."],
+    "hambre_critica": ["{t}, nutrición al {x} por ciento. Coma algo cuanto antes."],
+    "oxigeno_bajo": ["{t}, oxígeno del traje al {x} por ciento y aquí no se puede respirar.", "Ojo con el oxígeno, {t}: {x} por ciento."],
+    "oxigeno_critico": ["{t}, oxígeno al {x} por ciento. Busque aire respirable o cambie la botella ya."],
+    "salud_baja": ["{t}, su salud está al {x} por ciento. Cúrese en cuanto pueda.", "Está herido, {t}: salud al {x} por ciento."],
+    "hidrogeno_bajo": ["{t}, hidrógeno al {x} por ciento. Convendría repostar.", "Combustible de hidrógeno al {x} por ciento, {t}."],
+    "hidrogeno_critico": ["{t}, hidrógeno al {x} por ciento. Reposte ya o nos quedamos a la deriva."],
+    "cuantico_bajo": ["{t}, combustible cuántico al {x} por ciento. Quizá no llegue para un salto largo."],
+    "casco_danado": ["{t}, casco al {x} por ciento.", "Daños en el casco, {t}: {x} por ciento de integridad."],
+    "casco_critico": ["{t}, casco al {x} por ciento. Estado crítico: salga de ahí.", "Integridad del casco al {x} por ciento, {t}. No aguantaremos mucho más."],
+    "escudos_caidos": ["Escudos caídos, {t}.", "{t}, nos hemos quedado sin escudos."],
+    "averia_grave": ["Avería grave en {x}, {t}.", "{t}, testigo rojo: {x}."],
+    "alerta_misil": ["¡Alerta de misiles, {t}!", "¡Misil, {t}! Contramedidas."],
+    # 2.1.2
+    "tren_recogido": ["{t}, tren recogido y a {x} metros del suelo.", "¡Tren de aterrizaje, {t}! Estamos a {x} metros."],
+    "contrato_caduca": ["{t}, al contrato «{c}» le quedan {x} minutos.", "Quedan {x} minutos para que caduque «{c}», {t}."],
 }
 INJURY = {"minor": "leve", "moderate": "moderada", "major": "grave", "severe": "muy grave"}
 
@@ -560,11 +582,14 @@ class GameLog(threading.Thread):
         self._equip: list[str] = []  # objetos equipados seguidos (se resumen juntos)
         self._equip_last = 0.0
         self._tubes: dict[str, float] = {}
+        self.telemetry = None  # 2.1: lector de la telemetría en directo (lo pone Nova)
 
     # -------------------------------------------------------------- consultas
     def summary(self) -> str:
         if self.path is None and not self.events:
-            return "No encuentro el Game.log de Star Citizen (¿el juego está abierto?)."
+            tel = getattr(self, "telemetry", None)
+            tel_text = tel.summary() if tel is not None else ""
+            return tel_text or "No encuentro el Game.log de Star Citizen (¿el juego está abierto?)."
         lines = [f"Ubicación actual (según el log): {self.location}"]
         if self.player:
             lines.append(f"Personaje: {self.player}")
@@ -576,6 +601,10 @@ class GameLog(threading.Thread):
             lines.append("Contratos activos: " + "; ".join(self.contracts))
         if self.party:
             lines.append("Grupo: " + ", ".join(sorted(self.party)))
+        tel = getattr(self, "telemetry", None)  # 2.1: valores en directo del juego
+        tel_text = tel.summary() if tel is not None else ""
+        if tel_text:
+            lines.append(tel_text)
         recent = list(self.events)[-12:]
         if recent:
             lines.append("Últimos eventos:")

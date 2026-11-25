@@ -273,7 +273,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <tr><td>Internet connection</td><td>For the AI, the neural voices and the game data. Key commands work without it.</td></tr>
     <tr><td>Python</td><td>You don't need it: if it's missing, the installer downloads Python 3.12 just for Nova.</td></tr>
     <tr><td>NVIDIA card <span class="dim">(optional)</span></td><td>Speeds up local speech recognition (Whisper). Without one, the processor or the cloud is used.</td></tr>
-    <tr><td>AI keys</td><td>Free and in 2 minutes (section 11). Some installer versions already include trial keys.</td></tr>
+    <tr><td>AI keys</td><td>Free and in 2 minutes (section 11). Since 2.1.5 every pilot adds their own: NOVA no longer ships with built-in keys.</td></tr>
   </table>
   <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
 </section>
@@ -593,16 +593,13 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   <figure class="c" style="width:136mm"><img src="img/c_datos_enciclopedia.webp"><figcaption><b>SC Game › Game language:</b> the global.ini for your language and the <b>Spanish translation</b> panel (only with NOVA AI in Spanish).</figcaption></figure>
   <div class="g2">
     <div class="card"><h3>What you can do</h3><ul class="d small">
-      <li><b>Install or update the translation:</b> in Spanish it downloads the latest 0zzyt0 version; in other languages, the community <code>global.ini</code> you choose. It overwrites the files in <code>LIVE</code> after making a backup.</li>
-      <li><b>Choose game folder</b> if Nova can't find it.</li>
-      <li><b>Translation link</b> (Spanish only): shown hidden with asterisks. Paste another Google Drive link to change it; empty = the 0zzyt0 one.</li></ul></div>
-    <div class="card"><h3>Every 3 months</h3><p class="small">Nova asks you <b>"Check and reinstall?"</b>:</p><ul class="d small">
-      <li><b>Yes:</b> downloads it again and overwrites.</li>
-      <li><b>No:</b> does nothing for another 3 months.</li>
-      <li><b>Remind me next session:</b> asks you again when you reopen it.</li></ul></div>
+      <li><b>Install the translation:</b> in other languages, the community <code>global.ini</code> you choose. It overwrites the files in <code>LIVE</code> after making a backup.</li>
+      <li><b>Spanish:</b> the <b>Automatic Translation Manager</b> by 0zzyt0 (<a href="https://github.com/0zzyt0/StarCitizen-Traduccion-ES">GitHub</a>) installs and updates the Spanish translation by itself. Nova only links its installer.</li>
+      <li><b>Choose game folder</b> if Nova can't find it.</li></ul></div>
+    <div class="card"><h3>No more reminders</h3><ul class="d small">
+      <li>Nova no longer downloads the Spanish translation from Google Drive or asks every 3 months: the manager takes care of it.</li></ul></div>
   </div>
-  <div class="row" style="grid-template-columns:90mm 1fr"><figure><img src="../img/aviso.webp"><figcaption><b>The 3-month reminder.</b></figcaption></figure>
-    <div class="warnb"><span class="t">RESTART THE GAME</span>If Star Citizen is open while the translation is being installed, restart it to see the new texts. Nova reloads the texts by herself to understand the Game.log in your language.</div></div>
+  <div class="warnb"><span class="t">RESTART THE GAME</span>If Star Citizen is open while the translation is being installed, restart it to see the new texts. Nova reloads the texts by herself to understand the Game.log in your language.</div>
   <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
 </section>
 
@@ -686,10 +683,10 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   <div class="row"><figure><img src="img/c_ia.webp"></figure><div>
     <h3>Identity</h3>
     <p><b>AI name</b>, <b>your name</b> and <b>what she calls you</b>. If you change her name, repeat the training with <b>◆ Repeat setup</b> so she recognises it in your voice.</p>
-    <h3>Free keys</h3>
-    <p>Paste your keys here (section 11). If your installer includes trial keys, they'll already be there. A <span class="ok">green</span> dot means there's a key. To use your own, click the field and paste it over (section 11).</p></div></div>
-  <h2>Engine chain</h2>
-  <figure class="c" style="width:140mm"><img src="img/c_ia_claves.webp"><figcaption><b>Keys and engine chain.</b> TEST checks the key; MODELS downloads the current list of models.</figcaption></figure>
+    <h3>AI engines</h3>
+    <p>Since 2.1.5 NOVA <b>doesn't ship with built-in keys</b>: every pilot adds their own (free, chapter 11). Paste <b>any key</b> into the box at the top and NOVA recognises which service it's for, saves it and tests it. Each service has its own card with a traffic light: <span class="ok">green</span> ready, <span class="warn">amber</span> paused (with the time it comes back) and <span class="bad">red</span> invalid key.</p></div></div>
+  <h2>How she picks an engine</h2>
+  <figure class="c" style="width:140mm"><img src="img/c_ia_claves.webp"><figcaption><b>AI engines.</b> One box to paste any key and a card per service with its models: green ones are free, amber ones are resting.</figcaption></figure>
 
   <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
 </section>
@@ -697,15 +694,15 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
 <!-- ======================================================= 09 INTELIGENCIA 2 -->
 <section class="page">
   <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">07 · Nova</span></div>
-  <p>Nova tries the engines <b>in order</b>: if one runs out of quota or fails, she jumps to the next without you noticing. The built-in order is:</p>
+  <p>With a service's key, Nova uses <b>all of its free models</b>, one after another, and then moves on to the next service: <b>Gemini</b> (5 models) › <b>Groq</b> (3) › <b>OpenRouter</b>. On Gemini and Groq each model has its own quota, so if one fills up the next is usually free. Each failure is handled according to its cause:</p>
   <table class="small">
-    <tr><th style="width:10mm">#</th><th style="width:34mm">Provider</th><th>Model</th></tr>
-    <tr><td>01</td><td>Gemini</td><td><code>gemini-flash-lite-latest</code> · fast, lots of free requests</td></tr>
-    <tr><td>02</td><td>Gemini</td><td><code>gemini-3.5-flash-lite</code></td></tr>
-    <tr><td>03</td><td>Groq</td><td><code>openai/gpt-oss-120b</code> · ultra-fast backup</td></tr>
-    <tr><td>04</td><td>OpenRouter</td><td><code>openrouter/free</code> · a variety of free models</td></tr>
+    <tr><th style="width:46mm">What happens</th><th>What Nova does</th></tr>
+    <tr><td>Per-minute limit</td><td>If the service asks to wait a few seconds, she waits and retries; if it's longer, that model rests for exactly that long and she tries the next one.</td></tr>
+    <tr><td>Daily quota used up</td><td>She sets that model aside until the quota renews (on Gemini, at midnight California time).</td></tr>
+    <tr><td>Server overloaded or not responding</td><td>Short pause and she tries the next one; if it keeps failing, the pause grows (up to 10 min).</td></tr>
+    <tr><td>Invalid key</td><td>The card turns <span class="bad">red</span> until you paste another one.</td></tr>
   </table>
-  <p class="small dim">Mistral has been paid since August 2026, so 2.0 removes it from the built-in chain. If you have your own paid key, add it and Nova adds Mistral (chapter 11).</p>
+  <p class="small dim">If none is free, Nova tells you which one is failing and when it comes back. Under <b>Advanced</b> you can add Mistral (paid), use Ollama on your PC as a last resort, choose the engine order yourself or clear every pause with <b>Retry all now</b>.</p>
   <h2>Personality</h2>
   <figure class="c" style="width:122mm"><img src="img/c_ia_personalidad.webp"><figcaption><b>Personality:</b> humour, reasoning, conversation memory and confession phrases.</figcaption></figure>
   <table class="small">
@@ -1005,7 +1002,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <li><b>"Add your Language global.ini of Star Citizen [HERE]"</b>: you choose the community file and Nova copies it to <code>LIVE\data\Localization\&lt;language&gt;\global.ini</code>.</li>
     <li>First she saves whatever was there (<code>global.ini.antes_de_nova</code>), sets <code>g_language</code> in <code>user.cfg</code> and uses it to understand the game's alerts in your language.</li>
     <li><b>↶ Remove and restore the backup</b> leaves everything as it was.</li></ul>
-  <div class="warnb"><span class="t">SPANISH ONLY</span>The 0zzyt0 translation and its Google Drive download are only offered with NOVA AI in Spanish. Star Citizen only accepts its own language codes: Catalan uses the <code>spanish_(latin_america)</code> slot.</div>
+  <div class="warnb"><span class="t">SPANISH ONLY</span>The link to the 0zzyt0 Translation Manager is only offered with NOVA AI in Spanish. Star Citizen only accepts its own language codes: Catalan uses the <code>spanish_(latin_america)</code> slot.</div>
   <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
 </section>
 
@@ -1081,7 +1078,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
 <section id="cap-11" class="page">
   <div class="ph"><img src="/logo.png">NOVA AI · User manual<span class="s">11 · Your own API keys</span></div>
   <h1><span class="num">11</span>Your own API keys</h1>
-  <p class="lead">An <b>API key</b> is like a password that lets Nova use an artificial intelligence service on your behalf. Some NOVA AI versions include trial keys (the GitHub one doesn't), but they have a <b>daily limit shared</b> by everyone using the program. With your own you'll have the whole quota to yourself. They're free and take a couple of minutes to get.</p>
+  <p class="lead">An <b>API key</b> is like a password that lets Nova use an artificial intelligence service on your behalf. Since 2.1.5 NOVA AI <b>doesn't ship with built-in keys</b>: the old ones were the same for everyone and the free quota (which is per account, not per person) was used up by everyone together. With your own you have the whole quota to yourself. They're free, need no credit card and take a couple of minutes to get.</p>
   <table class="small">
     <tr><th style="width:26mm">Service</th><th>What for</th><th style="width:40mm">Cost</th><th style="width:30mm">Starts with</th></tr>
     <tr><td>Gemini</td><td>Nova's main brain.</td><td class="ok">Free, no credit card</td><td><code>AIza…</code> or <code>AQ.…</code></td></tr>
@@ -1093,13 +1090,13 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   <h2>How to add a key to Nova</h2>
   <div class="row"><figure><img src="img/c_ia.webp"></figure><div>
     <ol class="small" style="padding-left:6mm;margin:0">
-      <li>Get the key on the service's website (next pages) and <b>copy it</b>.</li>
-      <li>In Nova, open <b>Nova › Intelligence › Free keys</b>.</li>
-      <li>Click the service's field and <b>paste the key</b> with <kbd>Ctrl</kbd>+<kbd>V</kbd>. It saves by itself and the dot turns <span class="ok">green</span>.</li>
-      <li>In <b>Engine chain</b>, click <b>TEST</b> on an engine from that service: if it answers, you're done!</li>
+      <li>In Nova, open <b>Nova › Intelligence</b> and click <b>GET A FREE KEY</b> on the service's card: its keys page opens.</li>
+      <li>Create the key (next pages) and <b>copy it</b>.</li>
+      <li>Back in Nova, paste it with <kbd>Ctrl</kbd>+<kbd>V</kbd> into the <b>Paste any key here</b> box. NOVA recognises which service it's for, saves it and tests it.</li>
+      <li>The card turns <span class="ok">green</span>: done! Repeat with a second service.</li>
     </ol>
-    <p class="small dim" style="margin-top:2mm">Each service's <b>GET A KEY</b> button opens its keys page directly.</p></div></div>
-  <div class="warnb"><span class="t">TREAT KEYS LIKE PASSWORDS</span>Don't share them or post them in forums or screenshots. Most services <b>only show it to you once</b>: if you lose it, delete it and create another. Your keys stay on your PC and are never replaced by the built-in ones.</div>
+    <p class="small dim" style="margin-top:2mm">You can also paste them in the last step of the first-time setup.</p></div></div>
+  <div class="warnb"><span class="t">TREAT KEYS LIKE PASSWORDS</span>Don't share them or post them in forums or screenshots. Most services <b>only show it to you once</b>: if you lose it, delete it and create another. Your keys stay on your PC and are never included in backups.</div>
   <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
 </section>
 
@@ -1113,7 +1110,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
       <li>The first time, accept the Google AI Studio terms.</li>
       <li>Click <b>Create API key</b>. If it asks about a project, let it create a new one.</li>
       <li>Your key appears: click the <b>copy</b> button.</li>
-      <li>Paste it into Nova: <b>Nova › Intelligence › Free keys › Google Gemini</b>.</li>
+      <li>Paste it into Nova: <b>Nova › Intelligence</b>, <b>Paste any key here</b> box.</li>
     </ol>
     <div class="foot"><span><b>Credit card:</b> not needed</span><span><b>Limit:</b> per minute and per day, depending on the model</span></div>
     <p class="small dim" style="margin:2mm 0 0">Google states that on the free plan it may use what you send to improve its products.</p>
@@ -1126,7 +1123,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
       <li>Go to <b>console.groq.com/keys</b> and click <b>Create API Key</b>.</li>
       <li>Give it a name (for example "Nova") and click <b>Submit</b>.</li>
       <li><b>Copy the key now</b> (<code>gsk_…</code>): it's only shown once.</li>
-      <li>Paste it into Nova: <b>Nova › Intelligence › Free keys › Groq</b>. The field in step 1 of the first-time setup works too.</li>
+      <li>Paste it into Nova: <b>Nova › Intelligence</b>, <b>Paste any key here</b> box. The field in step 1 of the first-time setup works too.</li>
     </ol>
     <div class="foot"><span><b>Credit card:</b> not needed</span><span><b>Limit:</b> about 1,000 requests a day with <code>gpt-oss-120b</code></span></div>
     <p class="small dim" style="margin:3mm 0 0">With Groq you'll also get the fastest speech recognition ("Automatic" engine in Nova › Listening).</p>
@@ -1145,7 +1142,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
       <li>Go to <b>openrouter.ai/keys</b> (your account menu › <b>Keys</b>).</li>
       <li>Click <b>Create Key</b>, give it a name ("Nova") and create it. You don't need to set a credit limit.</li>
       <li><b>Copy the key</b> (<code>sk-or-v1-…</code>) before closing the window.</li>
-      <li>Paste it into Nova: <b>Nova › Intelligence › Free keys › OpenRouter</b>.</li>
+      <li>Paste it into Nova: <b>Nova › Intelligence</b>, <b>Paste any key here</b> box.</li>
     </ol>
     <div class="foot"><span><b>Credit card:</b> not needed</span><span><b>Limit:</b> 50 free requests a day (1,000 if you ever buy $10 of credit)</span></div>
     <p class="small dim" style="margin:2mm 0 0">Use the models ending in <code>:free</code> or <code>openrouter/free</code>, which picks an available free one.</p>
@@ -1156,12 +1153,12 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <ol class="small">
       <li>At <b>console.mistral.ai</b>, with your paid account, go to <b>API Keys</b> and click <b>Create new key</b>.</li>
       <li><b>Copy the key</b>: it won't be shown again.</li>
-      <li>Paste it into <b>Nova › Intelligence › Free keys › Mistral (paid)</b>. Nova adds it to the engine chain by herself (model <code>mistral-small-latest</code>).</li>
+      <li>Paste it into <b>Nova › Intelligence › Advanced › Mistral (paid)</b>: its key has no fixed prefix, so it goes in its own field. Nova uses it after the free services (model <code>mistral-small-latest</code>).</li>
     </ol>
     <div class="foot"><span><b>Credit card:</b> yes (paid plan)</span><span><b>If you update from 1.x:</b> Nova removes the built-in Mistral key and keeps yours</span></div>
     <p class="small dim" style="margin:2mm 0 0">If you already had a <b>DeepSeek</b> key (paid), Nova keeps using it.</p>
   </div>
-  <div class="tip"><span class="t">WHAT IF A KEY STOPS WORKING?</span>Click <b>TEST</b> in the engine chain. The most common errors: a badly copied key (with an extra space), a key deleted on the service's website, or the day's quota used up (wait until tomorrow; meanwhile Nova uses the next engine).</div>
+  <div class="tip"><span class="t">WHAT IF A KEY STOPS WORKING?</span>Look at its card in <b>Nova › Intelligence</b>: <span class="bad">red</span> = invalid key (copied wrong, with an extra space or deleted on the service's website: paste another one); <span class="warn">amber</span> = paused, with the time it comes back (meanwhile Nova uses the next engine). <b>TEST</b> checks it right away.</div>
   <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
 </section>
 
@@ -1211,7 +1208,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <li><b>Speech recognition:</b> only with Groq is the audio of each sentence sent to turn it into text. With local Whisper nothing leaves.</li>
     <li><b>Nova's voice:</b> with Edge voices, the text of the answer goes to Microsoft to generate the audio.</li>
     <li><b>Game data:</b> lookups on the wiki, UEX, scmdb.net and DuckDuckGo, as you would do on Google.</li>
-    <li><b>Translation:</b> only if you accept it, it's downloaded from Google Drive or GitHub.</li>
+    <li><b>Translation:</b> Nova does not download it; the 0zzyt0 Translation Manager (GitHub) installs it if you use it.</li>
     <li><b>Player cards and server status:</b> reading the public pages of robertsspaceindustries.com (the record you ask for and its organisation) and status.robertsspaceindustries.com.</li>
     <li><b>Updates:</b> on start and on exit, she asks GitHub which is the latest NOVA AI version (it can be turned off).</li>
     <li><b>Holograms:</b> planet, moon and place cards from verseguide.com (kept for 3 days on your computer); photos and logos from robertsspaceindustries.com.</li>
@@ -1222,7 +1219,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   </ul>
   <p class="small">The full text is in <b>NORMAS_Y_PRIVACIDAD.en.md</b>, which you accepted when installing.</p>
   <h2>Basic rules</h2>
-  <p class="small"><b>Play fair:</b> Nova presses keys like VoiceAttack; you're responsible for following Star Citizen's terms. <b>The AI can be wrong</b> (and if she makes something up, she owns up). <b>Trial keys</b> (if your version includes them) are shared: don't copy them to other programs.</p>
+  <p class="small"><b>Play fair:</b> Nova presses keys like VoiceAttack; you're responsible for following Star Citizen's terms. <b>The AI can be wrong</b> (and if she makes something up, she owns up). <b>Your AI keys</b> are yours: don't share them.</p>
   <h2>Credits</h2>
   <table class="tight small">
     <tr><td style="width:52mm">Development</td><td>Aaron B. Roldan · gametag <b>0zzyt0</b> · with the Claude Opus 5.5 AI engine (Anthropic)</td></tr>

@@ -36,6 +36,8 @@ RED = (255, 92, 92)
 BLUE_HOLO = (70, 150, 255)  # ficha de jugador: tono azulado
 RED_HOLO = (255, 64, 64)  # objetivo de captura: rojo
 GOLD = (232, 194, 90)
+AMBER_HOLO = (255, 170, 40)  # 2.1.1: aviso de telemetría
+CRIT_HOLO = (255, 62, 62)  # 2.1.1: aviso grave de telemetría
 NAVY = (5, 16, 30)
 W_BASE = 660
 
@@ -171,6 +173,20 @@ class Card:
     footer: str = ""
     seed: str = ""
     accent: tuple = ()  # color propio del holograma (jugador: azul · objetivo de captura: rojo)
+    # 2.1.1: alertas de la telemetría (kind «alerta»)
+    icon: str = ""  # sed, hambre, oxigeno, salud, hidrogeno, cuantico, escudos, casco, averia, misil
+    level: float | None = None  # 0-1: nivel actual (gota, depósito, anillo)
+    threshold: float | None = None  # 0-1: umbral del aviso (marca en la barra)
+    gauges: list = field(default_factory=list)  # [(etiqueta, 0-1 o None, resaltado)]: los otros valores
+    big: str = ""  # texto grande cuando no hay nivel («FIJADO», «REFRIGERACIÓN»…)
+    broken: bool = False  # escudo o casco rotos en el icono
+    seconds: float | None = None  # tiempo en pantalla propio (las alertas, menos que una ficha)
+    # 2.1.2: valor grande con texto propio («01:35», «45 m», «2/5») y tarjetas que se actualizan solas
+    value_text: str = ""
+    value_label: str = ""
+    updater: object = None  # función sin argumentos -> Card nueva (mismo tamaño) o None para quitarla
+    update_every: float = 1.0
+    tiles: list = field(default_factory=list)  # ficha de estado: [(icono, etiqueta, 0-1 o None, umbral)]
 
 
 def card_player(c, motivo: str = "consulta", photo=None, logo=None) -> Card:
@@ -364,6 +380,7 @@ class Layout:
     planet_xy: tuple[int, int] = (0, 0)
     scale: float = 1.0
     marker: bool = False  # lugar planetario: punto que late sobre el planeta
+    pulse: tuple | None = None  # 2.1.1: (cx, cy, r, rápido) anillos que laten alrededor del icono de alerta
 
 
 def _t(x: str) -> str:
@@ -415,6 +432,11 @@ def _localized(card: Card) -> Card:
             out.append(got)
         return " · ".join(out)
 
+    if card.kind == "alerta":  # 2.1.1: título, consejo y etiquetas fijas
+        card = replace(card, title=t(card.title), desc=tr(card.desc) if card.desc else card.desc, big=t(card.big),
+                       gauges=[(t(k), v, h) for k, v, h in card.gauges], value_label=t(card.value_label))
+    if card.kind == "estado":
+        card = replace(card, title=t(card.title), tiles=[(i, t(k), v, u) for i, k, v, u in card.tiles])
     return replace(card, header=t(card.header), subtitle=" · ".join(t(x) for x in card.subtitle.split(" · ")),
                    stamp=t(card.stamp), footer=card.footer.replace("Fuente:", tr("Fuente:")),
                    fields=[(t(k), tv(v)) for k, v in card.fields], meters=[(t(k), v) for k, v in card.meters],
@@ -442,10 +464,14 @@ def render(card: Card, scale: float = 1.0, accent=CYAN) -> Layout:
     header_h = int(78 * s)
     if card.kind == "jugador":
         body_h = int(292 * s)
+    elif card.kind == "alerta":
+        body_h = int((206 + (34 if len(card.gauges) > 2 else 0)) * s)
+    elif card.kind == "estado":
+        body_h = int((max(1, -(-len(card.tiles) // 4)) * 78 + 6) * s)
     else:
         rows = len(card.fields) + (1 if card.meters else 0)
         body_h = max(int(214 * s), int((rows * 44 + 10) * s))
-    desc_lines = _wrap(tmp, card.desc, f_desc, W - 2 * pad, 4) if card.desc else []
+    desc_lines = _wrap(tmp, card.desc, f_desc, W - 2 * pad, 2 if card.kind == "alerta" else 4) if card.desc else []
     desc_h = int((len(desc_lines) * 21 + 16) * s) if desc_lines else 0
     H = header_h + body_h + desc_h + int(34 * s)
 
@@ -531,7 +557,12 @@ def render(card: Card, scale: float = 1.0, accent=CYAN) -> Layout:
                 o = int((10 + k * 9) * s)
                 d.line((W - 1 - c - o, int(6 * s), W - 1 - o - int(6 * s), c - int(2 * s)), fill=acc + (110,), width=max(1, int(2 * s)))
     d.line((pad, header_h, W - pad, header_h), fill=acc + (170,), width=lw)
-    _emblem(d, pad + int(18 * s), int(39 * s), int(18 * s), warn if card.alert else acc, s)
+    if card.kind in ("alerta", "estado") and card.icon:
+        from .holo_icons import draw_icon
+        ic = draw_icon(card.icon, int(38 * s), acc, card.level, card.broken)
+        img.alpha_composite(ic, (pad, int(20 * s)))
+    else:
+        _emblem(d, pad + int(18 * s), int(39 * s), int(18 * s), warn if card.alert else acc, s)
     x0 = pad + int(46 * s)
     d.text((x0, int(13 * s)), card.header or card.subtitle, font=f_head, fill=(warn if card.alert else acc) + (255,))
     d.text((x0, int(28 * s)), _fit(d, card.title, f_title, W - x0 - pad - int(140 * s)), font=f_title, fill=TEXT + (255,))
@@ -547,6 +578,10 @@ def render(card: Card, scale: float = 1.0, accent=CYAN) -> Layout:
     layout = Layout(image=img, scale=s)
     if card.kind == "jugador":
         _draw_player(img, d, card, s, top, W, pad, acc, warn, f_lab, f_val, f_small)
+    elif card.kind == "alerta":
+        _draw_alert(img, d, card, s, top, W, pad, acc, f_lab, f_val, f_small, layout)
+    elif card.kind == "estado":
+        _draw_status(img, d, card, s, top, W, pad, acc, f_lab, f_small)
     else:
         _draw_body(img, d, card, s, top, W, pad, acc, f_lab, f_val, layout)
     if desc_lines:
@@ -676,6 +711,137 @@ def _draw_player(img, d, card, s, top, W, pad, acc, warn, f_lab, f_val, f_small)
                font=fnt, fill=(GOLD if i == 0 else DIM) + (255,))
 
 
+def _draw_alert(img, d, card, s, top, W, pad, acc, f_lab, f_val, f_small, layout: Layout) -> None:
+    """2.1.1: alerta de telemetría: icono grande dentro de un anillo de nivel, porcentaje, barra con el
+    umbral y los demás valores (vitales o nave) en pequeño."""
+    from PIL import Image
+
+    from .holo_icons import draw_icon
+
+    D = int(176 * s)
+    px, py = pad + int(4 * s), top + int(2 * s)
+    cx, cy = px + D // 2, py + D // 2
+    ring_w = max(4, int(9 * s))
+    # Marca de agua: el icono enorme y tenue detrás de los datos (imagen identificativa de la alerta)
+    wm = draw_icon(card.icon, int(250 * s), acc, card.level, card.broken)
+    a = wm.getchannel("A").point(lambda v: v * 0.10)
+    wm.putalpha(a)
+    img.alpha_composite(wm, (W - int(250 * s) - int(6 * s), top - int(30 * s)))
+    # Anillo de nivel
+    box = (cx - D // 2, cy - D // 2, cx + D // 2, cy + D // 2)
+    d.ellipse(box, outline=acc + (55,), width=ring_w)
+    if card.level is not None:
+        lv = max(0.0, min(1.0, card.level))
+        if lv > 0.005:
+            d.arc(box, -90, -90 + 360 * lv, fill=acc + (255,), width=ring_w)
+        if card.threshold is not None:  # marca del umbral sobre el anillo
+            ang = math.radians(-90 + 360 * card.threshold)
+            r0, r1 = D / 2 - ring_w * 1.6, D / 2 + ring_w * 0.6
+            d.line((cx + r0 * math.cos(ang), cy + r0 * math.sin(ang), cx + r1 * math.cos(ang), cy + r1 * math.sin(ang)),
+                   fill=TEXT + (255,), width=max(2, int(3 * s)))
+    else:  # sin nivel: anillo a trazos
+        for k in range(24):
+            if k % 2 == 0:
+                d.arc(box, k * 15 - 90, k * 15 - 90 + 11, fill=acc + (235,), width=ring_w)
+    inner = int(D * 0.80)
+    d.ellipse((cx - inner // 2, cy - inner // 2, cx + inner // 2, cy + inner // 2), outline=acc + (70,), width=max(1, int(s)))
+    ic = draw_icon(card.icon, int(D * 0.56), acc, card.level, card.broken)
+    img.alpha_composite(ic, (cx - ic.width // 2, cy - ic.height // 2))
+    layout.pulse = (cx, cy, D // 2, card.alert)
+    # Columna de datos
+    x = px + D + int(30 * s)
+    colw = W - x - pad
+    y = top - int(2 * s)
+    if card.stamp:  # sello AVISO / CRÍTICO
+        fs = font(int(13 * s), "mono")
+        tw = int(d.textlength(card.stamp, font=fs)) + int(18 * s)
+        d.rectangle((W - pad - tw, y, W - pad, y + int(22 * s)), outline=acc + (255,), width=max(1, int(2 * s)),
+                    fill=acc + (60 if card.alert else 30,))
+        d.text((W - pad - tw // 2, y + int(11 * s)), card.stamp, font=fs, fill=TEXT + (255,), anchor="mm")
+    if card.level is not None or card.value_text:
+        d.text((x, y), _t(card.value_label or "NIVEL ACTUAL"), font=f_lab, fill=DIM + (255,))
+        f_big = font(int(58 * s), "bold")
+        big_txt = card.value_text or f"{round(card.level * 100)} %"
+        d.text((x - int(2 * s), y + int(12 * s)), _fit(d, big_txt, f_big, colw), font=f_big, fill=acc + (255,))
+        y += int(84 * s)
+        if card.level is not None:  # barra segmentada con la marca del umbral
+            n = 20
+            gap = max(1, int(2 * s))
+            seg = (colw - gap * (n - 1)) / n
+            for k in range(n):
+                on = (k + 0.5) / n <= card.level
+                x0 = x + k * (seg + gap)
+                d.rectangle((x0, y, x0 + seg, y + int(14 * s)), fill=acc + ((240,) if on else (45,)))
+            if card.threshold is not None:
+                tx = x + colw * card.threshold
+                d.line((tx, y - int(5 * s), tx, y + int(19 * s)), fill=TEXT + (255,), width=max(2, int(2 * s)))
+                lab = _t("AVISO") + f" {round(card.threshold * 100)} %"
+                d.text((min(tx + int(4 * s), x + colw - d.textlength(lab, font=f_lab)), y + int(20 * s)), lab,
+                       font=f_lab, fill=DIM + (255,))
+            y += int(42 * s) if card.threshold is not None else int(28 * s)
+        if not card.gauges and card.fields:  # datos sueltos en dos columnas
+            fw = (colw - int(16 * s)) // 2
+            f_mid = font(int(16 * s), "sans")
+            for i, (label, value) in enumerate(card.fields[:4]):
+                fx = x + (i % 2) * (fw + int(16 * s))
+                fy = y + (i // 2) * int(40 * s)
+                d.text((fx, fy), label, font=f_lab, fill=DIM + (255,))
+                d.text((fx, fy + int(14 * s)), _fit(d, value, f_mid, fw), font=f_mid, fill=TEXT + (255,))
+    else:
+        f_big = font(int(34 * s), "bold")
+        d.text((x, y + int(2 * s)), _fit(d, card.big or card.title, f_big, colw - int(110 * s)), font=f_big,
+               fill=acc + (255,))
+        y += int(52 * s)
+        for label, value in card.fields[:3]:
+            d.text((x, y), label, font=f_lab, fill=DIM + (255,))
+            d.text((x, y + int(14 * s)), _fit(d, value, f_val, colw), font=f_val, fill=TEXT + (255,))
+            y += int(42 * s)
+    # Los demás valores en pequeño (2 columnas)
+    if card.gauges:
+        y = max(y, top + int(130 * s))
+        gw = (colw - int(16 * s)) // 2
+        for i, (label, val, hot) in enumerate(card.gauges[:4]):
+            gx = x + (i % 2) * (gw + int(16 * s))
+            gy = y + (i // 2) * int(34 * s)
+            col = acc if hot else (120, 200, 228)
+            txt = "—" if val is None else f"{round(val * 100)} %"
+            d.text((gx, gy), label, font=f_lab, fill=(col if hot else DIM) + (255,))
+            d.text((gx + gw, gy), txt, font=f_lab, fill=(col if hot else TEXT) + (255,), anchor="ra")
+            d.rectangle((gx, gy + int(17 * s), gx + gw, gy + int(23 * s)), fill=col + (45,))
+            if val is not None:
+                d.rectangle((gx, gy + int(17 * s), gx + gw * max(0.0, min(1.0, val)), gy + int(23 * s)),
+                            fill=col + (230,))
+    del Image
+
+
+def _draw_status(img, d, card, s, top, W, pad, acc, f_lab, f_small) -> None:
+    """2.1.2: ficha de estado: casillas con icono, valor y barra (personaje arriba, nave abajo)."""
+    from .holo_icons import draw_icon
+
+    cols, gap = 4, int(10 * s)
+    tw = (W - 2 * pad - gap * (cols - 1)) // cols
+    th = int(70 * s)
+    f_num = font(int(22 * s), "bold")
+    for i, (icon, label, val, thr) in enumerate(card.tiles):
+        x0 = pad + (i % cols) * (tw + gap)
+        y0 = top + (i // cols) * (th + int(8 * s))
+        crit = thr is not None and val is not None and val <= thr * 0.45
+        low = thr is not None and val is not None and val <= thr
+        col = CRIT_HOLO if crit else AMBER_HOLO if low else acc
+        d.rectangle((x0, y0, x0 + tw, y0 + th), outline=col + (120,), width=max(1, int(s)), fill=col + (22,))
+        isz = int(40 * s)
+        ic = draw_icon(icon, isz, col, val, False)
+        img.alpha_composite(ic, (x0 + int(6 * s), y0 + int(8 * s)))
+        tx = x0 + isz + int(12 * s)
+        d.text((tx, y0 + int(6 * s)), _fit(d, label, f_lab, x0 + tw - tx - int(4 * s)), font=f_lab, fill=DIM + (255,))
+        d.text((tx, y0 + int(20 * s)), "—" if val is None else f"{round(val * 100)} %", font=f_num, fill=col + (255,))
+        by = y0 + th - int(11 * s)
+        d.rectangle((x0 + int(6 * s), by, x0 + tw - int(6 * s), by + int(5 * s)), fill=col + (45,))
+        if val is not None:
+            d.rectangle((x0 + int(6 * s), by, x0 + int(6 * s) + (tw - int(12 * s)) * max(0.0, min(1.0, val)),
+                         by + int(5 * s)), fill=col + (235,))
+
+
 def _draw_body(img, d, card, s, top, W, pad, acc, f_lab, f_val, layout: Layout) -> None:
     diam = int((190 if card.kind == "planeta" else 150) * s)
     px, py = pad + int(10 * s), top + int(8 * s)
@@ -748,6 +914,14 @@ class Animation:
         self._next_glitch = 0.0
         self._rnd = random.Random()
 
+    def swap(self, layout: Layout) -> bool:
+        """2.1.2: cambia el contenido de una tarjeta en pantalla (cuenta atrás, altitud…) sin volver a aparecer."""
+        base = np.asarray(layout.image, dtype=np.float32) / 255.0
+        if base.shape[:2] != (self.h, self.w):
+            return False
+        self.layout, self.base, self._static = layout, base, None
+        return True
+
     def begin(self, now: float) -> None:
         self.start = now
         self.leave_at = now + self.duration
@@ -785,8 +959,31 @@ class Animation:
             a = p[..., 3:4]
             region[..., :3] = p[..., :3] * a + region[..., :3] * (1 - a)
             region[..., 3:4] = a + region[..., 3:4] * (1 - a)
+        if lay.pulse is not None:
+            self._pulse(img, t)
         a = np.clip(img[..., 3:4] * self.opacity * k, 0, 1)
         return self._pack(img[..., :3] * a, a)
+
+    def _pulse(self, img: np.ndarray, t: float) -> None:
+        """2.1.1: ondas que salen del anillo de la alerta (más rápidas si es grave)."""
+        cx, cy, r, fast = self.layout.pulse
+        if not hasattr(self, "_pd"):
+            pad = int(r * 0.45)
+            y0, y1 = max(0, cy - r - pad), min(self.h, cy + r + pad)
+            x0, x1 = max(0, cx - r - pad), min(self.w, cx + r + pad)
+            yy, xx = np.mgrid[y0:y1, x0:x1]
+            self._pd = (y0, y1, x0, x1, np.sqrt((xx - cx) ** 2 + (yy - cy) ** 2).astype(np.float32), pad)
+        y0, y1, x0, x1, dist, pad = self._pd
+        period = 0.9 if fast else 1.8
+        glow = np.zeros_like(dist)
+        for k in (0.0, 0.5):
+            ph = ((t / period) + k) % 1.0
+            rr = r + ph * pad
+            glow += np.exp(-((dist - rr) / 2.5) ** 2) * (1 - ph) * 0.8
+        g = np.clip(glow, 0, 1)[..., None]
+        region = img[y0:y1, x0:x1]
+        region[..., :3] = np.clip(region[..., :3] * (1 - g) + self.acc * g, 0, 1)
+        region[..., 3:4] = np.maximum(region[..., 3:4], g * 0.9)
 
     @staticmethod
     def _pack(c: np.ndarray, a: np.ndarray) -> np.ndarray:
@@ -871,6 +1068,8 @@ class Animation:
                 warm = np.array([1.0, 0.85, 0.35], dtype=np.float32)
                 region[..., :3] = np.clip(region[..., :3] * (1 - glow) + warm * glow, 0, 1)
                 region[..., 3:4] = np.maximum(region[..., 3:4], glow)
+        if lay.pulse is not None:
+            self._pulse(img, t)
         # Líneas de barrido que bajan y una banda de luz cada pocos segundos
         scan = 0.9 + 0.1 * np.sin((self.rows + t * 40) * 0.9)
         band_y = ((t % 3.2) / 3.2) * (self.h + 120) - 60
@@ -969,6 +1168,7 @@ class HoloOverlay(threading.Thread):
         super().__init__(daemon=True, name="hologramas")
         self.settings = settings
         self.q: queue.Queue = queue.Queue()
+        self.urgent: queue.Queue = queue.Queue()  # 2.1.1: alertas de telemetría: pasan delante
         self._stop = threading.Event()
         self._skip = threading.Event()
         self.status = "inactivo"
@@ -979,7 +1179,27 @@ class HoloOverlay(threading.Thread):
         """force: se ve aunque el juego no esté delante (botón «Probar»)."""
         if not self.settings.get("holo_activo", True) and not force:
             return
-        self.q.put((card, force))
+        if card.kind in ("alerta", "estado"):  # 2.1.1: una alerta (o la ficha de estado pedida) no espera
+            pending = []
+            while True:
+                try:
+                    pending.append(self.urgent.get_nowait())
+                except queue.Empty:
+                    break
+            # Sin repetir icono (la nueva sustituye a la vieja) y como mucho 3 esperando: las más recientes
+            pending = [p for p in pending if p[0].icon != card.icon] + [(card, force)]
+            pending.sort(key=lambda p: not p[0].alert)  # las graves, primero (y se quedan si hay que recortar)
+            pending = pending[:3]
+            cur = self.current
+            if cur is not None and cur.updater is not None and cur.icon != card.icon:
+                pending.append((cur, False))  # 2.1.2: la cuenta atrás vuelve después de la alerta
+            for p in pending:
+                self.urgent.put(p)
+            if cur is not None and (cur.kind not in ("alerta", "estado") or cur.icon == card.icon or cur.updater is not None
+                                    or (card.alert and not cur.alert)):
+                self._skip.set()
+        else:
+            self.q.put((card, force))
         if not self.is_alive() and IS_WINDOWS:
             try:
                 self.start()
@@ -1012,10 +1232,13 @@ class HoloOverlay(threading.Thread):
         self.status = "activo"
         while not self._stop.is_set():
             try:
-                card, force = self.q.get(timeout=0.3)
+                card, force = self.urgent.get_nowait()
             except queue.Empty:
-                win.pump()
-                continue
+                try:
+                    card, force = self.q.get(timeout=0.3)
+                except queue.Empty:
+                    win.pump()
+                    continue
             try:
                 rect, _src = target_area(self.settings)
                 k = scale_for(rect[3] - rect[1]) * float(self.settings.get("holo_escala", 1.0))
@@ -1024,8 +1247,12 @@ class HoloOverlay(threading.Thread):
                 set_model(self.settings.get("holo_modelo", "clasico"))
                 lay = render(card, k, acc)
                 fx = self.settings.get("efectos_nivel", "cine")
-                anim = Animation(lay, acc, float(self.settings.get("holo_opacidad", 0.85)),
-                                 float(self.settings.get("holo_segundos", 14)), level=fx,
+                secs = float(self.settings.get("holo_segundos", 14))
+                if card.updater and card.seconds:  # 2.1.2: en directo: dura lo que dure (cuenta atrás…)
+                    secs = card.seconds
+                elif card.seconds:
+                    secs = min(secs, card.seconds)
+                anim = Animation(lay, acc, float(self.settings.get("holo_opacidad", 0.85)), secs, level=fx,
                                  entry=self.settings.get("holo_entrada", "proyector"))
                 self.current = card
                 self._skip.clear()
@@ -1037,8 +1264,21 @@ class HoloOverlay(threading.Thread):
                 shown = False
                 off_played = False
                 margin = int(28 * scale_for(rect[3] - rect[1]))
+                next_upd = time.time() + card.update_every
                 while not self._stop.is_set():
                     now = time.time()
+                    if card.updater and now >= next_upd and (anim.leave_at is None or now < anim.leave_at):
+                        next_upd = now + card.update_every
+                        try:
+                            fresh = card.updater()
+                        except Exception:  # noqa: BLE001
+                            log.debug("Holograma en directo", exc_info=True)
+                            fresh = None
+                        if fresh is None:
+                            anim.leave(now)
+                        else:
+                            fresh.updater = card.updater
+                            anim.swap(render(fresh, k, acc))
                     if self._skip.is_set():
                         anim.leave(now)
                         self._skip.clear()
