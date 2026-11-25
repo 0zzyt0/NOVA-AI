@@ -1847,5 +1847,7 @@
  "Ahí lo tiene.": "Bitte sehr.",
  "No me llega la telemetría del juego, {t}. Actívela en Juego, Avisos del juego.": "Ich bekomme keine Spieltelemetrie, {t}. Aktivieren Sie sie unter Spiel, Spielwarnungen.",
  "No me llega la telemetría del juego. Actívela en Juego, Avisos del juego.": "Ich bekomme keine Spieltelemetrie. Aktivieren Sie sie unter Spiel, Spielwarnungen.",
- "📈 ficha de estado": "📈 Statuskarte"
+ "📈 ficha de estado": "📈 Statuskarte",
+ "Star Citizen no está sirviendo la telemetría: el Game.log dice «No services configured» aunque está activada. Esta versión del juego no la abre; prueba en otra (LIVE o la próxima PTU).": "Star Citizen stellt keine Telemetrie bereit: Die Game.log meldet «No services configured», obwohl sie aktiviert ist. Diese Spielversion öffnet sie nicht; versuche eine andere (LIVE oder die nächste PTU).",
+ "el juego dice que la telemetría está en {p}, pero no responde": "das Spiel meldet die Telemetrie auf {p}, aber sie antwortet nicht"
 }

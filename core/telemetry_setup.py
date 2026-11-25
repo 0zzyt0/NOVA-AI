@@ -136,7 +136,9 @@ def _truthy(v: str | None) -> bool:
 def write_cfg(ch: Path, enable: bool) -> bool:
     """Pone o quita las líneas de telemetría en user.cfg sin tocar el resto. True si ha cambiado algo."""
     cfg = ch / "user.cfg"
-    lines = cfg.read_text(encoding="utf-8", errors="replace").splitlines() if cfg.exists() else []
+    raw = cfg.read_bytes().decode("utf-8", "replace") if cfg.exists() else ""
+    lines = raw.replace("\r\r\n", "\n").splitlines()  # 2.1.3: arregla los «\r\r\n» que dejaba la 2.1.0-2.1.2
+    changed_newlines = "\r\r\n" in raw
     out: list[str] = []
     seen: set[str] = set()
     changed = False
@@ -157,13 +159,14 @@ def write_cfg(ch: Path, enable: bool) -> bool:
             if k not in seen:
                 out.append(f"{k} = {v}")
                 changed = True
-    if not changed:
+    if not changed and not changed_newlines:
         return False
     if cfg.exists() and not (ch / BACKUP).exists():
         shutil.copy2(cfg, ch / BACKUP)
     while out and not out[-1].strip():
         out.pop()
-    cfg.write_text("\r\n".join(out) + ("\r\n" if out else ""), encoding="utf-8")
+    # 2.1.3: en bytes: write_text en Windows convertía «\r\n» en «\r\r\n»
+    cfg.write_bytes(("\r\n".join(line.rstrip("\r") for line in out) + ("\r\n" if out else "")).encode("utf-8"))
     return True
 
 

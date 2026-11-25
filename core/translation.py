@@ -210,7 +210,7 @@ def _merge_user_cfg(live: Path, lang: str, from_zip: str = "") -> None:
         backup = live / "user.cfg.nova_copia"
         if not backup.exists():
             shutil.copy2(cfg, backup)
-        lines = cfg.read_text(encoding="utf-8", errors="replace").splitlines()
+        lines = cfg.read_bytes().decode("utf-8", "replace").replace("\r\r\n", "\n").splitlines()
     seen = set()
     out = []
     for line in lines:
@@ -226,7 +226,7 @@ def _merge_user_cfg(live: Path, lang: str, from_zip: str = "") -> None:
     for key, name in (("g_language", "g_language"), ("g_languageaudio", "g_languageAudio")):
         if key not in seen:
             out.append(f"{name} = {wanted[key]}")
-    cfg.write_text("\r\n".join(out) + "\r\n", encoding="utf-8")
+    cfg.write_bytes(("\r\n".join(x.rstrip("\r") for x in out) + "\r\n").encode("utf-8"))  # 2.1.3: sin «\r\r\n»
 
 
 def install_zip(data: bytes, live: Path, progress: Progress | None = None) -> dict:

@@ -266,8 +266,19 @@ class Telemetry(threading.Thread):
             from .telemetry_setup import read_port
 
             self.port = read_port(ch)
+            hint = self._log_hint(ch)
+            if hint.get("port"):
+                self.port = hint["port"]
             if not _port_open(self.port):
-                self._set_disconnected(i18n.tr("esperando al juego (telemetría sin abrir: actívala y reinicia el juego)"))
+                if hint.get("no_service"):  # 2.1.3: el juego arrancó su servidor local, pero sin la telemetría
+                    self._set_disconnected(i18n.tr(
+                        "Star Citizen no está sirviendo la telemetría: el Game.log dice «No services configured» aunque "
+                        "está activada. Esta versión del juego no la abre; prueba en otra (LIVE o la próxima PTU)."))
+                elif hint.get("running"):
+                    self._set_disconnected(i18n.tr("el juego dice que la telemetría está en {p}, pero no responde",
+                                                   p=f"127.0.0.1:{self.port}"))
+                else:
+                    self._set_disconnected(i18n.tr("esperando al juego (telemetría sin abrir: actívala y reinicia el juego)"))
                 self._stop.wait(5)
                 continue
             try:
@@ -286,7 +297,43 @@ class Telemetry(threading.Thread):
 
     def _set_disconnected(self, status: str) -> None:
         self.connected = False
+        if status != self.status:
+            log.info("Telemetría: %s", status)  # 2.1.3: queda en nova.log para poder diagnosticar
         self.status = status
+
+    # 2.1.3: lo que dice el Game.log del servidor local del juego
+    _RX_REG = re.compile(r"Register Service>.*GameTelemetryService|<GameTelemetry> Local services server is running on")
+    _RX_PORT = re.compile(r"Local services server (?:is running on|listens on) [\d.:\[\]a-fA-F]*?:(\d{4,5})")
+    _RX_NONE = re.compile(r"<GRPC Server> No services configured")
+    _RX_START = re.compile(r"BackupNameAttachment=|\[Cmdline  \]")
+
+    def _log_hint(self, ch: Path) -> dict:
+        """Lee solo lo nuevo del Game.log del canal: ¿registró el juego el servicio de telemetría, en qué puerto,
+        o arrancó el servidor sin servicios? Se reinicia cuando el juego vuelve a arrancar (Game.log nuevo)."""
+        path = ch / "Game.log"
+        try:
+            st = path.stat()
+        except OSError:
+            return {}
+        cache = getattr(self, "_hint", None)
+        if cache is None or cache["path"] != path or st.st_size < cache["pos"]:
+            cache = self._hint = {"path": path, "pos": 0, "running": False, "no_service": False, "port": 0}
+        if st.st_size > cache["pos"]:
+            try:
+                with open(path, "rb") as f:
+                    f.seek(cache["pos"])
+                    chunk = f.read(min(st.st_size - cache["pos"], 8_000_000)).decode("utf-8", "replace")
+                    cache["pos"] = f.tell()
+            except OSError:
+                return cache
+            if self._RX_REG.search(chunk):
+                cache["running"], cache["no_service"] = True, False
+            m = self._RX_PORT.search(chunk)
+            if m:
+                cache["running"], cache["no_service"], cache["port"] = True, False, int(m.group(1))
+            if self._RX_NONE.search(chunk) and not cache["running"]:
+                cache["no_service"] = True
+        return cache
 
     def _ensure_schema(self, ch: Path) -> None:
         from . import telemetry_schema

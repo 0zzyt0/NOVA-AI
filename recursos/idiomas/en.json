@@ -1844,5 +1844,7 @@
  "Ahí lo tiene.": "There you go.",
  "No me llega la telemetría del juego, {t}. Actívela en Juego, Avisos del juego.": "I'm not getting the game telemetry, {t}. Enable it in Game, Game alerts.",
  "No me llega la telemetría del juego. Actívela en Juego, Avisos del juego.": "I'm not getting the game telemetry. Enable it in Game, Game alerts.",
- "📈 ficha de estado": "📈 status card"
+ "📈 ficha de estado": "📈 status card",
+ "Star Citizen no está sirviendo la telemetría: el Game.log dice «No services configured» aunque está activada. Esta versión del juego no la abre; prueba en otra (LIVE o la próxima PTU).": "Star Citizen is not serving telemetry: Game.log says «No services configured» even though it is enabled. This game version does not open it; try another one (LIVE or the next PTU).",
+ "el juego dice que la telemetría está en {p}, pero no responde": "the game says telemetry is on {p}, but it does not answer"
 }
