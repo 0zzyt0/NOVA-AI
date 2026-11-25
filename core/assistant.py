@@ -482,6 +482,23 @@ class Nova:
         self.on_ui({"t": "holo"})
         self.holo.show(card, force=force)
 
+    def _holo_telemetry(self, ev) -> None:
+        """2.1.1: alerta de telemetría (sed, hidrógeno, escudos, misil…) en holograma con su icono."""
+        mode = self.settings.get("holo_telemetria", "todos")
+        if mode == "nunca" or not self.settings.get("holo_activo", True):
+            return
+        if not extras.ship_alerts(self.settings, self.gamelog.ship).get(ev.category, True):
+            return
+        try:
+            from .telemetry import alert_card
+            card = alert_card(ev, self.telemetry.snap)
+        except Exception:  # noqa: BLE001 — sin holograma, el aviso en voz sigue
+            log.exception("Holograma de telemetría")
+            return
+        if card is None or (mode == "graves" and not card.alert):
+            return
+        self._show_holo(card)
+
     def _holo_player(self, c, motivo: str) -> None:
         def work() -> None:
             from .holo import card_player, fetch_image
@@ -964,6 +981,8 @@ class Nova:
                 profile.on_game_event(self.memory.profile, ev, self.gamelog.player)
             except Exception:  # noqa: BLE001 — un archivo bloqueado no debe parar los avisos
                 log.exception("perfil del piloto")
+        if not ev.replay and not self.training and not self.paused and ev.category in ("cuerpo", "sistemas"):
+            self._holo_telemetry(ev)  # 2.1.1: holograma de la alerta de telemetría
         if not ev.replay and not self.training:
             if ev.kind in ("contrato_aceptado", "objetivo_nuevo"):
                 self._check_bounty(ev)

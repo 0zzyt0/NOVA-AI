@@ -17,6 +17,15 @@ window.V12 = (() => {
     } finally { b.disabled = false; }
   })));
   $("#btnHoloHide").addEventListener("click", safe(async () => { await api("holo_hide"); }));
+  const alertBtn = $("#btnHoloAlert");  // 2.1.1: alertas de la telemetría
+  if (alertBtn) alertBtn.addEventListener("click", safe(async () => {
+    alertBtn.disabled = true;
+    try {
+      const r = await api("holo_test", { tipo: "alerta:" + $("#holoAlertKind").value });
+      if (r && r.png) $("#holoPrev").innerHTML = `<img src="${r.png}" alt="Holograma">`;
+      toast(r && r.nota ? T(r.nota) : T("Holograma en pantalla"), "ok");
+    } finally { alertBtn.disabled = false; }
+  }));
   $$("[data-sfx]").forEach((b) => b.addEventListener("click", safe(async () => { await api("sfx_test", { nombre: b.dataset.sfx }); })));
   return {
     onEvent(ev) { if (ev.t === "holo") preview(); },

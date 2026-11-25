@@ -14,7 +14,7 @@ import os
 import threading
 from pathlib import Path
 
-VERSION = "2.1.0"
+VERSION = "2.1.1"
 APP_NAME = "NOVA AI"
 APP_DIR = Path(__file__).resolve().parent.parent
 FACTORY_DIR = APP_DIR / "datos"  # archivos de fábrica que vienen con el programa (solo lectura)
@@ -219,7 +219,8 @@ DEFAULTS: dict = {
     "recompensas_buscar": True,  # buscar en RSI el objetivo de cada recompensa (jugador o piloto NPC)
     "holo_planetas": True,  # al pedir información de un planeta, luna o lugar
     "holo_llegadas": True,  # al llegar cerca de un planeta o luna
-    "holo_lugares": True,  # al llegar a un lugar planetario (cueva, puesto, base…)
+    "holo_lugares": True,
+    "holo_telemetria": "todos",  # 2.1.1: alertas de la telemetría en holograma: todos, graves, nunca  # al llegar a un lugar planetario (cueva, puesto, base…)
     "holo_traducir": True,  # traducir al español las descripciones (Google Translate o la IA)
     "holo_sonidos": True,  # sonido al encenderse y apagarse (y alerta con los objetivos de captura)
     "holo_volumen": 0.7,

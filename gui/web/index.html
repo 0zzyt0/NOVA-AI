@@ -452,6 +452,14 @@
             <button class="btn" data-holo-test="recompensa">Objetivo de recompensa</button>
             <button class="btn" data-holo-test="planeta">Planeta</button>
             <button class="btn" data-holo-test="lugar">Lugar planetario</button>
+            <select id="holoAlertKind" title="Alertas de la telemetría del juego">
+              <option value="sed_critica">Alerta: deshidratación</option><option value="hambre_baja">Alerta: hambre</option>
+              <option value="oxigeno_critico">Alerta: oxígeno</option><option value="salud_baja">Alerta: salud</option>
+              <option value="hidrogeno_bajo" selected>Alerta: hidrógeno</option><option value="cuantico_bajo">Alerta: cuántico</option>
+              <option value="escudos_caidos">Alerta: escudos caídos</option><option value="casco_critico">Alerta: casco</option>
+              <option value="averia_grave">Alerta: avería grave</option><option value="alerta_misil">Alerta: misil</option>
+            </select>
+            <button class="btn" id="btnHoloAlert">Probar alerta</button>
             <button class="btn" id="btnHoloHide">Ocultar</button>
           </div>
           <div class="note">Fichas sobre el juego con estilo de holograma: <b>ficha policial UEE</b> de un jugador (foto y logotipo de su organización, de robertsspaceindustries.com) y <b>fichas de planetas, lunas y lugares</b> (cuevas, puestos, bases…) de <b>verseguide.com</b>. Se ven con Star Citizen en «Ventana sin bordes», como el logo.</div>
@@ -472,6 +480,7 @@
           <div class="field"><label>Al pedir información de un planeta o lugar</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_planetas"><i></i></span></div></div>
           <div class="field"><label>Al llegar cerca de un planeta o luna</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_llegadas"><i></i></span></div></div>
           <div class="field"><label>Al llegar a un lugar planetario<small>Cuevas, puestos avanzados, bases…</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_lugares"><i></i></span></div></div>
+          <div class="field"><label>Alertas de la telemetría<small>Sed, hambre, oxígeno, salud, hidrógeno, escudos, casco, averías y misiles, con su icono · ámbar: aviso · rojo: grave</small></label><div class="ctl"><select data-set="holo_telemetria"><option value="todos">Todas</option><option value="graves">Solo las graves</option><option value="nunca">Nunca</option></select></div></div>
           <div class="field"><label>Traducir las descripciones<small>Vienen en inglés; con Google Translate, gratis (una vez por lugar)</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_traducir"><i></i></span></div></div>
           <div class="field"><label>Buscar el objetivo de cada recompensa<small>Ficha si es un jugador · aviso si es un piloto NPC</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="recompensas_buscar"><i></i></span></div></div>
           <div class="panel-h sub"><span>SONIDO</span><span class="hint">Jugador: azul · Objetivo de captura: rojo y alerta</span></div>

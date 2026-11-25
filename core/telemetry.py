@@ -874,3 +874,80 @@ def _add_well_known(pool, name: str) -> None:
         pool.Add(fdp)
     except Exception:  # noqa: BLE001
         log.debug("Tipo conocido %s no disponible", name)
+
+
+# ------------------------------------------------------- 2.1.1: hologramas de las alertas
+# tipo de aviso -> (icono, título, consejo, de dónde sale el nivel, grave)
+ALERT_HOLO = {
+    "sed_baja": ("sed", "HIDRATACIÓN BAJA", "Bebe algo pronto: agua o cualquier bebida del inventario.", ("actor", "thirst"), False),
+    "sed_critica": ("sed", "DESHIDRATACIÓN", "Bebe ya: la deshidratación te va quitando salud.", ("actor", "thirst"), True),
+    "hambre_baja": ("hambre", "NUTRICIÓN BAJA", "Come algo cuando puedas.", ("actor", "hunger"), False),
+    "hambre_critica": ("hambre", "HAMBRE CRÍTICA", "Come algo ya: sin nutrición pierdes salud y aguante.", ("actor", "hunger"), True),
+    "oxigeno_bajo": ("oxigeno", "OXÍGENO BAJO", "El aire de aquí no es respirable: vuelve a la nave o cambia la bombona.", ("actor", "oxygen"), False),
+    "oxigeno_critico": ("oxigeno", "OXÍGENO CRÍTICO", "Busca aire respirable o cambia la bombona del traje ya.", ("actor", "oxygen"), True),
+    "salud_baja": ("salud", "SALUD BAJA", "Usa un MedPen o busca una cama médica.", ("actor", "health"), False),
+    "hidrogeno_bajo": ("hidrogeno", "HIDRÓGENO BAJO", "Reposta en la próxima estación o puesto con servicio.", ("vehicle", "hydrogen"), False),
+    "hidrogeno_critico": ("hidrogeno", "HIDRÓGENO CRÍTICO", "Aterriza o reposta ya, o te quedarás a la deriva.", ("vehicle", "hydrogen"), True),
+    "cuantico_bajo": ("cuantico", "CUÁNTICO BAJO", "Reposta combustible cuántico antes de un salto largo.", ("vehicle", "quantum"), False),
+    "casco_danado": ("casco", "CASCO DAÑADO", "Repara la nave en cuanto puedas.", ("vehicle", "health"), False),
+    "casco_critico": ("casco", "CASCO CRÍTICO", "Sal del combate y repara: la nave no aguantará mucho más.", ("vehicle", "health"), True),
+    "escudos_caidos": ("escudos", "ESCUDOS CAÍDOS", "Sin escudos: aléjate del fuego hasta que se recarguen.", ("vehicle", "shields"), True),
+    "averia_grave": ("averia", "AVERÍA GRAVE", "Revisa la energía y los componentes en los MFD.", None, True),
+    "alerta_misil": ("misil", "ALERTA DE MISIL", "Lanza contramedidas y maniobra.", None, True),
+}
+
+
+def alert_card(ev: GameEvent, snap: dict | None = None):
+    """Ficha de holograma de una alerta de telemetría (None si el aviso no tiene holograma)."""
+    from .holo import AMBER_HOLO, CRIT_HOLO, Card
+
+    info = ALERT_HOLO.get(ev.kind)
+    if not info:
+        return None
+    icon, title, advice, src, grave = info
+    snap = snap or {}
+    a, v = snap.get("actor") or {}, snap.get("vehicle") or {}
+    data = ev.data or {}
+    level = None
+    if src:
+        part = a if src[0] == "actor" else v
+        level = part.get(src[1])
+        if level is None and isinstance(data.get("x"), (int, float)):
+            level = data["x"] / 100
+    thr = THRESHOLDS.get(ev.kind, (None, None))[1] if ev.kind in THRESHOLDS else None
+    if ev.kind == "escudos_caidos":
+        thr = None
+    personal = icon in ("sed", "hambre", "oxigeno", "salud")
+    if personal:
+        gauges = [(name, a.get(k), k == (src[1] if src else "")) for k, name in
+                  (("health", "SALUD"), ("thirst", "HIDRATACIÓN"), ("hunger", "NUTRICIÓN"), ("oxygen", "OXÍGENO"))]
+        header = "TELEMETRÍA · SOPORTE VITAL"
+        subtitle = a.get("player") or "Tu personaje"
+    else:
+        gauges = [(name, v.get(k), k == (src[1] if src else "")) for k, name in
+                  (("health", "CASCO"), ("shields", "ESCUDOS"), ("hydrogen", "HIDRÓGENO"), ("quantum", "CUÁNTICO"))]
+        header = "TELEMETRÍA · TU NAVE"
+        subtitle = data.get("nave") or v.get("label") or "Tu nave"
+    gauges = [g for g in gauges if g[1] is not None or g[2]]
+    fields: list[tuple[str, str]] = []
+    big = ""
+    if ev.kind == "averia_grave":
+        big = str(data.get("x") or "").upper()
+        ann = (v.get("annunciators") or {}).items()
+        bad = [ANNUNCIATORS[k].upper() for k, st in ann if st.startswith("MAJOR")] + \
+              [ANNUNCIATORS[k] for k, st in ann if st.startswith("MINOR")]  # graves en mayúsculas, leves en minúsculas
+        if bad:
+            fields.append(("TESTIGOS ENCENDIDOS", " · ".join(bad)))
+    elif ev.kind == "alerta_misil":
+        big = "¡MISIL!"
+        w = snap.get("weapons") or {}
+        cm = w.get("contramedidas") or {}
+        if cm:
+            fields.append(("CONTRAMEDIDAS", " · ".join(f"{k} {n}" for k, n in cm.items())))
+        if v.get("shields") is not None:
+            fields.append(("ESCUDOS", pct(v["shields"])))
+    acc = CRIT_HOLO if grave else AMBER_HOLO
+    return Card(kind="alerta", title=title, header=header, subtitle=subtitle, icon=icon, level=level, threshold=thr,
+                gauges=gauges if src else [], big=big, fields=fields, desc=advice, accent=acc, alert=grave,
+                stamp="CRÍTICO" if grave else "AVISO", broken=ev.kind in ("escudos_caidos", "casco_critico", "casco_danado"),
+                footer="Fuente: Star Citizen", seed=ev.kind, seconds=8.0)
