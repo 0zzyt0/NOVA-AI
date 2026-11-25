@@ -46,7 +46,7 @@ def factory_key_hashes() -> dict:
     Salen de recursos/claves_fabrica.sha256 (lo escribe el parche) o, si aún está la llave, del cofre."""
     out: dict[str, set] = {}
     try:
-        for prov, h in json.loads(FACTORY_HASHES.read_text(encoding="utf-8")).items():
+        for prov, h in json.loads(FACTORY_HASHES.read_text(encoding="utf-8-sig")).items():
             out.setdefault(prov, set()).update([h] if isinstance(h, str) else h)
     except (OSError, ValueError, AttributeError):
         pass

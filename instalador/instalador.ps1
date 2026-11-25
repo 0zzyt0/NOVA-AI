@@ -1447,6 +1447,19 @@ $worker = {
                         Write-Log 'Instalando desde la propia carpeta de destino: no hace falta copiar'
                     } else {
                         [void](New-Item -ItemType Directory -Force -Path $Root)
+                        # 2.1.5: NOVA ya no trae claves de IA de fábrica. Antes de borrar «recursos», se guardan solo las
+                        # huellas (SHA-256) de las antiguas para que NOVA las quite de los ajustes; las del usuario se quedan.
+                        $factoryHashes = $null
+                        try {
+                            $oldKey = Join-Path $Root 'recursos\llave_claves.bin'
+                            $oldEnc = Join-Path $Root 'recursos\claves_iniciales.enc'
+                            $oldPy = Join-Path $Root '.venv\Scripts\python.exe'
+                            if ((Test-Path $oldKey) -and (Test-Path $oldEnc) -and (Test-Path $oldPy)) {
+                                $code = 'import sys,json,hashlib;sys.path.insert(0,sys.argv[1]);from pathlib import Path;from core import keyvault;k=keyvault.load(Path(sys.argv[2]),Path(sys.argv[3]));print(json.dumps({p:hashlib.sha256(str(v).strip().encode()).hexdigest() for p,v in k.items() if v}))'
+                                $factoryHashes = (& $oldPy -c $code $Root $oldEnc $oldKey 2>$null | Select-Object -Last 1)
+                                if ($factoryHashes -and $factoryHashes.Trim().StartsWith('{')) { Write-Log 'Huellas de las claves de fábrica guardadas' } else { $factoryHashes = $null }
+                            }
+                        } catch { $factoryHashes = $null }
                         foreach ($d in @('core', 'gui', 'recursos', 'instalador')) {
                             $t = Join-Path $Root $d
                             if (Test-Path $t) { Remove-Item -LiteralPath $t -Recurse -Force -ErrorAction SilentlyContinue }
@@ -1463,6 +1476,9 @@ $worker = {
                         Get-ChildItem -LiteralPath $Root -Recurse -Directory -Filter '__pycache__' -ErrorAction SilentlyContinue |
                             Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
                         Write-Log "Programa copiado a $Root"
+                        if ($factoryHashes) {
+                            try { [IO.File]::WriteAllText((Join-Path $Root 'recursos\claves_fabrica.sha256'), $factoryHashes.Trim()) } catch {}
+                        }
                     }
                     # Los ejecutables (con su icono) van a la raíz: «NOVA AI.exe» y «Desinstalar NOVA AI.exe»
                     foreach ($e in @(Get-ChildItem -LiteralPath (Join-Path $Root 'instalador\bin') -Filter '*.exe' -ErrorAction SilentlyContinue)) {
