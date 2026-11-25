@@ -273,7 +273,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <tr><td>Conexión a internet</td><td>Para la IA, las voces neuronales y los datos del juego. Los comandos de teclas funcionan sin ella.</td></tr>
     <tr><td>Python</td><td>No hace falta tenerlo: si falta, el instalador descarga Python 3.12 solo para Nova.</td></tr>
     <tr><td>Tarjeta NVIDIA <span class="dim">(opcional)</span></td><td>Acelera el reconocimiento de voz local (Whisper). Sin ella se usa el procesador o la nube.</td></tr>
-    <tr><td>Claves de IA</td><td>Gratis y en 2 minutos (sección 11). Algunas versiones del instalador ya traen claves de prueba.</td></tr>
+    <tr><td>Claves de IA</td><td>Gratis y en 2 minutos (sección 11). Desde la 2.1.5 cada piloto pone las suyas: NOVA ya no trae claves de serie.</td></tr>
   </table>
   <div class="pf">NOVA AI · MANUAL DE USUARIO<span class="n"></span></div>
 </section>
@@ -684,10 +684,10 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   <div class="row"><figure><img src="img/c_ia.webp"></figure><div>
     <h3>Identidad</h3>
     <p><b>Nombre de la IA</b>, <b>tu nombre</b> y <b>cómo te llama</b>. Si le cambias el nombre, repite el entrenamiento con <b>◆ Repetir configuración</b> para que lo reconozca en tu voz.</p>
-    <h3>Claves gratuitas</h3>
-    <p>Pega aquí tus claves (sección 11). Si tu instalador trae claves de prueba, ya estarán puestas. Un punto <span class="ok">verde</span> indica que hay clave. Para poner la tuya, haz clic en el campo y pégala encima (sección 11).</p></div></div>
-  <h2>Cadena de motores</h2>
-  <figure class="c" style="width:140mm"><img src="img/c_ia_claves.webp"><figcaption><b>Claves y cadena de motores.</b> PROBAR comprueba la clave; MODELOS descarga la lista actual de modelos.</figcaption></figure>
+    <h3>Motores de IA</h3>
+    <p>Desde la 2.1.5 NOVA <b>no trae claves de serie</b>: cada piloto pone las suyas (gratis, capítulo 11). Pega <b>cualquier clave</b> en la casilla de arriba y NOVA reconoce de qué servicio es, la guarda y la prueba. Cada servicio tiene su tarjeta con un semáforo: <span class="ok">verde</span> listo, <span class="warn">ámbar</span> en pausa (con la hora a la que vuelve) y <span class="bad">rojo</span> clave no válida.</p></div></div>
+  <h2>Cómo elige el motor</h2>
+  <figure class="c" style="width:140mm"><img src="img/c_ia_claves.webp"><figcaption><b>Motores de IA.</b> Una casilla para pegar cualquier clave y una tarjeta por servicio con sus modelos: en verde los libres y en ámbar los que descansan.</figcaption></figure>
 
   <div class="pf">NOVA AI · MANUAL DE USUARIO<span class="n"></span></div>
 </section>
@@ -695,15 +695,15 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
 <!-- ======================================================= 09 INTELIGENCIA 2 -->
 <section class="page">
   <div class="ph"><img src="/logo.png">NOVA AI · Manual de usuario<span class="s">07 · Nova</span></div>
-  <p>Nova prueba los motores <b>en orden</b>: si uno se queda sin cuota o falla, salta al siguiente sin que lo notes. El orden de fábrica es:</p>
+  <p>Con la clave de un servicio, Nova usa <b>todos sus modelos gratuitos</b>, uno detrás de otro, y después pasa al siguiente servicio: <b>Gemini</b> (5 modelos) › <b>Groq</b> (3) › <b>OpenRouter</b>. En Gemini y en Groq cada modelo tiene su propio cupo, así que si uno se llena el siguiente suele estar libre. Cada fallo se trata según su causa:</p>
   <table class="small">
-    <tr><th style="width:10mm">#</th><th style="width:34mm">Proveedor</th><th>Modelo</th></tr>
-    <tr><td>01</td><td>Gemini</td><td><code>gemini-flash-lite-latest</code> · rápido, muchas peticiones gratis</td></tr>
-    <tr><td>02</td><td>Gemini</td><td><code>gemini-3.5-flash-lite</code></td></tr>
-    <tr><td>03</td><td>Groq</td><td><code>openai/gpt-oss-120b</code> · respaldo ultrarrápido</td></tr>
-    <tr><td>04</td><td>OpenRouter</td><td><code>openrouter/free</code> · modelos gratuitos variados</td></tr>
+    <tr><th style="width:46mm">Qué pasa</th><th>Qué hace Nova</th></tr>
+    <tr><td>Límite por minuto</td><td>Si el servicio pide esperar unos segundos, espera y reintenta; si es más, ese modelo descansa justo ese tiempo y prueba el siguiente.</td></tr>
+    <tr><td>Cupo del día gastado</td><td>Aparta ese modelo hasta que se renueva el cupo (en Gemini, a medianoche de California: las 9:00 en España peninsular).</td></tr>
+    <tr><td>Servidor saturado o sin respuesta</td><td>Pausa corta y prueba el siguiente; si sigue fallando, la pausa crece (hasta 10 min).</td></tr>
+    <tr><td>Clave no válida</td><td>La tarjeta se pone en <span class="bad">rojo</span> hasta que pegues otra.</td></tr>
   </table>
-  <p class="small dim">Mistral es de pago desde agosto de 2026, así que la 2.0 lo saca de la cadena de fábrica. Si tienes tu propia clave de pago, ponla y Nova lo añade (capítulo 11).</p>
+  <p class="small dim">Si no queda ninguno libre, Nova te dice cuál falla y cuándo vuelve. En <b>Avanzado</b> puedes poner Mistral (de pago), usar Ollama en tu PC como último recurso, elegir tú el orden de los motores o quitar todas las pausas con <b>Volver a probar todos ya</b>.</p>
   <h2>Personalidad</h2>
   <figure class="c" style="width:122mm"><img src="img/c_ia_personalidad.webp"><figcaption><b>Personalidad:</b> humor, razonamiento, memoria de la conversación y frases de confesión.</figcaption></figure>
   <table class="small">
@@ -1079,7 +1079,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
 <section id="cap-11" class="page">
   <div class="ph"><img src="/logo.png">NOVA AI · Manual de usuario<span class="s">11 · Tus propias API Keys</span></div>
   <h1><span class="num">11</span>Tus propias API Keys</h1>
-  <p class="lead">Una <b>API Key</b> (clave) es como una contraseña que deja a Nova usar un servicio de inteligencia artificial en tu nombre. Algunas versiones de NOVA AI traen claves de prueba (la de GitHub no), pero tienen un <b>límite diario compartido</b> por todos los que usan el programa. Con las tuyas tendrás todo el cupo para ti. Son gratis y se consiguen en un par de minutos.</p>
+  <p class="lead">Una <b>API Key</b> (clave) es como una contraseña que deja a Nova usar un servicio de inteligencia artificial en tu nombre. Desde la 2.1.5 NOVA AI <b>no trae claves de serie</b>: las de fábrica eran las mismas para todos y el cupo gratuito (que va por cuenta, no por persona) se agotaba entre todos. Con las tuyas tienes todo el cupo para ti. Son gratis, no piden tarjeta y se consiguen en un par de minutos.</p>
   <table class="small">
     <tr><th style="width:26mm">Servicio</th><th>Para qué</th><th style="width:40mm">Coste</th><th style="width:30mm">Empieza por</th></tr>
     <tr><td>Gemini</td><td>El cerebro principal de Nova.</td><td class="ok">Gratis, sin tarjeta</td><td><code>AIza…</code> o <code>AQ.…</code></td></tr>
@@ -1091,13 +1091,13 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   <h2>Cómo poner una clave en Nova</h2>
   <div class="row"><figure><img src="img/c_ia.webp"></figure><div>
     <ol class="small" style="padding-left:6mm;margin:0">
-      <li>Consigue la clave en la web del servicio (páginas siguientes) y <b>cópiala</b>.</li>
-      <li>En Nova, abre <b>Nova › Inteligencia › Claves gratuitas</b>.</li>
-      <li>Haz clic en el campo del servicio y <b>pega la clave</b> con <kbd>Ctrl</kbd>+<kbd>V</kbd>. Se guarda sola y el punto se pone <span class="ok">verde</span>.</li>
-      <li>En <b>Cadena de motores</b>, pulsa <b>PROBAR</b> en un motor de ese servicio: si responde, ¡listo!</li>
+      <li>En Nova, abre <b>Nova › Inteligencia</b> y pulsa <b>CONSEGUIR CLAVE GRATIS</b> en la tarjeta del servicio: se abre su página de claves.</li>
+      <li>Crea la clave (páginas siguientes) y <b>cópiala</b>.</li>
+      <li>Vuelve a Nova y pégala con <kbd>Ctrl</kbd>+<kbd>V</kbd> en la casilla <b>Pega aquí cualquier clave</b>. NOVA reconoce de qué servicio es, la guarda y la prueba.</li>
+      <li>La tarjeta se pone en <span class="ok">verde</span>: ¡listo! Repite con el segundo servicio.</li>
     </ol>
-    <p class="small dim" style="margin-top:2mm">El botón <b>CONSEGUIR CLAVE</b> de cada servicio abre directamente su página de claves.</p></div></div>
-  <div class="warnb"><span class="t">TRATA LAS CLAVES COMO CONTRASEÑAS</span>No las compartas ni las publiques en foros o capturas. La mayoría de servicios <b>solo te la enseñan una vez</b>: si la pierdes, bórrala y crea otra. Tus claves se quedan en tu PC y nunca se sustituyen por las de fábrica.</div>
+    <p class="small dim" style="margin-top:2mm">También puedes pegarlas en el último paso de la configuración inicial.</p></div></div>
+  <div class="warnb"><span class="t">TRATA LAS CLAVES COMO CONTRASEÑAS</span>No las compartas ni las publiques en foros o capturas. La mayoría de servicios <b>solo te la enseñan una vez</b>: si la pierdes, bórrala y crea otra. Tus claves se quedan en tu PC y no van en las copias de seguridad.</div>
   <div class="pf">NOVA AI · MANUAL DE USUARIO<span class="n"></span></div>
 </section>
 
@@ -1111,7 +1111,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
       <li>La primera vez, acepta las condiciones de Google AI Studio.</li>
       <li>Pulsa <b>Create API key</b> («Crear clave de API»). Si te pregunta por un proyecto, deja que cree uno nuevo.</li>
       <li>Aparece tu clave: pulsa el botón de <b>copiar</b>.</li>
-      <li>Pégala en Nova: <b>Nova › Inteligencia › Claves gratuitas › Google Gemini</b>.</li>
+      <li>Pégala en Nova: <b>Nova › Inteligencia</b>, casilla <b>Pega aquí cualquier clave</b>.</li>
     </ol>
     <div class="foot"><span><b>Tarjeta:</b> no hace falta</span><span><b>Límite:</b> por minuto y por día, según el modelo</span></div>
     <p class="small dim" style="margin:2mm 0 0">Google indica que en el plan gratuito puede usar lo que envías para mejorar sus productos.</p>
@@ -1124,7 +1124,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
       <li>Ve a <b>console.groq.com/keys</b> y pulsa <b>Create API Key</b>.</li>
       <li>Ponle un nombre (por ejemplo «Nova») y pulsa <b>Submit</b>.</li>
       <li><b>Copia la clave ahora</b> (<code>gsk_…</code>): solo se muestra una vez.</li>
-      <li>Pégala en Nova: <b>Nova › Inteligencia › Claves gratuitas › Groq</b>. También sirve el campo del paso 1 de la configuración inicial.</li>
+      <li>Pégala en Nova: <b>Nova › Inteligencia</b>, casilla <b>Pega aquí cualquier clave</b>. También sirve el campo del paso 1 de la configuración inicial.</li>
     </ol>
     <div class="foot"><span><b>Tarjeta:</b> no hace falta</span><span><b>Límite:</b> unas 1.000 peticiones al día con <code>gpt-oss-120b</code></span></div>
     <p class="small dim" style="margin:3mm 0 0">Con Groq además tendrás el reconocimiento de voz más rápido (motor «Automático» en Nova › Escucha).</p>
@@ -1143,7 +1143,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
       <li>Ve a <b>openrouter.ai/keys</b> (menú de tu cuenta › <b>Keys</b>).</li>
       <li>Pulsa <b>Create Key</b>, ponle un nombre («Nova») y créala. No hace falta poner límite de crédito.</li>
       <li><b>Copia la clave</b> (<code>sk-or-v1-…</code>) antes de cerrar la ventana.</li>
-      <li>Pégala en Nova: <b>Nova › Inteligencia › Claves gratuitas › OpenRouter</b>.</li>
+      <li>Pégala en Nova: <b>Nova › Inteligencia</b>, casilla <b>Pega aquí cualquier clave</b>.</li>
     </ol>
     <div class="foot"><span><b>Tarjeta:</b> no hace falta</span><span><b>Límite:</b> 50 peticiones gratis al día (1.000 si alguna vez compras 10 $ de crédito)</span></div>
     <p class="small dim" style="margin:2mm 0 0">Usa los modelos acabados en <code>:free</code> o <code>openrouter/free</code>, que elige uno gratuito disponible.</p>
@@ -1154,12 +1154,12 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <ol class="small">
       <li>En <b>console.mistral.ai</b>, con tu cuenta de pago, ve a <b>API Keys</b> y pulsa <b>Create new key</b>.</li>
       <li><b>Copia la clave</b>: no se vuelve a mostrar.</li>
-      <li>Pégala en <b>Nova › Inteligencia › Claves gratuitas › Mistral (de pago)</b>. Nova la añade sola a la cadena de motores (modelo <code>mistral-small-latest</code>).</li>
+      <li>Pégala en <b>Nova › Inteligencia › Avanzado › Mistral (de pago)</b>: su clave no tiene un prefijo fijo, así que va en su propio campo. Nova la usa después de los servicios gratuitos (modelo <code>mistral-small-latest</code>).</li>
     </ol>
     <div class="foot"><span><b>Tarjeta:</b> sí (plan de pago)</span><span><b>Si actualizas desde la 1.x:</b> Nova quita la clave de fábrica de Mistral y respeta la tuya</span></div>
     <p class="small dim" style="margin:2mm 0 0">Si ya tenías una clave de <b>DeepSeek</b> (de pago), Nova la sigue usando.</p>
   </div>
-  <div class="tip"><span class="t">¿Y SI UNA CLAVE DEJA DE FUNCIONAR?</span>Pulsa <b>PROBAR</b> en la cadena de motores. Los errores más comunes: clave mal copiada (con un espacio de más), clave borrada en la web del servicio, o cupo del día agotado (espera a mañana; Nova usa mientras tanto el siguiente motor).</div>
+  <div class="tip"><span class="t">¿Y SI UNA CLAVE DEJA DE FUNCIONAR?</span>Mira su tarjeta en <b>Nova › Inteligencia</b>: <span class="bad">rojo</span> = clave no válida (mal copiada, con un espacio de más o borrada en la web del servicio: pega otra); <span class="warn">ámbar</span> = en pausa, con la hora a la que vuelve (mientras tanto Nova usa el siguiente motor). <b>PROBAR</b> la comprueba al momento.</div>
   <div class="pf">NOVA AI · MANUAL DE USUARIO<span class="n"></span></div>
 </section>
 
@@ -1220,7 +1220,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   </ul>
   <p class="small">El texto completo está en <b>NORMAS_Y_PRIVACIDAD.md</b>, que aceptaste al instalar.</p>
   <h2>Normas básicas</h2>
-  <p class="small"><b>Juega limpio:</b> Nova pulsa teclas como VoiceAttack; tú eres responsable de cumplir las condiciones de Star Citizen. <b>La IA se puede equivocar</b> (y si se inventa algo, te lo confiesa). <b>Las claves de prueba</b> (si tu versión las trae) son compartidas: no las copies a otros programas.</p>
+  <p class="small"><b>Juega limpio:</b> Nova pulsa teclas como VoiceAttack; tú eres responsable de cumplir las condiciones de Star Citizen. <b>La IA se puede equivocar</b> (y si se inventa algo, te lo confiesa). <b>Tus claves de IA</b> son tuyas: no las compartas.</p>
   <h2>Créditos</h2>
   <table class="tight small">
     <tr><td style="width:52mm">Desarrollo</td><td>Aaron B. Roldan · gametag <b>0zzyt0</b> · con el motor de IA Claude Opus 5.5 (Anthropic)</td></tr>

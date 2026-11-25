@@ -343,12 +343,26 @@
       </div>
       <div class="subsec" data-sub="ia">
             <div class="panel">
-        <div class="panel-h"><span>CLAVES GRATUITAS</span><span class="hint">Con una basta · recomendado: Gemini + Groq</span></div>
-        <div id="provList"></div>
-      </div>
-      <div class="panel">
-        <div class="panel-h"><span>CADENA DE MOTORES</span><span class="hint">Si uno se queda sin cuota, <span class="ai-name">Nova</span> salta al siguiente</span></div>
-        <div id="chainList"></div>
+        <div class="panel-h"><span>MOTORES DE IA</span><span class="chip" id="engChip">—</span></div>
+        <div class="eng-warn" id="engWarn" hidden>🔑 <b>NOVA ya no trae claves de IA de serie</b>: eran las mismas para todos los usuarios y el cupo gratuito se agotaba entre todos. Consigue las tuyas (gratis, 2 minutos) y pégalas aquí.</div>
+        <p class="muted"><span class="ai-name">Nova</span> piensa con servicios de IA gratuitos. Cada uno necesita una clave tuya: es gratis y no pide tarjeta. <b>Pon al menos dos</b>: si uno se queda sin cupo, <span class="ai-name">Nova</span> salta sola al siguiente.</p>
+        <div class="eng-paste">
+          <input type="text" class="secret" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore id="engPaste" placeholder="Pega aquí cualquier clave: NOVA reconoce de qué servicio es">
+          <button class="btn pri" id="engPasteBtn">PEGAR Y PROBAR</button>
+        </div>
+        <div class="eng-res muted small" id="engRes"></div>
+        <div class="eng-cards" id="engCards"></div>
+        <details class="eng-adv" id="engAdv">
+          <summary>AVANZADO: otros motores y orden</summary>
+          <div id="provList"></div>
+          <div class="field"><label>Ollama en mi PC como último recurso<small>Solo si tienes Ollama instalado y funcionando</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="ia_ollama"><i></i></span></div></div>
+          <div class="field"><label>Elegir yo el orden de los motores<small>Desactivado (recomendado): <span class="ai-name">Nova</span> usa todos los modelos gratis de cada servicio con clave</small></label><div class="ctl"><span class="switch"><input type="checkbox" id="engManual"><i></i></span></div></div>
+          <div id="chainWrap" hidden>
+            <div class="panel-h sub"><span>CADENA DE MOTORES</span><span class="hint">Si uno se queda sin cuota, <span class="ai-name">Nova</span> salta al siguiente</span></div>
+            <div id="chainList"></div>
+          </div>
+          <div class="row gap" style="margin-top:10px"><button class="btn sm" id="engRetry">VOLVER A PROBAR TODOS YA</button><span class="muted small">Quita las pausas y prueba de nuevo en la próxima pregunta</span></div>
+        </details>
         <datalist id="modelsList"></datalist>
       </div>
       <div class="panel">
@@ -922,7 +936,13 @@
         <div class="su-kicker">PASO 7 · TODO LISTO</div>
         <h2>Sistemas en línea</h2>
         <div class="su-summary" id="suSum"></div>
-        <div class="field" id="suKeyRow"><label>Inteligencia artificial<small>Para conversar y buscar información necesito una clave gratis</small></label><div class="ctl"><input type="text" class="secret" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore id="suGemini" placeholder="Opcional: clave gratis de Google Gemini"><button class="btn sm" data-url="https://aistudio.google.com/apikey">CONSEGUIR</button></div></div>
+        <div class="su-keys" id="suKeyRow">
+          <div class="su-kicker">INTELIGENCIA ARTIFICIAL</div>
+          <p class="su-lead small">Para conversar y buscar información necesito claves gratis de IA (sin tarjeta). Consigue la de <b>Gemini</b> y la de <b>Groq</b> y pégalas aquí: sé de cuál es cada una y la pruebo.</p>
+          <div class="row gap wrap"><button class="btn sm" data-url="https://aistudio.google.com/apikey">① CONSEGUIR CLAVE DE GEMINI</button><button class="btn sm" data-url="https://console.groq.com/keys">② CONSEGUIR CLAVE DE GROQ</button></div>
+          <div class="eng-paste" style="margin-top:10px"><input type="text" class="secret" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore id="suKey" placeholder="Pega aquí la clave"><button class="btn pri" id="suKeyBtn">PEGAR Y PROBAR</button></div>
+          <div class="su-note" id="suKeyState"></div>
+        </div>
         <div class="su-foot"><button class="btn" data-prev>◂ ATRÁS</button><span class="grow"></span><button class="btn pri" id="suFinish">◆ TERMINAR Y DESPEGAR</button></div>
       </div>
     </section>

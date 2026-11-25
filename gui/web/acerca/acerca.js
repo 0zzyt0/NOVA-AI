@@ -4,7 +4,7 @@
    el túnel acelera y cambia de dibujo, la flecha hace toneles, el logo salta letra a letra. */
 (() => {
   "use strict";
-  const VERSION = "2.1.4";
+  const VERSION = "2.1.5";
 
   // ------------------------------------------------------------ fuente de píxeles 5×7
   const F = {

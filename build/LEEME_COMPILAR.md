@@ -22,13 +22,12 @@
 | `iconos/` | Genera `nova.ico`, `nova_instalar.ico` y `nova_desinstalar.ico`. |
 | `res/` | Manifiestos (administrador o usuario) y datos de versión. |
 
-## Claves de fábrica
+## Claves de IA
 
-```bash
-python build/cifrar_claves.py claves.json   # crea recursos/claves_iniciales.enc (+ llave_claves.bin si no existe)
-```
-
-`recursos/llave_claves.bin` **no se sube nunca** (está en `.gitignore`). Sin ella, el instalador funciona igual, pero sin claves de serie.
+Desde la 2.1.5 NOVA **no lleva claves de IA de fábrica**: eran las mismas para todos los usuarios y los cupos
+gratuitos (que van por proyecto u organización, no por usuario) se agotaban entre todos. Cada piloto pone las
+suyas, gratis, en Nova › Inteligencia (pega la clave y NOVA reconoce de qué servicio es). El compilado nunca
+empaqueta `recursos/llave_claves.bin` ni `recursos/claves_iniciales.enc` aunque estén en la carpeta.
 
 ## Compilar y firmar en GitHub (SignPath)
 

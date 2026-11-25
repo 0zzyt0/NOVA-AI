@@ -301,11 +301,17 @@ def main() -> None:
             nova.training = True
             log.info("Configuración inicial pendiente")
             return
-        if not any(settings.key_for(p) for p in ("gemini", "groq", "openrouter", "mistral", "deepseek")):
+        if settings.get("claves_fabrica_quitadas"):
+            # 2.1.5: las claves de fábrica eran de todos y se agotaban entre todos; ahora cada piloto pone las suyas
             nova.on_message("sistema",
-                            "👋 Falta una clave de IA: ve a la sección Inteligencia y pega una clave GRATIS de "
-                            "Gemini y/o Groq. Sin clave funcionan los comandos de la nave por frase directa, "
-                            "pero no la conversación ni las búsquedas.")
+                            "🔑 NOVA ya no trae claves de IA de serie (se agotaban entre todos los usuarios). "
+                            "Ve a Nova › Inteligencia, pulsa CONSEGUIR CLAVE GRATIS en Gemini y Groq y pega cada clave: "
+                            "NOVA reconoce de cuál es y la prueba. Son 2 minutos y no cuesta nada.")
+        elif not any(settings.key_for(p) for p in ("gemini", "groq", "openrouter", "mistral", "deepseek")):
+            nova.on_message("sistema",
+                            "👋 Falta una clave de IA: ve a Nova › Inteligencia y pega una clave GRATIS de "
+                            "Gemini y/o Groq (NOVA reconoce de cuál es). Sin clave funcionan los comandos de la nave "
+                            "por frase directa, pero no la conversación ni las búsquedas.")
         from core.diary import last_location
 
         nova.greet(last_place=last_location() or session.get("ubicacion") or "")

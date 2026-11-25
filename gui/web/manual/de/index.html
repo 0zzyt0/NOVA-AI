@@ -273,7 +273,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <tr><td>Internetverbindung</td><td>Für die KI, die neuronalen Stimmen und die Spieldaten. Tastenbefehle funktionieren auch ohne.</td></tr>
     <tr><td>Python</td><td>Nicht nötig: Fehlt es, lädt das Installationsprogramm Python 3.12 nur für Nova herunter.</td></tr>
     <tr><td>NVIDIA-Grafikkarte <span class="dim">(optional)</span></td><td>Beschleunigt die lokale Spracherkennung (Whisper). Ohne sie übernimmt der Prozessor oder die Cloud.</td></tr>
-    <tr><td>KI-Schlüssel</td><td>Kostenlos und in 2 Minuten (Abschnitt 11). Manche Versionen des Installationsprogramms enthalten bereits Testschlüssel.</td></tr>
+    <tr><td>KI-Schlüssel</td><td>Kostenlos und in 2 Minuten (Abschnitt 11). Seit 2.1.5 trägt jeder Pilot seine eigenen ein: NOVA bringt keine eingebauten Schlüssel mehr mit.</td></tr>
   </table>
   <div class="pf">NOVA AI · BENUTZERHANDBUCH<span class="n"></span></div>
 </section>
@@ -683,10 +683,10 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   <div class="row"><figure><img src="img/c_ia.webp"></figure><div>
     <h3>Identität</h3>
     <p><b>Name der KI</b>, <b>Ihr Name</b> und <b>wie sie Sie anspricht</b>. Ändern Sie ihren Namen, wiederholen Sie das Training mit <b>◆ Einrichtung wiederholen</b>, damit sie ihn in Ihrer Stimme erkennt.</p>
-    <h3>Kostenlose Schlüssel</h3>
-    <p>Fügen Sie hier Ihre Schlüssel ein (Abschnitt 11). Enthält Ihr Installationsprogramm Testschlüssel, sind sie schon da. Ein <span class="ok">grüner</span> Punkt bedeutet, dass ein Schlüssel vorhanden ist. Um Ihren eigenen zu nutzen, klicken Sie in das Feld und fügen ihn darüber ein (Abschnitt 11).</p></div></div>
-  <h2>Engine-Kette</h2>
-  <figure class="c" style="width:140mm"><img src="img/c_ia_claves.webp"><figcaption><b>Schlüssel und Engine-Kette.</b> TESTEN prüft den Schlüssel; MODELLE lädt die aktuelle Modellliste.</figcaption></figure>
+    <h3>KI-Module</h3>
+    <p>Seit 2.1.5 bringt NOVA <b>keine eingebauten Schlüssel</b> mehr mit: Jeder Pilot trägt seine eigenen ein (kostenlos, Kapitel 11). Füge <b>einen beliebigen Schlüssel</b> oben in das Feld ein: NOVA erkennt den Dienst, speichert ihn und testet ihn. Jeder Dienst hat seine Karte mit Ampel: <span class="ok">grün</span> bereit, <span class="warn">gelb</span> pausiert (mit der Uhrzeit, wann er wieder da ist) und <span class="bad">rot</span> ungültiger Schlüssel.</p></div></div>
+  <h2>Wie sie das Modul wählt</h2>
+  <figure class="c" style="width:140mm"><img src="img/c_ia_claves.webp"><figcaption><b>KI-Module.</b> Ein Feld, um jeden Schlüssel einzufügen, und eine Karte pro Dienst mit seinen Modellen: grün die freien, gelb die pausierenden.</figcaption></figure>
 
   <div class="pf">NOVA AI · BENUTZERHANDBUCH<span class="n"></span></div>
 </section>
@@ -694,15 +694,15 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
 <!-- ======================================================= 09 INTELIGENCIA 2 -->
 <section class="page">
   <div class="ph"><img src="/logo.png">NOVA AI · Benutzerhandbuch<span class="s">07 · Nova</span></div>
-  <p>Nova probiert die Engines <b>der Reihe nach</b>: Ist bei einer das Kontingent erschöpft oder fällt sie aus, springt sie zur nächsten, ohne dass Sie es merken. Die Werksreihenfolge ist:</p>
+  <p>Mit dem Schlüssel eines Dienstes nutzt Nova <b>alle seine kostenlosen Modelle</b> nacheinander und wechselt dann zum nächsten Dienst: <b>Gemini</b> (5 Modelle) › <b>Groq</b> (3) › <b>OpenRouter</b>. Bei Gemini und Groq hat jedes Modell sein eigenes Kontingent; ist eines voll, ist das nächste meist frei. Jeder Fehler wird nach seiner Ursache behandelt:</p>
   <table class="small">
-    <tr><th style="width:10mm">#</th><th style="width:34mm">Anbieter</th><th>Modell</th></tr>
-    <tr><td>01</td><td>Gemini</td><td><code>gemini-flash-lite-latest</code> · schnell, viele kostenlose Anfragen</td></tr>
-    <tr><td>02</td><td>Gemini</td><td><code>gemini-3.5-flash-lite</code></td></tr>
-    <tr><td>03</td><td>Groq</td><td><code>openai/gpt-oss-120b</code> · ultraschnelle Reserve</td></tr>
-    <tr><td>04</td><td>OpenRouter</td><td><code>openrouter/free</code> · verschiedene kostenlose Modelle</td></tr>
+    <tr><th style="width:46mm">Was passiert</th><th>Was Nova tut</th></tr>
+    <tr><td>Minutenlimit</td><td>Bittet der Dienst, ein paar Sekunden zu warten, wartet sie und versucht es erneut; dauert es länger, pausiert das Modell genau so lange und sie nimmt das nächste.</td></tr>
+    <tr><td>Tageskontingent aufgebraucht</td><td>Sie legt das Modell beiseite, bis sich das Kontingent erneuert (bei Gemini um Mitternacht kalifornischer Zeit: 9:00 Uhr in Deutschland).</td></tr>
+    <tr><td>Server überlastet oder ohne Antwort</td><td>Kurze Pause, dann das nächste; schlägt es weiter fehl, wird die Pause länger (bis 10 Min.).</td></tr>
+    <tr><td>Ungültiger Schlüssel</td><td>Die Karte wird <span class="bad">rot</span>, bis du einen anderen einfügst.</td></tr>
   </table>
-  <p class="small dim">Mistral ist seit August 2026 kostenpflichtig, daher nimmt 2.0 es aus der Standardkette. Haben Sie einen eigenen bezahlten Schlüssel, tragen Sie ihn ein und Nova fügt Mistral hinzu (Kapitel 11).</p>
+  <p class="small dim">Ist keines frei, sagt dir Nova, welches ausfällt und wann es zurück ist. Unter <b>Erweitert</b> kannst du Mistral (kostenpflichtig) eintragen, Ollama auf deinem PC als letzte Reserve nutzen, die Reihenfolge selbst festlegen oder alle Pausen mit <b>Alle jetzt erneut testen</b> aufheben.</p>
   <h2>Persönlichkeit</h2>
   <figure class="c" style="width:122mm"><img src="img/c_ia_personalidad.webp"><figcaption><b>Persönlichkeit:</b> Humor, Nachdenken, Gesprächsgedächtnis und Geständnissätze.</figcaption></figure>
   <table class="small">
@@ -1078,7 +1078,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
 <section id="cap-11" class="page">
   <div class="ph"><img src="/logo.png">NOVA AI · Benutzerhandbuch<span class="s">11 · Ihre eigenen API-Schlüssel</span></div>
   <h1><span class="num">11</span>Ihre eigenen API-Schlüssel</h1>
-  <p class="lead">Ein <b>API-Schlüssel</b> ist wie ein Passwort, mit dem Nova in Ihrem Namen einen KI-Dienst nutzen kann. Manche NOVA-AI-Versionen enthalten Testschlüssel (die auf GitHub nicht), aber diese haben ein <b>gemeinsames Tageslimit</b> für alle, die das Programm nutzen. Mit Ihrem eigenen haben Sie das ganze Kontingent für sich. Sie sind kostenlos und in ein paar Minuten besorgt.</p>
+  <p class="lead">Ein <b>API-Schlüssel</b> ist wie ein Passwort, mit dem Nova einen KI-Dienst in deinem Namen nutzen darf. Seit 2.1.5 bringt NOVA AI <b>keine eingebauten Schlüssel</b> mehr mit: Die alten waren für alle gleich, und das Gratis-Kontingent (das pro Konto gilt, nicht pro Person) wurde von allen gemeinsam aufgebraucht. Mit deinen eigenen hast du das ganze Kontingent für dich. Sie sind kostenlos, brauchen keine Kreditkarte und sind in ein paar Minuten erstellt.</p>
   <table class="small">
     <tr><th style="width:26mm">Dienst</th><th>Wofür</th><th style="width:40mm">Kosten</th><th style="width:30mm">Beginnt mit</th></tr>
     <tr><td>Gemini</td><td>Novas Hauptgehirn.</td><td class="ok">Kostenlos, ohne Kreditkarte</td><td><code>AIza…</code> oder <code>AQ.…</code></td></tr>
@@ -1090,13 +1090,13 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   <h2>So fügen Sie Nova einen Schlüssel hinzu</h2>
   <div class="row"><figure><img src="img/c_ia.webp"></figure><div>
     <ol class="small" style="padding-left:6mm;margin:0">
-      <li>Holen Sie sich den Schlüssel auf der Website des Dienstes (nächste Seiten) und <b>kopieren Sie ihn</b>.</li>
-      <li>Öffnen Sie in Nova <b>Nova › Intelligenz › Kostenlose Schlüssel</b>.</li>
-      <li>Klicken Sie in das Feld des Dienstes und <b>fügen Sie den Schlüssel ein</b> mit <kbd>Strg</kbd>+<kbd>V</kbd>. Er speichert sich selbst, und der Punkt wird <span class="ok">grün</span>.</li>
-      <li>Klicken Sie unter <b>Engine-Kette</b> bei einer Engine dieses Dienstes auf <b>TESTEN</b>: Antwortet sie, sind Sie fertig!</li>
+      <li>Öffne in Nova <b>Nova › Intelligenz</b> und klicke auf der Karte des Dienstes auf <b>KOSTENLOSEN SCHLÜSSEL HOLEN</b>: Seine Schlüsselseite öffnet sich.</li>
+      <li>Erstelle den Schlüssel (nächste Seiten) und <b>kopiere ihn</b>.</li>
+      <li>Füge ihn in Nova mit <kbd>Strg</kbd>+<kbd>V</kbd> in das Feld <b>Füge hier einen beliebigen Schlüssel ein</b> ein. NOVA erkennt den Dienst, speichert ihn und testet ihn.</li>
+      <li>Die Karte wird <span class="ok">grün</span>: fertig! Wiederhole es mit einem zweiten Dienst.</li>
     </ol>
-    <p class="small dim" style="margin-top:2mm">Die Schaltfläche <b>SCHLÜSSEL HOLEN</b> jedes Dienstes öffnet direkt seine Schlüsselseite.</p></div></div>
-  <div class="warnb"><span class="t">BEHANDELN SIE SCHLÜSSEL WIE PASSWÖRTER</span>Teilen Sie sie nicht und posten Sie sie weder in Foren noch auf Bildschirmfotos. Die meisten Dienste <b>zeigen ihn nur einmal an</b>: Verlieren Sie ihn, löschen Sie ihn und erstellen Sie einen neuen. Ihre Schlüssel bleiben auf Ihrem PC und werden nie durch die Werksschlüssel ersetzt.</div>
+    <p class="small dim" style="margin-top:2mm">Du kannst sie auch im letzten Schritt der Ersteinrichtung einfügen.</p></div></div>
+  <div class="warnb"><span class="t">BEHANDLE SCHLÜSSEL WIE PASSWÖRTER</span>Teile sie nicht und veröffentliche sie nicht in Foren oder Screenshots. Die meisten Dienste <b>zeigen ihn nur einmal an</b>: Verlierst du ihn, lösche ihn und erstelle einen neuen. Deine Schlüssel bleiben auf deinem PC und landen nie in Sicherungen.</div>
   <div class="pf">NOVA AI · BENUTZERHANDBUCH<span class="n"></span></div>
 </section>
 
@@ -1110,7 +1110,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
       <li>Akzeptieren Sie beim ersten Mal die Bedingungen von Google AI Studio.</li>
       <li>Klicken Sie auf <b>Create API key</b>. Fragt es nach einem Projekt, lassen Sie ein neues anlegen.</li>
       <li>Ihr Schlüssel erscheint: Klicken Sie auf die Schaltfläche zum <b>Kopieren</b>.</li>
-      <li>Fügen Sie ihn in Nova ein: <b>Nova › Intelligenz › Kostenlose Schlüssel › Google Gemini</b>.</li>
+      <li>Füge ihn in Nova ein: <b>Nova › Intelligenz</b>, Feld <b>Füge hier einen beliebigen Schlüssel ein</b>.</li>
     </ol>
     <div class="foot"><span><b>Kreditkarte:</b> nicht nötig</span><span><b>Limit:</b> pro Minute und pro Tag, je nach Modell</span></div>
     <p class="small dim" style="margin:2mm 0 0">Google gibt an, dass es im kostenlosen Tarif das Gesendete zur Verbesserung seiner Produkte nutzen kann.</p>
@@ -1123,7 +1123,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
       <li>Gehen Sie auf <b>console.groq.com/keys</b> und klicken Sie auf <b>Create API Key</b>.</li>
       <li>Geben Sie ihm einen Namen (zum Beispiel „Nova“) und klicken Sie auf <b>Submit</b>.</li>
       <li><b>Kopieren Sie den Schlüssel jetzt</b> (<code>gsk_…</code>): Er wird nur einmal angezeigt.</li>
-      <li>Fügen Sie ihn in Nova ein: <b>Nova › Intelligenz › Kostenlose Schlüssel › Groq</b>. Das Feld in Schritt 1 der Ersteinrichtung geht auch.</li>
+      <li>Füge ihn in Nova ein: <b>Nova › Intelligenz</b>, Feld <b>Füge hier einen beliebigen Schlüssel ein</b>. Das Feld in Schritt 1 der Ersteinrichtung geht auch.</li>
     </ol>
     <div class="foot"><span><b>Kreditkarte:</b> nicht nötig</span><span><b>Limit:</b> etwa 1.000 Anfragen pro Tag mit <code>gpt-oss-120b</code></span></div>
     <p class="small dim" style="margin:3mm 0 0">Mit Groq haben Sie außerdem die schnellste Spracherkennung (Engine „Automatisch“ unter Nova › Zuhören).</p>
@@ -1142,7 +1142,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
       <li>Gehen Sie auf <b>openrouter.ai/keys</b> (Kontomenü › <b>Keys</b>).</li>
       <li>Klicken Sie auf <b>Create Key</b>, geben Sie ihm einen Namen („Nova“) und erstellen Sie ihn. Ein Kreditlimit müssen Sie nicht festlegen.</li>
       <li><b>Kopieren Sie den Schlüssel</b> (<code>sk-or-v1-…</code>), bevor Sie das Fenster schließen.</li>
-      <li>Fügen Sie ihn in Nova ein: <b>Nova › Intelligenz › Kostenlose Schlüssel › OpenRouter</b>.</li>
+      <li>Füge ihn in Nova ein: <b>Nova › Intelligenz</b>, Feld <b>Füge hier einen beliebigen Schlüssel ein</b>.</li>
     </ol>
     <div class="foot"><span><b>Kreditkarte:</b> nicht nötig</span><span><b>Limit:</b> 50 kostenlose Anfragen pro Tag (1.000, wenn Sie irgendwann 10 $ Guthaben kaufen)</span></div>
     <p class="small dim" style="margin:2mm 0 0">Nutzen Sie die Modelle, die auf <code>:free</code> enden, oder <code>openrouter/free</code>, das ein verfügbares kostenloses auswählt.</p>
@@ -1153,12 +1153,12 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <ol class="small">
       <li>Gehen Sie auf <b>console.mistral.ai</b> mit Ihrem bezahlten Konto zu <b>API Keys</b> und klicken Sie auf <b>Create new key</b>.</li>
       <li><b>Kopieren Sie den Schlüssel</b>: Er wird nicht noch einmal angezeigt.</li>
-      <li>Fügen Sie ihn unter <b>Nova › Intelligenz › Kostenlose Schlüssel › Mistral (kostenpflichtig)</b> ein. Nova fügt ihn von selbst zur Engine-Kette hinzu (Modell <code>mistral-small-latest</code>).</li>
+      <li>Füge ihn unter <b>Nova › Intelligenz › Erweitert › Mistral (kostenpflichtig)</b> ein: Sein Schlüssel hat kein festes Präfix und hat daher ein eigenes Feld. Nova nutzt ihn nach den kostenlosen Diensten (Modell <code>mistral-small-latest</code>).</li>
     </ol>
     <div class="foot"><span><b>Kreditkarte:</b> ja (bezahlter Tarif)</span><span><b>Beim Update von 1.x:</b> Nova entfernt den Werks-Mistral-Schlüssel und behält Ihren</span></div>
     <p class="small dim" style="margin:2mm 0 0">Hatten Sie bereits einen <b>DeepSeek</b>-Schlüssel (kostenpflichtig), nutzt Nova ihn weiter.</p>
   </div>
-  <div class="tip"><span class="t">UND WENN EIN SCHLÜSSEL NICHT MEHR GEHT?</span>Klicken Sie in der Engine-Kette auf <b>TESTEN</b>. Die häufigsten Fehler: ein falsch kopierter Schlüssel (mit einem Leerzeichen zu viel), ein auf der Website des Dienstes gelöschter Schlüssel oder das Tageskontingent aufgebraucht (warten Sie bis morgen; bis dahin nutzt Nova die nächste Engine).</div>
+  <div class="tip"><span class="t">UND WENN EIN SCHLÜSSEL NICHT MEHR GEHT?</span>Schau dir seine Karte unter <b>Nova › Intelligenz</b> an: <span class="bad">rot</span> = ungültiger Schlüssel (falsch kopiert, mit Leerzeichen oder auf der Website des Dienstes gelöscht: füge einen anderen ein); <span class="warn">gelb</span> = pausiert, mit der Uhrzeit, wann er wieder da ist (solange nutzt Nova das nächste Modul). <b>TESTEN</b> prüft ihn sofort.</div>
   <div class="pf">NOVA AI · BENUTZERHANDBUCH<span class="n"></span></div>
 </section>
 
@@ -1219,7 +1219,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   </ul>
   <p class="small">Der vollständige Text steht in <b>NORMAS_Y_PRIVACIDAD.de.md</b>, dem Sie bei der Installation zugestimmt haben.</p>
   <h2>Grundregeln</h2>
-  <p class="small"><b>Fair spielen:</b> Nova drückt Tasten wie VoiceAttack; Sie sind dafür verantwortlich, die Bedingungen von Star Citizen einzuhalten. <b>Die KI kann sich irren</b> (und erfindet sie etwas, gibt sie es zu). <b>Testschlüssel</b> (wenn Ihre Version welche enthält) sind gemeinsam genutzt: Kopieren Sie sie nicht in andere Programme.</p>
+  <p class="small"><b>Fair spielen:</b> Nova drückt Tasten wie VoiceAttack; Sie sind dafür verantwortlich, die Bedingungen von Star Citizen einzuhalten. <b>Die KI kann sich irren</b> (und erfindet sie etwas, gibt sie es zu). <b>Ihre KI-Schlüssel</b> gehören Ihnen: Geben Sie sie nicht weiter.</p>
   <h2>Mitwirkende</h2>
   <table class="tight small">
     <tr><td style="width:52mm">Entwicklung</td><td>Aaron B. Roldan · Gametag <b>0zzyt0</b> · mit der KI-Engine Claude Opus 5.5 (Anthropic)</td></tr>

@@ -14,12 +14,14 @@ import os
 import threading
 from pathlib import Path
 
-VERSION = "2.1.4"
+VERSION = "2.1.5"
 APP_NAME = "NOVA AI"
 APP_DIR = Path(__file__).resolve().parent.parent
 FACTORY_DIR = APP_DIR / "datos"  # archivos de fábrica que vienen con el programa (solo lectura)
-BASE_KEYS_FILE = APP_DIR / "recursos" / "claves_iniciales.enc"  # claves gratuitas del programa base, cifradas
-BASE_KEYS_MASTER = APP_DIR / "recursos" / "llave_claves.bin"  # llave maestra: solo en el instalador oficial
+# Hasta la 2.1.4 el instalador traía claves de IA de fábrica cifradas. Desde la 2.1.5 ya no: solo se leen para
+# reconocerlas y quitarlas de los ajustes (ver Settings._migrate_215).
+BASE_KEYS_FILE = APP_DIR / "recursos" / "claves_iniciales.enc"
+BASE_KEYS_MASTER = APP_DIR / "recursos" / "llave_claves.bin"
 BASE_VERSION = 1  # sube cuando cambian las claves o la cadena de motores de fábrica
 INSTALL_MARK = APP_DIR / "instalado.json"  # lo escribe el instalador
 
@@ -31,9 +33,34 @@ def read_base_keys(enc_file: Path | None = None, master_file: Path | None = None
     return {k: str(v) for k, v in data.items() if k in PROVIDERS and v}
 
 
-def write_base_keys(keys: dict, enc_file: Path | None = None, master_file: Path | None = None) -> None:
-    from . import keyvault
-    keyvault.save(keys, enc_file or BASE_KEYS_FILE, master_file or BASE_KEYS_MASTER)
+FACTORY_HASHES = APP_DIR / "recursos" / "claves_fabrica.sha256"  # 2.1.5: huellas de las antiguas claves de fábrica
+
+
+def _key_hash(key: str) -> str:
+    import hashlib
+    return hashlib.sha256(key.strip().encode("utf-8")).hexdigest()
+
+
+def factory_key_hashes() -> dict:
+    """2.1.5: huellas (SHA-256) de las claves de fábrica de versiones anteriores, para quitarlas de los ajustes.
+    Salen de recursos/claves_fabrica.sha256 (lo escribe el parche) o, si aún está la llave, del cofre."""
+    out: dict[str, set] = {}
+    try:
+        for prov, h in json.loads(FACTORY_HASHES.read_text(encoding="utf-8")).items():
+            out.setdefault(prov, set()).update([h] if isinstance(h, str) else h)
+    except (OSError, ValueError, AttributeError):
+        pass
+    for prov, key in read_base_keys().items():
+        out.setdefault(prov, set()).add(_key_hash(key))
+    return out
+
+
+def export_factory_hashes() -> int:
+    """2.1.5 (lo llama el parche antes de borrar la llave): guarda solo las huellas de las claves de fábrica."""
+    keys = read_base_keys()
+    if keys:
+        FACTORY_HASHES.write_text(json.dumps({p: _key_hash(k) for p, k in keys.items()}), encoding="utf-8")
+    return len(keys)
 
 
 def is_installed(app_dir: Path = APP_DIR) -> bool:
@@ -78,19 +105,24 @@ PROVIDERS = {
     "gemini": {
         "nombre": "Google Gemini (gratis)",
         "base_url": "https://generativelanguage.googleapis.com/v1beta/openai/",
-        "modelos": ["gemini-flash-lite-latest", "gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.1-flash-lite"],
+        # 2.1.5: cada modelo tiene su propio cupo gratis; los Flash-Lite dan más preguntas al día, van primero
+        "modelos": ["gemini-flash-lite-latest", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.6-flash", "gemini-3.8-flash"],
+        "prefijo": "AIza",
         "clave_url": "https://aistudio.google.com/apikey",
     },
     "groq": {
         "nombre": "Groq (gratis, muy rápido)",
         "base_url": "https://api.groq.com/openai/v1",
-        "modelos": ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "qwen/qwen3.6-27b", "llama-3.1-8b-instant"],
+        # 2.1.5: Llama 3.x pasó a ser de empresa en Groq; cada modelo tiene su propio límite por minuto
+        "modelos": ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.8-27b"],
+        "prefijo": "gsk_",
         "clave_url": "https://console.groq.com/keys",
     },
     "openrouter": {
         "nombre": "OpenRouter (modelos :free)",
         "base_url": "https://openrouter.ai/api/v1",
-        "modelos": ["openrouter/free", "meta-llama/llama-3.3-70b-instruct:free"],
+        "modelos": ["openrouter/free"],  # 2.1.5: el cupo gratis (50 al día) es de toda la cuenta
+        "prefijo": "sk-or-",
         "clave_url": "https://openrouter.ai/keys",
     },
     "mistral": {  # 2.0: de pago desde agosto de 2026; ya no va en la cadena de serie, queda como opción
@@ -131,7 +163,11 @@ DEFAULTS: dict = {
     "nombre_variantes": [],  # cómo escribe Whisper el nombre cuando TÚ lo dices (aprendido)
     "frases_entrenamiento": [],  # vacío = 3 frases al azar sobre Star Citizen (core/training.py)
     # --- IA ---------------------------------------------------------------
-    "ia_cadena": [  # se prueba en orden; si uno falla o se queda sin cuota, salta al siguiente
+    # 2.1.5: automático = con tu clave de un servicio se prueban todos sus modelos gratis, en este orden
+    "ia_auto": True,
+    "ia_orden": ["gemini", "groq", "openrouter", "mistral", "deepseek"],
+    "ia_ollama": False,  # Ollama en tu PC como último recurso (solo en automático)
+    "ia_cadena": [  # modo manual: se prueba en orden; si uno falla o se queda sin cuota, salta al siguiente
         {"proveedor": "gemini", "modelo": "gemini-flash-lite-latest"},
         {"proveedor": "gemini", "modelo": "gemini-3.5-flash-lite"},
         {"proveedor": "groq", "modelo": "openai/gpt-oss-120b"},
@@ -318,6 +354,7 @@ class Settings:
                 pass
         self._apply_base()
         self._migrate_20()
+        self._migrate_215()
         # Las claves también se pueden pasar por variables de entorno.
         for prov in PROVIDERS:
             env = os.environ.get(f"{prov.upper()}_API_KEY")
@@ -360,18 +397,34 @@ class Settings:
         self.save()
 
     def _apply_base(self, save: bool = True) -> None:
-        """Programa base: pone las claves gratuitas de fábrica en los huecos vacíos y la cadena de motores
-        recomendada. Se hace una sola vez (y otra si cambian); lo que el usuario cambie después se respeta."""
+        """Programa base: la cadena de motores recomendada (una vez, y otra si cambia).
+        2.1.5: NOVA ya no trae claves de IA de fábrica; cada piloto pone las suyas (gratis)."""
         if int(self.data.get("base_aplicada") or 0) >= BASE_VERSION:
             return
-        keys = read_base_keys()
         with self._lock:
-            for prov, key in keys.items():
-                if key and not (self.data["claves"].get(prov) or "").strip():
-                    self.data["claves"][prov] = key
             self.data["ia_cadena"] = copy.deepcopy(DEFAULTS["ia_cadena"])
             self.data["base_aplicada"] = BASE_VERSION
         if save and SETTINGS_FILE.exists():
+            self.save()
+
+    def _migrate_215(self) -> None:
+        """2.1.5: fuera las claves de fábrica (eran las mismas para todos los usuarios y se agotaban entre
+        todos). Se quitan solo las que coinciden con las de fábrica; las tuyas se quedan. Además, la lista de
+        motores pasa a ser automática."""
+        if self.data.get("migrado_2_1_5"):
+            return
+        removed = []
+        factory = factory_key_hashes()
+        with self._lock:
+            for prov, key in list((self.data.get("claves") or {}).items()):
+                key = (key or "").strip()
+                if prov != "ollama" and key and _key_hash(key) in factory.get(prov, ()):
+                    self.data["claves"][prov] = ""
+                    removed.append(prov)
+            self.data["ia_auto"] = True
+            self.data["claves_fabrica_quitadas"] = removed
+            self.data["migrado_2_1_5"] = True
+        if SETTINGS_FILE.exists():
             self.save()
 
     def _migrate_20(self) -> None:

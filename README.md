@@ -176,7 +176,7 @@ For example, with one hand on the stick: *"Nova, flight ready"*, *"request takeo
 | | |
 |---|---|
 | ![SC Game: voice commands](docs/img/en/juego.jpg)<br><sub>**SC Game:** your voice commands and their keys</sub> | ![SC Game: keys and joystick](docs/img/en/lectura.jpg)<br><sub>**Keys and joystick:** your Star Citizen keys and how Nova presses them</sub> |
-| ![Nova: intelligence](docs/img/en/ia.jpg)<br><sub>**Nova › Intelligence:** free keys and engine chain</sub> | ![Information: sources](docs/img/en/datos.jpg)<br><sub>**Information › Sources:** lookup pages and their check</sub> |
+| ![Nova: intelligence](docs/img/en/ia.jpg)<br><sub>**Nova › Intelligence:** AI engines (paste any key)</sub> | ![Information: sources](docs/img/en/datos.jpg)<br><sub>**Information › Sources:** lookup pages and their check</sub> |
 | ![Lookup dictionary](docs/img/en/diccionario.jpg)<br><sub>**Lookup dictionary:** answers without spending AI</sub> | ![Logbook and statistics](docs/img/en/bitacora.jpg)<br><sub>**Logbook & statistics** of your sessions</sub> |
 
 <sub>Every screen is also available in Spanish, Catalan, French and German (*Settings › General › Language*).</sub>
@@ -214,9 +214,9 @@ NOVA AI uses free services in an **engine chain**: if one runs out of quota, she
 
 *Mistral* (paid since August 2026) and *DeepSeek* are optional: they join the chain only if you add your own key.
 
-The installer in *Releases* **comes without AI keys**: Nova obeys voice commands from the first minute, and to talk and search she needs at least one free key. You get one in 2 minutes with no credit card (Gemini and Groq are recommended): chapter 11 of the manual, *Your own API keys*, explains it step by step. Then paste them in ***Nova › Intelligence › Free keys***. Nova always answers in the language you chose.
+The installer in *Releases* **comes without AI keys**: Nova obeys voice commands from the first minute, and to talk and search she needs at least one free key. You get one in 2 minutes with no credit card (Gemini and Groq are recommended): chapter 11 of the manual, *Your own API keys*, explains it step by step. Then paste them in ***Nova › Intelligence***, in the *Paste any key here* box: NOVA recognises which service it's for, saves it and tests it. With a service's key, Nova uses all of its free models and, if one runs out of quota, switches to the next by herself (and tells you when each one comes back). Nova always answers in the language you chose.
 
-**About keys in this repository:** the program supports **encrypted** factory keys (`recursos/claves_iniciales.enc`, see [`core/keyvault.py`](core/keyvault.py)), but the master key is **not in the repository or in the public release**, so those keys can't be used or read. If you build your own version, use your own keys with [`build/cifrar_claves.py`](build/cifrar_claves.py), or leave them out and each user will add theirs.
+**No factory keys (since 2.1.5):** earlier versions could ship with built-in AI keys, but they were the same for everyone and the free quotas (which are per project or organisation, not per user) were used up by everyone together. Now every pilot adds their own. When updating, NOVA only removes from your settings the keys that match the old factory ones; yours stay.
 
 **Anonymous questionnaire service:** the questionnaire is sent to a small Cloudflare Worker that holds the GitHub token and creates the issue, so the program carries no token. Its code and deployment steps are in [`servicios/cuestionario`](servicios/cuestionario). If you build your own version, set your own service address in `core/survey.py` or leave it empty to hide the questionnaire.
 

@@ -12,8 +12,8 @@
 #   (firmarlos)
 #   NOVA_STAGE=pack  build/build_win.sh   empaqueta con esos .exe ya firmados el instalador todo en uno y dist/Nova
 #
-# Claves de fábrica: si existe recursos/llave_claves.bin (no está en el repositorio), el instalador
-# la incluye y el programa trae claves de IA de serie. Sin ella, cada usuario pone las suyas.
+# 2.1.5: NOVA ya no lleva claves de IA de fábrica (se agotaban entre todos los usuarios): cada piloto pone
+# las suyas, gratis, desde Nova › Inteligencia. La llave y el cofre antiguos no se empaquetan nunca.
 set -e
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 B=$ROOT/build; R=$ROOT/recursos; DIST=$ROOT/dist
@@ -62,7 +62,7 @@ with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
             continue
         for d, _, files in os.walk(it):
             for f in files:
-                if f.endswith(".pyc"):
+                if f.endswith(".pyc") or f in ("llave_claves.bin", "claves_iniciales.enc"):
                     continue
                 p = os.path.join(d, f)
                 z.write(p, p.replace(os.sep, "/"))
@@ -78,5 +78,5 @@ rm -rf "$DIST/Nova"; mkdir -p "$DIST/Nova/datos"
 cd $ROOT
 cp -r core gui recursos instalador nova.py requirements.txt LEEME.md NORMAS_Y_PRIVACIDAD*.md LICENSE LICENCIA.txt *.bat "NOVA AI Setup.exe" "$DIST/Nova/"
 cp datos/comandos*.json "$DIST/Nova/datos/"
-[ -f recursos/llave_claves.bin ] && echo "  (con claves de fábrica)" || echo "  (sin claves de fábrica: cada usuario pondrá las suyas)"
+rm -f "$DIST/Nova/recursos/llave_claves.bin" "$DIST/Nova/recursos/claves_iniciales.enc"  # 2.1.5: sin claves de fábrica
 echo "Listo: $DIST"
