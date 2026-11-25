@@ -27,6 +27,17 @@
     chip.textContent = !ch.length ? T("SIN JUEGO") : pend.length ? T("CAMBIOS SIN COPIAR") : T("AL DÍA");
     chip.className = "chip " + (!ch.length ? "" : pend.length ? "warn" : "ok");
     $("#ctlPath").textContent = st.carpeta || "";
+    let warn = $("#ctlPathWarn");
+    if (!warn) {
+      warn = document.createElement("p");
+      warn.id = "ctlPathWarn";
+      warn.className = "small";
+      warn.style.color = "var(--warn)";
+      warn.style.margin = "4px 0 0";
+      $("#ctlPath").closest("p").after(warn);
+    }
+    warn.textContent = st.carpeta_aviso ? "⚠ " + st.carpeta_aviso : "";
+    warn.hidden = !st.carpeta_aviso;
     $("#ctlChans").innerHTML = ch.map((c) => `
       <div class="ctl-chan ${c.al_dia ? "ok" : c.teclas ? "warn" : ""}">
         <div class="ctl-name"><b>${h(c.canal)}</b><span class="muted small">${h(c.version || "")}</span></div>
@@ -34,7 +45,7 @@
           ? h(T("Última copia: {f}", { f: c.ultima })) + (c.ultima_version && c.ultima_version !== c.version ? " · " + h(T("de la versión {v}", { v: c.ultima_version })) : "")
           : h(T("Sin copias todavía"))}${c.pendiente_al_cerrar ? " · " + h(T("se copiará al cerrar NOVA")) : ""}</span></div>
         <div class="ctl-state">${c.al_dia ? "✓ " + h(T("Copia al día")) : c.teclas ? "⚠ " + h(T("Cambios sin copiar")) : ""}</div>
-        <button class="btn sm" data-ctl-backup="${h(c.canal)}">${h(T("COPIA AHORA"))}</button>
+        <button class="btn sm" data-ctl-backup="${h(c.canal)}">${h(T("GUARDAR AHORA"))}</button>
       </div>`).join("") || `<p class="muted small">${h(T("No encuentro Star Citizen en este PC (o aún no lo has abierto nunca)."))}</p>`;
     const sel = $("#ctlCopy");
     const keep = sel.value;

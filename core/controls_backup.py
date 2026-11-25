@@ -53,8 +53,38 @@ DEVICE = {"kb": "teclado", "mo": "ratón", "js": "joystick", "gp": "mando"}
 
 
 # ------------------------------------------------------------------------- dónde
+def _known_documents() -> Path | None:
+    """La carpeta Documentos tal como la ve Windows (SHGetKnownFolderPath): sigue a OneDrive y a las carpetas
+    movidas a otro disco, que es donde el registro y Path.home() a veces se equivocan."""
+    if os.name != "nt":
+        return None
+    try:
+        import ctypes
+        from ctypes import wintypes
+        import uuid
+
+        class GUID(ctypes.Structure):
+            _fields_ = [("Data1", wintypes.DWORD), ("Data2", wintypes.WORD), ("Data3", wintypes.WORD),
+                        ("Data4", ctypes.c_ubyte * 8)]
+
+        u = uuid.UUID("{FDD39AD0-238F-46AF-ADB4-6C85480369C7}")  # FOLDERID_Documents
+        guid = GUID(u.fields[0], u.fields[1], u.fields[2], (ctypes.c_ubyte * 8)(*u.bytes[8:]))
+        out = ctypes.c_wchar_p()
+        if ctypes.windll.shell32.SHGetKnownFolderPath(ctypes.byref(guid), 0, None, ctypes.byref(out)) != 0:
+            return None
+        try:
+            return Path(out.value) if out.value else None
+        finally:
+            ctypes.windll.ole32.CoTaskMemFree(out)
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def documents_dir() -> Path:
     """La carpeta Documentos de verdad (también si OneDrive la ha movido)."""
+    p = _known_documents()
+    if p and p.is_dir():
+        return p
     if os.name == "nt":
         try:
             import winreg
@@ -67,12 +97,78 @@ def documents_dir() -> Path:
                     return p
         except OSError:
             pass
+    for name in ("Documents", "Documentos"):
+        p = Path.home() / name
+        if p.is_dir():
+            return p
     return Path.home() / "Documents"
 
 
+def _local_root() -> Path:
+    """Plan B, siempre escribible: %LOCALAPPDATA%\\NOVA AI\\Copias de seguridad."""
+    base = os.environ.get("LOCALAPPDATA") or str(Path.home() / "AppData" / "Local")
+    return Path(base) / "NOVA AI" / "Copias de seguridad"
+
+
+def _candidates(settings=None) -> list[Path]:
+    custom = ((settings.get("copias_ruta") if settings is not None else "") or "").strip()
+    out = [Path(os.path.expandvars(custom))] if custom else []
+    out += [documents_dir() / "NOVA AI" / "Copias de seguridad", _local_root()]
+    seen, uniq = set(), []
+    for p in out:
+        k = str(p).lower()
+        if k not in seen:
+            seen.add(k)
+            uniq.append(p)
+    return uniq
+
+
+def _writable(d: Path) -> str:
+    """'' si se puede crear la carpeta y escribir en ella; si no, el motivo."""
+    try:
+        d.mkdir(parents=True, exist_ok=True)
+        probe = d / ".nova_prueba"
+        probe.write_bytes(b"ok")
+        probe.unlink()
+        return ""
+    except OSError as e:
+        return f"{type(e).__name__}: {e}"
+
+
+_ROOT_CACHE: dict[str, tuple[Path, str]] = {}
+
+
+def resolve_root(settings=None, refresh: bool = False) -> tuple[Path, str]:
+    """La carpeta de copias que de verdad funciona y, si no es la primera opción, por qué.
+    Windows puede no dejar escribir en Documentos (p. ej. «Acceso controlado a carpetas» de Windows Defender, que
+    responde con [WinError 2] «no se encuentra el archivo»): entonces se usa %LOCALAPPDATA%\\NOVA AI."""
+    cands = _candidates(settings)
+    key = "|".join(str(c) for c in cands)
+    if not refresh and key in _ROOT_CACHE:
+        return _ROOT_CACHE[key]
+    first_err = ""
+    for i, d in enumerate(cands):
+        err = _writable(d)
+        if not err:
+            note = ""
+            if i:
+                note = i18n.tr("Windows no deja a NOVA escribir en {d} ({e}). Las copias se guardan en {r}. "
+                               "Si tienes activado «Acceso controlado a carpetas» en Seguridad de Windows, "
+                               "permite NOVA AI (python) o elige otra carpeta.", d=str(cands[0]), e=first_err, r=str(d))
+                log.warning("Copias: %s no es escribible (%s); uso %s", cands[0], first_err, d)
+            _ROOT_CACHE[key] = (d, note)
+            return d, note
+        first_err = first_err or err
+    raise RuntimeError(i18n.tr("No puedo crear la carpeta de copias ({d}): {e}", d=str(cands[0]), e=first_err))
+
+
 def safe_root(settings=None) -> Path:
-    custom = (settings.get("copias_ruta") if settings is not None else "") or ""
-    return Path(custom) if custom.strip() else documents_dir() / "NOVA AI" / "Copias de seguridad"
+    return resolve_root(settings)[0]
+
+
+def all_roots(settings=None) -> list[Path]:
+    """Todas las carpetas donde puede haber copias (por si alguna vez se usó el plan B)."""
+    return [d for d in _candidates(settings) if d.is_dir()]
 
 
 # ------------------------------------------------------------------------- leer los controles
@@ -177,23 +273,31 @@ class ControlBackups:
     def list(self, channel: str | None = None) -> list[dict]:
         """Copias (la más nueva primero), de un canal o de todos."""
         out = []
-        base = self.root
-        chans = [channel] if channel else ([d.name for d in base.iterdir() if d.is_dir()] if base.is_dir() else [])
-        for ch in chans:
-            d = base / ch
-            if not d.is_dir():
+        seen: set[str] = set()
+        for base in [r / "Controles" for r in all_roots(self.settings)]:
+            if not base.is_dir():
                 continue
+            chans = [channel] if channel else [d.name for d in base.iterdir() if d.is_dir()]
+            for ch in chans:
+                out += self._list_in(base / ch, ch, seen)
+        return sorted(out, key=lambda m: m.get("ts", 0), reverse=True)
+
+    @staticmethod
+    def _list_in(d: Path, ch: str, seen: set[str]) -> list[dict]:
+        out: list[dict] = []
+        if d.is_dir():
             for c in d.iterdir():
                 man = c / "manifest.json"
-                if c.is_dir() and man.is_file():
+                if c.is_dir() and man.is_file() and str(c).lower() not in seen:
                     try:
                         m = json.loads(man.read_text(encoding="utf-8"))
                     except (OSError, ValueError):
                         continue
+                    seen.add(str(c).lower())
                     m["id"] = f"{ch}/{c.name}"
                     m["ruta"] = str(c)
                     out.append(m)
-        return sorted(out, key=lambda m: m.get("ts", 0), reverse=True)
+        return out
 
     def latest(self, channel: str, real_only: bool = True) -> dict | None:
         for m in self.list(channel):
@@ -376,10 +480,9 @@ def nova_backup(settings, motivo: str) -> str:
 def latest_nova_backup(root: Path | None = None) -> Path | None:
     from . import backup
 
-    d = (root or safe_root()) / "NOVA"
-    if not d.is_dir():
-        return None
-    copies = sorted(d.glob("NOVA_*" + backup.EXT), key=lambda p: p.stat().st_mtime, reverse=True)
+    roots = [root] if root else all_roots()
+    copies = [p for r in roots if (r / "NOVA").is_dir() for p in (r / "NOVA").glob("NOVA_*" + backup.EXT)]
+    copies.sort(key=lambda p: p.stat().st_mtime, reverse=True)
     return copies[0] if copies else None
 
 
@@ -728,5 +831,9 @@ class ControlGuard:
         copies = [{"id": m["id"], "canal": m.get("canal"), "fecha": m.get("fecha"), "version": m.get("version", ""),
                    "motivo": m.get("motivo", ""), "resumen": summary_text(m.get("resumen") or {})}
                   for m in self.store.list()]
-        return {"canales": chans, "copias": copies[:60], "carpeta": str(safe_root(self.settings)),
+        try:
+            root, note = resolve_root(self.settings)
+        except RuntimeError as e:
+            root, note = _candidates(self.settings)[0], str(e)
+        return {"canales": chans, "copias": copies[:60], "carpeta": str(root), "carpeta_aviso": note,
                 "preguntas": list(self.pending.values()), "juego_abierto": self.game_running}
