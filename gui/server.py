@@ -1142,55 +1142,6 @@ class UIServer:
         st["preguntar"] = bool(self.nova.settings.get("traduccion_preguntar"))
         return st
 
-    def api_translation_install(self, origen: str = "boton") -> bool:
-        """Descarga la traducción de Google Drive y la descomprime en LIVE (en segundo plano)."""
-        from core import translation as T
-        if self._tr_busy.is_set():
-            return False
-        if i18n.norm(self.nova.settings.get("idioma")) != "es":
-            raise ValueError("La traducción de 0zzyt0 es solo para jugar en español. Usa «Añade el global.ini de tu idioma».")
-        live, _ = self._live()
-        if not live:
-            raise ValueError("No encuentro la carpeta de Star Citizen. Elígela con «Elegir carpeta del juego».")
-        self._tr_busy.set()
-
-        def run() -> None:
-            n = self.nova
-            prog = lambda text, pct: self.broadcast({"t": "trad", "estado": "progreso", "texto": text, "pct": pct,
-                                                     "origen": origen})
-            try:
-                res = T.install(n.settings, live, prog)
-                n.settings.set("traduccion_preguntar", True)
-                n.gamelog.load_texts(force=True)
-                threading.Thread(target=n.knowledge.load, daemon=True, name="enciclopedia").start()
-                msg = ("Traducción instalada" if res["nuevo"] else "Traducción actualizada" if res["cambio"]
-                       else "Ya tenías la versión más reciente; reinstalada igualmente")
-                self.broadcast({"t": "trad", "estado": "ok", "texto": f"{msg} ({res['idioma']}).", "pct": 100,
-                                "origen": origen, "resultado": res})
-                n.on_message("sistema", f"🌐 {msg} en {live}. Reinicia Star Citizen si está abierto para verla.")
-            except Exception as e:
-                log.exception("Traducción")
-                self.broadcast({"t": "trad", "estado": "error", "texto": str(e), "origen": origen})
-            finally:
-                self._tr_busy.clear()
-
-        threading.Thread(target=run, daemon=True, name="traduccion").start()
-        return True
-
-    def api_translation_answer(self, respuesta: str) -> bool:
-        """Aviso trimestral: si | no | luego. En el asistente inicial, 'rechazar' = no la quiere."""
-        from core import translation as T
-        s = self.nova.settings
-        self.tr_reminder = False
-        if respuesta == "rechazar":
-            s.set("traduccion_preguntar", False)
-            return True
-        if respuesta == "si":
-            T.answer_reminder(s, "no")  # el próximo aviso, dentro de 3 meses
-            return self.api_translation_install("aviso")
-        T.answer_reminder(s, "luego" if respuesta == "luego" else "no")
-        return True
-
     def api_pick_folder(self, titulo: str = "Elige la carpeta de Star Citizen") -> str:
         """Ventana de Windows para elegir carpeta. Devuelve la ruta o ''."""
         if sys.platform != "win32":

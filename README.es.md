@@ -31,7 +31,7 @@ Te escucha, te responde con voz natural, pulsa las teclas del juego por ti y sab
 - **Hologramas sobre el juego:** fichas de jugadores (con su organización), objetivos de recompensa, planetas, lunas y lugares, con efectos cinematográficos, ligeros o ninguno.
 - **Chat del juego y Discord:** *«Nova, envía mensaje al chat…»* lo traduce y lo escribe por ti; las fichas pueden llegar a tu canal de Discord si dices «sí».
 - **Recuerda:** un Diccionario de consultas con unas 7.000 entradas que contesta sin gastar IA, lo que le cuentas y un cuaderno de bitácora de cada sesión.
-- **Star Citizen en tu idioma:** en español instala y mantiene al día la traducción de la comunidad (0zzyt0); en los demás idiomas instala el `global.ini` que elijas.
+- **Star Citizen en tu idioma:** en español enlaza el [Gestor de traducción automático](https://github.com/0zzyt0/StarCitizen-Traduccion-ES) de 0zzyt0, que instala y mantiene al día la traducción de la comunidad; en los demás idiomas instala el `global.ini` que elijas.
 - **Brilla en el juego:** un overlay con su logo que cambia de color según lo que hace: escuchando, entendido, buscando o hablando.
 
 ## Accesibilidad: juega con la voz

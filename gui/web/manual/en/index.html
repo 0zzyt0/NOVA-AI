@@ -593,16 +593,13 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   <figure class="c" style="width:136mm"><img src="img/c_datos_enciclopedia.webp"><figcaption><b>SC Game › Game language:</b> the global.ini for your language and the <b>Spanish translation</b> panel (only with NOVA AI in Spanish).</figcaption></figure>
   <div class="g2">
     <div class="card"><h3>What you can do</h3><ul class="d small">
-      <li><b>Install or update the translation:</b> in Spanish it downloads the latest 0zzyt0 version; in other languages, the community <code>global.ini</code> you choose. It overwrites the files in <code>LIVE</code> after making a backup.</li>
-      <li><b>Choose game folder</b> if Nova can't find it.</li>
-      <li><b>Translation link</b> (Spanish only): shown hidden with asterisks. Paste another Google Drive link to change it; empty = the 0zzyt0 one.</li></ul></div>
-    <div class="card"><h3>Every 3 months</h3><p class="small">Nova asks you <b>"Check and reinstall?"</b>:</p><ul class="d small">
-      <li><b>Yes:</b> downloads it again and overwrites.</li>
-      <li><b>No:</b> does nothing for another 3 months.</li>
-      <li><b>Remind me next session:</b> asks you again when you reopen it.</li></ul></div>
+      <li><b>Install the translation:</b> in other languages, the community <code>global.ini</code> you choose. It overwrites the files in <code>LIVE</code> after making a backup.</li>
+      <li><b>Spanish:</b> the <b>Automatic Translation Manager</b> by 0zzyt0 (<a href="https://github.com/0zzyt0/StarCitizen-Traduccion-ES">GitHub</a>) installs and updates the Spanish translation by itself. Nova only links its installer.</li>
+      <li><b>Choose game folder</b> if Nova can't find it.</li></ul></div>
+    <div class="card"><h3>No more reminders</h3><ul class="d small">
+      <li>Nova no longer downloads the Spanish translation from Google Drive or asks every 3 months: the manager takes care of it.</li></ul></div>
   </div>
-  <div class="row" style="grid-template-columns:90mm 1fr"><figure><img src="../img/aviso.webp"><figcaption><b>The 3-month reminder.</b></figcaption></figure>
-    <div class="warnb"><span class="t">RESTART THE GAME</span>If Star Citizen is open while the translation is being installed, restart it to see the new texts. Nova reloads the texts by herself to understand the Game.log in your language.</div></div>
+  <div class="warnb"><span class="t">RESTART THE GAME</span>If Star Citizen is open while the translation is being installed, restart it to see the new texts. Nova reloads the texts by herself to understand the Game.log in your language.</div>
   <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
 </section>
 
@@ -1005,7 +1002,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <li><b>"Add your Language global.ini of Star Citizen [HERE]"</b>: you choose the community file and Nova copies it to <code>LIVE\data\Localization\&lt;language&gt;\global.ini</code>.</li>
     <li>First she saves whatever was there (<code>global.ini.antes_de_nova</code>), sets <code>g_language</code> in <code>user.cfg</code> and uses it to understand the game's alerts in your language.</li>
     <li><b>↶ Remove and restore the backup</b> leaves everything as it was.</li></ul>
-  <div class="warnb"><span class="t">SPANISH ONLY</span>The 0zzyt0 translation and its Google Drive download are only offered with NOVA AI in Spanish. Star Citizen only accepts its own language codes: Catalan uses the <code>spanish_(latin_america)</code> slot.</div>
+  <div class="warnb"><span class="t">SPANISH ONLY</span>The link to the 0zzyt0 Translation Manager is only offered with NOVA AI in Spanish. Star Citizen only accepts its own language codes: Catalan uses the <code>spanish_(latin_america)</code> slot.</div>
   <div class="pf">NOVA AI · USER MANUAL<span class="n"></span></div>
 </section>
 
@@ -1211,7 +1208,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <li><b>Speech recognition:</b> only with Groq is the audio of each sentence sent to turn it into text. With local Whisper nothing leaves.</li>
     <li><b>Nova's voice:</b> with Edge voices, the text of the answer goes to Microsoft to generate the audio.</li>
     <li><b>Game data:</b> lookups on the wiki, UEX, scmdb.net and DuckDuckGo, as you would do on Google.</li>
-    <li><b>Translation:</b> only if you accept it, it's downloaded from Google Drive or GitHub.</li>
+    <li><b>Translation:</b> Nova does not download it; the 0zzyt0 Translation Manager (GitHub) installs it if you use it.</li>
     <li><b>Player cards and server status:</b> reading the public pages of robertsspaceindustries.com (the record you ask for and its organisation) and status.robertsspaceindustries.com.</li>
     <li><b>Updates:</b> on start and on exit, she asks GitHub which is the latest NOVA AI version (it can be turned off).</li>
     <li><b>Holograms:</b> planet, moon and place cards from verseguide.com (kept for 3 days on your computer); photos and logos from robertsspaceindustries.com.</li>

@@ -589,3 +589,7 @@ nav button.nav-manual{color:#ffd98a;margin-bottom:2px}nav button.nav-manual:hove
 .tele-v.warn i::after{background:var(--warn)}.tele-v.bad i::after{background:var(--bad)}
 .tele-v.warn span{color:var(--warn)}.tele-v.bad span{color:var(--bad)}
 .tele-where{grid-column:1/-1;font-size:12px;color:var(--dim)}
+/* 2.1.4: la interfaz no se selecciona al hacer clic y arrastrar (solo los campos de texto) */
+html,body{-webkit-user-select:none;user-select:none}
+input,textarea,select,[contenteditable="true"],[contenteditable=""]{-webkit-user-select:text;user-select:text}
+img,a,svg{-webkit-user-drag:none;user-drag:none}

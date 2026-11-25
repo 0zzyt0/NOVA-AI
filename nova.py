@@ -281,29 +281,12 @@ def main() -> None:
         else:
             nova.on_message("sistema", "✓ Fuentes de datos al día.")
 
-    def translation_reminder() -> None:
-        """Cada 3 meses: «¿Comprobar y reinstalar la traducción?» (Sí / No / Recuérdamelo)."""
-        from core import translation as T
-
-        if not settings.get("asistente_completado"):
-            return  # en la configuración inicial ya se pregunta por la traducción
-        from core import i18n
-        if i18n.norm(settings.get("idioma")) != "es":
-            return  # la traducción de 0zzyt0 es solo para jugar en español
-        st = server.api_translation_status()
-        if T.reminder_due(settings, st):
-            server.tr_reminder = True
-            server.broadcast({"t": "trad_aviso", **st})
-
     def boot() -> None:
         try:
             check_sources()
         except Exception:
             log.exception("Comprobando las fuentes")
-        try:
-            translation_reminder()
-        except Exception:
-            log.exception("Aviso de la traducción")
+        # 2.1.4: ya no hay aviso trimestral: la traducción la mantiene al día el Gestor de traducción de 0zzyt0
         err = nova.start_audio()
         if err:
             nova.on_message("sistema", f"⚠ {err}. Puedes escribirme mientras tanto.")

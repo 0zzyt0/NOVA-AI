@@ -592,17 +592,15 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   <h2>Idioma del juego: traducción al español</h2>
   <figure class="c" style="width:136mm"><img src="img/c_datos_enciclopedia.webp"><figcaption><b>Juego SC › Idioma del juego:</b> el global.ini de tu idioma y el panel <b>Traducción al español</b>.</figcaption></figure>
   <div class="g2">
-    <div class="card"><h3>Qué puedes hacer</h3><ul class="d small">
-      <li><b>⬇ Actualizar traducción:</b> descarga la última versión de 0zzyt0 y sobrescribe los archivos de <code>LIVE</code>.</li>
-      <li><b>Elegir carpeta del juego</b> si Nova no la encuentra.</li>
-      <li><b>Enlace de la traducción:</b> aparece oculto con asteriscos. Pega otro enlace de Google Drive para cambiarlo; vacío = el de 0zzyt0.</li></ul></div>
-    <div class="card"><h3>Cada 3 meses</h3><p class="small">Nova te pregunta <b>«¿Comprobar y reinstalar?»</b>:</p><ul class="d small">
-      <li><b>Sí:</b> vuelve a descargar y sobrescribe.</li>
-      <li><b>No:</b> no hace nada hasta dentro de otros 3 meses.</li>
-      <li><b>Recuérdamelo en la siguiente sesión:</b> te lo pregunta al volver a abrirla.</li></ul></div>
+    <div class="card"><h3>Gestor de traducción automático (solo español)</h3><ul class="d small">
+      <li><b>⬇ Descargar el instalador:</b> baja <code>StarCitizen_Traduccion_ES_Setup.exe</code> del <a href="https://github.com/0zzyt0/StarCitizen-Traduccion-ES">proyecto de 0zzyt0 en GitHub</a>. Solo hay que descargarlo una vez.</li>
+      <li>El gestor instala la traducción en <code>LIVE</code>, <code>PTU</code>, <code>EPTU</code>, <code>HOTFIX</code> y <code>TECH-PREVIEW</code> y la mantiene actualizada solo: ábrelo y pulsa <b>Actualizar</b>.</li>
+      <li>El recuadro de Nova solo te dice si tu juego ya tiene la traducción al español.</li></ul></div>
+    <div class="card"><h3>Lo que ya no hace Nova</h3><ul class="d small">
+      <li>No descarga la traducción de Google Drive ni pregunta cada 3 meses si reinstalarla: de eso se encarga el gestor.</li>
+      <li>Si Windows muestra «Windows protegió su PC», pulsa «Más información» y «Ejecutar de todas formas»: el instalador no lleva firma de pago, pero su código es público.</li></ul></div>
   </div>
-  <div class="row" style="grid-template-columns:90mm 1fr"><figure><img src="img/aviso.webp"><figcaption><b>Aviso de los 3 meses.</b></figcaption></figure>
-    <div class="warnb"><span class="t">REINICIA EL JUEGO</span>Si Star Citizen está abierto mientras se instala la traducción, reinícialo para ver los textos nuevos. Nova recarga sola los textos para entender el Game.log en español.</div></div>
+  <div class="warnb"><span class="t">REINICIA EL JUEGO</span>Si Star Citizen está abierto mientras el gestor instala la traducción, reinícialo para ver los textos nuevos. Nova recarga sola los textos para entender el Game.log en español.</div>
   <div class="pf">NOVA AI · MANUAL DE USUARIO<span class="n"></span></div>
 </section>
 
@@ -1005,7 +1003,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <li><b>«Añade el global.ini de tu idioma de Star Citizen [AQUÍ]»</b> (en tu idioma: <i>Add your Language global.ini…</i>): eliges el archivo de la comunidad y Nova lo copia a <code>LIVE\data\Localization\&lt;idioma&gt;\global.ini</code>.</li>
     <li>Antes guarda el que hubiera (<code>global.ini.antes_de_nova</code>), pone <code>g_language</code> en <code>user.cfg</code> y lo usa para entender los avisos del juego en tu idioma.</li>
     <li><b>↶ Quitar y restaurar la copia</b> lo deja todo como estaba.</li></ul>
-  <div class="warnb"><span class="t">SOLO EN ESPAÑOL</span>La traducción de 0zzyt0 y su descarga de Google Drive solo se ofrecen con NOVA AI en español. Star Citizen solo acepta sus códigos de idioma: para el catalán se usa el hueco <code>spanish_(latin_america)</code>.</div>
+  <div class="warnb"><span class="t">SOLO EN ESPAÑOL</span>El enlace al Gestor de traducción de 0zzyt0 solo se ofrece con NOVA AI en español. Star Citizen solo acepta sus códigos de idioma: para el catalán se usa el hueco <code>spanish_(latin_america)</code>.</div>
   <div class="pf">NOVA AI · MANUAL DE USUARIO<span class="n"></span></div>
 </section>
 
@@ -1188,7 +1186,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <tr><td>Una definición está mal o anticuada</td><td>Di <span class="say">«Nova, actualiza la ficha de X»</span> o corrígela tú en el <b>Diccionario de consultas</b> (Ajustes › Archivos).</td></tr>
     <tr><td>Nova no responde a nada</td><td>Puede estar <b>detenida</b> (overlay en rojo): enciende el interruptor de la Cabina o di <span class="say">«Nova, actívate»</span>.</td></tr>
     <tr><td>Los hologramas se leen mal</td><td>Sube el grosor en <b>Pantalla › Hologramas › Grosor de la letra</b> (Muy gruesa), prueba el modelo <b>Táctico</b>, más oscuro, o sube la opacidad.</td></tr>
-    <tr><td>La traducción no aparece</td><td>Reinicia el juego. Comprueba la carpeta en <b>Juego SC › Idioma del juego</b> y pulsa <b>⬇ Actualizar traducción</b>.</td></tr>
+    <tr><td>La traducción no aparece</td><td>Reinicia el juego. Comprueba la carpeta en <b>Juego SC › Idioma del juego</b> y abre el <b>Gestor de traducción</b> para pulsar <b>Actualizar</b>.</td></tr>
     <tr><td>La ventana no se abre</td><td>Nova usa Edge. Si no lo tienes, abre la dirección de <code>ui_puerto.txt</code> (carpeta de datos) en tu navegador.</td></tr>
     <tr><td>Se cierra al arrancar</td><td><b>NOVA AI.exe</b> te enseña el error. Para más detalles abre <b>DEPURAR.bat</b> en la carpeta del programa, o mira <code>fallos.log</code> en tu carpeta de datos.</td></tr>
     <tr><td>El instalador no se abre</td><td>Te muestra el motivo y el registro (<code>%TEMP%\NOVA_AI_Setup.log</code>). Como último recurso, <b>INSTALAR_CONSOLA.bat</b> del <code>Nova.zip</code>.</td></tr>
@@ -1211,7 +1209,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <li><b>Reconocimiento de voz:</b> solo con Groq se envía el audio de cada frase para convertirlo en texto. Con Whisper local no sale nada.</li>
     <li><b>Voz de Nova:</b> con las voces de Edge, el texto de la respuesta va a Microsoft para generar el audio.</li>
     <li><b>Datos del juego:</b> consultas a la wiki, UEX, scmdb.net y DuckDuckGo, como harías tú en Google.</li>
-    <li><b>Traducción:</b> solo si lo aceptas, se descarga de Google Drive.</li>
+    <li><b>Traducción:</b> Nova no la descarga; la instala el Gestor de traducción de 0zzyt0 (GitHub) si lo usas.</li>
     <li><b>Fichas de jugadores y estado de servidores:</b> lectura de las páginas públicas de robertsspaceindustries.com (la ficha que pides y su organización) y de status.robertsspaceindustries.com.</li>
     <li><b>Actualizaciones:</b> al iniciar y al cerrar, consulta a GitHub cuál es la última versión de NOVA AI (se puede desactivar).</li>
     <li><b>Hologramas:</b> fichas de planetas, lunas y lugares de verseguide.com (se guardan 3 días en tu equipo); fotos y logotipos de robertsspaceindustries.com.</li>

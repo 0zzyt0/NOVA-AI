@@ -30,7 +30,7 @@ She listens, answers with a natural voice, presses your game keys for you and kn
 - **Holograms over the game:** citizen records (with their org), bounty targets, planets, moons and places, with cinematic, light or no effects.
 - **Game chat and Discord:** *"Nova, send a message to chat…"* and she translates it and types it for you; player cards can be posted to your Discord channel when you say "yes".
 - **She remembers:** a lookup dictionary with about 7,000 entries that answers without spending AI quota, the things you tell her, and a logbook of every session.
-- **Star Citizen in your language:** install the community `global.ini` translation you choose (Spanish players also get the 0zzyt0 community translation, kept up to date).
+- **Star Citizen in your language:** install the community `global.ini` translation you choose (Spanish players get a link to 0zzyt0's [automatic Translation Manager](https://github.com/0zzyt0/StarCitizen-Traduccion-ES), which installs the community translation and keeps it up to date).
 - **She glows in the game:** an overlay with her logo changes colour with what she's doing: listening, understood, searching or speaking.
 
 ## Accessibility: play with your voice

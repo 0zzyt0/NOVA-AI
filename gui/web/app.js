@@ -925,129 +925,49 @@ const Boot = (() => {
 })();
 
 // ============================================================ traducción al español
+// 2.1.4: la instala y actualiza el Gestor de traducción de 0zzyt0 (programa aparte, en GitHub).
+// Aquí solo se mira si el juego ya la tiene y se enlaza el instalador.
 const Trad = (() => {
   let st = {};
   const fmtDate = (t) => (t ? new Date(t * 1000).toLocaleDateString(LOCALE) : "—");
-  function bar(el, ev) {
-    if (!el) return;
-    el.hidden = false;
-    const pct = ev.pct == null || ev.pct < 0 ? null : ev.pct;
-    el.classList.toggle("indet", pct == null);
-    $("i", el).style.width = (pct ?? 0) + "%";
-    $("span", el).textContent = ev.texto || "";
-  }
+  const F = (k, ...a) => { let i = 0; return T(k).replace(/\{\}/g, () => a[i++] ?? ""); };
   function paint() {
     let txt, chip;
-    if (!st.live) { txt = "No encuentro la carpeta de Star Citizen en ninguna unidad. Elígela con «Elegir carpeta del juego»."; chip = "SIN JUEGO"; }
-    else if (st.encontrado) {
-      const F = (k, ...a) => { let i = 0; return T(k).replace(/\{\}/g, () => a[i++] ?? ""); };
-      txt = F("Instalada en {}\\data\\Localization\\{} · archivo del {}", st.live, st.idioma, fmtDate(st.fecha)) +
-            (st.instalada_por_nova ? F(" · instalada por Nova el {}", fmtDate(st.instalada_por_nova)) : "") +
-            F(" · próximo aviso de actualización: {}", fmtDate(st.aviso)) + (st.activo === false ? T(" · ⚠ user.cfg no la tiene activada") : "");
-      chip = st.espanol ? "ESPAÑOL ✓" : st.idioma.toUpperCase();
-    } else { txt = `Veo que no dispones de una traducción al español de Star Citizen (${st.live}). Pulsa «Actualizar traducción» para descargar la versión más actual de 0zzyt0.`; chip = "SIN TRADUCCIÓN"; }
-    $("#trText").textContent = txt; $("#trChip").textContent = chip;
-    $("#trLive").textContent = st.carpetas && st.carpetas.length ? T("Encontrada:") + " " + st.carpetas.join(" · ") : "Vacío = buscarla en todas las unidades";
-    $("#btnTrUpdate").disabled = !!st.instalando || !st.live;
+    if (!st.live) { txt = T("No encuentro la carpeta de Star Citizen. El gestor te deja elegirla."); chip = "SIN JUEGO"; }
+    else if (st.encontrado && st.espanol) { txt = F("Traducción al español detectada en {} (archivo del {}).", st.live, fmtDate(st.fecha)); chip = "ESPAÑOL ✓"; }
+    else { txt = F("Star Citizen no tiene la traducción al español en {}. Descarga el gestor para instalarla.", st.live); chip = "SIN TRADUCCIÓN"; }
+    $("#trText").textContent = txt; $("#trChip").textContent = T(chip);
   }
-  async function load() { st = await api("translation_status"); paint(); paintUrl(); return st; }
-  // El enlace de descarga se enseña tapado con asteriscos; al escribir otro se guarda (vacío = el de 0zzyt0).
-  function paintUrl() {
-    const el = $("#trUrl");
-    if (!el || el === document.activeElement) return;
-    const v = S.traduccion_url || "";
-    el.value = v ? "*".repeat(Math.min(Math.max(v.length, 8), 28)) : "";
-  }
-  const urlEl = $("#trUrl");
-  if (urlEl) {
-    urlEl.addEventListener("focus", () => urlEl.select());
-    urlEl.addEventListener("blur", () => setTimeout(paintUrl, 50));
-    urlEl.addEventListener("change", safe(async () => {
-      const v = urlEl.value.trim();
-      if (/^\*+$/.test(v) || v === (S.traduccion_url || "")) return;  // sin cambios
-      S.traduccion_url = await api("set", { key: "traduccion_url", value: v });
-      toast(v ? "Enlace de la traducción cambiado" : "Se usará el enlace de 0zzyt0");
-      urlEl.blur(); paintUrl();
-    }));
-  }
-  async function install(origen) { if (await api("translation_install", { origen })) bar($("#trBar"), { texto: "Conectando con Google Drive…", pct: -1 }); }
-  function progress(ev) {
-    const targets = [$("#trBar")];
-    if (ev.origen === "asistente") targets.push($("#trWizBar"));
-    if (ev.origen === "aviso") targets.push($("#askBar"));
-    targets.forEach((el) => bar(el, ev));
-    if (ev.estado === "ok" || ev.estado === "error") {
-      toast(ev.texto, ev.estado === "ok" ? "ok" : "bad");
-      load().catch(() => {});
-      if (ev.origen === "asistente") wizardDone(ev);
-      if (ev.origen === "aviso") { $("#askText").textContent = ev.texto; $("#askBtns").innerHTML = `<button class="btn pri" id="askClose">CERRAR</button>`; $("#askClose").onclick = () => ($("#ask").hidden = true); }
-    }
-  }
+  async function load() { st = await api("translation_status"); paint(); return st; }
   // --- en la configuración inicial
   async function wizard() {
     const t = $("#trWizText"), v = $("#vTr");
-    $("#trWizAsk").hidden = $("#trWizFolder").hidden = true; $("#trWizBar").hidden = true;
-    t.className = "su-note"; t.textContent = "Buscando tu carpeta de Star Citizen…"; v.className = "verdict";
+    $("#trWizAsk").hidden = $("#trWizFolder").hidden = true;
+    t.className = "su-note"; t.textContent = T("Buscando tu carpeta de Star Citizen…"); v.className = "verdict";
     const s2 = await load();
     if (!s2.live) {
-      t.className = "su-note bad"; t.textContent = "No encuentro la carpeta de Star Citizen en ninguna unidad. Dime dónde está.";
+      t.className = "su-note bad"; t.textContent = T("No encuentro la carpeta de Star Citizen en ninguna unidad. Dime dónde está.");
       $("#trWizFolder").hidden = false; v.className = "verdict bad";
       api("setup_say", { text: "No encuentro la carpeta de Star Citizen. Dime dónde está." });
     } else if (s2.encontrado && s2.espanol) {
-      t.className = "su-note ok"; t.textContent = `Tienes la traducción al español instalada (${s2.idioma}, ${fmtDate(s2.fecha)}). La usaré para entender el juego.`;
+      t.className = "su-note ok"; t.textContent = F("Tienes la traducción al español instalada ({}, {}). La usaré para entender el juego.", s2.idioma, fmtDate(s2.fecha));
       v.className = "verdict ok";
       api("setup_say", { text: "Perfecto, ya tienes Star Citizen en español." });
     } else {
-      const q = "Veo que no dispones de una traducción al Español de Star Citizen. ¿Quieres que te descargue la versión más actual de 0zzyt0?";
-      t.className = "su-note"; t.textContent = q + (s2.encontrado ? ` (Ahora tienes: ${s2.idioma}.)` : "");
+      const q = "No tienes la traducción al español de Star Citizen. Puedes instalarla con el Gestor de traducción automático de 0zzyt0: descárgalo, ábrelo y pulsa Actualizar.";
+      t.className = "su-note"; t.textContent = T(q);
       $("#trWizAsk").hidden = false;
       api("setup_say", { text: q });
     }
   }
-  function wizardDone(ev) {
-    const ok = ev.estado === "ok";
-    $("#trWizText").className = "su-note " + (ok ? "ok" : "bad");
-    $("#trWizText").textContent = ok ? "¡Traducción instalada! Star Citizen ya está en español (reinicia el juego si estaba abierto)." : ev.texto;
-    $("#vTr").className = "verdict " + (ok ? "ok" : "bad");
-    $("#trWizAsk").hidden = ok; $("#trWizYes").disabled = false;
-    api("setup_say", { text: ok ? "Traducción instalada." : "No he podido instalar la traducción." });
-  }
-  $("#trWizYes").addEventListener("click", safe(async () => {
-    $("#trWizYes").disabled = true;
-    if (!(await api("translation_install", { origen: "asistente" }))) $("#trWizYes").disabled = false;
-    else bar($("#trWizBar"), { texto: "Conectando con Google Drive…", pct: -1 });
-  }));
-  $("#trWizNo").addEventListener("click", safe(async () => {
-    await api("translation_answer", { respuesta: "rechazar" });
-    $("#trWizAsk").hidden = true; $("#trWizText").textContent = "De acuerdo, sin traducción. Puedes instalarla cuando quieras en Fuentes de datos.";
-  }));
+  $("#trWizNo").addEventListener("click", () => {
+    $("#trWizAsk").hidden = true;
+    $("#trWizText").textContent = T("De acuerdo. El enlace al gestor está en Juego › Idioma del juego.");
+  });
   const pick = safe(async () => { if (await api("pick_folder", {})) { S.juego_carpeta = (await api("state")).settings.juego_carpeta; showSetting("juego_carpeta"); } wizard(); });
   $("#trWizPick").addEventListener("click", pick);
   $("#trWizRetry").addEventListener("click", () => wizard());
-  // --- en Fuentes de datos
-  $("#btnTrUpdate").addEventListener("click", safe(() => install("boton")));
-  $("#btnTrFolder").addEventListener("click", safe(async () => {
-    const p = await api("pick_folder", {});
-    if (p) { S.juego_carpeta = p; showSetting("juego_carpeta"); toast("Carpeta del juego: " + p, "ok"); }
-    load();
-  }));
-  // --- aviso cada 3 meses
-  function maybeAsk() {
-    if (!STATE.traduccion_aviso || !$("#boot").hidden || !$("#setup").hidden || !$("#ask").hidden) return;
-    STATE.traduccion_aviso = false;
-    load().then((s2) => {
-      $("#askText").textContent = `Han pasado 3 meses desde que se instaló la traducción al español (${s2.idioma || "global.ini"}, ${fmtDate(s2.instalada_por_nova || s2.fecha)}). Puede que haya una versión nueva de 0zzyt0. ¿Comprobar y reinstalar?`;
-      $("#ask").hidden = false;
-      api("setup_say", { text: "Han pasado tres meses desde la última traducción. ¿Quiere que compruebe si hay una versión nueva?" });
-    }).catch(() => {});
-  }
-  $$("#askBtns [data-ans]").forEach((b) => b.addEventListener("click", safe(async () => {
-    const ans = b.dataset.ans;
-    await api("translation_answer", { respuesta: ans });
-    if (ans === "si") { $$("#askBtns button").forEach((x) => (x.disabled = true)); bar($("#askBar"), { texto: "Conectando con Google Drive…", pct: -1 }); }
-    else { $("#ask").hidden = true; toast(ans === "luego" ? "Te lo recordaré la próxima vez que abras Nova." : "De acuerdo. Te volveré a avisar dentro de 3 meses.", "ok"); }
-  })));
-  return { load, progress, wizard, maybeAsk };
+  return { load, progress() {}, wizard, maybeAsk() {} };
 })();
 
 // ============================================================ empezar de cero

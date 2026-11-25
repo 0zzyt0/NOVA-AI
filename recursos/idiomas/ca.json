@@ -1846,5 +1846,19 @@
  "No me llega la telemetría del juego. Actívela en Juego, Avisos del juego.": "No em arriba la telemetria del joc. Activi-la a Joc, Avisos del joc.",
  "📈 ficha de estado": "📈 fitxa d'estat",
  "Star Citizen no está sirviendo la telemetría: el Game.log dice «No services configured» aunque está activada. Esta versión del juego no la abre; prueba en otra (LIVE o la próxima PTU).": "Star Citizen no està servint la telemetria: el Game.log diu «No services configured» tot i que està activada. Aquesta versió del joc no l'obre; prova en una altra (LIVE o la propera PTU).",
- "el juego dice que la telemetría está en {p}, pero no responde": "el joc diu que la telemetria és a {p}, però no respon"
+ "el juego dice que la telemetría está en {p}, pero no responde": "el joc diu que la telemetria és a {p}, però no respon",
+ "GESTOR DE TRADUCCIÓN AUTOMÁTICO - SOLO ESPAÑOL": "GESTOR DE TRADUCCIÓ AUTOMÀTIC - NOMÉS CASTELLÀ",
+ "Para jugar a Star Citizen en español usa el": "Per jugar a Star Citizen en castellà fes servir el",
+ "Gestor de traducción": "Gestor de traducció",
+ "de 0zzyt0: un programa aparte que instala la traducción de la comunidad en LIVE, PTU, EPTU, HOTFIX y TECH-PREVIEW y la mantiene actualizada sola. Solo hay que descargarlo una vez.": "de 0zzyt0: un programa a part que instal·la la traducció de la comunitat a LIVE, PTU, EPTU, HOTFIX i TECH-PREVIEW i la manté actualitzada sola. Només cal descarregar-lo una vegada.",
+ "⬇ DESCARGAR EL INSTALADOR (WINDOWS 10/11)": "⬇ DESCARREGAR L'INSTAL·LADOR (WINDOWS 10/11)",
+ "PÁGINA DEL PROYECTO EN GITHUB": "PÀGINA DEL PROJECTE A GITHUB",
+ "Si Windows muestra «Windows protegió su PC», pulsa «Más información» y «Ejecutar de todas formas»: el instalador no lleva firma de pago, pero su código es público. Proyecto no oficial, sin relación con Cloud Imperium Games.": "Si Windows mostra «Windows ha protegit el PC», prem «Més informació» i «Executa igualment»: l'instal·lador no porta signatura de pagament, però el seu codi és públic. Projecte no oficial, sense relació amb Cloud Imperium Games.",
+ "⬇ DESCARGAR EL GESTOR DE TRADUCCIÓN": "⬇ DESCARREGAR EL GESTOR DE TRADUCCIÓ",
+ "No encuentro la carpeta de Star Citizen. El gestor te deja elegirla.": "No trobo la carpeta de Star Citizen. El gestor et deixa triar-la.",
+ "Traducción al español detectada en {} (archivo del {}).": "Traducció al castellà detectada a {} (fitxer del {}).",
+ "Star Citizen no tiene la traducción al español en {}. Descarga el gestor para instalarla.": "Star Citizen no té la traducció al castellà a {}. Descarrega el gestor per instal·lar-la.",
+ "ESPAÑOL ✓": "CASTELLÀ ✓",
+ "No tienes la traducción al español de Star Citizen. Puedes instalarla con el Gestor de traducción automático de 0zzyt0: descárgalo, ábrelo y pulsa Actualizar.": "No tens la traducció al castellà de Star Citizen. Pots instal·lar-la amb el Gestor de traducció automàtic de 0zzyt0: descarrega'l, obre'l i prem Actualitzar.",
+ "De acuerdo. El enlace al gestor está en Juego › Idioma del juego.": "D'acord. L'enllaç al gestor és a Joc › Idioma del joc."
 }

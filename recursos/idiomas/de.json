@@ -1849,5 +1849,19 @@
  "No me llega la telemetría del juego. Actívela en Juego, Avisos del juego.": "Ich bekomme keine Spieltelemetrie. Aktivieren Sie sie unter Spiel, Spielwarnungen.",
  "📈 ficha de estado": "📈 Statuskarte",
  "Star Citizen no está sirviendo la telemetría: el Game.log dice «No services configured» aunque está activada. Esta versión del juego no la abre; prueba en otra (LIVE o la próxima PTU).": "Star Citizen stellt keine Telemetrie bereit: Die Game.log meldet «No services configured», obwohl sie aktiviert ist. Diese Spielversion öffnet sie nicht; versuche eine andere (LIVE oder die nächste PTU).",
- "el juego dice que la telemetría está en {p}, pero no responde": "das Spiel meldet die Telemetrie auf {p}, aber sie antwortet nicht"
+ "el juego dice que la telemetría está en {p}, pero no responde": "das Spiel meldet die Telemetrie auf {p}, aber sie antwortet nicht",
+ "GESTOR DE TRADUCCIÓN AUTOMÁTICO - SOLO ESPAÑOL": "AUTOMATISCHER ÜBERSETZUNGSMANAGER - NUR SPANISCH",
+ "Para jugar a Star Citizen en español usa el": "Um Star Citizen auf Spanisch zu spielen, nutze den",
+ "Gestor de traducción": "Übersetzungsmanager",
+ "de 0zzyt0: un programa aparte que instala la traducción de la comunidad en LIVE, PTU, EPTU, HOTFIX y TECH-PREVIEW y la mantiene actualizada sola. Solo hay que descargarlo una vez.": "von 0zzyt0: ein eigenes Programm, das die Community-Übersetzung in LIVE, PTU, EPTU, HOTFIX und TECH-PREVIEW installiert und selbst aktuell hält. Du musst es nur einmal herunterladen.",
+ "⬇ DESCARGAR EL INSTALADOR (WINDOWS 10/11)": "⬇ INSTALLER HERUNTERLADEN (WINDOWS 10/11)",
+ "PÁGINA DEL PROYECTO EN GITHUB": "PROJEKTSEITE AUF GITHUB",
+ "Si Windows muestra «Windows protegió su PC», pulsa «Más información» y «Ejecutar de todas formas»: el instalador no lleva firma de pago, pero su código es público. Proyecto no oficial, sin relación con Cloud Imperium Games.": "Wenn Windows «Der Computer wurde durch Windows geschützt» zeigt, klicke auf «Weitere Informationen» und «Trotzdem ausführen»: Der Installer hat keine kostenpflichtige Signatur, aber sein Code ist öffentlich. Inoffizielles Projekt, ohne Verbindung zu Cloud Imperium Games.",
+ "⬇ DESCARGAR EL GESTOR DE TRADUCCIÓN": "⬇ ÜBERSETZUNGSMANAGER HERUNTERLADEN",
+ "No encuentro la carpeta de Star Citizen. El gestor te deja elegirla.": "Ich finde den Star-Citizen-Ordner nicht. Im Manager kannst du ihn wählen.",
+ "Traducción al español detectada en {} (archivo del {}).": "Spanische Übersetzung gefunden in {} (Datei vom {}).",
+ "Star Citizen no tiene la traducción al español en {}. Descarga el gestor para instalarla.": "Star Citizen hat in {} keine spanische Übersetzung. Lade den Manager herunter, um sie zu installieren.",
+ "ESPAÑOL ✓": "SPANISCH ✓",
+ "No tienes la traducción al español de Star Citizen. Puedes instalarla con el Gestor de traducción automático de 0zzyt0: descárgalo, ábrelo y pulsa Actualizar.": "Du hast die spanische Übersetzung von Star Citizen nicht. Du kannst sie mit dem automatischen Übersetzungsmanager von 0zzyt0 installieren: herunterladen, öffnen und auf Aktualisieren drücken.",
+ "De acuerdo. El enlace al gestor está en Juego › Idioma del juego.": "Okay. Der Link zum Manager ist unter Spiel › Spielsprache."
 }

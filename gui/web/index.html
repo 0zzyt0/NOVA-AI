@@ -240,21 +240,14 @@
         <div class="field" style="margin-top:10px"><label>Carpeta de Star Citizen<small>Vacío = buscarla en todas las unidades</small></label><div class="ctl"><input type="text" data-set="juego_carpeta" placeholder="C:\Program Files\Roberts Space Industries\StarCitizen"></div></div>
       </div>
             <div class="panel es-only" id="trEsPanel">
-        <div class="panel-h"><span>TRADUCCIÓN AL ESPAÑOL</span><span class="chip" id="trChip">—</span></div>
-        <div class="tr-grid">
-          <div>
-            <p class="muted" id="trText">Comprobando…</p>
-            <div class="tr-bar" id="trBar" hidden><i></i><span></span></div>
-            <div class="row gap wrap" style="margin-top:10px">
-              <button class="btn pri" id="btnTrUpdate">⬇ ACTUALIZAR TRADUCCIÓN</button>
-              <button class="btn" id="btnTrFolder">ELEGIR CARPETA DEL JUEGO</button>
-            </div>
-          </div>
-          <div>
-            <div class="field"><label>Carpeta de Star Citizen<small id="trLive">Vacío = buscarla en todas las unidades</small></label><div class="ctl"><input type="text" data-set="juego_carpeta" placeholder="C:\Program Files\Roberts Space Industries\StarCitizen"></div></div>
-            <div class="field"><label>Enlace de la traducción<small>Oculto. Pega otro enlace de Google Drive para cambiarlo; vacío = el de 0zzyt0</small></label><div class="ctl"><input type="text" id="trUrl" class="masked" autocomplete="off" spellcheck="false" placeholder="vacío = enlace de 0zzyt0"></div></div>
-          </div>
+        <div class="panel-h"><span>GESTOR DE TRADUCCIÓN AUTOMÁTICO - SOLO ESPAÑOL</span><span class="chip" id="trChip">—</span></div>
+        <p class="muted">Para jugar a Star Citizen en español usa el <b>Gestor de traducción</b> de 0zzyt0: un programa aparte que instala la traducción de la comunidad en LIVE, PTU, EPTU, HOTFIX y TECH-PREVIEW y la mantiene actualizada sola. Solo hay que descargarlo una vez.</p>
+        <div class="row gap wrap" style="margin-top:10px">
+          <button class="btn pri" data-url="https://github.com/0zzyt0/StarCitizen-Traduccion-ES/releases/latest/download/StarCitizen_Traduccion_ES_Setup.exe">⬇ DESCARGAR EL INSTALADOR (WINDOWS 10/11)</button>
+          <button class="btn" data-url="https://github.com/0zzyt0/StarCitizen-Traduccion-ES">PÁGINA DEL PROYECTO EN GITHUB</button>
         </div>
+        <p class="muted small" id="trText"></p>
+        <p class="muted small">Si Windows muestra «Windows protegió su PC», pulsa «Más información» y «Ejecutar de todas formas»: el instalador no lleva firma de pago, pero su código es público. Proyecto no oficial, sin relación con Cloud Imperium Games.</p>
       </div>
       </div>
     </section>
@@ -828,20 +821,6 @@
     <div class="su-foot"><span class="muted small" id="bootFoot">Sin internet se usan los datos guardados.</span><span class="grow"></span><button class="btn" id="btnBootSkip">CONTINUAR SIN ESPERAR</button></div>
   </div>
 </div>
-<!-- ====================== PREGUNTA: ACTUALIZAR TRADUCCIÓN ====================== -->
-<div class="boot" id="ask" hidden>
-  <div class="boot-box ask-box">
-    <div class="boot-head"><div class="su-core"><div class="halo"></div><img src="/logo.png" alt=""></div>
-      <div><div class="su-kicker">TRADUCCIÓN AL ESPAÑOL</div><h2 id="askTitle">¿Comprobar y reinstalar la traducción?</h2></div></div>
-    <p class="su-lead" id="askText"></p>
-    <div class="tr-bar" id="askBar" hidden><i></i><span></span></div>
-    <div class="ask-btns" id="askBtns">
-      <button class="btn pri" data-ans="si">SÍ, COMPROBAR Y REINSTALAR</button>
-      <button class="btn" data-ans="no">NO</button>
-      <button class="btn" data-ans="luego">RECUÉRDAMELO EN LA SIGUIENTE SESIÓN</button>
-    </div>
-  </div>
-</div>
 <!-- ====================== CONFIGURACIÓN INICIAL ====================== -->
 <div class="setup" id="setup" hidden>
   <div class="setup-box">
@@ -873,9 +852,8 @@
         <div class="su-answer" style="align-items:flex-start">
           <div style="flex:1">
             <div class="su-note" id="trWizText">Buscando…</div>
-            <div class="tr-bar" id="trWizBar" hidden><i></i><span></span></div>
             <div class="row gap wrap" id="trWizAsk" hidden style="margin-top:12px">
-              <button class="btn pri" id="trWizYes">SÍ, DESCÁRGALA E INSTÁLALA</button>
+              <button class="btn pri" data-url="https://github.com/0zzyt0/StarCitizen-Traduccion-ES/releases/latest/download/StarCitizen_Traduccion_ES_Setup.exe">⬇ DESCARGAR EL GESTOR DE TRADUCCIÓN</button>
               <button class="btn" id="trWizNo">NO, GRACIAS</button>
             </div>
             <div class="row gap wrap" id="trWizFolder" hidden style="margin-top:12px">

@@ -593,16 +593,13 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
   <figure class="c" style="width:136mm"><img src="img/c_datos_enciclopedia.webp"><figcaption><b>Joc SC › Idioma del joc:</b> el global.ini del teu idioma i el tauler <b>Traducció al castellà</b> (només amb NOVA AI en castellà).</figcaption></figure>
   <div class="g2">
     <div class="card"><h3>Què pots fer</h3><ul class="d small">
-      <li><b>Instal·lar o actualitzar la traducció:</b> en castellà descarrega l'última versió de 0zzyt0; en altres idiomes, el <code>global.ini</code> de la comunitat que triïs. Sobreescriu els fitxers de <code>LIVE</code> després de fer-ne una còpia de seguretat.</li>
-      <li><b>Triar carpeta del joc</b> si la Nova no la troba.</li>
-      <li><b>Enllaç de la traducció</b> (només en castellà): es mostra amagat amb asteriscos. Enganxa un altre enllaç de Google Drive per canviar-lo; buit = el de 0zzyt0.</li></ul></div>
-    <div class="card"><h3>Cada 3 mesos</h3><p class="small">La Nova et pregunta <b>«Comprovar i reinstal·lar?»</b>:</p><ul class="d small">
-      <li><b>Sí:</b> la torna a descarregar i sobreescriu.</li>
-      <li><b>No:</b> no fa res durant 3 mesos més.</li>
-      <li><b>Recorda-m'ho a la següent sessió:</b> t'ho torna a preguntar quan la tornis a obrir.</li></ul></div>
+      <li><b>Instal·lar la traducció:</b> en altres idiomes, el <code>global.ini</code> de la comunitat que triïs. Sobreescriu els fitxers de <code>LIVE</code> després de fer-ne una còpia.</li>
+      <li><b>Castellà:</b> el <b>Gestor de traducció automàtic</b> de 0zzyt0 (<a href="https://github.com/0zzyt0/StarCitizen-Traduccion-ES">GitHub</a>) instal·la i actualitza sol la traducció al castellà. La Nova només enllaça el seu instal·lador.</li>
+      <li><b>Triar carpeta del joc</b> si la Nova no la troba.</li></ul></div>
+    <div class="card"><h3>Sense recordatoris</h3><ul class="d small">
+      <li>La Nova ja no descarrega la traducció al castellà de Google Drive ni pregunta cada 3 mesos: se n'encarrega el gestor.</li></ul></div>
   </div>
-  <div class="row" style="grid-template-columns:90mm 1fr"><figure><img src="../img/aviso.webp"><figcaption><b>El recordatori dels 3 mesos.</b></figcaption></figure>
-    <div class="warnb"><span class="t">REINICIA EL JOC</span>Si Star Citizen està obert mentre s'instal·la la traducció, reinicia'l per veure els textos nous. La Nova recarrega els textos sola per entendre el Game.log en el teu idioma.</div></div>
+  <div class="warnb"><span class="t">REINICIA EL JOC</span>Si Star Citizen està obert mentre s'instal·la la traducció, reinicia'l per veure els textos nous. La Nova recarrega sola els textos per entendre el Game.log en el teu idioma.</div>
   <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
 </section>
 
@@ -1005,7 +1002,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <li><b>«Afegeix el global.ini del teu idioma de Star Citizen [AQUÍ]»</b>: tries el fitxer de la comunitat i la Nova el copia a <code>LIVE\data\Localization\&lt;idioma&gt;\global.ini</code>.</li>
     <li>Abans desa el que hi havia (<code>global.ini.antes_de_nova</code>), posa <code>g_language</code> a <code>user.cfg</code> i el fa servir per entendre els avisos del joc en el teu idioma.</li>
     <li><b>↶ Treure i restaurar la còpia</b> ho deixa tot com estava.</li></ul>
-  <div class="warnb"><span class="t">NOMÉS EN CASTELLÀ</span>La traducció de 0zzyt0 i la seva descàrrega des de Google Drive només s'ofereixen amb NOVA AI en castellà. Star Citizen només accepta els seus propis codis d'idioma: el català fa servir la plaça <code>spanish_(latin_america)</code>.</div>
+  <div class="warnb"><span class="t">NOMÉS EN CASTELLÀ</span>L'enllaç al Gestor de traducció de 0zzyt0 només s'ofereix amb NOVA AI en castellà. Star Citizen només accepta els seus propis codis d'idioma: el català fa servir la plaça <code>spanish_(latin_america)</code>.</div>
   <div class="pf">NOVA AI · MANUAL D'USUARI<span class="n"></span></div>
 </section>
 
@@ -1211,7 +1208,7 @@ table.tight{font-size:8pt}table.tight td{padding:1.15mm 2.2mm;line-height:1.3}
     <li><b>Reconeixement de veu:</b> només amb Groq s'envia l'àudio de cada frase per passar-lo a text. Amb Whisper local no en surt res.</li>
     <li><b>Veu de la Nova:</b> amb les veus d'Edge, el text de la resposta va a Microsoft per generar l'àudio.</li>
     <li><b>Dades del joc:</b> consultes a la wiki, UEX, scmdb.net i DuckDuckGo, com faries a Google.</li>
-    <li><b>Traducció:</b> només si l'acceptes, es descarrega de Google Drive o de GitHub.</li>
+    <li><b>Traducció:</b> la Nova no la descarrega; la instal·la el Gestor de traducció de 0zzyt0 (GitHub) si el fas servir.</li>
     <li><b>Fitxes de jugadors i estat dels servidors:</b> lectura de les pàgines públiques de robertsspaceindustries.com (la fitxa que demanes i la seva organització) i status.robertsspaceindustries.com.</li>
     <li><b>Actualitzacions:</b> en arrencar i en sortir, pregunta a GitHub quina és l'última versió de NOVA AI (es pot desactivar).</li>
     <li><b>Hologrames:</b> fitxes de planetes, llunes i llocs de verseguide.com (es guarden 3 dies al teu ordinador); fotos i logos de robertsspaceindustries.com.</li>
