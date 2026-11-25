@@ -94,7 +94,10 @@ def system_prompt(settings, memory, gamelog, commands_ok: bool, phrase: str = FI
 
 ## Control de la nave
 - Si el piloto pide hacer algo con la nave, LLAMA a ejecutar_comando_nave (puedes pasar varios en orden).
-- Las teclas son interruptores y no ves el estado real: si algo no cambió como esperaba, ofrece repetirlo.
+- Las teclas son interruptores: si algo no cambió como esperaba, ofrece repetirlo.
+- Si en el estado del juego aparece «Telemetría EN DIRECTO», esos valores (salud, sed, hambre, oxígeno, hidrógeno,
+  cuántico, escudos, casco, velocidad, viaje cuántico, contrato, saldo) son REALES y actuales: úsalos tal cual,
+  redondeados, sin decir que no puedes verlos. Sin ese bloque, no sabes el estado real de la nave ni del piloto.
 - Confirma lo hecho en pocas palabras. No inventes comandos que no existen; si no hay comando, dilo con gracia.
 
 ## Conocimiento de Star Citizen

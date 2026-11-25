@@ -173,6 +173,22 @@
           <div class="aviso-block"><div class="aviso-h">Qué te avisa en voz <small>lo que pasa en el juego según el Game.log</small></div><div class="avisos" id="avisos"></div></div>
           <div class="field"><label>Ruta del Game.log<small>Vacío = buscarlo solo</small></label><div class="ctl"><input type="text" data-set="gamelog_ruta"></div></div>
         </div>
+      <div class="panel" id="telePanel">
+        <div class="panel-h"><span>TELEMETRÍA EN DIRECTO</span><span class="chip" id="teleChip">—</span></div>
+        <p class="muted">Star Citizen puede dar a <span class="ai-name">Nova</span> el estado real de tu personaje y de tu nave (salud, sed, hambre, oxígeno, hidrógeno, cuántico, escudos, casco, viaje cuántico…). Con ella te avisa en voz y contesta al momento «¿cuánto hidrógeno me queda?» o «¿cómo voy de sed?». Solo se lee en tu PC: no toca el juego.</p>
+        <div class="toolbar">
+          <button class="btn pri" id="btnTeleOn">ACTIVAR EN STAR CITIZEN</button>
+          <button class="btn" id="btnTeleOff">DESACTIVAR</button>
+          <button class="btn" id="btnTeleInstall" hidden>INSTALAR COMPONENTE</button>
+          <button class="btn" id="btnTeleSample" title="Guarda lo último que ha llegado del juego en un archivo">GUARDAR MUESTRA</button>
+        </div>
+        <p class="muted small" id="teleMsg"></p>
+        <div class="tele-chans" id="teleChans"></div>
+        <div class="tele-grid" id="teleGrid"></div>
+        <div class="field"><label>Leer la telemetría<small>Se conecta sola cuando el juego la tiene abierta</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="telemetria_activa"><i></i></span></div></div>
+        <div class="field"><label>Responder sin IA<small>«¿Cuánto hidrógeno me queda?», «¿cómo están los escudos?», «¿cuánto falta para llegar?»</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="telemetria_respuestas"><i></i></span></div></div>
+        <p class="muted small">Qué hace «Activar»: en el user.cfg de cada versión del juego (con copia en user.cfg.nova_telemetria) pone las líneas <code>server.game.telemetry.enabled = 1</code> y <code>grpc.client.server.enabled = 1</code>, y en Windows la variable <code>GRPC_CLIENT_SERVER_ENABLED=true</code>, que es la que usa la 4.10 (LIVE).</p>
+        <p class="muted small">Después cierra el RSI Launcher del todo (también de la bandeja) y vuelve a abrir el juego. El servidor solo escucha en tu PC (127.0.0.1). Es una función nueva y sin documentar de CIG: puede cambiar con cualquier parche. La munición no la da el juego.</p>      </div>
             <div class="panel">
         <div class="panel-h"><span>PERFILES DE NAVE</span><span class="hint">Avisos distintos según la nave en la que vas</span></div>
         <p class="muted">Elige una nave y marca qué quieres que te avise en ella. Lo que no cambies sigue como en «Qué te avisa en voz». En el editor de comandos puedes además limitar un comando a ciertas naves («Solo en estas naves»).</p>
@@ -932,6 +948,7 @@
 <script src="/mic.js"></script>
 <script src="/v14.js"></script>
 <script src="/v20.js"></script>
+<script src="/v21.js"></script>
 <script src="/tour.js"></script>
 </body>
 </html>

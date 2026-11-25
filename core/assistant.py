@@ -76,6 +76,12 @@ class Nova:
         self.memory = Memory()
         self.memory.profile.set_field("nombre", settings.get("nombre_piloto") or "", overwrite=False)
         self.gamelog = GameLog(settings, on_event=self._on_game_event)
+        # 2.1: telemetría en directo del juego (servidor local de Star Citizen); la IA la ve en el estado del juego
+        from .config import DATA_DIR as _DATA
+        from .telemetry import Telemetry
+
+        self.telemetry = Telemetry(settings, self.gamelog, on_event=self._on_game_event, cache_dir=_DATA / "telemetria")
+        self.gamelog.telemetry = self.telemetry
         self.commands = CommandBook(settings, gamelog_path_fn=lambda: self.gamelog.path or find_game_log())
         self.tools = Tools(settings, self.commands, self.memory, self.gamelog)
         # Enciclopedia local (juego + scmdb + UEX), diario de la sesión y comprobación de las fuentes al arrancar
@@ -213,6 +219,8 @@ class Nova:
     def start_gamelog(self) -> None:
         if not self.gamelog.is_alive():
             self.gamelog.start()
+        if not self.telemetry.is_alive():
+            self.telemetry.start()
 
     # ------------------------------------------------------------- estado
     def _mic_should_be_deaf(self) -> bool:
@@ -1180,6 +1188,10 @@ class Nova:
             self._say(self.commands.response_for(cmd), translated=self.commands.localized(cmd))
             return
 
+        # 1b) 2.1: «¿cuánto hidrógeno me queda?», «¿cómo voy de sed?»: con la telemetría del juego, al momento.
+        if self._telemetry_answer(text):
+            return
+
         # 2) Ahorro de tokens: planetas y lugares con VerseGuide (con holograma), el Diccionario de consultas
         #    (memoria física; si no está, lo aprende en internet) y las respuestas ya guardadas, sin IA.
         if self._buy_answer(text, norm):
@@ -1577,6 +1589,27 @@ class Nova:
             self.on_message("sistema", f"📖 Memorizado en el Diccionario de consultas: {e.name} ({e.group})")
             self.on_ui({"t": "diccionario"})
         return e
+
+    # ------------------------------------------------- 2.1: respuestas con la telemetría del juego
+    def _telemetry_answer(self, text: str) -> bool:
+        if not self.settings.get("telemetria_respuestas", True):
+            return False
+        try:
+            reply = self.telemetry.quick_answer(normalize(text, tuple(self._wake_names())),
+                                                self.settings.get("tratamiento") or "")
+        except Exception:  # noqa: BLE001 — si falla, que conteste la IA
+            log.debug("Respuesta de telemetría", exc_info=True)
+            return False
+        if not reply:
+            return False
+        self.savings.add("respuestas_locales")
+        self.flash("green")
+        self.memory.add_turn("user", text)
+        self.memory.add_turn("assistant", reply)
+        self.memory.save()
+        self.on_message("sistema", "📈 telemetría del juego")
+        self._say(reply)
+        return True
 
     # ------------------------------------------------- respuestas sin IA (v1.2.2)
     def _local_answer(self, text: str) -> bool:

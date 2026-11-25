@@ -54,7 +54,7 @@ if not exist .venv\Scripts\python.exe (
   %PY% -m venv .venv || (echo Error creando el entorno & pause & exit /b 1)
 )
 set "VPY=.venv\Scripts\python.exe"
-set "PIPI=%VPY% -m pip install --prefer-binary --only-binary=numpy,pillow,pygame,ctranslate2,onnxruntime,av,tokenizers,rapidfuzz,miniaudio,sounddevice"
+set "PIPI=%VPY% -m pip install --prefer-binary --only-binary=numpy,pillow,pygame,ctranslate2,onnxruntime,av,tokenizers,rapidfuzz,miniaudio,sounddevice,grpcio"
 %VPY% -m pip install --upgrade pip
 echo.
 echo  Instalando lo imprescindible...
@@ -66,6 +66,8 @@ echo  Instalando busqueda en internet...
 %PIPI% "ddgs>=9.0" || echo  [aviso] Busqueda web no instalada.
 echo  Instalando soporte de joystick/HOTAS...
 %PIPI% "pygame>=2.5" || echo  [aviso] Joystick no disponible: usa una tecla o el raton para hablar.
+echo  Instalando telemetria del juego en directo...
+%PIPI% "grpcio>=1.60" "protobuf>=5.26" || echo  [aviso] Telemetria no instalada: Nova sigue leyendo el Game.log.
 echo  Instalando voces de respaldo...
 %PIPI% "pyttsx3>=2.90" || echo  [aviso] Voz de Windows no instalada.
 %PIPI% piper-tts || echo  [aviso] Piper no instalado: Edge sigue funcionando.

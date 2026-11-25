@@ -261,6 +261,7 @@ class UIServer:
             "stt": {"mode": n.stt.mode(), "status": n.stt.status},
             "game": {"status": n.gamelog.status, "location": n.gamelog.location, "ship": n.gamelog.ship,
                      "contracts": list(n.gamelog.contracts)},
+            "telemetria": n.telemetry.info(),
             "arranque": {"comprobando": n.updater.running.is_set() and not self.update_skip.is_set(),
                          "informe": n.updater.report},
             "fuentes": self.api_sources(),
@@ -547,6 +548,7 @@ class UIServer:
         return {"stt": {"mode": n.stt.mode(), "status": n.stt.status},
                 "game": {"status": n.gamelog.status, "location": n.gamelog.location, "ship": n.gamelog.ship,
                          "contracts": list(n.gamelog.contracts)},
+                "telemetria": n.telemetry.info(),
                 "overlay": self._overlay_info()}
 
     def _overlay_info(self) -> dict:
@@ -1265,6 +1267,56 @@ class UIServer:
             return {"ok": False, "texto": str(e)}
         except Exception as e:  # noqa: BLE001
             return {"ok": False, "texto": f"No responde: {e}"}
+
+    # --- 2.1: telemetría en directo del juego
+    def api_telemetry_status(self) -> dict:
+        from core import telemetry_setup
+        n = self.nova
+        st = telemetry_setup.status(n.settings, n.gamelog)
+        st["lector"] = n.telemetry.info()
+        return st
+
+    def api_telemetry_enable(self, on: bool = True) -> dict:
+        """Botón ACTIVAR / DESACTIVAR: user.cfg de cada canal y la variable de entorno (para la 4.10)."""
+        from core import telemetry_setup
+        n = self.nova
+        res = telemetry_setup.enable(n.settings, n.gamelog, bool(on))
+        if on:
+            n.settings.set("telemetria_activa", True)
+        n.telemetry.restart()
+        log.info("Telemetría %s: %s", "activada" if on else "desactivada", res.get("mensaje"))
+        res["lector"] = n.telemetry.info()
+        return res
+
+    def api_telemetry_install(self) -> dict:
+        """Instala el componente gRPC (grpcio + protobuf) en el entorno de NOVA."""
+        from core import telemetry_setup
+        res = telemetry_setup.install_component()
+        self.nova.telemetry.restart()
+        return res
+
+    def api_telemetry_sample(self) -> dict:
+        """Guarda el último fotograma (para comparar con el HUD o enviarlo si algo no cuadra)."""
+        tel = self.nova.telemetry
+        frame = tel.last_frame_raw
+        if frame is None:
+            return {"ok": False, "texto": i18n.tr("Todavía no ha llegado ningún dato del juego.")}
+        try:
+            from google.protobuf.json_format import MessageToDict
+            raw = MessageToDict(frame, preserving_proto_field_name=True)
+        except Exception as e:  # noqa: BLE001
+            raw = {"error": str(e)}
+        folder = DATA_DIR / "telemetria"
+        folder.mkdir(parents=True, exist_ok=True)
+        path = folder / f"muestra_{time.strftime('%Y%m%d_%H%M%S')}.json"
+        path.write_text(json.dumps({"build": tel.build, "canal": tel.channel, "fotograma": raw, "estado": tel.snap},
+                                   ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+        if sys.platform == "win32":
+            try:
+                subprocess.Popen(["explorer", "/select,", str(path)])
+            except OSError:
+                pass
+        return {"ok": True, "texto": i18n.tr("Guardada en {p}", p=path)}
 
     def api_sources_check(self) -> list[dict]:
         """Comprueba (sin abrir el navegador) que cada página de consulta responde desde este PC."""

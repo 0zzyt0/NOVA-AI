@@ -14,7 +14,7 @@ import os
 import threading
 from pathlib import Path
 
-VERSION = "2.0.3"
+VERSION = "2.1.0"
 APP_NAME = "NOVA AI"
 APP_DIR = Path(__file__).resolve().parent.parent
 FACTORY_DIR = APP_DIR / "datos"  # archivos de fábrica que vienen con el programa (solo lectura)
@@ -186,7 +186,10 @@ DEFAULTS: dict = {
     "gamelog_comentarios": True,  # Nova comenta lo que pasa (contratos, combustible...)
     "gamelog_comentarios_ia": False,  # usar la IA para comentar (gasta cuota)
     "gamelog_avisos": {"ubicacion": True, "grupo": True, "dinero": True, "amistad": True, "atc": True,
-                       "contratos": True, "salud": True, "ley": True, "avisos": True, "nave": True},
+                       "contratos": True, "salud": True, "ley": True, "avisos": True, "nave": True,
+                       "cuerpo": True, "sistemas": True},  # 2.1: avisos de la telemetría en directo
+    "telemetria_activa": True,  # 2.1: leer la telemetría local del juego (127.0.0.1:2942) si está abierta
+    "telemetria_respuestas": True,  # 2.1: «¿cuánto hidrógeno me queda?» al momento, sin IA
     "globalini_ruta": "",
     "juego_carpeta": "",  # carpeta de Star Citizen (vacío = buscarla en todas las unidades)
     "traduccion_url": "https://drive.google.com/file/d/1uOYIVrtvtkBfVan1XprWtsLnI3opZuFi/view?usp=drive_link",
