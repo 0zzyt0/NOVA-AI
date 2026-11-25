@@ -11,7 +11,8 @@ import math
 
 SS = 4  # supermuestreo
 
-ICONS = ("sed", "hambre", "oxigeno", "salud", "hidrogeno", "cuantico", "escudos", "casco", "averia", "misil")
+ICONS = ("sed", "hambre", "oxigeno", "salud", "hidrogeno", "cuantico", "escudos", "casco", "averia", "misil",
+         "tren", "contrato")
 
 
 def _font(size: int):
@@ -167,6 +168,24 @@ def draw_icon(name: str, size: int, color: tuple, level: float | None = None, br
         missile = [(0.5, 0.18), (0.56, 0.28), (0.56, 0.66), (0.64, 0.76), (0.64, 0.82), (0.56, 0.78), (0.56, 0.82),
                    (0.44, 0.82), (0.44, 0.78), (0.36, 0.82), (0.36, 0.76), (0.44, 0.66), (0.44, 0.28)]
         poly([rot(x, y) for x, y in missile], fill=white)
+    elif name == "tren":  # 2.1.2: pata del tren de aterrizaje con rueda y flecha hacia el suelo
+        d.rounded_rectangle([*P(0.18, 0.08), *P(0.62, 0.20)], radius=int(S * 0.03), fill=soft, outline=full, width=lw)
+        d.line([P(0.40, 0.20), P(0.40, 0.56)], fill=full, width=int(lw * 1.6))
+        d.line([P(0.40, 0.30), P(0.24, 0.52)], fill=full, width=lw)
+        d.ellipse([*P(0.24, 0.52), *P(0.56, 0.84)], fill=soft, outline=full, width=lw)
+        d.ellipse([*P(0.35, 0.63), *P(0.45, 0.73)], fill=white)
+        d.line([P(0.12, 0.92), P(0.68, 0.92)], fill=col + (160,), width=max(2, lw // 2))
+        d.line([P(0.80, 0.24), P(0.80, 0.78)], fill=white, width=lw)
+        d.polygon([P(0.70, 0.66), P(0.90, 0.66), P(0.80, 0.86)], fill=white)
+    elif name == "contrato":  # 2.1.2: tablilla con lista y marca de hecho
+        d.rounded_rectangle([*P(0.20, 0.12), *P(0.80, 0.92)], radius=int(S * 0.06), fill=soft, outline=full, width=lw)
+        d.rounded_rectangle([*P(0.36, 0.06), *P(0.64, 0.18)], radius=int(S * 0.03), fill=full)
+        for k, yy in enumerate((0.36, 0.54, 0.72)):
+            d.line([P(0.46, yy), P(0.70, yy)], fill=col + (230,), width=lw)
+            if k == 0:
+                d.line([P(0.29, yy), P(0.33, yy + 0.04), P(0.40, yy - 0.05)], fill=white, width=lw, joint="curve")
+            else:
+                d.rectangle([*P(0.29, yy - 0.04), *P(0.37, yy + 0.04)], outline=col + (230,), width=max(2, lw // 2))
     else:
         d.ellipse([*P(0.15, 0.15), *P(0.85, 0.85)], outline=full, width=lw)
     return img.resize((size, size), Image.LANCZOS)

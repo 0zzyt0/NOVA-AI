@@ -458,6 +458,9 @@
               <option value="hidrogeno_bajo" selected>Alerta: hidrógeno</option><option value="cuantico_bajo">Alerta: cuántico</option>
               <option value="escudos_caidos">Alerta: escudos caídos</option><option value="casco_critico">Alerta: casco</option>
               <option value="averia_grave">Alerta: avería grave</option><option value="alerta_misil">Alerta: misil</option>
+              <option value="estado">Ficha de estado</option><option value="viaje_cuantico">Viaje cuántico</option>
+              <option value="tren_recogido">Tren recogido</option><option value="contrato_objetivo">Contrato seguido</option>
+              <option value="contrato_caduca">Contrato a punto de caducar</option>
             </select>
             <button class="btn" id="btnHoloAlert">Probar alerta</button>
             <button class="btn" id="btnHoloHide">Ocultar</button>
@@ -480,6 +483,9 @@
           <div class="field"><label>Al pedir información de un planeta o lugar</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_planetas"><i></i></span></div></div>
           <div class="field"><label>Al llegar cerca de un planeta o luna</label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_llegadas"><i></i></span></div></div>
           <div class="field"><label>Al llegar a un lugar planetario<small>Cuevas, puestos avanzados, bases…</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_lugares"><i></i></span></div></div>
+          <div class="field"><label>Viaje cuántico<small>Destino y cuenta atrás hasta la llegada, en directo</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_cuantico"><i></i></span></div></div>
+          <div class="field"><label>Aterrizaje con el tren recogido<small>Por debajo de 100 m bajando: altitud y velocidad vertical en directo</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_aterrizaje"><i></i></span></div></div>
+          <div class="field"><label>Contrato seguido<small>Objetivo nuevo y aviso cuando le quedan 5 minutos</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_contrato"><i></i></span></div></div>
           <div class="field"><label>Alertas de la telemetría<small>Sed, hambre, oxígeno, salud, hidrógeno, escudos, casco, averías y misiles, con su icono · ámbar: aviso · rojo: grave</small></label><div class="ctl"><select data-set="holo_telemetria"><option value="todos">Todas</option><option value="graves">Solo las graves</option><option value="nunca">Nunca</option></select></div></div>
           <div class="field"><label>Traducir las descripciones<small>Vienen en inglés; con Google Translate, gratis (una vez por lugar)</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="holo_traducir"><i></i></span></div></div>
           <div class="field"><label>Buscar el objetivo de cada recompensa<small>Ficha si es un jugador · aviso si es un piloto NPC</small></label><div class="ctl"><span class="switch"><input type="checkbox" data-set="recompensas_buscar"><i></i></span></div></div>

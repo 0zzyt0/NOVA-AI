@@ -461,6 +461,9 @@ COMMENTS = {
     "escudos_caidos": ["Escudos caídos, {t}.", "{t}, nos hemos quedado sin escudos."],
     "averia_grave": ["Avería grave en {x}, {t}.", "{t}, testigo rojo: {x}."],
     "alerta_misil": ["¡Alerta de misiles, {t}!", "¡Misil, {t}! Contramedidas."],
+    # 2.1.2
+    "tren_recogido": ["{t}, tren recogido y a {x} metros del suelo.", "¡Tren de aterrizaje, {t}! Estamos a {x} metros."],
+    "contrato_caduca": ["{t}, al contrato «{c}» le quedan {x} minutos.", "Quedan {x} minutos para que caduque «{c}», {t}."],
 }
 INJURY = {"minor": "leve", "moderate": "moderada", "major": "grave", "severe": "muy grave"}
 

@@ -748,22 +748,39 @@ class UIServer:
         from core.rsi import Citizen, Org
         from core.verseguide import Body, Place
         n = self.nova
-        if tipo.startswith("alerta:"):  # 2.1.1: alerta de telemetría de ejemplo
+        if tipo.startswith("alerta:"):  # 2.1.1: alerta de telemetría de ejemplo (2.1.2: y estado, salto, tren, contrato)
             from core.gamelog import GameEvent
-            from core.telemetry import ALERT_HOLO, alert_card
+            from core.telemetry import ALERT_HOLO, HOLO_KINDS, holo_card, status_card
             kind = tipo.split(":", 1)[1]
-            if kind not in ALERT_HOLO:
-                kind = "hidrogeno_bajo"
             tel = n.telemetry
-            snap = tel.snap if tel.live() else {
-                "actor": {"health": 0.82, "thirst": 0.09, "hunger": 0.22, "oxygen": 0.18, "player": "Nebula_Rider"},
+            live = tel.live()
+            demo = {
+                "actor": {"health": 0.82, "thirst": 0.09, "hunger": 0.22, "oxygen": 0.18, "player": "Nebula_Rider",
+                          "location": "Stanton › microTech › New Babbage",
+                          "contract": {"titulo": "Entrega urgente en Levski", "de": "Covalex Shipping",
+                                       "objetivo": "Recoge la carga y llévala al hangar 04", "hechos": 2, "total": 5,
+                                       "fin": time.time() + 262}},
                 "vehicle": {"label": "Drake Cutlass Black", "health": 0.41, "shields": 0.0, "hydrogen": 0.16,
-                            "quantum": 0.12, "annunciators": {"cool": "MAJOR_FLASHING", "pwr": "MINOR_ON"}},
+                            "quantum": 0.12, "annunciators": {"cool": "MAJOR_FLASHING", "pwr": "MINOR_ON"},
+                            "speed": 38, "radar_alt": 46, "vsi": -3.4, "gear": "RETRACTED", "landed": False,
+                            "qt": {"state": "TRAVELING", "dest": "Levski", "eta": 95, "dist": 4.2e9}},
                 "weapons": {"contramedidas": {"señuelos": 12, "ruido": 6}}}
-            ev = GameEvent(kind, "", ALERT_HOLO[kind][3] and ("cuerpo" if ALERT_HOLO[kind][3][0] == "actor" else "sistemas")
-                           or "sistemas", time.time(), {"x": "refrigeración" if kind == "averia_grave" else None,
-                                                         "nave": "Drake Cutlass Black"}, False)
-            return alert_card(ev, snap), ("Con tus valores en directo" if tel.live() else "Ejemplo con valores ficticios")
+            snap = tel.snap if live else demo
+            note = "Con tus valores en directo" if live else "Ejemplo con valores ficticios"
+            if kind == "estado":
+                return status_card(snap), note
+            if kind not in HOLO_KINDS:
+                kind = "hidrogeno_bajo"
+            cat = ""
+            if kind in ALERT_HOLO:
+                src = ALERT_HOLO[kind][3]
+                cat = "cuerpo" if src and src[0] == "actor" else "sistemas"
+            ev = GameEvent(kind, "", cat, time.time(), {"x": "refrigeración" if kind == "averia_grave" else None,
+                                                         "nave": "Drake Cutlass Black", "eta": 240}, False)
+            card = holo_card(ev, snap, None)
+            if card is None:  # en directo pero sin salto, tren o contrato ahora mismo: el ejemplo
+                card, note = holo_card(ev, demo, None), "Ejemplo con valores ficticios"
+            return card, note
         if tipo in ("jugador", "recompensa"):
             c = Citizen(apodo_juego="Kaelen Voss", handle="Nebula_Rider", expediente="#4872210", alta="Mar 14, 2019",
                         idiomas="Spanish, Portuguese", org=Org(sid="ORIONVG", nombre="Orión Vanguard", rango="Navegante",

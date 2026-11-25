@@ -62,6 +62,10 @@ ANNUNCIATORS = {"pwr": "energía", "wpn": "armas", "thr": "propulsores", "shld":
 # Testigos que avisan en voz cuando pasan a «avería grave» (proximidad e impactos saltarían a cada momento)
 ANNUNCIATOR_ALERT = ("pwr", "thr", "cool", "qdrv", "wpn", "radr")
 ANNUNCIATOR_REPEAT = 120.0
+GEAR_WARN_M = 100  # 2.1.2: por debajo de esto, bajando y con el tren recogido: aviso
+GEAR_REARM_M = 250  # se vuelve a avisar tras subir por encima de esto (o bajar el tren)
+GEAR_REPEAT_S = 90.0
+CONTRACT_WARN_S = 300  # aviso cuando a un contrato le quedan 5 minutos
 MISSILE_REPEAT = 20.0
 
 LOCOMOTION = {"ON_FOOT": "a pie", "EVA": "en EVA (fuera de la nave)", "SEATED": "sentado"}
@@ -340,6 +344,7 @@ class Telemetry(threading.Thread):
             self.status = i18n.tr("en directo ({c} {v})", c=self.channel, v=self.build.split("-")[0])
         try:
             self._check_alerts(snap, now)
+            self._check_info(snap, now)
         except Exception:  # noqa: BLE001 — un aviso mal calculado no debe cortar la lectura
             log.exception("Avisos de telemetría")
         return snap
@@ -472,7 +477,8 @@ class Telemetry(threading.Thread):
             out["annunciators"] = {k: _enum(s.annunciators, k) for k in ANNUNCIATORS if hasattr(s.annunciators, k)}
         qt = _get(s, "quantum_travel")
         if qt is not None:
-            q = {"state": _enum(qt, "state")}
+            q = {"state": _enum(qt, "state"), "spool": float(getattr(qt, "spool_ratio", 0) or 0),
+                 "calib": float(getattr(qt, "calibration_ratio", 0) or 0)}
             d = _get(qt, "destination")
             if d is not None:
                 q["dest"] = d.display_name or d.id
@@ -495,6 +501,13 @@ class Telemetry(threading.Thread):
         self._ann_prev: dict[str, str] = {}
         self._shield_prev: float | None = None
         self._vehicle_key = ""
+        # 2.1.2: viaje cuántico, aproximación con el tren recogido y contrato seguido
+        self._qt_prev = ""
+        self._gear_armed = True
+        self._gear_low_since: float | None = None
+        self._gear_said = -1e9
+        self._contract_key = None
+        self._contract_warned: set[str] = set()
 
     def _emit(self, kind: str, category: str, now: float, **data) -> None:
         detail = " · ".join(f"{v}" for v in data.values() if v not in (None, ""))
@@ -595,6 +608,46 @@ class Telemetry(threading.Thread):
                 if now - self._ann_said.get(k, -1e9) >= ANNUNCIATOR_REPEAT:
                     self._ann_said[k] = now
                     self._emit("averia_grave", "sistemas", now, x=ANNUNCIATORS[k], nave=ship)
+
+    def _check_info(self, snap: dict, now: float) -> None:
+        """2.1.2: sucesos para los hologramas en directo: salto cuántico, aterrizaje sin tren y contrato."""
+        if snap.get("game_state") and snap["game_state"] != "IN_GAME":
+            return
+        a, v = snap.get("actor") or {}, snap.get("vehicle") or {}
+        # Viaje cuántico: al empezar el salto
+        q = v.get("qt") or {}
+        st = q.get("state", "")
+        if st == "TRAVELING" and self._qt_prev != "TRAVELING":
+            self._emit("viaje_cuantico", "", now, x=q.get("dest", ""), eta=q.get("eta"), dist=q.get("dist"),
+                       nave=v.get("label", ""))
+        self._qt_prev = st
+        # Aproximación al suelo con el tren recogido (solo piloto de nave con tren)
+        alt, vsi = v.get("radar_alt") or 0, v.get("vsi") or 0
+        if not v or v.get("landed") or v.get("gear") != "RETRACTED" or alt > GEAR_REARM_M:
+            self._gear_armed = True
+            self._gear_low_since = None
+        elif (self._gear_armed and v.get("type") in ("", "SPACESHIP") and a.get("role") in ("", "PILOT")
+              and 1 < alt <= GEAR_WARN_M and vsi < -0.5 and now >= self._grace_until):
+            since = self._gear_low_since = self._gear_low_since or now
+            if now - since >= 1.0 and now - self._gear_said >= GEAR_REPEAT_S:
+                self._gear_armed = False
+                self._gear_said = now
+                self._emit("tren_recogido", "sistemas", now, x=round(alt), nave=v.get("label", ""))
+        else:
+            self._gear_low_since = None
+        # Contrato seguido: objetivo nuevo (solo holograma) y aviso a 5 minutos de caducar (voz y holograma)
+        c = a.get("contract")
+        key = (c["titulo"], c.get("objetivo", ""), c.get("hechos", 0)) if c else None
+        if key != self._contract_key:
+            first = self._contract_key is None and now < self._grace_until + 20
+            self._contract_key = key
+            if c and not first and (c.get("objetivo") or c.get("total")):
+                self._emit("contrato_objetivo", "", now, x=c["titulo"], c=c["titulo"])
+        if c and c.get("fin"):
+            left = c["fin"] - time.time()
+            if 0 < left <= CONTRACT_WARN_S and c["titulo"] not in self._contract_warned:
+                self._contract_warned.add(c["titulo"])
+                self._emit("contrato_caduca", "contratos", now, x=max(1, round(left / 60)), c=c["titulo"])
 
     def _events(self, frame, now: float) -> None:
         for e in getattr(frame.events, "events", []) or []:
@@ -951,3 +1004,158 @@ def alert_card(ev: GameEvent, snap: dict | None = None):
                 gauges=gauges if src else [], big=big, fields=fields, desc=advice, accent=acc, alert=grave,
                 stamp="CRÍTICO" if grave else "AVISO", broken=ev.kind in ("escudos_caidos", "casco_critico", "casco_danado"),
                 footer="Fuente: Star Citizen", seed=ev.kind, seconds=8.0)
+
+
+# ------------------------------------------- 2.1.2: estado, viaje cuántico, aterrizaje y contrato
+QUANTUM_HOLO = (110, 150, 255)  # azul cuántico
+CONTRACT_HOLO = (232, 194, 90)  # dorado de los contratos
+HOLO_KINDS = set(ALERT_HOLO) | {"viaje_cuantico", "tren_recogido", "contrato_objetivo", "contrato_caduca"}
+
+
+def _mmss(seconds: float | None) -> str:
+    if seconds is None:
+        return "--:--"
+    s = max(0, int(round(seconds)))
+    h, rem = divmod(s, 3600)
+    return f"{h}:{rem // 60:02d}:{rem % 60:02d}" if h else f"{rem // 60:02d}:{rem % 60:02d}"
+
+
+def _short_clock(seconds: float) -> str:
+    m = int(seconds // 60)
+    if m >= 60:
+        return f"{m // 60} h {m % 60:02d} min"
+    return f"{m} min {int(seconds % 60):02d} s"
+
+
+def _km(meters: float | None) -> str:
+    if meters is None:
+        return "—"
+    return f"{_num(meters / 1000)} km" if meters >= 10_000 else f"{_num(meters)} m"
+
+
+def status_card(snap: dict | None):
+    """Ficha de estado a petición: personaje arriba y nave abajo, con su icono cada uno."""
+    from .holo import Card
+
+    snap = snap or {}
+    a, v = snap.get("actor") or {}, snap.get("vehicle") or {}
+    tiles = []
+    for icon, key, label, thr in (("salud", "health", "SALUD", 0.35), ("sed", "thirst", "HIDRATACIÓN", 0.25),
+                                  ("hambre", "hunger", "NUTRICIÓN", 0.25), ("oxigeno", "oxygen", "OXÍGENO", 0.25)):
+        if a.get(key) is not None:
+            tiles.append((icon, label, a[key], thr))
+    if v:
+        for icon, key, label, thr in (("casco", "health", "CASCO", 0.5), ("escudos", "shields", "ESCUDOS", 0.25),
+                                      ("hidrogeno", "hydrogen", "HIDRÓGENO", 0.2), ("cuantico", "quantum", "CUÁNTICO", 0.15)):
+            if v.get(key) is not None:
+                tiles.append((icon, label, v[key], thr))
+    extra = []
+    q = v.get("qt") or {}
+    if q.get("state") == "TRAVELING":
+        extra.append(f"Viaje cuántico hacia {q.get('dest') or '?'}: llega en {_clock(q['eta'])}" if q.get("eta")
+                     else f"En viaje cuántico hacia {q.get('dest') or '?'}")
+    c = a.get("contract")
+    if c:
+        t = f"Contrato: {c['titulo']}"
+        if c.get("total"):
+            t += f" ({c['hechos']}/{c['total']})"
+        extra.append(t)
+    if v.get("speed") is not None and not v.get("landed"):
+        extra.append(f"{_num(v['speed'])} m/s" + (f" · {_km(v['radar_alt'])} sobre el suelo" if v.get("radar_alt") else ""))
+    title = v.get("label") or a.get("player") or "TU PERSONAJE"
+    return Card(kind="estado", title=title.upper(), header="TELEMETRÍA · ESTADO",
+                subtitle=a.get("location", "") or "", icon="casco" if v else "salud", tiles=tiles,
+                desc=" · ".join(extra[:2]), footer="Fuente: Star Citizen", seed="estado", seconds=12.0)
+
+
+def quantum_card(snap: dict | None, eta0: float | None = None):
+    from .holo import Card
+
+    v = (snap or {}).get("vehicle") or {}
+    q = v.get("qt") or {}
+    if q.get("state") != "TRAVELING":
+        return None
+    eta = q.get("eta")
+    prog = None
+    if eta is not None and eta0:
+        prog = max(0.0, min(1.0, 1 - eta / eta0))
+    fields = [("DISTANCIA", _km(q.get("dist")))]
+    if v.get("quantum") is not None:
+        fields.append(("COMBUSTIBLE CUÁNTICO", pct(v["quantum"])))
+    return Card(kind="alerta", title=(q.get("dest") or "DESTINO").upper(), header="TELEMETRÍA · VIAJE CUÁNTICO",
+                subtitle=v.get("label", ""), icon="cuantico", level=prog, value_text=_mmss(eta),
+                value_label="LLEGADA EN", fields=fields, accent=QUANTUM_HOLO, stamp="EN VIAJE",
+                footer="Fuente: Star Citizen", seed="cuantico")
+
+
+def gear_card(snap: dict | None):
+    from .holo import Card
+
+    v = (snap or {}).get("vehicle") or {}
+    alt = v.get("radar_alt")
+    if not v or v.get("landed") or v.get("gear") != "RETRACTED" or alt is None or alt > GEAR_REARM_M:
+        return None
+    return Card(kind="alerta", title="TREN RECOGIDO", header="TELEMETRÍA · ATERRIZAJE", subtitle=v.get("label", ""),
+                icon="tren", level=max(0.0, min(1.0, alt / GEAR_WARN_M)), value_text=f"{_num(alt)} m",
+                value_label="ALTITUD SOBRE EL SUELO",
+                fields=[("VELOCIDAD VERTICAL", f"{_num(v.get('vsi') or 0, 1)} m/s"),
+                        ("VELOCIDAD", f"{_num(v.get('speed') or 0)} m/s")],
+                accent=CRIT_HOLO_RGB, alert=True, stamp="TREN", footer="Fuente: Star Citizen", seed="tren")
+
+
+def contract_card(snap: dict | None, expiring: bool = False):
+    from .holo import AMBER_HOLO, Card
+
+    c = ((snap or {}).get("actor") or {}).get("contract")
+    if not c:
+        return None
+    left = (c["fin"] - time.time()) if c.get("fin") else None
+    fields = []
+    total = c.get("total") or 0
+    if c.get("de"):
+        fields.append(("ENCARGADO POR", c["de"]))
+    if expiring and total:
+        fields.append(("OBJETIVOS", f"{c['hechos']}/{total}"))
+    elif left is not None and left > 0:
+        fields.append(("TIEMPO RESTANTE", _short_clock(left)))
+    return Card(kind="alerta", title=c["titulo"].upper(), header="CONTRATO SEGUIDO", icon="contrato",
+                level=(c["hechos"] / total) if total else None,
+                value_text=_mmss(left) if expiring and left is not None else (f"{c['hechos']}/{total}" if total else "—"),
+                value_label="CADUCA EN" if expiring else "OBJETIVOS",
+                fields=fields, desc=i18n.tr("Objetivo: {o}", o=c["objetivo"]) if c.get("objetivo") else "",
+                accent=AMBER_HOLO if expiring else CONTRACT_HOLO, alert=expiring,
+                stamp="CADUCA" if expiring else "OBJETIVO", footer="Fuente: Star Citizen", seed="contrato",
+                seconds=12.0)
+
+
+CRIT_HOLO_RGB = (255, 62, 62)
+
+
+def holo_card(ev: GameEvent, snap: dict | None = None, tel: "Telemetry | None" = None):
+    """Ficha de holograma para cualquier suceso de la telemetría (None si no tiene)."""
+    if ev.kind in ALERT_HOLO:
+        return alert_card(ev, snap)
+    if ev.kind == "viaje_cuantico":
+        eta0 = (ev.data or {}).get("eta")
+        card = quantum_card(snap, eta0)
+        if card is not None and tel is not None:
+            card.updater = lambda: quantum_card(tel.snap, eta0) if tel.live() else None
+            card.seconds = min(900.0, (eta0 or 60) + 6)
+        return card
+    if ev.kind == "tren_recogido":
+        card = gear_card(snap)
+        if card is not None and tel is not None:
+            card.updater = lambda: gear_card(tel.snap) if tel.live() else None
+            card.update_every = 0.5
+            card.seconds = 40.0
+        return card
+    if ev.kind in ("contrato_objetivo", "contrato_caduca"):
+        expiring = ev.kind == "contrato_caduca"
+        card = contract_card(snap, expiring)
+        if card is not None and expiring and tel is not None:  # cuenta atrás en directo
+            title = card.title
+            card.updater = lambda: (lambda c: c if c is not None and c.title == title else None)(
+                contract_card(tel.snap, True)) if tel.live() else None
+            card.seconds = 12.0
+        return card
+    return None

@@ -482,16 +482,31 @@ class Nova:
         self.on_ui({"t": "holo"})
         self.holo.show(card, force=force)
 
+    from .telemetry import HOLO_KINDS as _TELE_HOLO  # noqa: E402 — sucesos de la telemetría con holograma
+
+    # 2.1.2: qué ajuste manda en cada holograma de la telemetría
+    _TELE_HOLO_SETTING = {"viaje_cuantico": "holo_cuantico", "tren_recogido": "holo_aterrizaje",
+                          "contrato_objetivo": "holo_contrato", "contrato_caduca": "holo_contrato"}
+
     def _holo_telemetry(self, ev) -> None:
-        """2.1.1: alerta de telemetría (sed, hidrógeno, escudos, misil…) en holograma con su icono."""
-        mode = self.settings.get("holo_telemetria", "todos")
-        if mode == "nunca" or not self.settings.get("holo_activo", True):
+        """Holograma de un suceso de la telemetría: alertas con su icono (2.1.1), cuenta atrás del salto
+        cuántico, tren recogido cerca del suelo y contrato seguido (2.1.2)."""
+        if not self.settings.get("holo_activo", True):
             return
-        if not extras.ship_alerts(self.settings, self.gamelog.ship).get(ev.category, True):
+        key = self._TELE_HOLO_SETTING.get(ev.kind)
+        if key:
+            if not self.settings.get(key, True):
+                return
+            mode = "todos"
+        else:
+            mode = self.settings.get("holo_telemetria", "todos")
+            if mode == "nunca":
+                return
+        if ev.category and not extras.ship_alerts(self.settings, self.gamelog.ship).get(ev.category, True):
             return
         try:
-            from .telemetry import alert_card
-            card = alert_card(ev, self.telemetry.snap)
+            from .telemetry import holo_card
+            card = holo_card(ev, self.telemetry.snap, self.telemetry)
         except Exception:  # noqa: BLE001 — sin holograma, el aviso en voz sigue
             log.exception("Holograma de telemetría")
             return
@@ -981,8 +996,8 @@ class Nova:
                 profile.on_game_event(self.memory.profile, ev, self.gamelog.player)
             except Exception:  # noqa: BLE001 — un archivo bloqueado no debe parar los avisos
                 log.exception("perfil del piloto")
-        if not ev.replay and not self.training and not self.paused and ev.category in ("cuerpo", "sistemas"):
-            self._holo_telemetry(ev)  # 2.1.1: holograma de la alerta de telemetría
+        if not ev.replay and not self.training and not self.paused and ev.kind in self._TELE_HOLO:
+            self._holo_telemetry(ev)  # 2.1.1: holograma de la alerta de telemetría (2.1.2: y salto, tren, contrato)
         if not ev.replay and not self.training:
             if ev.kind in ("contrato_aceptado", "objetivo_nuevo"):
                 self._check_bounty(ev)
@@ -1610,7 +1625,24 @@ class Nova:
         return e
 
     # ------------------------------------------------- 2.1: respuestas con la telemetría del juego
+    _SHOW_STATUS = re.compile(r"\b(muestra\w*|ensena\w*|pon\w*|saca\w*|abre|abreme|ver|quiero ver|holograma|panel|ficha)\b"
+                              r".*\b(estado|constantes|telemetria|panel de estado|valores)\b|\bpanel de estado\b")
+
     def _telemetry_answer(self, text: str) -> bool:
+        # 2.1.2: «muéstrame el estado» → ficha de estado en holograma
+        plain = self.telemetry_plain(text)
+        if self._SHOW_STATUS.search(plain):
+            t = self.settings.get("tratamiento") or ""
+            if self.telemetry.live():
+                from .telemetry import status_card
+                self.flash("green")
+                self._show_holo(status_card(self.telemetry.snap), force=True)
+                self.on_message("sistema", "📈 ficha de estado")
+                self._say(f"Ahí lo tiene, {t}." if t else "Ahí lo tiene.")
+            else:
+                self._say(f"No me llega la telemetría del juego, {t}. Actívela en Juego, Avisos del juego." if t
+                          else "No me llega la telemetría del juego. Actívela en Juego, Avisos del juego.")
+            return True
         if not self.settings.get("telemetria_respuestas", True):
             return False
         try:
@@ -1629,6 +1661,11 @@ class Nova:
         self.on_message("sistema", "📈 telemetría del juego")
         self._say(reply)
         return True
+
+    @staticmethod
+    def telemetry_plain(text: str) -> str:
+        from .telemetry import _plain
+        return _plain(text)
 
     # ------------------------------------------------- respuestas sin IA (v1.2.2)
     def _local_answer(self, text: str) -> bool:

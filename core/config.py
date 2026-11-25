@@ -14,7 +14,7 @@ import os
 import threading
 from pathlib import Path
 
-VERSION = "2.1.1"
+VERSION = "2.1.2"
 APP_NAME = "NOVA AI"
 APP_DIR = Path(__file__).resolve().parent.parent
 FACTORY_DIR = APP_DIR / "datos"  # archivos de fábrica que vienen con el programa (solo lectura)
@@ -220,6 +220,9 @@ DEFAULTS: dict = {
     "holo_planetas": True,  # al pedir información de un planeta, luna o lugar
     "holo_llegadas": True,  # al llegar cerca de un planeta o luna
     "holo_lugares": True,
+    "holo_cuantico": True,  # 2.1.2: cuenta atrás del viaje cuántico en holograma
+    "holo_aterrizaje": True,  # 2.1.2: «tren recogido» con la altitud al acercarte al suelo
+    "holo_contrato": True,  # 2.1.2: objetivo nuevo del contrato seguido y aviso a 5 min de caducar
     "holo_telemetria": "todos",  # 2.1.1: alertas de la telemetría en holograma: todos, graves, nunca  # al llegar a un lugar planetario (cueva, puesto, base…)
     "holo_traducir": True,  # traducir al español las descripciones (Google Translate o la IA)
     "holo_sonidos": True,  # sonido al encenderse y apagarse (y alerta con los objetivos de captura)
