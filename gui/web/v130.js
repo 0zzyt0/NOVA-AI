@@ -54,6 +54,7 @@ window.V130 = (() => {
     await api("set", { key: "efectos_nivel", value: c.dataset.fx });
     S.efectos_nivel = c.dataset.fx;
     paintFx(c.dataset.fx);
+    window.dispatchEvent(new Event("nova-fx"));  // 2.1.7: el logo del overlay cambia (animado ↔ fijo)
     toast(T("Efectos: {x}", { x: c.querySelector("b").textContent.replace(/^[^A-Za-zÀ-ÿ]+/, "") }), "ok");
   })));
 

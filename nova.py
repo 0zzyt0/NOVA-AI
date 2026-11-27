@@ -137,6 +137,10 @@ def main() -> None:
         if loc and loc != "desconocida":
             session.update(ubicacion=loc)
         session.save_if_dirty()
+        try:
+            nova.cabin.save_if_dirty()  # 2.1.7: copia de la sesión de Cabina
+        except Exception:
+            log.exception("Copia de la Cabina")
         if nova.memory.dirty:
             nova.memory.save()
 
@@ -332,17 +336,17 @@ def main() -> None:
             # 2.1.5: las claves de fábrica eran de todos y se agotaban entre todos; ahora cada piloto pone las suyas
             nova.on_message("sistema",
                             "🔑 NOVA ya no trae claves de IA de serie (se agotaban entre todos los usuarios). "
-                            "Ve a Nova › Inteligencia, pulsa CONSEGUIR CLAVE GRATIS en Gemini y Groq y pega cada clave: "
+                            "Ve a Ajustes › ADN e Inteligencia, pulsa CONSEGUIR CLAVE GRATIS en Gemini y Groq y pega cada clave: "
                             "NOVA reconoce de cuál es y la prueba. Son 2 minutos y no cuesta nada.")
         elif not any(settings.key_for(p) for p in ("gemini", "groq", "openrouter", "mistral", "deepseek")):
             nova.on_message("sistema",
-                            "👋 Falta una clave de IA: ve a Nova › Inteligencia y pega una clave GRATIS de "
+                            "👋 Falta una clave de IA: ve a Ajustes › ADN e Inteligencia y pega una clave GRATIS de "
                             "Gemini y/o Groq (NOVA reconoce de cuál es). Sin clave funcionan los comandos de la nave "
                             "por frase directa, pero no la conversación ni las búsquedas.")
         if restored_from:
             nova.on_message("sistema", "🛟 Faltaba la carpeta de datos de NOVA: he repuesto lo que había aprendido "
                                        "desde tu copia de seguridad (" + os.path.basename(restored_from) + "). "
-                                       "Las claves de IA no van en las copias: vuelve a pegarlas en Nova › Inteligencia.")
+                                       "Las claves de IA no van en las copias: vuelve a pegarlas en Ajustes › ADN e Inteligencia.")
         from core.diary import last_location
 
         nova.greet(last_place=last_location() or session.get("ubicacion") or "")

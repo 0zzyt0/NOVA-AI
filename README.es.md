@@ -63,7 +63,7 @@ Un ejemplo: con una sola mano en la palanca, *«Nova, listo para volar»*, *«pi
 
 ### A tu gusto
 
-**Siete temas de color** (*Pantalla › Aspecto*). Los colores de estado (verde, amarillo, rojo y morado) no cambian, para que sigan significando lo mismo:
+**Siete temas de color** (*Ajustes › Pantalla › Aspecto*). Los colores de estado (verde, amarillo, rojo y morado) no cambian, para que sigan significando lo mismo:
 
 ![Los siete temas de color](docs/img/temas.jpg)
 
@@ -81,7 +81,7 @@ Un ejemplo: con una sola mano en la palanca, *«Nova, listo para volar»*, *«pi
 
 | | |
 |---|---|
-| ![Los cuatro modelos de holograma](docs/img/holo_modelos.jpg)<br><sub>**Modelos de tarjeta** sobre el juego</sub> | ![Ajustes de los hologramas](docs/img/holo_ajustes.jpg)<br><sub>**Pantalla › Hologramas:** modelo, cómo aparece y grosor de la letra</sub> |
+| ![Los cuatro modelos de holograma](docs/img/holo_modelos.jpg)<br><sub>**Modelos de tarjeta** sobre el juego</sub> | ![Ajustes de los hologramas](docs/img/holo_ajustes.jpg)<br><sub>**Ajustes › Pantalla › Overlay › Hologramas:** modelo, cómo aparece y grosor de la letra</sub> |
 
 <p align="center"><img src="docs/img/holo_animacion.gif" width="720" alt="Las cuatro formas de aparecer y desaparecer de un holograma"></p>
 <p align="center"><sub>Las cuatro formas en que un holograma aparece y desaparece sobre el juego: <b>Proyector</b>, <b>Barrido</b>, <b>Despliegue</b> y <b>Transmisión</b>.</sub></p>
@@ -101,14 +101,14 @@ Un ejemplo: con una sola mano en la palanca, *«Nova, listo para volar»*, *«pi
 ## Novedades de la 1.4
 
 - **Sigue en la bandeja de Windows:** cierra la ventana y Nova se queda junto al reloj, escuchándote, con el overlay en el juego y los temporizadores en marcha. Clic en el icono para abrirla; clic derecho para MUTE, modo reposo o *Salir de NOVA AI*. Se puede desactivar en *Ajustes › General › Ventana y bandeja*.
-- **Modo reposo** (*Nova › Micrófono*): tras los minutos que elijas sin hablarle (o nunca, lo que viene de serie), Nova descansa y el overlay queda tenue. Se despierta con tu tecla de hablar, el botón ☀ o escribiéndole, o, si lo eliges, por su nombre. También puedes decir *«Nova, modo reposo»* o usar el botón 💤 de la Cabina.
+- **Modo reposo** (*Ajustes › Voz y audio*): tras los minutos que elijas sin hablarle (o nunca, lo que viene de serie), Nova descansa y el overlay queda tenue. Se despierta con tu tecla de hablar, el botón ☀ o escribiéndole, o, si lo eliges, por su nombre. También puedes decir *«Nova, modo reposo»* o usar el botón 💤 de la Cabina.
 - **Recorrido guiado:** tras el asistente inicial (o la primera vez que abres la 1.4), Nova te enseña en un minuto dónde está cada opción. Se repite desde *Ajustes › General*.
 - **Cuestionario anónimo:** valora NOVA AI del 1 al 10 y cuéntanos tus ideas. Se publica como issue público aquí, sin tu nombre, tu gametag ni datos de tu equipo. Nova te lo recuerda una vez a los 3 días y nunca insiste.
 
 **Micrófono, juego limpio y motores de IA:**
 
-- **Micrófono más robusto:** Nova prueba tu micrófono por varias vías de audio de Windows (MME, DirectSound, WASAPI) y a su frecuencia nativa (por ejemplo 48 kHz). Si no puede abrirlo, usa el micrófono predeterminado de Windows y te lo dice. En *Nova › Micrófono* ves qué dispositivo está abierto de verdad y te avisa si solo llega silencio total (auriculares silenciados con su botón o bloqueo en la privacidad de Windows) o una señal muy baja.
-- **Ganancia del micrófono** (×1 a ×8) en *Nova › Micrófono*; el asistente inicial la sube solo si tu voz llega muy baja.
+- **Micrófono más robusto:** Nova prueba tu micrófono por varias vías de audio de Windows (MME, DirectSound, WASAPI) y a su frecuencia nativa (por ejemplo 48 kHz). Si no puede abrirlo, usa el micrófono predeterminado de Windows y te lo dice. En *Ajustes › Voz y audio* ves qué dispositivo está abierto de verdad y te avisa si solo llega silencio total (auriculares silenciados con su botón o bloqueo en la privacidad de Windows) o una señal muy baja.
+- **Ganancia del micrófono** (×1 a ×8) en *Ajustes › Voz y audio*; el asistente inicial la sube solo si tu voz llega muy baja.
 - **Botón MUTE** en el medidor del micrófono (lateral izquierdo): con **MUTE ON** (verde) Nova no oye nada, ni la tecla ni su nombre.
 - **Modo prudente con las teclas** (*Nave y comandos › Lectura del juego y teclas*, activado por defecto): un comando de voz nunca hace más de lo que harías tú con una pulsación: sin esperas largas encadenadas, sin clics de ratón dentro de secuencias, teclas mantenidas 3 s como máximo y nunca en bucle, en línea con los Términos de RSI sobre macros.
 - **Consultas a RSI y envíos a Discord solo si dices «sí»:** los objetivos de recompensa ya no se buscan solos y las fichas ya no se mandan solas a Discord. Cada ficha se guarda 10 minutos y entre consultas a la web de RSI pasan al menos 2 s.
@@ -177,7 +177,7 @@ Un ejemplo: con una sola mano en la palanca, *«Nova, listo para volar»*, *«pi
 | | |
 |---|---|
 | ![Juego SC: comandos de voz](docs/img/juego.jpg)<br><sub>**Juego SC:** tus comandos de voz y sus teclas</sub> | ![Juego SC: teclas y joystick](docs/img/lectura.jpg)<br><sub>**Teclas y joystick:** tus teclas de Star Citizen y cómo las pulsa Nova</sub> |
-| ![Nova: inteligencia](docs/img/ia.jpg)<br><sub>**Nova › Inteligencia:** motores de IA (pega cualquier clave)</sub> | ![Información: fuentes](docs/img/datos.jpg)<br><sub>**Información › Fuentes:** páginas de consulta y su comprobación</sub> |
+| ![Nova: inteligencia](docs/img/ia.jpg)<br><sub>**Ajustes › ADN e Inteligencia:** motores de IA (pega cualquier clave)</sub> | ![Información: fuentes](docs/img/datos.jpg)<br><sub>**Ajustes › Fuentes:** páginas de consulta y su comprobación</sub> |
 | ![Diccionario de consultas](docs/img/diccionario.jpg)<br><sub>**Diccionario de consultas:** contesta sin gastar IA</sub> | ![Bitácora y estadísticas](docs/img/bitacora.jpg)<br><sub>**Bitácora y estadísticas** de tus sesiones</sub> |
 
 ## Instalación
@@ -213,7 +213,7 @@ NOVA AI usa servicios gratuitos, en una **cadena de motores**: si uno se queda s
 
 *Mistral* (de pago desde agosto de 2026) y *DeepSeek* son opcionales: solo entran en la cadena si pones tu propia clave.
 
-El instalador de *Releases* **no trae claves de IA**: Nova obedece los comandos de voz desde el primer momento, y para conversar y buscar necesita al menos una clave gratuita. Se consiguen en 2 minutos y sin tarjeta (Gemini y Groq son las recomendadas): el capítulo 11 del manual, *Tus propias API Keys*, lo explica paso a paso. Después se pegan en ***Nova › Inteligencia***, en la casilla *Pega aquí cualquier clave*: NOVA reconoce de qué servicio es, la guarda y la prueba. Con la clave de un servicio, Nova usa todos sus modelos gratuitos y, si uno se queda sin cupo, salta sola al siguiente (y te dice cuándo vuelve cada uno). Nova contesta siempre en el idioma que hayas elegido.
+El instalador de *Releases* **no trae claves de IA**: Nova obedece los comandos de voz desde el primer momento, y para conversar y buscar necesita al menos una clave gratuita. Se consiguen en 2 minutos y sin tarjeta (Gemini y Groq son las recomendadas): el capítulo 11 del manual, *Tus propias API Keys*, lo explica paso a paso. Después se pegan en ***Ajustes › ADN e Inteligencia***, en la casilla *Pega aquí cualquier clave*: NOVA reconoce de qué servicio es, la guarda y la prueba. Con la clave de un servicio, Nova usa todos sus modelos gratuitos y, si uno se queda sin cupo, salta sola al siguiente (y te dice cuándo vuelve cada uno). Nova contesta siempre en el idioma que hayas elegido.
 
 **Sin claves de fábrica (desde la 2.1.5):** las versiones anteriores podían traer claves de IA de serie, pero eran las mismas para todos y los cupos gratuitos (que van por proyecto u organización, no por usuario) se agotaban entre todos. Ahora cada piloto pone las suyas. Al actualizar, NOVA quita de tus ajustes solo las claves que coincidan con las antiguas de fábrica; las tuyas se quedan.
 

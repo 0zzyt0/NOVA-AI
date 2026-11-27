@@ -270,7 +270,7 @@ class Brain:
         t = self.settings.get("tratamiento") or "señor"
         if not self.engines.configured():
             return i18n.tr("No tengo ningún motor de IA configurado, {t}. Ponga al menos una clave gratuita de "
-                           "Gemini o Groq en Nova › Inteligencia: se pega y yo sé de cuál es.", t=t)
+                           "Gemini o Groq en Ajustes › ADN e Inteligencia: se pega y yo sé de cuál es.", t=t)
         why = self.engines.explain()
         if why:
             return i18n.tr("{T}, ahora mismo no tengo ningún motor de IA libre: {why}. Las órdenes de la nave por "

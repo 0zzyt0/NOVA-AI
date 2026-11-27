@@ -149,7 +149,7 @@ class Translator:
 
 
 class Savings:
-    """Cuenta lo que se ha hecho sin gastar cuota de IA (se ve en Inteligencia › Ahorro de tokens)."""
+    """Cuenta lo que se ha hecho sin gastar cuota de IA (se ve en Ajustes › ADN e Inteligencia › Ahorro de tokens)."""
 
     FIELDS = ("respuestas_guardadas", "respuestas_locales", "traducciones_google", "traducciones_guardadas")
 

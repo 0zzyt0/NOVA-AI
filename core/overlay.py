@@ -46,6 +46,29 @@ def logo_path(settings) -> Path:
     p = APP_DIR / "recursos" / "logos" / f"{name}.png"
     return p if name != "nova" and p.is_file() else LOGO
 
+# 2.1.7: logos animados (diseños propios, WebP animado con transparencia real; build/generar_logos_animados.py).
+# Se usan con los efectos «Cinematográficos» y «Ligeros»; con «Sin efectos» va el logo fijo.
+ANIMATED = ("nova_pulso", "nucleo_latido", "radar_barrido", "onda_voz", "orbitas", "escudo_hex", "reticula_fijando")
+ANIM_DIR = APP_DIR / "recursos" / "logos" / "animados"
+
+
+def animated_path(name: str) -> Path | None:
+    if name in ANIMATED:
+        p = ANIM_DIR / f"{name}.webp"
+        if p.is_file():
+            return p
+    return None
+
+
+def active_logo(settings) -> Path:
+    """El logo que se ve ahora: el animado elegido, salvo con «Sin efectos» (o «Usar el fijo»), que va el fijo."""
+    if settings.get("efectos_nivel", "cine") != "ninguno":
+        p = animated_path(settings.get("overlay_logo_animado", "") or "")
+        if p:
+            return p
+    return logo_path(settings)
+
+
 RESOLUTIONS = ["640x480", "800x600", "1024x768", "1280x720", "1280x1024", "1366x768", "1440x900", "1600x900",
                "1680x1050", "1920x1080", "1920x1200", "2560x1080", "2560x1440", "3440x1440", "3840x1600", "3840x2160"]
 TINT_KEYS = {"green": "overlay_color_ok", "yellow": "overlay_color_busca", "red": "overlay_color_error",
@@ -83,19 +106,40 @@ def scale_for(height: int) -> float:
 class FrameMaker:
     """Prepara el logo y su halo una vez; luego compone cada fotograma con numpy."""
 
+    MAX_ANIM_BYTES = 48 * 1024 * 1024  # fotogramas guardados en uint8; a 4K se salta alguno para no pasar de aquí
+
     def __init__(self, size: int, logo_path: Path = LOGO) -> None:
-        from PIL import Image, ImageFilter
+        from PIL import Image, ImageFilter, ImageSequence
 
         self.size = size
         self.canvas = int(size * 1.8) // 2 * 2
-        logo = Image.open(logo_path).convert("RGBA").resize((size, size), Image.LANCZOS)
+        self.off = off = (self.canvas - size) // 2
+        src = Image.open(logo_path)
+        frames, durations = [], []
+        for fr in ImageSequence.Iterator(src):  # una imagen fija da un solo fotograma
+            frames.append(fr.convert("RGBA").resize((size, size), Image.LANCZOS))
+            durations.append(max(20, int(fr.info.get("duration") or src.info.get("duration") or 50)))
+        step = max(1, math.ceil(len(frames) * size * size * 4 / self.MAX_ANIM_BYTES))
+        if step > 1:
+            frames = frames[::step]
+            durations = [sum(durations[i:i + step]) for i in range(0, len(durations), step)]
+        self.frames = [np.asarray(f, dtype=np.uint8) for f in frames] if len(frames) > 1 else []
+        self.starts = np.cumsum([0] + durations[:-1]) / 1000.0
+        self.period = sum(durations) / 1000.0
+        self._shown = -1
+        logo = frames[0]
         layer = Image.new("RGBA", (self.canvas, self.canvas), (0, 0, 0, 0))
-        off = (self.canvas - size) // 2
         layer.paste(logo, (off, off), logo)
         a = np.asarray(layer, dtype=np.float32) / 255.0
         self.logo_rgb = a[..., :3]
         self.logo_a = a[..., 3:4]
         self.logo_lum = (0.3 * a[..., 0] + 0.59 * a[..., 1] + 0.11 * a[..., 2])[..., None]
+        if self.frames:  # el halo sale de la silueta de todos los fotogramas juntos
+            union = np.max(np.stack([f[..., 3] for f in self.frames]), axis=0)
+            layer = Image.new("RGBA", (self.canvas, self.canvas), (0, 0, 0, 0))
+            alpha_img = Image.new("L", (self.canvas, self.canvas), 0)
+            alpha_img.paste(Image.fromarray(union, "L"), (off, off))
+            layer.putalpha(alpha_img)
 
         alpha = layer.getchannel("A")
         near = np.asarray(alpha.filter(ImageFilter.GaussianBlur(size * 0.07)), dtype=np.float32) / 255.0
@@ -107,6 +151,27 @@ class FrameMaker:
         dist = np.sqrt((xx - c) ** 2 + (yy - c) ** 2)
         self.ring_d = np.exp(-((dist - size * 0.62) / (size * 0.018 + 0.6)) ** 2)
         self.ring_ang = np.arctan2(yy - c, xx - c)
+
+    @property
+    def animated(self) -> bool:
+        return bool(self.frames)
+
+    def seek(self, now: float) -> None:
+        """Pone el fotograma que toca en este momento (solo los logos animados)."""
+        if not self.frames:
+            return
+        i = int(np.searchsorted(self.starts, now % self.period, side="right") - 1)
+        if i == self._shown:
+            return
+        self._shown = i
+        f = self.frames[i].astype(np.float32) / 255.0
+        o, n = self.off, self.size
+        rgb = np.zeros((self.canvas, self.canvas, 3), dtype=np.float32)
+        al = np.zeros((self.canvas, self.canvas, 1), dtype=np.float32)
+        rgb[o:o + n, o:o + n] = f[..., :3]
+        al[o:o + n, o:o + n, 0] = f[..., 3]
+        self.logo_rgb, self.logo_a = rgb, al
+        self.logo_lum = (0.3 * rgb[..., 0] + 0.59 * rgb[..., 1] + 0.11 * rgb[..., 2])[..., None]
 
     def ring(self, now: float, strength: float) -> np.ndarray:
         arcs = (np.cos(self.ring_ang * 3 - now * 2.4) > 0.35).astype(np.float32)
@@ -240,7 +305,7 @@ def layout(settings, rect: tuple[int, int, int, int]) -> tuple[int, int]:
     return size, int(float(settings.get("overlay_margen")) * k)
 
 
-# v2.0: la prueba dura 15 s; cada estado se ve unos 2 s
+# v2.0: la prueba recorre estos estados; 2.1.7: se encajan en el tiempo elegido (1–30 s, 5 por defecto)
 DEMO = [("listening", "base", 1.9), ("searching", "purple", 1.9), ("searching", "yellow", 1.9),
         ("searching", "white", 1.5), ("idle", "green", 1.9),
         ("speaking", "green", 2.5), ("idle", "red", 1.9), ("off", "red", 1.5)]
@@ -254,6 +319,7 @@ class Overlay(threading.Thread):
         self.anim = Animator()
         self.test_until = 0.0
         self.test_start = 0.0
+        self.test_scale = 1.0
         self.status = "inactivo"
         self.resolution = (0, 0)
         self.source = ""
@@ -264,6 +330,7 @@ class Overlay(threading.Thread):
         """Lo enseña aunque el juego no esté delante, recorriendo los estados y colores."""
         self.test_start = time.time()
         self.test_until = self.test_start + seconds
+        self.test_scale = seconds / sum(d for *_, d in DEMO)  # todos los estados caben en la prueba
 
     def stop(self) -> None:
         self._stop.set()
@@ -274,7 +341,7 @@ class Overlay(threading.Thread):
                 "game": bool(_game_window_rect())}
 
     def _frame_maker(self, size: int) -> FrameMaker:
-        path = logo_path(self.settings)
+        path = active_logo(self.settings)
         if self._maker is None or self._maker.size != size or getattr(self._maker, "path", None) != path:
             try:
                 self._maker = FrameMaker(size, path)
@@ -286,10 +353,12 @@ class Overlay(threading.Thread):
         return self._maker
 
     def _demo_state(self, now: float) -> tuple[str, float, str]:
+        k = getattr(self, "test_scale", 1.0) or 1.0
         t = now - self.test_start
-        total = sum(d for *_, d in DEMO)
+        total = sum(d for *_, d in DEMO) * k
         t = t % total
         for mode, tint, dur in DEMO:
+            dur *= k
             if t < dur:
                 return mode, abs(math.sin(now * 9)) * 0.8 if mode == "speaking" else 0.0, tint
             t -= dur
@@ -332,6 +401,7 @@ class Overlay(threading.Thread):
                     self.settings.get("overlay_reposo") == "oculto", float(self.settings.get("overlay_intensidad")),
                     tint_rgb(self.settings, tint), fx=self.settings.get("efectos_nivel", "cine"))
                 maker = self._frame_maker(size)
+                maker.seek(now)
                 fx = self.settings.get("efectos_nivel", "cine")
                 ring = maker.ring(now, 0.55 * min(1.0, glow)) if fx == "cine" and glow > 0.05 else None
                 x, y = place(self.settings.get("overlay_posicion"), rect, maker.canvas,

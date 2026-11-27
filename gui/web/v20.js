@@ -1,4 +1,4 @@
-/* NOVA AI 2.0 · estilos de voz (Nova › Voz). */
+/* NOVA AI 2.0 · estilos de voz (Ajustes › Voz y audio). */
 (() => {
   "use strict";
   const $ = (q) => document.querySelector(q);
@@ -38,7 +38,7 @@
         box.querySelectorAll(".vstyle").forEach((x) => x.classList.toggle("on", x === b));
       } catch (e) { say(e.message, "bad"); }
     });
-    // se pinta al abrir Nova › Voz (la lista de voces de Edge tarda un poco la primera vez)
+    // se pinta al abrir Ajustes › Voz y audio (la lista de voces de Edge tarda un poco la primera vez)
     const sub = box.closest(".subsec");
     const obs = new MutationObserver(() => { if (!loaded && sub && sub.offsetParent) paintStyles(); });
     if (sub) obs.observe(sub, { attributes: true, attributeFilter: ["class", "hidden", "style"] });
@@ -69,29 +69,45 @@
     paintThemes();
   }
   // ------------------------------------------------------------ logos del overlay
-  const lp = $("#logoPick");
+  // 2.1.7: «Tipo de agente y estados»: un desplegable de logos animados y otro de fijos (los fijos, para «Sin efectos»)
   const LOGO_NAMES = { nova: "NOVA", nucleo: "Núcleo", onda: "Onda de voz", hexagono: "Hexágono", radar: "Radar",
-                       reticula: "Retícula", personal: "El tuyo…" };
+                       reticula: "Retícula", personal: "El tuyo…",
+                       nova_pulso: "NOVA · latido", nucleo_latido: "Núcleo · latido", radar_barrido: "Radar · barrido",
+                       onda_voz: "Onda de voz · ecualizador", orbitas: "Órbitas · giroscopio", escudo_hex: "Escudo hexagonal · escaneo",
+                       reticula_fijando: "Retícula · fijando objetivo", fijo: "Usar el logo fijo (sin animación)" };
+  const selA = $("#logoAnim"), selF = $("#logoFixed");
+  let logos = null;
+  function refreshLogoImgs() {
+    const t = Date.now();
+    const a = $("#agentPrevImg"); if (a) a.src = `/overlay_logo_actual?t=${t}`;
+    const img = $("#ovLogo img"); if (img) img.src = `/overlay_logo_actual?t=${t}`;
+  }
   async function paintLogos(d) {
-    if (!lp) return;
+    if (!selA && !selF) return;
     if (!d) { try { d = await call("overlay_logos"); } catch { return; } }
-    const src = (id) => (id === "nova" ? "/logo.png" : id === "personal" ? `/overlay_logo.png?t=${Date.now()}` : `/logos/${id}.png`);
-    lp.innerHTML = d.logos.map((id) => `<button type="button" class="logo-sw${id === d.actual ? " on" : ""}" data-logo="${h(id)}">
-      ${id === "personal" && !d.propio ? "<i>＋</i>" : `<img src="${h(src(id))}" alt="">`}<span>${h(T(LOGO_NAMES[id] || id))}</span></button>`).join("");
-    const img = $("#ovLogo img");
-    if (img) img.src = `/overlay_logo.png?t=${Date.now()}`;
+    logos = d;
+    const opt = (id, cur) => `<option value="${h(id)}"${id === cur ? " selected" : ""}>${h(T(LOGO_NAMES[id] || id))}</option>`;
+    if (selA) selA.innerHTML = [...d.animados, "fijo"].map((id) => opt(id, d.animados.includes(d.animado) ? d.animado : "fijo")).join("");
+    if (selF) selF.innerHTML = d.logos.filter((id) => id !== "personal" || d.propio).map((id) => opt(id, d.actual)).join("");
+    const now = $("#logoNow");
+    if (now) now.textContent = d.efectos === "ninguno" ? T("Ahora: el fijo (Sin efectos)")
+      : d.animados.includes(d.animado) ? T("Ahora: el animado") : T("Ahora: el fijo");
+    refreshLogoImgs();
   }
-  if (lp) {
-    lp.addEventListener("click", async (ev) => {
-      const b = ev.target.closest("[data-logo]");
-      if (!b) return;
-      try {
-        if (b.dataset.logo === "personal") paintLogos(await call("pick_overlay_logo"));
-        else { await call("set", { key: "overlay_logo", value: b.dataset.logo }); paintLogos(); }
-      } catch (e) { say(e.message, "bad"); }
-    });
-    paintLogos();
-  }
+  if (selA) selA.addEventListener("change", async () => {
+    try { await call("set", { key: "overlay_logo_animado", value: selA.value }); paintLogos(); } catch (e) { say(e.message, "bad"); }
+  });
+  if (selF) selF.addEventListener("change", async () => {
+    try { await call("set", { key: "overlay_logo", value: selF.value }); paintLogos(); } catch (e) { say(e.message, "bad"); }
+  });
+  const own = $("#btnLogoOwn");
+  if (own) own.addEventListener("click", async () => {
+    try { paintLogos(await call("pick_overlay_logo")); } catch (e) { say(e.message, "bad"); }
+  });
+  // Al cambiar los efectos cambia el logo que se usa (animado ↔ fijo)
+  window.addEventListener("nova-fx", () => paintLogos());
+  paintLogos();
+
   // ------------------------------------------------------------ copias de seguridad
   const bkMsg = $("#bkMsg");
   const parts = () => [...document.querySelectorAll("#bkParts input:checked")].map((x) => x.value);
@@ -131,19 +147,24 @@
       const secId = sec.id.slice(4);
       if (secId === "cabina") return;
       const secName = (document.querySelector(`#nav [data-sec="${secId}"] span`) || {}).textContent || secId;
-      sec.querySelectorAll(".subsec").forEach((sub) => {
-        const tab = sec.querySelector(`.subtabs button[data-sub="${sub.dataset.sub}"]`);
-        const where = secName + " › " + (tab ? tab.textContent.replace(/^[^\p{L}]+/u, "").trim() : "");
+      const tabName = (b) => (b ? b.textContent.replace(/^[^\p{L}]+/u, "").trim() : "");
+      sec.querySelectorAll(":scope > .subsec").forEach((sub) => {
+        const tab = sec.querySelector(`:scope > .subtabs button[data-sub="${sub.dataset.sub}"]`);
+        const where0 = secName + " › " + tabName(tab);
         sub.querySelectorAll(".panel").forEach((panel) => {
+          // 2.1.7: pestañas dentro de una pestaña (Ajustes › Pantalla › …)
+          const inner = panel.closest(".subsec2");
+          const subId = inner ? sub.dataset.sub + ":" + inner.dataset.sub2 : sub.dataset.sub;
+          const where = inner ? where0 + " › " + tabName(sub.querySelector(`.subtabs2 button[data-sub2="${inner.dataset.sub2}"]`)) : where0;
           const head = panel.querySelector(".panel-h span");
           const title = head ? head.textContent.trim() : "";
-          if (title) index.push({ sec: secId, sub: sub.dataset.sub, el: panel, label: title, where, key: norm(title + " " + where) });
+          if (title) index.push({ sec: secId, sub: subId, el: panel, label: title, where, key: norm(title + " " + where) });
           panel.querySelectorAll(".field > label").forEach((lab) => {
             const c = lab.cloneNode(true); c.querySelectorAll("small").forEach((x) => x.remove());
             const main = c.textContent.replace(/\s+/g, " ").trim();
             const extra = lab.querySelector("small") ? lab.querySelector("small").textContent : "";
             if (!main) return;
-            index.push({ sec: secId, sub: sub.dataset.sub, el: lab.closest(".field"), label: main.trim(), where: where + (title ? " › " + title : ""),
+            index.push({ sec: secId, sub: subId, el: lab.closest(".field"), label: main.trim(), where: where + (title ? " › " + title : ""),
                          key: norm(main + " " + extra + " " + title) });
           });
         });

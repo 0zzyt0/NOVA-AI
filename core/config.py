@@ -14,7 +14,7 @@ import os
 import threading
 from pathlib import Path
 
-VERSION = "2.1.6"
+VERSION = "2.1.7"
 APP_NAME = "NOVA AI"
 APP_DIR = Path(__file__).resolve().parent.parent
 FACTORY_DIR = APP_DIR / "datos"  # archivos de fábrica que vienen con el programa (solo lectura)
@@ -322,6 +322,8 @@ DEFAULTS: dict = {
     "tema": "cian",  # v2.0: tema de color de la ventana (core/themes.py)
     "overlay_logo": "nova",  # v2.0: nova, nucleo, onda, hexagono, radar, reticula o personal
     "overlay_logo_ruta": "",  # v2.0: tu PNG (con «personal»)
+    "overlay_logo_animado": "nova_pulso",  # 2.1.7: logo animado (efectos Cinematográficos y Ligeros) o "fijo"
+    "overlay_prueba_segundos": 5,  # 2.1.7: «Probar en pantalla» (1–30 s)
     "overlay_color": "#20b8e8",  # escuchando / pensando / hablando
     "overlay_color_ok": "#39e47a",  # ha entendido
     "overlay_color_busca": "#ffc933",  # buscando en internet
@@ -353,6 +355,10 @@ class Settings:
                     if saved.get("palabras_clave") == OLD_WAKE_DEFAULT:  # versiones anteriores
                         saved["palabras_clave"] = []
                         saved.setdefault("nombre_variantes", ["noba"])
+                    if "overlay_logo_animado" not in saved:  # 2.1.7: la versión animada del logo que tenías
+                        saved["overlay_logo_animado"] = {"nova": "nova_pulso", "nucleo": "nucleo_latido", "onda": "onda_voz",
+                                                         "hexagono": "escudo_hex", "radar": "radar_barrido",
+                                                         "reticula": "reticula_fijando"}.get(saved.get("overlay_logo", "nova"), "fijo")
                     if "tts_efecto" not in saved:  # 2.0: el antiguo sí/no de «IA de cabina»
                         saved["tts_efecto"] = "cabina" if saved.get("tts_efecto_radio", True) else "ninguno"
                     for k, v in saved.items():

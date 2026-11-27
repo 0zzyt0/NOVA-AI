@@ -62,7 +62,7 @@ For example, with one hand on the stick: *"Nova, flight ready"*, *"request takeo
 
 ### Make it yours
 
-**Seven colour themes** (*Screen › Appearance*). Status colours (green, yellow, red, purple) never change, so they keep their meaning:
+**Seven colour themes** (*Settings › Screen › Appearance*). Status colours (green, yellow, red, purple) never change, so they keep their meaning:
 
 ![The seven colour themes](docs/img/en/temas.jpg)
 
@@ -80,7 +80,7 @@ For example, with one hand on the stick: *"Nova, flight ready"*, *"request takeo
 
 | | |
 |---|---|
-| ![The four hologram styles](docs/img/en/holo_modelos.jpg)<br><sub>**Card styles** over the game</sub> | ![Hologram settings](docs/img/en/holo_ajustes.jpg)<br><sub>**Screen › Holograms:** card style, how it appears and letter weight</sub> |
+| ![The four hologram styles](docs/img/en/holo_modelos.jpg)<br><sub>**Card styles** over the game</sub> | ![Hologram settings](docs/img/en/holo_ajustes.jpg)<br><sub>**Settings › Screen › Overlay › Holograms:** card style, how it appears and letter weight</sub> |
 
 <p align="center"><img src="docs/img/en/holo_animacion.gif" width="720" alt="The four ways a hologram appears and disappears"></p>
 <p align="center"><sub>The four ways a hologram appears and disappears over the game: <b>Projector</b>, <b>Sweep</b>, <b>Unfold</b> and <b>Transmission</b>.</sub></p>
@@ -100,14 +100,14 @@ For example, with one hand on the stick: *"Nova, flight ready"*, *"request takeo
 ## What's new in 1.4
 
 - **Keeps running in the Windows tray:** close the window and Nova stays next to the clock, still listening, with the overlay in the game and timers running. Click the icon to open her; right-click for MUTE, sleep mode or *Exit NOVA AI*. You can turn this off in *Settings › General › Window & tray*.
-- **Sleep mode** (*Nova › Microphone*): after the minutes you choose without talking to her (or never, the default), Nova rests and the overlay dims. Wake her with your talk key, the ☀ button or by typing, or choose to wake her by name. You can also say *"Nova, sleep mode"* or use the 💤 button in the Cockpit.
+- **Sleep mode** (*Settings › Voice & audio*): after the minutes you choose without talking to her (or never, the default), Nova rests and the overlay dims. Wake her with your talk key, the ☀ button or by typing, or choose to wake her by name. You can also say *"Nova, sleep mode"* or use the 💤 button in the Cockpit.
 - **Guided tour:** after the setup wizard (or the first time you open 1.4), Nova shows you where every option is in one minute. Repeat it from *Settings › General*.
 - **Anonymous questionnaire:** rate NOVA AI from 1 to 10 and share your ideas. It is published as a public issue here, without your name, gametag or computer data. Nova reminds you once after 3 days and never insists.
 
 **Microphone, fair play and AI engines:**
 
-- **A sturdier microphone:** Nova tries your microphone through several Windows audio paths (MME, DirectSound, WASAPI) and at its native rate (e.g. 48 kHz). If it can't open it, she falls back to the Windows default microphone and tells you. *Nova › Microphone* shows which device is really open and warns you when it only hears total silence (a headset muted with its own button, or blocked in Windows privacy) or a very weak signal.
-- **Microphone gain** (×1 to ×8) in *Nova › Microphone*; the setup wizard raises it for you if your voice comes in too quiet.
+- **A sturdier microphone:** Nova tries your microphone through several Windows audio paths (MME, DirectSound, WASAPI) and at its native rate (e.g. 48 kHz). If it can't open it, she falls back to the Windows default microphone and tells you. *Settings › Voice & audio* shows which device is really open and warns you when it only hears total silence (a headset muted with its own button, or blocked in Windows privacy) or a very weak signal.
+- **Microphone gain** (×1 to ×8) in *Settings › Voice & audio*; the setup wizard raises it for you if your voice comes in too quiet.
 - **MUTE button** on the microphone meter (left sidebar): **MUTE ON** (green) and Nova hears nothing, neither the push-to-talk key nor her name.
 - **Cautious key mode** (*Ship & commands › Game reading & keys*, on by default): a voice command never does more than you could do with one press: no long chained waits, no mouse clicks inside sequences, keys held for 3 s at most and never looped, in line with the RSI Terms of Service on macros.
 - **RSI lookups and Discord posts only when you say "yes":** bounty targets are no longer looked up automatically, and player cards are no longer posted to Discord on their own. Player cards are cached for 10 minutes and RSI requests are spaced at least 2 s apart.
@@ -176,7 +176,7 @@ For example, with one hand on the stick: *"Nova, flight ready"*, *"request takeo
 | | |
 |---|---|
 | ![SC Game: voice commands](docs/img/en/juego.jpg)<br><sub>**SC Game:** your voice commands and their keys</sub> | ![SC Game: keys and joystick](docs/img/en/lectura.jpg)<br><sub>**Keys and joystick:** your Star Citizen keys and how Nova presses them</sub> |
-| ![Nova: intelligence](docs/img/en/ia.jpg)<br><sub>**Nova › Intelligence:** AI engines (paste any key)</sub> | ![Information: sources](docs/img/en/datos.jpg)<br><sub>**Information › Sources:** lookup pages and their check</sub> |
+| ![Nova: intelligence](docs/img/en/ia.jpg)<br><sub>**Settings › DNA & Intelligence:** AI engines (paste any key)</sub> | ![Information: sources](docs/img/en/datos.jpg)<br><sub>**Settings › Sources:** lookup pages and their check</sub> |
 | ![Lookup dictionary](docs/img/en/diccionario.jpg)<br><sub>**Lookup dictionary:** answers without spending AI</sub> | ![Logbook and statistics](docs/img/en/bitacora.jpg)<br><sub>**Logbook & statistics** of your sessions</sub> |
 
 <sub>Every screen is also available in Spanish, Catalan, French and German (*Settings › General › Language*).</sub>
@@ -214,7 +214,7 @@ NOVA AI uses free services in an **engine chain**: if one runs out of quota, she
 
 *Mistral* (paid since August 2026) and *DeepSeek* are optional: they join the chain only if you add your own key.
 
-The installer in *Releases* **comes without AI keys**: Nova obeys voice commands from the first minute, and to talk and search she needs at least one free key. You get one in 2 minutes with no credit card (Gemini and Groq are recommended): chapter 11 of the manual, *Your own API keys*, explains it step by step. Then paste them in ***Nova › Intelligence***, in the *Paste any key here* box: NOVA recognises which service it's for, saves it and tests it. With a service's key, Nova uses all of its free models and, if one runs out of quota, switches to the next by herself (and tells you when each one comes back). Nova always answers in the language you chose.
+The installer in *Releases* **comes without AI keys**: Nova obeys voice commands from the first minute, and to talk and search she needs at least one free key. You get one in 2 minutes with no credit card (Gemini and Groq are recommended): chapter 11 of the manual, *Your own API keys*, explains it step by step. Then paste them in ***Settings › DNA & Intelligence***, in the *Paste any key here* box: NOVA recognises which service it's for, saves it and tests it. With a service's key, Nova uses all of its free models and, if one runs out of quota, switches to the next by herself (and tells you when each one comes back). Nova always answers in the language you chose.
 
 **No factory keys (since 2.1.5):** earlier versions could ship with built-in AI keys, but they were the same for everyone and the free quotas (which are per project or organisation, not per user) were used up by everyone together. Now every pilot adds their own. When updating, NOVA only removes from your settings the keys that match the old factory ones; yours stay.
 

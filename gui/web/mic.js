@@ -1,6 +1,6 @@
 /* NOVA AI 1.3.2 · el micrófono a la vista:
    - botón MUTE en el medidor del lateral (sin micrófono no oye ni con la tecla ni por su nombre);
-   - en el asistente inicial y en Nova › Micrófono, qué micrófono se abrió de verdad y, si no llega
+   - en el asistente inicial y en Ajustes › Voz y audio, qué micrófono se abrió de verdad y, si no llega
      la voz, por qué (sin sonido, silencio total, silenciado…). */
 (() => {
   "use strict";
