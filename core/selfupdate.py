@@ -195,6 +195,13 @@ class Updater:
         """Abre el instalador en modo actualización. relaunch: volver a abrir NOVA al terminar."""
         if not self.file or not self.file.is_file():
             return False
+        if self.settings.get("copia_nova_auto", True):
+            try:  # 2.1.6: antes de actualizar, copia de lo que NOVA ha aprendido (en Documentos)
+                from .controls_backup import nova_backup
+
+                nova_backup(self.settings, "antes de actualizar")
+            except Exception:  # noqa: BLE001
+                log.exception("Copia de NOVA antes de actualizar")
         args = [str(self.file), "/actualizar", f"/destino={APP_DIR}"] + ([] if relaunch else ["/sin-iniciar"])
         if sys.platform != "win32":
             log.info("Actualización (simulada fuera de Windows): %s", args)

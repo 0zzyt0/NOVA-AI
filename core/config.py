@@ -14,7 +14,7 @@ import os
 import threading
 from pathlib import Path
 
-VERSION = "2.1.5"
+VERSION = "2.1.6"
 APP_NAME = "NOVA AI"
 APP_DIR = Path(__file__).resolve().parent.parent
 FACTORY_DIR = APP_DIR / "datos"  # archivos de fábrica que vienen con el programa (solo lectura)
@@ -296,6 +296,16 @@ DEFAULTS: dict = {
     # mantenidas como mucho 3 s (una orden = las teclas del jugador, nada más)
     "teclas_prudentes": True,
     "solo_si_juego_activo": False,  # solo pulsar teclas si Star Citizen está en primer plano
+    # 2.1.6: copias de seguridad de tus controles de Star Citizen y de lo que NOVA ha aprendido
+    "controles_vigilar": True,  # comparar al abrir/cerrar el juego y preguntar si cambian
+    "controles_reponer_auto": False,  # tras una actualización del juego: reponer sin preguntar
+    "controles_copia_sin_preguntar": False,
+    "controles_estado": {},
+    "controles_al_cerrar": [],
+    "controles_diferido": {},
+    "copias_ruta": "",  # vacío = Documentos\NOVA AI\Copias de seguridad
+    "copia_nova_auto": True,  # copia de NOVA antes de actualizarse y una vez al día al cerrar
+    "copia_nova_ultima": 0,
     "teclas_juego_sync": True,  # leer actionmaps.xml al arrancar
     "actionmaps_ruta": "",  # vacío = autodetectar
     "comandos_auto_juego": True,  # añadir como comandos las acciones con tecla en el juego
@@ -380,7 +390,7 @@ class Settings:
     # Lo que NO es «tuyo» y se conserva al empezar de cero: dónde está el juego y la traducción.
     KEEP_ON_RESET = ("juego_carpeta", "gamelog_ruta", "actionmaps_ruta", "globalini_ruta", "traduccion_url",
                      "traduccion_instalada", "traduccion_aviso", "dispositivo_entrada", "dispositivo_salida",
-                     "discord_webhook")
+                     "discord_webhook", "controles_estado", "controles_al_cerrar", "copias_ruta")
 
     def reset(self, keep_keys: bool = True) -> None:
         """Vuelve a los ajustes de fábrica (y a la configuración inicial)."""

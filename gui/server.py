@@ -255,6 +255,7 @@ class UIServer:
             "settings": {k: s.get(k) for k in DEFAULTS if k != "claves"},
             "keys_set": {p: bool(s.key_for(p)) for p in PROVIDERS},
             "motores": self.api_engines(),
+            "controles_preguntas": list(self.nova.controls.pending.values()),
             "providers": {k: {"nombre": v["nombre"], "modelos": v["modelos"], "url": v["clave_url"],
                               "oculto": bool(v.get("oculto"))} for k, v in PROVIDERS.items()},
             "piper_voices": piper_voices(i18n.norm(s.get("idioma"))),
@@ -306,6 +307,37 @@ class UIServer:
 
     def api_preview_voice(self) -> bool:
         return self.nova.preview_voice()
+
+    # --- 2.1.6: copias de seguridad de los controles de Star Citizen y de NOVA
+    def api_controls(self) -> dict:
+        return self.nova.controls.status()
+
+    def api_controls_backup(self, canal: str) -> dict:
+        m = self.nova.controls.backup_now(canal)
+        from core.controls_backup import summary_text
+
+        return {"texto": i18n.tr("Copia hecha: {s}.", s=summary_text(m.get("resumen") or {})),
+                "estado": self.nova.controls.status()}
+
+    def api_controls_restore(self, canal: str, copia: str = "") -> dict:
+        r = self.nova.controls.restore(canal, copia)
+        r["estado"] = self.nova.controls.status()
+        return r
+
+    def api_controls_answer(self, id: str, respuesta: str) -> dict:  # noqa: A002
+        r = self.nova.controls.answer(id, respuesta)
+        r["estado"] = self.nova.controls.status()
+        return r
+
+    def api_controls_check(self) -> dict:
+        self.nova.controls.check("manual")
+        return self.nova.controls.status()
+
+    def api_nova_backup_now(self) -> dict:
+        from core.controls_backup import nova_backup
+
+        path = nova_backup(self.nova.settings, "manual")
+        return {"ruta": path, "texto": i18n.tr("Copia de NOVA guardada: {f}", f=Path(path).name)}
 
     # --- v2.0: copias de seguridad (exportar / importar)
     def _ps_dialog(self, kind: str, title: str, name: str = "") -> str:
@@ -1392,11 +1424,14 @@ class UIServer:
         return True
 
     def api_open(self, what: str) -> bool:
+        from core.controls_backup import safe_root
         from core.knowledge import KNOW_DIR
+        copies = safe_root(self.nova.settings)
         target = {"log": LOG_FILE, "comandos": COMMANDS_FILE, "datos": DATA_DIR, "conocimiento": KNOW_DIR,
-                  "actionmaps": Path(self.nova.commands.sync.get("ruta") or DATA_DIR)}.get(what)
-        if what == "conocimiento":
-            KNOW_DIR.mkdir(parents=True, exist_ok=True)
+                  "actionmaps": Path(self.nova.commands.sync.get("ruta") or DATA_DIR),
+                  "copias_controles": copies / "Controles", "copias_nova": copies / "NOVA"}.get(what)
+        if what in ("conocimiento", "copias_controles", "copias_nova") and target:
+            target.mkdir(parents=True, exist_ok=True)
         if not target:
             raise ValueError("Nada que abrir")
         if sys.platform == "win32":
