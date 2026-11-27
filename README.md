@@ -2,13 +2,19 @@
   <img src="docs/img/logo.png" width="120" alt="NOVA AI">
 </p>
 
+<p align="center">
+  <a href="https://github.com/0zzyt0/NOVA-AI/releases/latest/download/NOVA.AI.Setup.exe">
+    <img src="https://img.shields.io/badge/%E2%AC%87%EF%B8%8F_DOWNLOAD-NOVA_AI_Setup.exe_(Windows_10%2F11)-38d6ff?style=for-the-badge&logo=windows&logoColor=white" height="46" alt="Download NOVA AI">
+  </a>
+</p>
+
 <h1 align="center">NOVA AI</h1>
 <p align="center"><b>Voice flight assistant for Star Citizen</b> · English · <a href="README.es.md">Español</a><br>
 She listens, answers with a natural voice, presses your game keys for you and knows what's happening in your game.<br>
-<i>Official version 2.0 · Windows 10/11 · English, español, català, français, Deutsch · completely free and open source</i></p>
+<i>Version 2.1.7 · Windows 10/11 · English, español, català, français, Deutsch · completely free and open source</i></p>
 
 <p align="center">
-  <a href="../../releases/latest"><b>⬇ Download NOVA AI Setup.exe</b></a> ·
+  <a href="../../releases/latest">Release page &amp; PDF manuals</a> ·
   <a href="#accessibility-play-with-your-voice">Accessibility</a> ·
   <a href="../../issues">Feedback &amp; bugs</a> ·
   <a href="LICENSE">MIT License</a> ·
@@ -29,9 +35,10 @@ She listens, answers with a natural voice, presses your game keys for you and kn
 - **Live telemetry (2.1):** with the game's local telemetry (4.10.2 LIVE and 5.0) she knows your real health, thirst, hunger, oxygen, hydrogen, quantum fuel, shields, hull and quantum travel: she warns you out loud and instantly answers «how much hydrogen is left?». Enable it with one button in *Game › Game alerts*. Each alert also appears as a hologram with its own icon (amber: warning, red: serious). On 5.0 also: quantum travel countdown, gear-up warning when approaching the ground, tracked contract objective and, when you say «Nova, show me the status», a card with all your values.
 - **Holograms over the game:** citizen records (with their org), bounty targets, planets, moons and places, with cinematic, light or no effects.
 - **Game chat and Discord:** *"Nova, send a message to chat…"* and she translates it and types it for you; player cards can be posted to your Discord channel when you say "yes".
-- **She remembers:** a lookup dictionary with about 7,000 entries that answers without spending AI quota, the things you tell her, and a logbook of every session.
+- **She remembers:** a lookup dictionary with about 7,000 entries that answers without spending AI quota, the things you tell her, a logbook of every session and a copy of your last Cockpit conversation (*"Nova, what did we talk about last time?"*).
 - **Star Citizen in your language:** install the community `global.ini` translation you choose (Spanish players get a link to 0zzyt0's [automatic Translation Manager](https://github.com/0zzyt0/StarCitizen-Traduccion-ES), which installs the community translation and keeps it up to date).
-- **She glows in the game:** an overlay with her logo changes colour with what she's doing: listening, understood, searching or speaking.
+- **She glows in the game:** an overlay with her logo (seven **animated** designs or a static one) changes colour with what she's doing: listening, understood, searching or speaking.
+- **Your controls are safe:** she backs up your Star Citizen keybinds (keyboard, mouse, HOTAS/HOSAS) and what she has learned, and offers to restore them when the game updates.
 
 ## Accessibility: play with your voice
 
@@ -47,9 +54,45 @@ Star Citizen asks for a lot of hands: stick, throttle, mouse, keyboard shortcuts
 
 For example, with one hand on the stick: *"Nova, flight ready"*, *"request takeoff"*, *"raise landing gear"* and, in combat, *"flares"* or *"next attacker"*, without ever letting go. Flying and aiming still need a stick, mouse or controller; Nova takes care of almost everything else. If you use NOVA AI for accessibility and something is missing, please tell us in [Issues](../../issues): it's a priority.
 
+## What's new in 2.1
+
+### 2.1.7: a tidier window, animated logos and the last Cockpit session
+
+- **Shorter menu:** **Cockpit · SC Game · DNA & Memory · Settings** (now with a gear icon). The *Nova* section is gone:
+  - **Settings › Voice & audio:** her voice, the sound output, the microphone and how to talk to her.
+  - **Settings › DNA & Intelligence:** her name and yours, **sleep mode**, AI engines, personality and token saving.
+  - **Settings › Screen** with its own tabs: **Overlay** (with the holograms), **Agent type & states** (logo and status colours), **Preview** and **Appearance**.
+  - **Settings › Sources** and **Settings › Discord** each have their own tab.
+  - *Information* is now **DNA & Memory**: Dictionary, What she knows about you and Logbook & statistics.
+- **Animated overlay logos:** seven new designs (NOVA heartbeat, Core, Radar sweep, Voice wave, Orbits, Hex shield and Reticle) in a drop-down, tinted with the status colours. They are animated WebP with real transparency, so the edges look smooth over the game. The static logos (or your own PNG) are used with *No effects*.
+- **Test on screen** for as long as you want (1 to 30 s, 5 s by default), going through every state.
+- **Last Cockpit session:** when NOVA closes, a copy of the whole conversation is saved (even if you cleared it with 🧹). You can read it in *DNA & Memory › Logbook & statistics* and Nova can look it up.
+
+| | |
+|---|---|
+| ![Settings: DNA & Intelligence](docs/img/en/adn.jpg)<br><sub>**Settings › DNA & Intelligence:** identity, sleep mode, AI engines and personality</sub> | ![Agent type and states](docs/img/en/agente.jpg)<br><sub>**Settings › Screen › Agent type & states:** animated and static logos and the status colours</sub> |
+| ![Preview](docs/img/en/overlay.jpg)<br><sub>**Settings › Screen › Preview:** the logo over a game scene and *Test on screen* with your own duration</sub> | ![Last Cockpit session](docs/img/en/cabina_sesion.jpg)<br><sub>**DNA & Memory › Logbook & statistics:** the copy of the last Cockpit session</sub> |
+
+### 2.1.6: backups of your controls
+
+- **SC Game › Keys and joystick › Backup of your controls:** saves your keyboard, mouse, gamepad and HOTAS/HOSAS keybinds (`actionmaps.xml`), your options (`attributes.xml`) and exported profiles for each game version (LIVE, PTU…) in *Documents\NOVA AI\Backups*, outside the game and outside NOVA.
+- When you change your controls she asks (with the game closed) whether to back them up; when Star Citizen updates and your keys are gone, she offers to **restore them**, merging your keys with the new ones and listing the new options to check.
+- What NOVA has learned (settings without keys, commands, memory, dictionary and logbook) is backed up before every update and once a day.
+
+### 2.1.5: AI engines that don't go silent
+
+- **NOVA no longer ships with built-in AI keys:** get your own free keys (2 minutes, no credit card). One box for any key: paste it and NOVA recognises the service, saves it and tests it.
+- **Smart switching:** NOVA uses **all the free models** of each service (Gemini 5, Groq 3, OpenRouter) before moving on, and handles each failure by its cause (per-minute limit, daily quota, overloaded server, invalid key).
+
+### 2.1.0 – 2.1.4: live telemetry, alert holograms and the Translation Manager
+
+- **Live game telemetry** (Star Citizen local telemetry): health, thirst, hunger, oxygen, hydrogen, quantum fuel, shields, hull, quantum travel and tracked contract, with spoken alerts and instant answers without AI.
+- **Alert holograms** with their own icon (amber: warning, red: serious), a status card (*"Nova, show me the status"*), a live quantum travel countdown, a landing-gear-up warning and the tracked contract.
+- **Spanish players:** link to the [automatic Translation Manager](https://github.com/0zzyt0/StarCitizen-Traduccion-ES).
+
 ## What's new in 2.0
 
-- **Reorganised window:** **SC Game** (voice commands, keys and joystick, game alerts with ship profiles, chat and game language), **Nova** (identity, voice, listening, intelligence), **Screen** (overlay, holograms and appearance), **Information** (sources and servers, dictionary, what she knows about you, logbook, Discord) and **Settings** (the only place to change the language, window and tray, updates, backups and starting over). A **settings search** in the header (or `Ctrl+F`) takes you straight to any option.
+- **Reorganised window** (reorganised again in 2.1.7, see above): **SC Game** (voice commands, keys and joystick, game alerts with ship profiles, chat and game language), **Nova** (identity, voice, listening, intelligence), **Screen** (overlay, holograms and appearance), **Information** (sources and servers, dictionary, what she knows about you, logbook, Discord) and **Settings** (the only place to change the language, window and tray, updates, backups and starting over). A **settings search** in the header (or `Ctrl+F`) takes you straight to any option.
 - **Voice styles:** seven ready-tuned styles with the feel of film onboard AIs (onboard butler, ship computer, friendly copilot, tactical AI…). They are synthetic Microsoft Edge voices and **don't imitate any actor or character**.
 - **Voice effects:** a much stronger *cockpit AI* filter plus *helmet comms*, *radio* and *walkie-talkie* (static, squelch and an "over" beep), with adjustable strength.
 - **Game names pronounced in English** in Spanish, Catalan, French and German (*Crusader*, *Hurston*, *Cutlass*…), with your own editable pronunciation list.
@@ -68,7 +111,7 @@ For example, with one hand on the stick: *"Nova, flight ready"*, *"request takeo
 
 | | |
 |---|---|
-| ![Your own overlay logo](docs/img/en/logo_propio.jpg)<br><sub>**Overlay logo:** six built-in designs or **your own PNG** (here a squadron badge), tinted with the status colours over a game scene</sub> | ![Voice styles](docs/img/en/voz_estilos.jpg)<br><sub>**Voice styles** with the feel of film onboard AIs, and game names said in English</sub> |
+| ![Agent type and states](docs/img/en/agente.jpg)<br><sub>**Overlay logo** (2.1.7): seven animated designs, six static ones or **your own PNG**, tinted with the status colours</sub> | ![Voice styles](docs/img/en/voz_estilos.jpg)<br><sub>**Voice styles** with the feel of film onboard AIs, and game names said in English</sub> |
 
 **Voice effects:** cockpit AI, helmet comms, radio and walkie-talkie, each with its own strength.
 
@@ -80,10 +123,13 @@ For example, with one hand on the stick: *"Nova, flight ready"*, *"request takeo
 
 | | |
 |---|---|
-| ![The four hologram styles](docs/img/en/holo_modelos.jpg)<br><sub>**Card styles** over the game</sub> | ![Hologram settings](docs/img/en/holo_ajustes.jpg)<br><sub>**Settings › Screen › Overlay › Holograms:** card style, how it appears and letter weight</sub> |
+| ![The four hologram styles](docs/img/en/holo_modelos.jpg)<br><sub>**Card styles** over the game</sub> | ![Hologram settings](docs/img/en/holo_ajustes.jpg)<br><sub>**Settings › Screen › Overlay:** card style, how it appears and letter weight</sub> |
 
 <p align="center"><img src="docs/img/en/holo_animacion.gif" width="720" alt="The four ways a hologram appears and disappears"></p>
 <p align="center"><sub>The four ways a hologram appears and disappears over the game: <b>Projector</b>, <b>Sweep</b>, <b>Unfold</b> and <b>Transmission</b>.</sub></p>
+
+<details>
+<summary><b>Earlier versions (1.5, 1.4.1, 1.4, 1.3.1, 1.3, 1.2.2, 1.2 and 1.1)</b></summary>
 
 ## What's new in 1.5
 
@@ -133,14 +179,6 @@ For example, with one hand on the stick: *"Nova, flight ready"*, *"request takeo
 - **Check the lookup pages** from *Data & memory › Lookup pages*: Nova tests every page online and tells you which ones answer.
 - **MIT License**: NOVA AI is now free software and is built from this repository with GitHub Actions.
 
-| | |
-|---|---|
-| ![Nova: identity and language](docs/img/en/nova.jpg) | ![Settings: language, updates and files](docs/img/en/ajustes.jpg) |
-| ![Overlay and visual effects](docs/img/en/overlay.jpg) | ![Holograms](docs/img/en/hologramas.jpg) |
-
-<details>
-<summary><b>Earlier versions (1.2.2, 1.2 and 1.1)</b></summary>
-
 ### 1.2.2
 
 - **"NOVA ACTIVE" switch** in the Cockpit: stops Nova at once and cancels every search in progress.
@@ -175,15 +213,17 @@ For example, with one hand on the stick: *"Nova, flight ready"*, *"request takeo
 
 | | |
 |---|---|
-| ![SC Game: voice commands](docs/img/en/juego.jpg)<br><sub>**SC Game:** your voice commands and their keys</sub> | ![SC Game: keys and joystick](docs/img/en/lectura.jpg)<br><sub>**Keys and joystick:** your Star Citizen keys and how Nova presses them</sub> |
-| ![Nova: intelligence](docs/img/en/ia.jpg)<br><sub>**Settings › DNA & Intelligence:** AI engines (paste any key)</sub> | ![Information: sources](docs/img/en/datos.jpg)<br><sub>**Settings › Sources:** lookup pages and their check</sub> |
-| ![Lookup dictionary](docs/img/en/diccionario.jpg)<br><sub>**Lookup dictionary:** answers without spending AI</sub> | ![Logbook and statistics](docs/img/en/bitacora.jpg)<br><sub>**Logbook & statistics** of your sessions</sub> |
+| ![SC Game: voice commands](docs/img/en/juego.jpg)<br><sub>**SC Game:** your voice commands and their keys</sub> | ![SC Game: keys and joystick](docs/img/en/lectura.jpg)<br><sub>**Keys and joystick:** your Star Citizen keys, how Nova presses them and the backup of your controls</sub> |
+| ![Settings: voice and audio](docs/img/en/voz_estilos.jpg)<br><sub>**Settings › Voice & audio:** voice styles, engine, effects and the microphone</sub> | ![Settings: AI engines](docs/img/en/ia.jpg)<br><sub>**Settings › DNA & Intelligence:** AI engines (paste any key) and personality</sub> |
+| ![Settings: Screen › Overlay](docs/img/en/hologramas.jpg)<br><sub>**Settings › Screen › Overlay:** the holograms and their settings</sub> | ![Settings: sources](docs/img/en/datos.jpg)<br><sub>**Settings › Sources:** lookup pages and their check</sub> |
+| ![Lookup dictionary](docs/img/en/diccionario.jpg)<br><sub>**DNA & Memory › Dictionary:** answers without spending AI</sub> | ![Logbook and statistics](docs/img/en/bitacora.jpg)<br><sub>**DNA & Memory › Logbook & statistics** of your sessions</sub> |
+| ![Settings: general](docs/img/en/ajustes.jpg)<br><sub>**Settings › General:** language, window and tray, updates</sub> | ![Holograms](docs/img/en/holo_ajustes.jpg)<br><sub>**Hologram settings:** opacity, time, size, card style and when they appear</sub> |
 
 <sub>Every screen is also available in Spanish, Catalan, French and German (*Settings › General › Language*).</sub>
 
 ## Installation
 
-1. Download **`NOVA AI Setup.exe`** from [Releases](../../releases/latest) (or the portable `.zip`).
+1. Download **[`NOVA.AI.Setup.exe`](https://github.com/0zzyt0/NOVA-AI/releases/latest/download/NOVA.AI.Setup.exe)** (the button at the top; on the [release page](../../releases/latest) there is also the portable `.zip` and the PDF manuals).
 2. Open it and accept the administrator prompt (it installs to `C:\Program Files\NOVA AI` by default; **Choose folder…** lets you pick another folder or drive).
 3. **Choose your language** (it suggests your Windows language).
 4. Accept the Terms of use and Privacy policy, in your language ([EN](NORMAS_Y_PRIVACIDAD.en.md) · [ES](NORMAS_Y_PRIVACIDAD.md) · [CA](NORMAS_Y_PRIVACIDAD.ca.md) · [FR](NORMAS_Y_PRIVACIDAD.fr.md) · [DE](NORMAS_Y_PRIVACIDAD.de.md)), and click **Start**.
@@ -192,25 +232,24 @@ For example, with one hand on the stick: *"Nova, flight ready"*, *"request takeo
 The installer downloads Python 3.12 if you don't have it (for Nova only), creates the shortcuts and registers the uninstaller. The in-app manual (*Read the Manual*) and the PDF manual in *Releases* come in all five languages, with screenshots of the window in each one; the detailed technical guide ([LEEME](LEEME.md)) is in Spanish.
 
 > [!IMPORTANT]
-> **The 2.0 executables are not code-signed yet.** A free code signing certificate has been requested from SignPath Foundation (see [Code signing policy](#code-signing-policy)).
+> **The executables are not code-signed yet.** A free code signing certificate has been requested from SignPath Foundation (see [Code signing policy](#code-signing-policy)).
 >
 > - **"Windows protected your PC" (SmartScreen):** click *More info → Run anyway*.
 > - **Smart App Control** (Windows 11, *Windows Security › App & browser control*): when it is **On**, it blocks any unsigned program and allows no exceptions. To install NOVA AI you have to set it to **Off** (the portable `.zip` is blocked too) or wait for the signed version. Since the April 2026 Windows update it can be turned back on later without reinstalling Windows. In **Evaluation** mode Windows decides by itself and may let it through.
 >
-> To check that the file is the original, compare the SHA-256 shown by GitHub next to each Release file with your download: `certutil -hashfile "NOVA AI Setup.exe" SHA256`.
+> To check that the file is the original, compare the SHA-256 shown by GitHub next to each Release file with your download: `certutil -hashfile "NOVA.AI.Setup.exe" SHA256`.
 
 <p align="center"><img src="docs/img/en/asistente.jpg" width="720" alt="First-start setup: your game and its Game.log"></p>
 
 ## AI engines and keys
 
-NOVA AI uses free services in an **engine chain**: if one runs out of quota, she moves to the next.
+NOVA AI uses free services in an **engine chain**: if a model runs out of quota, she moves to the next one.
 
-| # | Provider | Model |
+| # | Service | Free models used |
 |---|---|---|
-| 1 | Google Gemini | `gemini-flash-lite-latest` |
-| 2 | Google Gemini | `gemini-3.5-flash-lite` |
-| 3 | Groq | `openai/gpt-oss-120b` |
-| 4 | OpenRouter | `openrouter/free` |
+| 1 | Google Gemini | 5 (`gemini-flash-lite-latest`, `gemini-3.5-flash-lite`, `gemini-3.1-flash-lite`, `gemini-3.6-flash`, `gemini-3.8-flash`) |
+| 2 | Groq | 3 (`openai/gpt-oss-120b`, `openai/gpt-oss-20b`, `qwen/qwen3.8-27b`) |
+| 3 | OpenRouter | `openrouter/free` |
 
 *Mistral* (paid since August 2026) and *DeepSeek* are optional: they join the chain only if you add your own key.
 
@@ -258,13 +297,14 @@ Signing only runs once SignPath is configured for the project; without it, the w
 | Folder | Contents |
 |---|---|
 | `nova.py` | Start-up: initial language, fresh data, listening, voice and the window |
-| `core/` | Speech recognition and synthesis, AI, commands and keys, Game.log reading, holograms, overlay, logbook, memory, data sources, translation and languages (`i18n.py`, `lang_data.py`, `manual_tr.py`) |
+| `core/` | Speech recognition and synthesis, AI engines, commands and keys, Game.log and live telemetry, holograms, overlay, logbook and Cockpit copy (`cabin.py`), memory, backups of your controls, data sources, translation and languages (`i18n.py`, `lang_data.py`, `manual_tr.py`) |
 | `gui/` | Local window (HTML + JS) and server; `gui/web/manual/` is the manual and `gui/web/acerca/` the About window |
 | `instalador/` | Graphical installer and uninstaller in five languages (PowerShell + WPF) |
 | `build/` | Sources of the .exe files (Go), Windows resource generator and icons |
 | `.github/workflows/` | Build and signing with GitHub Actions |
 | `servicios/cuestionario/` | Cloudflare Worker for the anonymous questionnaire (creates the issue without putting a token in the program) |
 | `recursos/idiomas/` | Window and Nova texts in English, Catalan, French and German |
+| `recursos/logos/` | Overlay logos: static (`*.png`) and animated (`animados/*.webp`, made with `build/generar_logos_animados.py`) |
 | `datos/comandos.json` | Factory voice commands (Spanish), plus `datos/comandos.<language>.json` with their phrases in each language |
 | `NORMAS_Y_PRIVACIDAD*.md` | Terms of use and Privacy policy in the five languages |
 
