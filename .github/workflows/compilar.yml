@@ -98,7 +98,7 @@ jobs:
           V=$(python3 -c "import re;print(re.search(r'VERSION = \"([^\"]+)\"', open('core/config.py', encoding='utf-8').read()).group(1))")
           mkdir -p version
           if [ -f "firmado/setup/NOVA AI Setup.exe" ]; then S="firmado/setup/NOVA AI Setup.exe"; else S="dist/NOVA AI Setup.exe"; fi
-          cp "$S" "version/NOVA.AI.Setup.$V.exe"
+          cp "$S" "version/NOVA.AI.Setup.exe"  # 2.1.7: nombre fijo para el botón de descarga del README (releases/latest/download/NOVA.AI.Setup.exe)
           (cd dist && zip -qr9 "../version/NOVA_AI_${V}_portable.zip" Nova -x '*.pyc')
           (cd version && sha256sum * > SHA256SUMS.txt)
           ls -la version

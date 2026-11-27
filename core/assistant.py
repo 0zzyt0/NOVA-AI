@@ -101,6 +101,9 @@ class Nova:
         self.updater = Updater(settings, self.gamelog, self.knowledge)
         self.tools.knowledge = self.knowledge
         self.tools.diary = self.diary
+        from .cabin import CabinLog  # 2.1.7: copia de la última sesión de la Cabina
+
+        self.cabin = CabinLog()
         # v1.1: temporizadores, estadísticas, estado de los servidores de RSI
         from .config import DATA_DIR
         from .stats import Stats
@@ -468,7 +471,7 @@ class Nova:
 
     def play_sfx(self, name: str, force: bool = False) -> None:
         """Sonidos de los hologramas (encendido, apagado y alerta de objetivo de captura): el elegido
-        en Interfaz › Overlay NOVA AI (de la lista o un archivo tuyo) con su volumen."""
+        en Ajustes › Pantalla › Overlay (de la lista o un archivo tuyo) con su volumen."""
         if not (force or self.settings.get("holo_sonidos", True)):
             return
         from . import sfx

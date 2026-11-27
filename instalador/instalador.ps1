@@ -13,7 +13,7 @@ param([string]$Destino = '', [string]$Origen = '', [switch]$Actualizar, [switch]
 # -Desatendido (2.0): instala sin ventana ni preguntas y sale con 0 si todo fue bien (pruebas automáticas en GitHub).
 $ErrorActionPreference = 'Continue'
 $AppName = 'NOVA AI'
-$AppVersion = '2.1.6'
+$AppVersion = '2.1.7'
 # Origen: carpeta con el programa a instalar. «NOVA AI Setup.exe» la pasa (la descomprime en TEMP);
 # con INSTALAR.bat es la carpeta padre de este script.
 $Src = if ($Origen) { $Origen } elseif ($PSScriptRoot) { Split-Path -Parent $PSScriptRoot } else { (Get-Location).Path }

@@ -39,7 +39,7 @@ SmartScreen no los bloqueen). Se lanza en **Actions › Compilar y firmar › Ru
    ligero. Se firman (configuración de artefacto `exes` en SignPath).
 2. **Fase pack** (`NOVA_STAGE=pack build/build_win.sh`): el instalador todo en uno, con los ejecutables ya firmados
    dentro, y la carpeta `dist/Nova`. Se firma el instalador (configuración `setup`).
-3. El artefacto **NOVA-AI-version** trae `NOVA.AI.Setup.<versión>.exe`, `NOVA_AI_<versión>_portable.zip` y
+3. El artefacto **NOVA-AI-version** trae `NOVA.AI.Setup.exe` (nombre fijo desde la 2.1.7: el botón DESCARGAR del README apunta a `releases/latest/download/NOVA.AI.Setup.exe`), `NOVA_AI_<versión>_portable.zip` y
    `SHA256SUMS.txt`, listos para adjuntar a la Release.
 
 Para activar la firma (cuando SignPath Foundation acepte el proyecto), en el repositorio:

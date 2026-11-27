@@ -154,7 +154,7 @@ def alert_bell() -> np.ndarray:
     return _seq([(k * 0.32, _tone(988 if k % 2 == 0 else 698, 0.45, "bell", 4)) for k in range(4)], 1.5) * 0.55
 
 
-# Sonidos que se pueden elegir para cada momento (Interfaz › Overlay NOVA AI › Sonido)
+# Sonidos que se pueden elegir para cada momento (Ajustes › Pantalla › Overlay › Sonido)
 PRESETS: dict[str, dict[str, tuple[str, object]]] = {
     "holo_on": {"proyector": ("Proyector holográfico", holo_on), "pulso": ("Pulso digital", on_pulse),
                 "escaner": ("Escáner", on_scanner), "campanilla": ("Campanilla", on_chime),

@@ -274,6 +274,12 @@ class Tools:
                                "grupo, muertes, saltos, contratos y últimos eventos.",
                 "parameters": {"type": "object", "properties": {}}}},
             {"type": "function", "function": {
+                "name": "ultima_sesion_cabina",
+                "description": "Transcripción de lo que el piloto y tú os dijisteis en la Cabina en la sesión ANTERIOR de NOVA "
+                               "(se guarda al cerrar). Úsala si pregunta de qué hablasteis la última vez, qué te pidió o "
+                               "qué le respondiste antes.",
+                "parameters": {"type": "object", "properties": {}}}},
+            {"type": "function", "function": {
                 "name": "recordar",
                 "description": "Guarda en la memoria permanente (el archivo «lo que sabe de ti») un dato útil sobre el piloto: "
                                "gustos, organización, planes… Para una nave suya usa seccion='naves' con solo el nombre de la nave.",
@@ -746,7 +752,7 @@ class Tools:
             return "Tipo desconocido: usa mineral, lugar, laseres o refinerias."
         except NoKey:
             page = f"{SITE}/data/ores/{slug(nombre)}" if tipo == "mineral" and nombre else f"{SITE}/mining"
-            return ("SIN CLAVE: para consultar Motherlode el piloto tiene que poner su clave gratuita en Información › "
+            return ("SIN CLAVE: para consultar Motherlode el piloto tiene que poner su clave gratuita en Ajustes › "
                     f"Fuentes (se crea en {KEY_URL}). Mientras, contesta con lo que sepas y ofrécele abrir {page}.")
         except MotherlodeError as e:
             return f"SIN DATOS de Motherlode: {e}"
@@ -799,6 +805,14 @@ class Tools:
             except Exception:  # noqa: BLE001
                 pass
         return self.stats.describe(periodo)
+
+    def t_ultima_sesion_cabina(self) -> str:
+        from .cabin import read_last
+
+        d = read_last(max_chars=5500)
+        if not d["existe"] or not d["texto"]:
+            return "SIN DATOS: todavía no hay ninguna sesión de Cabina guardada (se guarda al cerrar NOVA AI)."
+        return f"Última sesión de Cabina ({d['fecha']}):\n{d['texto']}"
 
     def t_recordar(self, dato: str, seccion: str = "otros") -> str:
         return self.memory.remember(dato, seccion)

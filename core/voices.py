@@ -116,7 +116,7 @@ RESPELL = {"es": _ES, "ca": _CA, "fr": _FR, "de": _DE, "en": {}}
 
 
 def parse_custom(text: str) -> dict[str, str]:
-    """«Nombre = cómo decirlo», uno por línea (lo que escribe el jugador en Nova › Voz)."""
+    """«Nombre = cómo decirlo», uno por línea (lo que escribe el jugador en Ajustes › Voz y audio)."""
     out = {}
     for line in (text or "").splitlines():
         if "=" in line:

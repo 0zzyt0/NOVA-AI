@@ -5,7 +5,7 @@ La tarjeta se dibuja una vez con Pillow (texto, marcos, foto, logo de la organiz
 fotograma se anima con numpy: aparece como una proyección (una línea de luz que se abre), tiene
 líneas de barrido y algún «glitch» suave mientras está en pantalla, y se pliega al desaparecer.
 Se muestra en su propia ventana por capas (como el logo de Nova): el ratón la atraviesa y no roba
-el foco. La opacidad, el tamaño, la posición y el tiempo en pantalla se ajustan en Interfaz › Overlay.
+el foco. La opacidad, el tamaño, la posición y el tiempo en pantalla se ajustan en Ajustes › Pantalla › Overlay.
 """
 from __future__ import annotations
 

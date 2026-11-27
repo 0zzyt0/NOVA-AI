@@ -85,5 +85,7 @@ class Session:
             when = time.strftime("%d/%m %H:%M", d)
         except ValueError:
             pass
-        sep = {"t": "msg", "who": "sistema", "ts": "", "text": f"── Sesión anterior · {when} ── continúas donde lo dejaste ──"}
+        from .i18n import tr  # 2.1.7: también en tu idioma
+        sep = {"t": "msg", "who": "sistema", "ts": "",
+               "text": tr("── Sesión anterior · {w} ── continúas donde lo dejaste ──", w=when)}
         return chat[-(MAX_CHAT - 1):] + [sep]

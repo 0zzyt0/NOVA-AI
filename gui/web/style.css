@@ -645,3 +645,20 @@ img,a,svg{-webkit-user-drag:none;user-drag:none}
 .ctl-news li{font-family:var(--mono);font-size:11.5px;color:#e9d9a8}
 @media (max-width:900px){.ctl-chan{grid-template-columns:1fr}}
 .ctl-restore label{margin:0;align-self:center}
+/* 2.1.7: pestañas dentro de Ajustes › Pantalla, Tipo de agente y estados, Vista previa, última sesión de Cabina */
+.subsec2{display:none;animation:in .25s ease}.subsec2.on{display:block}
+.subtabs.subtabs2{margin:4px 0 16px;position:static}  /* la fila de Ajustes ya se queda arriba al bajar */
+.subtabs.subtabs2 button{font-size:12.5px;padding:7px 13px}
+.agent-row{display:flex;gap:18px;align-items:center;margin:6px 0 4px}
+.agent-prev{position:relative;flex:0 0 132px;width:132px;height:132px;border:1px solid var(--line);background:radial-gradient(circle at 50% 50%,rgba(20,60,90,.55),rgba(4,12,22,.9));display:grid;place-items:center}
+.agent-prev img{width:110px;height:110px;object-fit:contain}
+.agent-prev .tintmask{display:none}
+.agent-sel{flex:1;min-width:0}
+.agent-sel .field{margin-bottom:6px}
+.ov-secs{display:inline-flex;align-items:center;gap:6px;color:#a9c8d8;font-size:13px}
+.ov-secs input{width:58px;text-align:center}
+.cabin-log{max-height:340px;overflow:auto;white-space:pre-wrap}
+@media (max-width:900px){.agent-row{flex-direction:column;align-items:stretch}.agent-prev{margin:0 auto}}
+/* 2.1.7: las 8 pestañas de Ajustes caben en una fila a partir de ~1300 px */
+.subtabs[data-group="ajustes"]{flex-wrap:wrap}
+.subtabs[data-group="ajustes"] button{padding:8px 10px;letter-spacing:.2px;font-size:13px}

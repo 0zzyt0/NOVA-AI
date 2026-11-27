@@ -90,6 +90,9 @@ class UIServer:
         if who == self.nova.name:
             ev["ai"] = True  # mensaje de la IA (aunque luego le cambies el nombre)
         self._history = (self._history + [ev])[-80:]
+        cabin = getattr(self.nova, "cabin", None)
+        if cabin is not None:  # 2.1.7: copia de la sesión de Cabina (no se borra con 🧹)
+            cabin.record(who, text, bool(ev.get("ai")), self.nova.name)
         if self.session:
             self.session.update(chat=self._history)
         self.broadcast(ev)
@@ -153,6 +156,17 @@ class UIServer:
                     from core.overlay import logo_path
                     f = logo_path(server.nova.settings)
                     return self._send(200, f.read_bytes(), TYPES.get(f.suffix.lower(), "image/png"))
+                if path == "/overlay_logo_actual":  # 2.1.7: el que se ve ahora (animado o fijo, según los efectos)
+                    from core.overlay import active_logo
+                    f = active_logo(server.nova.settings)
+                    return self._send(200, f.read_bytes(), TYPES.get(f.suffix.lower(), "image/png"))
+                m = re.fullmatch(r"/logos/animados/([a-z_]+)\.webp", path)
+                if m:  # 2.1.7: logos animados del overlay
+                    from core.overlay import animated_path
+                    f = animated_path(m.group(1))
+                    if not f:
+                        return self._send(404, b"", "text/plain")
+                    return self._send(200, f.read_bytes(), "image/webp")
                 if path in ("/logo.png", "/favicon.ico"):
                     f = APP_DIR / "recursos" / ("nova.png" if path == "/logo.png" else "nova.ico")
                 elif path in ("/logos/made_by_the_community.png", "/logos/logo_0zzyt0.png"):
@@ -411,7 +425,11 @@ class UIServer:
         from core.overlay import LOGOS
 
         s = self.nova.settings
-        return {"logos": list(LOGOS), "actual": s.get("overlay_logo", "nova"), "propio": s.get("overlay_logo_ruta", "")}
+        from core.overlay import ANIMATED, animated_path
+
+        return {"logos": list(LOGOS), "actual": s.get("overlay_logo", "nova"), "propio": s.get("overlay_logo_ruta", ""),
+                "animados": [a for a in ANIMATED if animated_path(a)], "animado": s.get("overlay_logo_animado", "fijo"),
+                "efectos": s.get("efectos_nivel", "cine")}
 
     def api_pick_overlay_logo(self) -> dict:
         """Ventana de Windows para elegir tu propio PNG (fondo transparente) como logo del overlay."""
@@ -488,6 +506,11 @@ class UIServer:
             value = str(value or "").strip()
             if value and not discord.valid(value):
                 raise ValueError("Ese enlace no es un webhook de Discord (https://discord.com/api/webhooks/…).")
+        elif key == "overlay_prueba_segundos":
+            value = max(1, min(int(value or 5), 30))
+        elif key == "overlay_logo_animado":
+            from core.overlay import ANIMATED
+            value = value if value in ANIMATED else "fijo"
         elif key == "perfiles_nave":
             if not isinstance(value, dict):
                 raise ValueError("Perfil de nave no válido")
@@ -1199,10 +1222,15 @@ class UIServer:
         return True
 
     # --- overlay y varios
-    def api_overlay_test(self) -> str:
+    def api_overlay_test(self, segundos: float | None = None) -> str:
+        """«Probar en pantalla»: el tiempo lo eliges tú (1–30 s; por defecto, el de Vista previa)."""
         if not self.overlay:
             return "no disponible"
-        self.overlay.test(15)
+        try:
+            secs = float(segundos if segundos is not None else self.nova.settings.get("overlay_prueba_segundos", 5))
+        except (TypeError, ValueError):
+            secs = 5.0
+        self.overlay.test(max(1.0, min(secs, 30.0)))
         return self.overlay.status
 
     # --- traducción al español (0zzyt0) en la carpeta LIVE
@@ -1298,6 +1326,10 @@ class UIServer:
         n.diary.reset(None)
         n.diary.file = None
         shutil.rmtree(DIARY_DIR, ignore_errors=True)
+        cabin = getattr(self.nova, "cabin", None)
+        if cabin is not None:  # 2.1.7: la copia de la Cabina también se va (y no se vuelve a escribir al cerrar)
+            with cabin._lock:
+                cabin.lines, cabin.talk, cabin.dirty = [], 0, False
         if not conservar_comandos:
             try:
                 n.commands.reset_personal()
@@ -1405,6 +1437,22 @@ class UIServer:
         docs = self.nova.knowledge.search(str(q)[:200], k=8) if self.nova.knowledge.docs else []
         return [{"titulo": d.title, "texto": d.text[:400], "tipo": KIND_LABEL.get(d.kind, d.kind),
                  "fuente": src.get(d.source, d.source)} for d in docs]
+
+    def api_cabin_last(self) -> dict:
+        """2.1.7: la copia de la última sesión de Cabina (la de la sesión anterior hasta que hables en esta)."""
+        from core.cabin import read_last
+        return read_last(max_chars=60000)
+
+    def api_open_cabin(self) -> bool:
+        from core.cabin import CABIN_FILE
+        cabin = getattr(self.nova, "cabin", None)
+        if cabin is not None:
+            cabin.save()
+        if not CABIN_FILE.is_file():
+            raise ValueError("Todavía no hay ninguna sesión de Cabina guardada: se guarda al cerrar NOVA AI.")
+        if sys.platform == "win32":
+            subprocess.Popen(["notepad.exe", str(CABIN_FILE)], creationflags=0x08000000)
+        return True
 
     def api_diary(self) -> dict:
         d = self.nova.diary

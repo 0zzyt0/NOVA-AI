@@ -31,50 +31,80 @@ function toast(text, kind = "") {
 const safe = (fn) => async (...a) => { try { return await fn(...a); } catch (e) { toast(e.message, "bad"); } };
 
 // ------------------------------------------------------------ navegación
-const TITLES = { cabina: "Cabina", juego: "Juego SC", nova: "Nova", overlay: "Pantalla",
-                 datos: "Información", ajustes: "Ajustes" };
-// v2.0: pestañas que se unieron o cambiaron de sitio → [sección, pestaña nueva]
-const MOVED_SUBS = { "nova/mic": ["nova", "escucha"], "nova/hablar": ["nova", "escucha"], "nova/sonido": ["nova", "voz"],
-                     "nova/ahorro": ["nova", "ia"], "juego/lectura": ["juego", "avisos"], "juego/perfiles": ["juego", "avisos"],
+const TITLES = { cabina: "Cabina", juego: "Juego SC", datos: "ADN y Memoria", ajustes: "Ajustes" };
+// Pestañas que se unieron o cambiaron de sitio → [sección, pestaña nueva] (2.1.7: «Nova» y «Pantalla» van dentro de Ajustes;
+// «Información» es ADN y Memoria; «pantalla:vista» = pestaña Pantalla › Vista previa)
+const MOVED_SUBS = { "nova/mic": ["ajustes", "voz"], "nova/hablar": ["ajustes", "voz"], "nova/sonido": ["ajustes", "voz"],
+                     "nova/voz": ["ajustes", "voz"], "nova/escucha": ["ajustes", "voz"], "nova/identidad": ["ajustes", "adn"],
+                     "nova/ia": ["ajustes", "adn"], "nova/ahorro": ["ajustes", "adn"], "nova/reposo": ["ajustes", "adn"],
+                     "overlay/logo": ["ajustes", "pantalla:overlay"], "overlay/hologramas": ["ajustes", "pantalla:overlay"],
+                     "overlay/aspecto": ["ajustes", "pantalla:aspecto"], "overlay/agente": ["ajustes", "pantalla:agente"],
+                     "overlay/vista": ["ajustes", "pantalla:vista"], "datos/fuentes": ["ajustes", "fuentes"],
+                     "datos/discord": ["ajustes", "discord"], "juego/lectura": ["juego", "avisos"], "juego/perfiles": ["juego", "avisos"],
                      "datos/traduccion": ["juego", "idioma"], "nova/idioma": ["ajustes", "general"] };
 // Nombres de secciones de versiones anteriores → [sección, pestaña]
-const OLD_SECTIONS = { oido: ["nova", "escucha"], voz: ["nova", "voz"], interfaz: ["nova", "escucha"], ia: ["nova", "ia"],
-                       memoria: ["datos", "memoria"] };
-// Ganchos de las versiones anteriores: qué nombre antiguo «se abre» con cada sección nueva
-const LEGACY = { cabina: ["cabina"], juego: ["juego"], nova: ["voz", "interfaz", "ia"], overlay: ["interfaz"],
-                 datos: ["datos", "memoria"], ajustes: ["datos"] };
+const OLD_SECTIONS = { oido: ["ajustes", "voz"], voz: ["ajustes", "voz"], interfaz: ["ajustes", "voz"], ia: ["ajustes", "adn"],
+                       memoria: ["datos", "memoria"], nova: ["ajustes", "voz"], overlay: ["ajustes", "pantalla"],
+                       informacion: ["datos", "diccionario"] };
+// Ganchos de las versiones anteriores: qué nombre antiguo «se abre» con cada pestaña nueva
+const LEGACY = { cabina: ["cabina"], juego: ["juego"], datos: ["memoria"], ajustes: ["datos"],
+                 "ajustes/adn": ["ia"], "ajustes/pantalla": ["interfaz"] };
+const subOf = (root) => { const x = root && root.querySelector(":scope > .subsec.on"); return x ? x.dataset.sub : ""; };
 const secOn = (sec, sub) => { const r = $("#sec-" + sec); if (!r || !r.classList.contains("on")) return false;
-  return !sub || !!$(`.subsec.on[data-sub="${sub}"]`, r); };
+  return !sub || subOf(r) === sub; };
+function legacy(names) {
+  for (const old of names)
+    for (const v of [window.V11, window.V12, window.V122, window.V13, window.V130]) if (v && v.onSection) { try { v.onSection(old); } catch (e) { console.warn(e); } }
+}
+// Lo que hay que cargar al abrir cada pestaña
+function onSub(sec, sub) {
+  if (!secOn(sec)) return;
+  if (sec === "ajustes") {
+    if (sub === "voz") loadDevices();
+    if (sub === "adn") loadIA();
+    if (sub === "fuentes") loadSources();
+    if (sub === "pantalla") window.dispatchEvent(new Event("resize"));  // recoloca la vista previa
+  }
+  legacy(LEGACY[sec + "/" + sub] || []);
+}
 function go(sec, remember = true, sub = "") {
-  if (OLD_SECTIONS[sec]) { const [a, b] = OLD_SECTIONS[sec]; sec = a; sub = sub || b; }
-  if (sub && MOVED_SUBS[sec + "/" + sub]) [sec, sub] = MOVED_SUBS[sec + "/" + sub];
+  for (let i = 0; i < 3 && sub && MOVED_SUBS[sec + "/" + sub]; i++) [sec, sub] = MOVED_SUBS[sec + "/" + sub];
+  let fallback = "";
+  if (OLD_SECTIONS[sec]) { const [a, b] = OLD_SECTIONS[sec]; sec = a; fallback = b; sub = sub || b; }
   if (!TITLES[sec]) sec = "cabina";
-  if (sub) showSub(sec, sub);
+  if (sub && !$(`#sec-${sec} > .subsec[data-sub="${String(sub).split(":")[0]}"]`)) sub = fallback;  // pestaña que ya no existe
   if (remember) api("ui_state", { seccion: sec }).catch(() => {});
   $$("#nav button[data-sec]").forEach((b) => b.classList.toggle("on", b.dataset.sec === sec));
   $$(".sec").forEach((s) => s.classList.toggle("on", s.id === "sec-" + sec));
   $("#secTitle").textContent = T(TITLES[sec]);
-  if (sec === "datos") { loadMemory(); loadDiary(); loadSources(); }
+  if (sec === "datos") { loadMemory(); loadDiary(); loadCabin().catch(() => {}); }
   if (sec === "juego") { loadCommands(); Trad.load(); }
-  if (sec === "nova") { loadDevices(); loadIA(); }
-  if (sec === "ajustes") loadSources();
-  if (sec === "overlay") window.dispatchEvent(new Event("resize"));
-  for (const old of LEGACY[sec] || [sec])
-    for (const v of [window.V11, window.V12, window.V122, window.V13, window.V130]) if (v && v.onSection) { try { v.onSection(old); } catch (e) { console.warn(e); } }
+  legacy(LEGACY[sec] || [sec]);
+  if (sub) showSub(sec, sub);
+  else onSub(sec, subOf($("#sec-" + sec)));
 }
 $$("#nav button[data-sec]").forEach((b) => b.addEventListener("click", () => go(b.dataset.sec)));
 $("#btnManual").addEventListener("click", safe(async () => { await api("open_manual"); toast("Manual abierto en tu navegador", "ok"); }));
-// Subapartados (pestañas dentro de una sección)
+// Subapartados (pestañas dentro de una sección); «pantalla:vista» abre también la pestaña de dentro
 function showSub(sec, sub) {
   const mv = MOVED_SUBS[sec + "/" + sub];
   if (mv && mv[0] === sec) sub = mv[1];
   const root = $("#sec-" + sec);
   if (!root) return;
-  $$(".subtabs button", root).forEach((b) => b.classList.toggle("on", b.dataset.sub === sub));
-  $$(".subsec", root).forEach((x) => x.classList.toggle("on", x.dataset.sub === sub));
-  if (sec === "overlay") window.dispatchEvent(new Event("resize"));  // recoloca la vista previa
+  const [outer, inner] = String(sub).split(":");
+  root.querySelectorAll(":scope > .subtabs > button").forEach((b) => b.classList.toggle("on", b.dataset.sub === outer));
+  root.querySelectorAll(":scope > .subsec").forEach((x) => x.classList.toggle("on", x.dataset.sub === outer));
+  if (inner) showSub2($(`.subsec[data-sub="${outer}"]`, root), inner);
+  onSub(sec, outer);
 }
-$$(".subtabs button").forEach((b) => b.addEventListener("click", () => showSub(b.closest(".sec").id.slice(4), b.dataset.sub)));
+function showSub2(box, sub2) {
+  if (!box) return;
+  box.querySelectorAll(":scope > .subtabs2 > button").forEach((b) => b.classList.toggle("on", b.dataset.sub2 === sub2));
+  box.querySelectorAll(":scope > .subsec2").forEach((x) => x.classList.toggle("on", x.dataset.sub2 === sub2));
+  window.dispatchEvent(new Event("resize"));  // recoloca la vista previa
+}
+$$(".subtabs:not(.subtabs2) > button").forEach((b) => b.addEventListener("click", () => showSub(b.closest(".sec").id.slice(4), b.dataset.sub)));
+$$(".subtabs2 > button").forEach((b) => b.addEventListener("click", () => showSub2(b.closest(".subsec"), b.dataset.sub2)));
 
 // ------------------------------------------------------------ ajustes
 function fmtVal(key, v, fmt) {
@@ -269,7 +299,7 @@ function onLevels(ev) {
   $("#stateText").textContent = stateText(ev.mode, ev.tint);
   paintMeter($("#sideMeter"), ev.mic);
   if (!$("#setup").hidden) paintMeter($("#suMeter"), ev.mic);
-  if (secOn("nova", "escucha")) paintMeter($("#bigMeter"), ev.mic);
+  if (secOn("ajustes", "voz")) paintMeter($("#bigMeter"), ev.mic);
   if (window.MicInfo) MicInfo.lv(ev);
   if (window.V14) V14.lv(ev);
   if (ev.mode !== "idle") removeThinking.idleSince = 0;
@@ -444,7 +474,7 @@ function loadIA() {
     if (S.ia_auto === false) renderChain();
     ENG = STATE.motores || null;
     buildEngineCards();
-    setInterval(() => { if (secOn("nova", "ia") && !document.hidden) engRefresh(); }, 4000);
+    setInterval(() => { if (secOn("ajustes", "adn") && !document.hidden) engRefresh(); }, 4000);
   }
   engRefresh();
 }
@@ -923,7 +953,7 @@ function placeOverlay() {
 let ovA = 0.35, ovG = 0, nextBlink = 0, blinkUntil = 0;
 function ovFrame(t) {
   requestAnimationFrame(ovFrame);
-  if (!secOn("overlay", "logo")) return;
+  if (!secOn("ajustes", "pantalla") || !$('.subsec2.on[data-sub2="vista"]')) return;  // 2.1.7: Ajustes › Pantalla › Vista previa
   const now = t / 1000;
   const isDemo = demo && performance.now() < demoUntil;
   const mode = isDemo ? demo : live.mode, tint = isDemo ? demoTint : (live.tint || "base");
@@ -949,8 +979,11 @@ function ovFrame(t) {
 }
 $$("[data-demo]").forEach((b) => b.addEventListener("click", () => { [demo, demoTint] = b.dataset.demo.split(":"); demoUntil = performance.now() + 6000; }));
 $("#btnOvTest").addEventListener("click", safe(async () => {
-  const st = await api("overlay_test");
-  toast(st === "activo" ? T("Mira la pantalla: el overlay recorre sus estados durante 8 s") : T("Overlay: {s}", { s: T(st) }), st === "activo" ? "ok" : "bad");
+  let secs = Math.round(Number($("#ovTestSecs").value) || 5);
+  secs = Math.max(1, Math.min(secs, 30));
+  $("#ovTestSecs").value = secs;
+  const st = await api("overlay_test", { segundos: secs });
+  toast(st === "activo" ? T("Mira la pantalla: el overlay recorre sus estados durante {n} s", { n: secs }) : T("Overlay: {s}", { s: T(st) }), st === "activo" ? "ok" : "bad");
 }));
 new ResizeObserver(() => placeOverlay()).observe($("#ovScreen"));
 
@@ -1108,6 +1141,15 @@ function diaryLater() {
   if (!secOn("datos")) return;
   clearTimeout(diaryLater.t); diaryLater.t = setTimeout(() => loadDiary().catch(() => {}), 1500);
 }
+// 2.1.7: copia de la última sesión de Cabina
+async function loadCabin() {
+  const d = await api("cabin_last");
+  $("#cabinLog").textContent = d.existe && d.texto ? d.texto : T("Todavía no hay ninguna sesión guardada: se guarda al cerrar NOVA AI.");
+  $("#cabinHint").textContent = d.existe && d.fecha ? d.fecha : T("Copia de las transmisiones; se guarda al cerrar NOVA AI");
+  const box = $("#cabinLog"); box.scrollTop = box.scrollHeight;
+}
+$("#btnCabinOpen").addEventListener("click", safe(() => api("open_cabin")));
+$("#btnCabinRefresh").addEventListener("click", safe(loadCabin));
 $("#btnDiaryOpen").addEventListener("click", safe(() => api("open_diary", {})));
 $("#btnDiaryFolder").addEventListener("click", safe(() => api("open_diary", { nombre: "carpeta" })));
 

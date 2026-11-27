@@ -2,13 +2,18 @@
   <img src="docs/img/logo.png" width="120" alt="NOVA AI">
 </p>
 
+<p align="center">
+  <a href="https://github.com/0zzyt0/NOVA-AI/releases/latest/download/NOVA.AI.Setup.exe">
+    <img src="https://img.shields.io/badge/%E2%AC%87%EF%B8%8F_DESCARGAR-NOVA_AI_Setup.exe_(Windows_10%2F11)-38d6ff?style=for-the-badge&logo=windows&logoColor=white" height="46" alt="Descargar NOVA AI">
+  </a>
+</p>
+
 <h1 align="center">NOVA AI</h1>
 <p align="center"><b>Asistente de vuelo por voz para Star Citizen</b> · <a href="README.md">English</a> · Español<br>
 Te escucha, te responde con voz natural, pulsa las teclas del juego por ti y sabe qué está pasando en tu partida.<br>
-<i>Versión oficial 2.0 · Windows 10/11 · español, English, català, français, Deutsch · todo gratis y de código abierto</i></p>
+<i>Versión 2.1.7 · Windows 10/11 · español, English, català, français, Deutsch · todo gratis y de código abierto</i></p>
 
 <p align="center">
-  <a href="../../releases/latest"><b>⬇ Descargar NOVA AI Setup.exe</b></a> ·
   <a href="LEEME.md">Guía completa (LEEME)</a> ·
   <a href="../../releases/latest">Manual de usuario (PDF)</a> ·
   <a href="../../issues">Opiniones y errores</a> ·
@@ -30,9 +35,10 @@ Te escucha, te responde con voz natural, pulsa las teclas del juego por ti y sab
 - **Telemetría en directo (2.1):** con la telemetría local del juego (4.10.2 LIVE y 5.0) sabe tu salud, sed, hambre, oxígeno, hidrógeno, combustible cuántico, escudos, casco y viaje cuántico reales: te avisa en voz y contesta al momento «¿cuánto hidrógeno me queda?». Se activa con un botón en *Juego › Avisos del juego*. Cada alerta sale también en holograma con su icono (ámbar: aviso, rojo: grave). En la 5.0, además: cuenta atrás del viaje cuántico, aviso de tren recogido al acercarte al suelo, objetivo del contrato seguido y, al decir «Nova, muéstrame el estado», una ficha con todos tus valores.
 - **Hologramas sobre el juego:** fichas de jugadores (con su organización), objetivos de recompensa, planetas, lunas y lugares, con efectos cinematográficos, ligeros o ninguno.
 - **Chat del juego y Discord:** *«Nova, envía mensaje al chat…»* lo traduce y lo escribe por ti; las fichas pueden llegar a tu canal de Discord si dices «sí».
-- **Recuerda:** un Diccionario de consultas con unas 7.000 entradas que contesta sin gastar IA, lo que le cuentas y un cuaderno de bitácora de cada sesión.
+- **Recuerda:** un Diccionario de consultas con unas 7.000 entradas que contesta sin gastar IA, lo que le cuentas, un cuaderno de bitácora de cada sesión y una copia de tu última conversación en la Cabina (*«Nova, ¿de qué hablamos la última vez?»*).
 - **Star Citizen en tu idioma:** en español enlaza el [Gestor de traducción automático](https://github.com/0zzyt0/StarCitizen-Traduccion-ES) de 0zzyt0, que instala y mantiene al día la traducción de la comunidad; en los demás idiomas instala el `global.ini` que elijas.
-- **Brilla en el juego:** un overlay con su logo que cambia de color según lo que hace: escuchando, entendido, buscando o hablando.
+- **Brilla en el juego:** un overlay con su logo (siete diseños **animados** o uno fijo) que cambia de color según lo que hace: escuchando, entendido, buscando o hablando.
+- **Tus controles, a salvo:** guarda copia de tus teclas de Star Citizen (teclado, ratón, HOTAS/HOSAS) y de lo que ha aprendido, y te ofrece reponerlas cuando el juego se actualiza.
 
 ## Accesibilidad: juega con la voz
 
@@ -48,9 +54,45 @@ Star Citizen pide muchas manos: palanca, acelerador, ratón, atajos de teclado, 
 
 Un ejemplo: con una sola mano en la palanca, *«Nova, listo para volar»*, *«pide permiso para despegar»*, *«sube el tren»* y, en combate, *«bengalas»* o *«siguiente atacante»*, sin soltarla nunca. Pilotar y apuntar siguen necesitando palanca, ratón o mando; Nova se encarga de casi todo lo demás. Si usas NOVA AI por accesibilidad y echas algo en falta, cuéntalo en [Issues](../../issues): es una prioridad.
 
+## Novedades de la 2.1
+
+### 2.1.7: ventana más ordenada, logos animados y última sesión de Cabina
+
+- **Menú más corto:** **Cabina · Juego SC · ADN y Memoria · Ajustes** (ahora con icono de engranaje). Desaparece la sección *Nova*:
+  - **Ajustes › Voz y audio:** su voz, la salida de sonido, el micrófono y cómo hablarle.
+  - **Ajustes › ADN e Inteligencia:** su nombre y el tuyo, el **modo reposo**, los motores de IA, la personalidad y el ahorro de tokens.
+  - **Ajustes › Pantalla** con sus propias pestañas: **Overlay** (con los hologramas), **Tipo de agente y estados** (logo y colores de estado), **Vista previa** y **Aspecto**.
+  - **Ajustes › Fuentes** y **Ajustes › Discord**, cada uno en su pestaña.
+  - *Información* se llama ahora **ADN y Memoria**: Diccionario, Lo que sabe de ti y Bitácora y estadísticas.
+- **Logos animados del overlay:** siete diseños nuevos (NOVA latiendo, Núcleo, Radar con barrido, Onda de voz, Órbitas, Escudo hexagonal y Retícula) en un desplegable, teñidos con los colores de estado. Son WebP animados con transparencia de verdad, así que el borde se ve suave encima del juego. Los logos fijos (o tu PNG) se usan con *Sin efectos*.
+- **Probar en pantalla** el tiempo que quieras (de 1 a 30 s; 5 s de serie), recorriendo todos los estados.
+- **Última sesión de Cabina:** al cerrar NOVA se guarda una copia de toda la conversación (aunque la limpiaras con 🧹). La lees en *ADN y Memoria › Bitácora y estadísticas* y Nova la puede consultar.
+
+| | |
+|---|---|
+| ![Ajustes: ADN e Inteligencia](docs/img/adn.jpg)<br><sub>**Ajustes › ADN e Inteligencia:** identidad, modo reposo, motores de IA y personalidad</sub> | ![Tipo de agente y estados](docs/img/agente.jpg)<br><sub>**Ajustes › Pantalla › Tipo de agente y estados:** logos animados y fijos y colores de estado</sub> |
+| ![Vista previa](docs/img/overlay.jpg)<br><sub>**Ajustes › Pantalla › Vista previa:** el logo sobre una escena del juego y *Probar en pantalla* con el tiempo que elijas</sub> | ![Última sesión de Cabina](docs/img/cabina_sesion.jpg)<br><sub>**ADN y Memoria › Bitácora y estadísticas:** la copia de la última sesión de la Cabina</sub> |
+
+### 2.1.6: copias de seguridad de tus controles
+
+- **Juego SC › Teclas y joystick › Copia de seguridad de tus controles:** guarda tus teclas de teclado, ratón, mando y HOTAS/HOSAS (`actionmaps.xml`), tus opciones (`attributes.xml`) y los perfiles exportados de cada versión del juego (LIVE, PTU…) en *Documentos\NOVA AI\Copias de seguridad*, fuera del juego y de NOVA.
+- Si cambias tus controles te pregunta (con el juego cerrado) si quieres guardarlos; si Star Citizen se actualiza y tus teclas desaparecen, te ofrece **reponerlas**, mezclando las tuyas con lo nuevo y enseñándote las opciones nuevas que revisar.
+- Lo que NOVA ha aprendido (ajustes sin claves, comandos, memoria, diccionario y bitácora) se copia antes de cada actualización y una vez al día.
+
+### 2.1.5: motores de IA que no se quedan callados
+
+- **NOVA ya no trae claves de IA de serie:** consigue las tuyas, gratis (2 minutos, sin tarjeta). Una sola casilla para cualquier clave: la pegas y NOVA reconoce el servicio, la guarda y la prueba.
+- **Cambio inteligente:** NOVA usa **todos los modelos gratuitos** de cada servicio (Gemini 5, Groq 3, OpenRouter) antes de pasar al siguiente, y trata cada fallo según su causa (límite por minuto, cupo del día, servidor saturado, clave no válida).
+
+### 2.1.0 – 2.1.4: telemetría en directo, hologramas de alerta y Gestor de traducción
+
+- **Telemetría del juego en directo** (telemetría local de Star Citizen): salud, sed, hambre, oxígeno, hidrógeno, combustible cuántico, escudos, casco, viaje cuántico y contrato seguido, con avisos en voz y respuestas al momento sin IA.
+- **Hologramas de alerta** con su icono (ámbar: aviso, rojo: grave), ficha de estado (*«Nova, muéstrame el estado»*), cuenta atrás del viaje cuántico, aviso de tren recogido y contrato seguido.
+- **Español:** enlace al [Gestor de traducción automático](https://github.com/0zzyt0/StarCitizen-Traduccion-ES).
+
 ## Novedades de la 2.0
 
-- **Ventana reorganizada:** **Juego SC** (comandos de voz, teclas y joystick, avisos del juego con perfiles de nave, chat e idioma del juego), **Nova** (identidad, voz, escucha e inteligencia), **Pantalla** (overlay, hologramas y aspecto), **Información** (fuentes y servidores, diccionario, lo que sabe de ti, bitácora y Discord) y **Ajustes** (el único sitio donde se cambia el idioma, ventana y bandeja, actualizaciones, copias y empezar de cero). Un **buscador de ajustes** en la cabecera (o `Ctrl+F`) te lleva directo a cualquier opción.
+- **Ventana reorganizada** (y otra vez en la 2.1.7, ver arriba): **Juego SC** (comandos de voz, teclas y joystick, avisos del juego con perfiles de nave, chat e idioma del juego), **Nova** (identidad, voz, escucha e inteligencia), **Pantalla** (overlay, hologramas y aspecto), **Información** (fuentes y servidores, diccionario, lo que sabe de ti, bitácora y Discord) y **Ajustes** (el único sitio donde se cambia el idioma, ventana y bandeja, actualizaciones, copias y empezar de cero). Un **buscador de ajustes** en la cabecera (o `Ctrl+F`) te lleva directo a cualquier opción.
 - **Estilos de voz:** siete estilos ya afinados con el aire de las IA de a bordo del cine (mayordomo de a bordo, ordenador de la nave, copiloto cercano, IA táctica…). Son voces sintéticas de Microsoft Edge y **no imitan a ningún actor ni personaje**.
 - **Efectos de voz:** el filtro *IA de cabina* mucho más marcado, y además *comunicador del casco*, *radio* y *walkie-talkie* (ruido, chasquido y pitido de cambio), con intensidad ajustable.
 - **Nombres del juego pronunciados en inglés** en español, catalán, francés y alemán (*Crusader*, *Hurston*, *Cutlass*…), con tu propia lista de pronunciación editable.
@@ -63,13 +105,13 @@ Un ejemplo: con una sola mano en la palanca, *«Nova, listo para volar»*, *«pi
 
 ### A tu gusto
 
-**Siete temas de color** (*Pantalla › Aspecto*). Los colores de estado (verde, amarillo, rojo y morado) no cambian, para que sigan significando lo mismo:
+**Siete temas de color** (*Ajustes › Pantalla › Aspecto*). Los colores de estado (verde, amarillo, rojo y morado) no cambian, para que sigan significando lo mismo:
 
 ![Los siete temas de color](docs/img/temas.jpg)
 
 | | |
 |---|---|
-| ![Tu propio logo en el overlay](docs/img/logo_propio.jpg)<br><sub>**Logo del overlay:** seis diseños de serie o **tu propio PNG** (aquí un emblema de escuadrón), teñido con los colores de estado sobre una escena del juego</sub> | ![Estilos de voz](docs/img/voz_estilos.jpg)<br><sub>**Estilos de voz** con el aire de las IA de a bordo del cine, y nombres del juego dichos en inglés</sub> |
+| ![Tipo de agente y estados](docs/img/agente.jpg)<br><sub>**Logo del overlay** (2.1.7): siete diseños animados, seis fijos o **tu propio PNG**, teñidos con los colores de estado</sub> | ![Estilos de voz](docs/img/voz_estilos.jpg)<br><sub>**Estilos de voz** con el aire de las IA de a bordo del cine, y nombres del juego dichos en inglés</sub> |
 
 **Efectos de voz:** IA de cabina, comunicador del casco, radio y walkie-talkie, cada uno con su intensidad.
 
@@ -81,10 +123,13 @@ Un ejemplo: con una sola mano en la palanca, *«Nova, listo para volar»*, *«pi
 
 | | |
 |---|---|
-| ![Los cuatro modelos de holograma](docs/img/holo_modelos.jpg)<br><sub>**Modelos de tarjeta** sobre el juego</sub> | ![Ajustes de los hologramas](docs/img/holo_ajustes.jpg)<br><sub>**Pantalla › Hologramas:** modelo, cómo aparece y grosor de la letra</sub> |
+| ![Los cuatro modelos de holograma](docs/img/holo_modelos.jpg)<br><sub>**Modelos de tarjeta** sobre el juego</sub> | ![Ajustes de los hologramas](docs/img/holo_ajustes.jpg)<br><sub>**Ajustes › Pantalla › Overlay:** modelo, cómo aparece y grosor de la letra</sub> |
 
 <p align="center"><img src="docs/img/holo_animacion.gif" width="720" alt="Las cuatro formas de aparecer y desaparecer de un holograma"></p>
 <p align="center"><sub>Las cuatro formas en que un holograma aparece y desaparece sobre el juego: <b>Proyector</b>, <b>Barrido</b>, <b>Despliegue</b> y <b>Transmisión</b>.</sub></p>
+
+<details>
+<summary><b>Versiones anteriores (1.5, 1.4.1, 1.4, 1.3.1, 1.3, 1.2.2, 1.2 y 1.1)</b></summary>
 
 ## Novedades de la 1.5
 
@@ -101,14 +146,14 @@ Un ejemplo: con una sola mano en la palanca, *«Nova, listo para volar»*, *«pi
 ## Novedades de la 1.4
 
 - **Sigue en la bandeja de Windows:** cierra la ventana y Nova se queda junto al reloj, escuchándote, con el overlay en el juego y los temporizadores en marcha. Clic en el icono para abrirla; clic derecho para MUTE, modo reposo o *Salir de NOVA AI*. Se puede desactivar en *Ajustes › General › Ventana y bandeja*.
-- **Modo reposo** (*Nova › Micrófono*): tras los minutos que elijas sin hablarle (o nunca, lo que viene de serie), Nova descansa y el overlay queda tenue. Se despierta con tu tecla de hablar, el botón ☀ o escribiéndole, o, si lo eliges, por su nombre. También puedes decir *«Nova, modo reposo»* o usar el botón 💤 de la Cabina.
+- **Modo reposo** (*Ajustes › Voz y audio*): tras los minutos que elijas sin hablarle (o nunca, lo que viene de serie), Nova descansa y el overlay queda tenue. Se despierta con tu tecla de hablar, el botón ☀ o escribiéndole, o, si lo eliges, por su nombre. También puedes decir *«Nova, modo reposo»* o usar el botón 💤 de la Cabina.
 - **Recorrido guiado:** tras el asistente inicial (o la primera vez que abres la 1.4), Nova te enseña en un minuto dónde está cada opción. Se repite desde *Ajustes › General*.
 - **Cuestionario anónimo:** valora NOVA AI del 1 al 10 y cuéntanos tus ideas. Se publica como issue público aquí, sin tu nombre, tu gametag ni datos de tu equipo. Nova te lo recuerda una vez a los 3 días y nunca insiste.
 
 **Micrófono, juego limpio y motores de IA:**
 
-- **Micrófono más robusto:** Nova prueba tu micrófono por varias vías de audio de Windows (MME, DirectSound, WASAPI) y a su frecuencia nativa (por ejemplo 48 kHz). Si no puede abrirlo, usa el micrófono predeterminado de Windows y te lo dice. En *Nova › Micrófono* ves qué dispositivo está abierto de verdad y te avisa si solo llega silencio total (auriculares silenciados con su botón o bloqueo en la privacidad de Windows) o una señal muy baja.
-- **Ganancia del micrófono** (×1 a ×8) en *Nova › Micrófono*; el asistente inicial la sube solo si tu voz llega muy baja.
+- **Micrófono más robusto:** Nova prueba tu micrófono por varias vías de audio de Windows (MME, DirectSound, WASAPI) y a su frecuencia nativa (por ejemplo 48 kHz). Si no puede abrirlo, usa el micrófono predeterminado de Windows y te lo dice. En *Ajustes › Voz y audio* ves qué dispositivo está abierto de verdad y te avisa si solo llega silencio total (auriculares silenciados con su botón o bloqueo en la privacidad de Windows) o una señal muy baja.
+- **Ganancia del micrófono** (×1 a ×8) en *Ajustes › Voz y audio*; el asistente inicial la sube solo si tu voz llega muy baja.
 - **Botón MUTE** en el medidor del micrófono (lateral izquierdo): con **MUTE ON** (verde) Nova no oye nada, ni la tecla ni su nombre.
 - **Modo prudente con las teclas** (*Nave y comandos › Lectura del juego y teclas*, activado por defecto): un comando de voz nunca hace más de lo que harías tú con una pulsación: sin esperas largas encadenadas, sin clics de ratón dentro de secuencias, teclas mantenidas 3 s como máximo y nunca en bucle, en línea con los Términos de RSI sobre macros.
 - **Consultas a RSI y envíos a Discord solo si dices «sí»:** los objetivos de recompensa ya no se buscan solos y las fichas ya no se mandan solas a Discord. Cada ficha se guarda 10 minutos y entre consultas a la web de RSI pasan al menos 2 s.
@@ -133,14 +178,6 @@ Un ejemplo: con una sola mano en la palanca, *«Nova, listo para volar»*, *«pi
 - **«¿Dónde compro…?»** por voz con los datos de UEX Corp, sin abrir el navegador.
 - **Comprobar las páginas de consulta** desde *Datos y memoria › Páginas de consulta*: Nova prueba cada página en línea y te dice cuáles responden.
 - **Licencia MIT**: NOVA AI pasa a ser software libre y se compila desde este repositorio con GitHub Actions.
-
-| | |
-|---|---|
-| ![Nova: identidad e idioma](docs/img/nova.jpg) | ![Ajustes: idioma, actualizaciones y archivos](docs/img/ajustes.jpg) |
-| ![Overlay y efectos visuales](docs/img/overlay.jpg) | ![Hologramas](docs/img/hologramas.jpg) |
-
-<details>
-<summary><b>Novedades de versiones anteriores (1.2.2, 1.2 y 1.1)</b></summary>
 
 ### 1.2.2
 
@@ -176,13 +213,17 @@ Un ejemplo: con una sola mano en la palanca, *«Nova, listo para volar»*, *«pi
 
 | | |
 |---|---|
-| ![Juego SC: comandos de voz](docs/img/juego.jpg)<br><sub>**Juego SC:** tus comandos de voz y sus teclas</sub> | ![Juego SC: teclas y joystick](docs/img/lectura.jpg)<br><sub>**Teclas y joystick:** tus teclas de Star Citizen y cómo las pulsa Nova</sub> |
-| ![Nova: inteligencia](docs/img/ia.jpg)<br><sub>**Nova › Inteligencia:** motores de IA (pega cualquier clave)</sub> | ![Información: fuentes](docs/img/datos.jpg)<br><sub>**Información › Fuentes:** páginas de consulta y su comprobación</sub> |
-| ![Diccionario de consultas](docs/img/diccionario.jpg)<br><sub>**Diccionario de consultas:** contesta sin gastar IA</sub> | ![Bitácora y estadísticas](docs/img/bitacora.jpg)<br><sub>**Bitácora y estadísticas** de tus sesiones</sub> |
+| ![Juego SC: comandos de voz](docs/img/juego.jpg)<br><sub>**Juego SC:** tus comandos de voz y sus teclas</sub> | ![Juego SC: teclas y joystick](docs/img/lectura.jpg)<br><sub>**Teclas y joystick:** tus teclas de Star Citizen, cómo las pulsa Nova y la copia de tus controles</sub> |
+| ![Ajustes: voz y audio](docs/img/voz_estilos.jpg)<br><sub>**Ajustes › Voz y audio:** estilos de voz, motor, efectos y micrófono</sub> | ![Ajustes: motores de IA](docs/img/ia.jpg)<br><sub>**Ajustes › ADN e Inteligencia:** motores de IA (pega cualquier clave) y personalidad</sub> |
+| ![Ajustes: Pantalla › Overlay](docs/img/hologramas.jpg)<br><sub>**Ajustes › Pantalla › Overlay:** los hologramas y sus ajustes</sub> | ![Ajustes: fuentes](docs/img/datos.jpg)<br><sub>**Ajustes › Fuentes:** páginas de consulta y su comprobación</sub> |
+| ![Diccionario de consultas](docs/img/diccionario.jpg)<br><sub>**ADN y Memoria › Diccionario:** contesta sin gastar IA</sub> | ![Bitácora y estadísticas](docs/img/bitacora.jpg)<br><sub>**ADN y Memoria › Bitácora y estadísticas** de tus sesiones</sub> |
+| ![Ajustes: general](docs/img/ajustes.jpg)<br><sub>**Ajustes › General:** idioma, ventana y bandeja, actualizaciones</sub> | ![Hologramas](docs/img/holo_ajustes.jpg)<br><sub>**Ajustes de los hologramas:** opacidad, tiempo, tamaño, modelo y cuándo aparecen</sub> |
+
+<sub>Todas las pantallas están también en inglés, catalán, francés y alemán (*Ajustes › General › Idioma*).</sub>
 
 ## Instalación
 
-1. Descarga **`NOVA AI Setup.exe`** desde [Releases](../../releases/latest) (o el `.zip` portátil).
+1. Descarga **[`NOVA.AI.Setup.exe`](https://github.com/0zzyt0/NOVA-AI/releases/latest/download/NOVA.AI.Setup.exe)** (el botón de arriba; en la [página de la versión](../../releases/latest) tienes también el `.zip` portátil y los manuales en PDF).
 2. Ábrelo y acepta el permiso de administrador (se instala en `C:\Program Files\NOVA AI`; con **Elegir carpeta…** puedes elegir otra carpeta o unidad).
 3. **Elige tu idioma** (propone el de tu Windows).
 4. Acepta las Normas de uso y la Política de privacidad, en tu idioma ([ES](NORMAS_Y_PRIVACIDAD.md) · [EN](NORMAS_Y_PRIVACIDAD.en.md) · [CA](NORMAS_Y_PRIVACIDAD.ca.md) · [FR](NORMAS_Y_PRIVACIDAD.fr.md) · [DE](NORMAS_Y_PRIVACIDAD.de.md)), y pulsa **Iniciar**.
@@ -191,29 +232,28 @@ Un ejemplo: con una sola mano en la palanca, *«Nova, listo para volar»*, *«pi
 El instalador descarga Python 3.12 si no lo tienes (solo para Nova), crea los accesos directos y registra el desinstalador. Todos los detalles están en el [LEEME](LEEME.md) y en el manual en PDF de *Releases*, disponible en los cinco idiomas.
 
 > [!IMPORTANT]
-> **Los ejecutables de la 2.0 todavía no están firmados.** La firma digital gratuita está solicitada a SignPath Foundation (ver [Code signing policy](#code-signing-policy)).
+> **Los ejecutables todavía no están firmados.** La firma digital gratuita está solicitada a SignPath Foundation (ver [Code signing policy](#code-signing-policy)).
 >
 > - **«Windows protegió su PC» (SmartScreen):** pulsa *Más información → Ejecutar de todas formas*.
 > - **Control inteligente de aplicaciones** (Windows 11, *Seguridad de Windows › Control de aplicaciones y navegador*): si está en **Activado**, bloquea cualquier programa sin firmar y no permite excepciones. Para instalar NOVA AI hay que ponerlo en **Desactivado** (el `.zip` portátil también se bloquea) o esperar a la versión firmada. Desde la actualización de Windows de abril de 2026 se puede volver a activar después sin reinstalar Windows. Si está en **Evaluación**, Windows decide solo y puede dejarlo pasar.
 >
-> Para comprobar que el archivo es el original, compara la huella SHA-256 que muestra GitHub junto a cada archivo de la Release con la de tu descarga: `certutil -hashfile "NOVA AI Setup.exe" SHA256`.
+> Para comprobar que el archivo es el original, compara la huella SHA-256 que muestra GitHub junto a cada archivo de la Release con la de tu descarga: `certutil -hashfile "NOVA.AI.Setup.exe" SHA256`.
 
 <p align="center"><img src="docs/img/asistente.jpg" width="720" alt="Configuración inicial: tu juego y su Game.log"></p>
 
 ## Motores de IA y claves
 
-NOVA AI usa servicios gratuitos, en una **cadena de motores**: si uno se queda sin cuota, salta al siguiente.
+NOVA AI usa servicios gratuitos, en una **cadena de motores**: si un modelo se queda sin cuota, salta al siguiente.
 
-| # | Proveedor | Modelo |
+| # | Servicio | Modelos gratuitos que usa |
 |---|---|---|
-| 1 | Google Gemini | `gemini-flash-lite-latest` |
-| 2 | Google Gemini | `gemini-3.5-flash-lite` |
-| 3 | Groq | `openai/gpt-oss-120b` |
-| 4 | OpenRouter | `openrouter/free` |
+| 1 | Google Gemini | 5 (`gemini-flash-lite-latest`, `gemini-3.5-flash-lite`, `gemini-3.1-flash-lite`, `gemini-3.6-flash`, `gemini-3.8-flash`) |
+| 2 | Groq | 3 (`openai/gpt-oss-120b`, `openai/gpt-oss-20b`, `qwen/qwen3.8-27b`) |
+| 3 | OpenRouter | `openrouter/free` |
 
 *Mistral* (de pago desde agosto de 2026) y *DeepSeek* son opcionales: solo entran en la cadena si pones tu propia clave.
 
-El instalador de *Releases* **no trae claves de IA**: Nova obedece los comandos de voz desde el primer momento, y para conversar y buscar necesita al menos una clave gratuita. Se consiguen en 2 minutos y sin tarjeta (Gemini y Groq son las recomendadas): el capítulo 11 del manual, *Tus propias API Keys*, lo explica paso a paso. Después se pegan en ***Nova › Inteligencia***, en la casilla *Pega aquí cualquier clave*: NOVA reconoce de qué servicio es, la guarda y la prueba. Con la clave de un servicio, Nova usa todos sus modelos gratuitos y, si uno se queda sin cupo, salta sola al siguiente (y te dice cuándo vuelve cada uno). Nova contesta siempre en el idioma que hayas elegido.
+El instalador de *Releases* **no trae claves de IA**: Nova obedece los comandos de voz desde el primer momento, y para conversar y buscar necesita al menos una clave gratuita. Se consiguen en 2 minutos y sin tarjeta (Gemini y Groq son las recomendadas): el capítulo 11 del manual, *Tus propias API Keys*, lo explica paso a paso. Después se pegan en ***Ajustes › ADN e Inteligencia***, en la casilla *Pega aquí cualquier clave*: NOVA reconoce de qué servicio es, la guarda y la prueba. Con la clave de un servicio, Nova usa todos sus modelos gratuitos y, si uno se queda sin cupo, salta sola al siguiente (y te dice cuándo vuelve cada uno). Nova contesta siempre en el idioma que hayas elegido.
 
 **Sin claves de fábrica (desde la 2.1.5):** las versiones anteriores podían traer claves de IA de serie, pero eran las mismas para todos y los cupos gratuitos (que van por proyecto u organización, no por usuario) se agotaban entre todos. Ahora cada piloto pone las suyas. Al actualizar, NOVA quita de tus ajustes solo las claves que coincidan con las antiguas de fábrica; las tuyas se quedan.
 
@@ -251,13 +291,14 @@ Las versiones públicas se compilan con **GitHub Actions** ([`.github/workflows/
 | Carpeta | Contenido |
 |---|---|
 | `nova.py` | Arranque: idioma inicial, datos nuevos, el oído, la voz y la ventana |
-| `core/` | Reconocimiento y síntesis de voz, IA, comandos y teclas, lectura del Game.log, hologramas, overlay, bitácora, memoria, fuentes de datos, traducción e idiomas (`i18n.py`, `lang_data.py`, `manual_tr.py`) |
+| `core/` | Reconocimiento y síntesis de voz, motores de IA, comandos y teclas, Game.log y telemetría en directo, hologramas, overlay, bitácora y copia de la Cabina (`cabin.py`), memoria, copias de tus controles, fuentes de datos, traducción e idiomas (`i18n.py`, `lang_data.py`, `manual_tr.py`) |
 | `gui/` | Ventana local (HTML + JS) y servidor; `gui/web/manual/` es el manual y `gui/web/acerca/` la ventana «Acerca de» |
 | `instalador/` | Instalador y desinstalador gráficos en cinco idiomas (PowerShell + WPF) |
 | `build/` | Fuentes de los .exe (Go), generador de recursos de Windows e iconos |
 | `.github/workflows/` | Compilación y firma con GitHub Actions |
 | `servicios/cuestionario/` | Cloudflare Worker del cuestionario anónimo (crea el issue sin meter un token en el programa) |
 | `recursos/idiomas/` | Textos de la ventana y de Nova en inglés, catalán, francés y alemán |
+| `recursos/logos/` | Logos del overlay: fijos (`*.png`) y animados (`animados/*.webp`, hechos con `build/generar_logos_animados.py`) |
 | `datos/comandos.json` | Comandos de voz de fábrica (español) y `datos/comandos.<idioma>.json` con sus frases en cada idioma |
 | `NORMAS_Y_PRIVACIDAD*.md` | Normas de uso y Política de privacidad en los cinco idiomas |
 
